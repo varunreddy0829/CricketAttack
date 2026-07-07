@@ -1,0 +1,40 @@
+{
+    "batters": [
+        {
+            "name": "Virat Kohli",
+            "ovr": 90,
+            "career_runs": 6000,
+            "career_balls": 4615,
+            "fours": 500,
+            "sixes": 100,
+            "dismissals": 160
+        },
+        {
+            "name": "Andre Russell",
+            "ovr": 85,
+            "career_runs": 2000,
+            "career_balls": 1111,
+            "fours": 140,
+            "sixes": 180,
+            "dismissals": 77
+        }
+    ],
+    "bowlers": [
+        {
+            "name": "Jasprit Bumrah",
+            "ovr": 88,
+            "eco": 6.5,
+            "wkt": 28
+        },
+        {
+            "name": "Terrible Parttimer",
+            "ovr": 50,
+            "eco": 10.5,
+            "wkt": 5
+        }
+    ],
+    "league_avg": {
+        "avg_batting_avg": 25.0,
+        "avg_wickets": 15.0
+    }
+}

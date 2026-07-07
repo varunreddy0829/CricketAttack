@@ -1,0 +1,20 @@
+# Raw Cricsheet match data used only by the offline ETL (compile_player_stats.py).
+# Not needed at runtime -- the server only reads data/players_historical.json.
+# ~104MB, excluded to keep the repo small and deploys fast.
+data/All_Matches_Json/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Stale local debug logs
+*.log
+
+# Claude Code session/plan files (local tooling, not part of the app)
+.claude/
+
+# OS cruft
+.DS_Store
+Thumbs.db

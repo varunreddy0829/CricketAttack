@@ -1,0 +1,908 @@
+{
+  "A Ashish Reddy": {
+    "is_foreigner": false
+  },
+  "A Badoni": {
+    "is_foreigner": false
+  },
+  "A Chandila": {
+    "is_foreigner": false
+  },
+  "A Chopra": {
+    "is_foreigner": false
+  },
+  "A Choudhary": {
+    "is_foreigner": false
+  },
+  "A Dananjaya": {
+    "is_foreigner": false
+  },
+  "A Flintoff": {
+    "is_foreigner": true
+  },
+  "A Kumble": {
+    "is_foreigner": false
+  },
+  "A Manohar": {
+    "is_foreigner": false
+  },
+  "A Mhatre": {
+    "is_foreigner": false
+  },
+  "A Mishra": {
+    "is_foreigner": false
+  },
+  "A Mithun": {
+    "is_foreigner": false
+  },
+  "A Mukund": {
+    "is_foreigner": false
+  },
+  "A Nehra": {
+    "is_foreigner": false
+  },
+  "A Nel": {
+    "is_foreigner": false
+  },
+  "A Nortje": {
+    "is_foreigner": true
+  },
+  "A Raghuvanshi": {
+    "is_foreigner": false
+  },
+  "A Singh": {
+    "is_foreigner": false
+  },
+  "A Symonds": {
+    "is_foreigner": true
+  },
+  "A Tomar": {
+    "is_foreigner": false
+  },
+  "A Kamboj": {
+    "is_foreigner": false
+  },
+  "A Uniyal": {
+    "is_foreigner": false
+  },
+  "A Zampa": {
+    "is_foreigner": true
+  },
+  "AA Bilakhia": {
+    "is_foreigner": true
+  },
+  "AA Chavan": {
+    "is_foreigner": false
+  },
+  "AA Jhunjhunwala": {
+    "is_foreigner": false
+  },
+  "AA Kazi": {
+    "is_foreigner": true
+  },
+  "AA Kulkarni": {
+    "is_foreigner": false
+  },
+  "AA Noffke": {
+    "is_foreigner": false
+  },
+  "AB Agarkar": {
+    "is_foreigner": false
+  },
+  "AB Barath": {
+    "is_foreigner": false
+  },
+  "AB Dinda": {
+    "is_foreigner": false
+  },
+  "A Noffke": {
+    "is_foreigner": true
+  },
+  "AB McDonald": {
+    "is_foreigner": true
+  },
+  "AB de Villiers": {
+    "is_foreigner": true
+  },
+  "AC Blizzard": {
+    "is_foreigner": true
+  },
+  "AC Gilchrist": {
+    "is_foreigner": true
+  },
+  "AC Thomas": {
+    "is_foreigner": true
+  },
+  "AC Voges": {
+    "is_foreigner": true
+  },
+  "AD Hales": {
+    "is_foreigner": true
+  },
+  "AD Mascarenhas": {
+    "is_foreigner": true
+  },
+  "AD Mathews": {
+    "is_foreigner": true
+  },
+  "AD Nath": {
+    "is_foreigner": false
+  },
+  "AD Russell": {
+    "is_foreigner": true
+  },
+  "AF Milne": {
+    "is_foreigner": true
+  },
+  "AG Murtaza": {
+    "is_foreigner": true
+  },
+  "AG Paunikar": {
+    "is_foreigner": false
+  },
+  "AJ Finch": {
+    "is_foreigner": true
+  },
+  "AJ Hosein": {
+    "is_foreigner": false
+  },
+  "AJ Turner": {
+    "is_foreigner": true
+  },
+  "AJ Tye": {
+    "is_foreigner": true
+  },
+  "AK Markram": {
+    "is_foreigner": true
+  },
+  "AL Menaria": {
+    "is_foreigner": true
+  },
+  "AM Ghazanfar": {
+    "is_foreigner": true
+  },
+  "AM Nayar": {
+    "is_foreigner": false
+  },
+  "AM Rahane": {
+    "is_foreigner": false
+  },
+  "AM Salvi": {
+    "is_foreigner": false
+  },
+  "AN Ahmed": {
+    "is_foreigner": true
+  },
+  "AN Ghosh": {
+    "is_foreigner": false
+  },
+  "AP Dole": {
+    "is_foreigner": true
+  },
+  "AP Majumdar": {
+    "is_foreigner": false
+  },
+  "AP Tare": {
+    "is_foreigner": false
+  },
+  "AR Bawne": {
+    "is_foreigner": true
+  },
+  "AR Patel": {
+    "is_foreigner": false
+  },
+  "AS Joseph": {
+    "is_foreigner": true
+  },
+  "AS Rajpoot": {
+    "is_foreigner": false
+  },
+  "AS Raut": {
+    "is_foreigner": false
+  },
+  "AS Roy": {
+    "is_foreigner": true
+  },
+  "AS Yadav": {
+    "is_foreigner": false
+  },
+  "AT Carey": {
+    "is_foreigner": true
+  },
+  "AT Rayudu": {
+    "is_foreigner": false
+  },
+  "AU Rashid": {
+    "is_foreigner": true
+  },
+  "AUK Pathan": {
+    "is_foreigner": false
+  },
+  "Abdul Basith": {
+    "is_foreigner": false
+  },
+  "Abdul Samad": {
+    "is_foreigner": false
+  },
+  "Abdur Razzak": {
+    "is_foreigner": true
+  },
+  "Abhinandan Singh": {
+    "is_foreigner": false
+  },
+  "Abhishek Sharma": {
+    "is_foreigner": false
+  },
+  "Abishek Porel": {
+    "is_foreigner": false
+  },
+  "Akash Deep": {
+    "is_foreigner": false
+  },
+  "Akash Madhwal": {
+    "is_foreigner": false
+  },
+  "Akash Singh": {
+    "is_foreigner": false
+  },
+  "Akshat Raghuwanshi": {
+    "is_foreigner": false
+  },
+  "Aman Hakim Khan": {
+    "is_foreigner": false
+  },
+  "Anand Rajan": {
+    "is_foreigner": false
+  },
+  "Aniket Verma": {
+    "is_foreigner": false
+  },
+  "Anirudh Singh": {
+    "is_foreigner": false
+  },
+  "Ankit Sharma": {
+    "is_foreigner": false
+  },
+  "Ankit Soni": {
+    "is_foreigner": false
+  },
+  "Anmolpreet Singh": {
+    "is_foreigner": false
+  },
+  "Anuj Rawat": {
+    "is_foreigner": false
+  },
+  "Anureet Singh": {
+    "is_foreigner": false
+  },
+  "Arjun Tendulkar": {
+    "is_foreigner": false
+  },
+  "Arshad Khan": {
+    "is_foreigner": false
+  },
+  "Arshad Khan (2)": {
+    "is_foreigner": false
+  },
+  "Arshdeep Singh": {
+    "is_foreigner": false
+  },
+  "Ashok Sharma": {
+    "is_foreigner": false
+  },
+  "Ashutosh Sharma": {
+    "is_foreigner": false
+  },
+  "Ashwani Kumar": {
+    "is_foreigner": false
+  },
+  "Atharva Taide": {
+    "is_foreigner": false
+  },
+  "Auqib Nabi": {
+    "is_foreigner": false
+  },
+  "Avesh Khan": {
+    "is_foreigner": false
+  },
+  "Azhar Mahmood": {
+    "is_foreigner": true
+  },
+  "Azmatullah Omarzai": {
+    "is_foreigner": true
+  },
+  "B Akhil": {
+    "is_foreigner": false
+  },
+  "B Chipli": {
+    "is_foreigner": false
+  },
+  "B Geeves": {
+    "is_foreigner": true
+  },
+  "B Indrajith": {
+    "is_foreigner": false
+  },
+  "B Kumar": {
+    "is_foreigner": false
+  },
+  "B Lee": {
+    "is_foreigner": true
+  },
+  "B Laughlin": {
+    "is_foreigner": true
+  },
+  "B Sai Sudharsan": {
+    "is_foreigner": false
+  },
+  "B Muzarabani": {
+    "is_foreigner": true
+  },
+  "B Stanlake": {
+    "is_foreigner": true
+  },
+  "B Sumanth": {
+    "is_foreigner": false
+  },
+  "BA Stokes": {
+    "is_foreigner": true
+  },
+  "BA Bhatt": {
+    "is_foreigner": false
+  },
+  "BAW Mendis": {
+    "is_foreigner": true
+  },
+  "BB McCullum": {
+    "is_foreigner": true
+  },
+  "BB Samantray": {
+    "is_foreigner": false
+  },
+  "BB Sran": {
+    "is_foreigner": false
+  },
+  "BCJ Cutting": {
+    "is_foreigner": true
+  },
+  "BE Hendricks": {
+    "is_foreigner": true
+  },
+  "BJ Haddin": {
+    "is_foreigner": true
+  },
+  "BJ Dwarshuis": {
+    "is_foreigner": true
+  },
+  "BJ Hodge": {
+    "is_foreigner": true
+  },
+  "BKG Mendis": {
+    "is_foreigner": true
+  },
+  "BJ Rohrer": {
+    "is_foreigner": true
+  },
+  "BR Dunk": {
+    "is_foreigner": true
+  },
+  "BR Sharath": {
+    "is_foreigner": false
+  },
+  "Basil Thampi": {
+    "is_foreigner": false
+  },
+  "Bipul Sharma": {
+    "is_foreigner": false
+  },
+  "Brijesh Sharma": {
+    "is_foreigner": false
+  },
+  "C Bosch": {
+    "is_foreigner": true
+  },
+  "BMAJ Mendis": {
+    "is_foreigner": true
+  },
+  "C Connolly": {
+    "is_foreigner": true
+  },
+  "C Green": {
+    "is_foreigner": true
+  },
+  "C Madan": {
+    "is_foreigner": false
+  },
+  "BW Hilfenhaus": {
+    "is_foreigner": true
+  },
+  "C Munro": {
+    "is_foreigner": true
+  },
+  "C Sakariya": {
+    "is_foreigner": false
+  },
+  "C de Grandhomme": {
+    "is_foreigner": true
+  },
+  "CA Ingram": {
+    "is_foreigner": true
+  },
+  "CA Lynn": {
+    "is_foreigner": true
+  },
+  "C Ganapathy": {
+    "is_foreigner": false
+  },
+  "CA Pujara": {
+    "is_foreigner": false
+  },
+  "CH Morris": {
+    "is_foreigner": true
+  },
+  "C Nanda": {
+    "is_foreigner": false
+  },
+  "CJ Anderson": {
+    "is_foreigner": true
+  },
+  "CJ Ferguson": {
+    "is_foreigner": true
+  },
+  "CJ Green": {
+    "is_foreigner": true
+  },
+  "CJ Jordan": {
+    "is_foreigner": true
+  },
+  "CJ McKay": {
+    "is_foreigner": true
+  },
+  "CH Gayle": {
+    "is_foreigner": true
+  },
+  "CJ Dala": {
+    "is_foreigner": true
+  },
+  "CL White": {
+    "is_foreigner": true
+  },
+  "CM Gautam": {
+    "is_foreigner": false
+  },
+  "CK Langeveldt": {
+    "is_foreigner": true
+  },
+  "CR Woakes": {
+    "is_foreigner": true
+  },
+  "CRD Fernando": {
+    "is_foreigner": true
+  },
+  "CV Varun": {
+    "is_foreigner": false
+  },
+  "CK Kapugedera": {
+    "is_foreigner": true
+  },
+  "D Brevis": {
+    "is_foreigner": true
+  },
+  "D Ferreira": {
+    "is_foreigner": true
+  },
+  "CR Brathwaite": {
+    "is_foreigner": true
+  },
+  "D Jansen": {
+    "is_foreigner": true
+  },
+  "D Padikkal": {
+    "is_foreigner": false
+  },
+  "D Pretorius": {
+    "is_foreigner": true
+  },
+  "D Kalyankrishna": {
+    "is_foreigner": false
+  },
+  "D Madushanka": {
+    "is_foreigner": true
+  },
+  "D Wiese": {
+    "is_foreigner": true
+  },
+  "DA Miller": {
+    "is_foreigner": true
+  },
+  "DA Payne": {
+    "is_foreigner": true
+  },
+  "DA Warner": {
+    "is_foreigner": true
+  },
+  "DAJ Bracewell": {
+    "is_foreigner": true
+  },
+  "D du Preez": {
+    "is_foreigner": true
+  },
+  "DB Das": {
+    "is_foreigner": false
+  },
+  "DE Bollinger": {
+    "is_foreigner": true
+  },
+  "DG Nalkande": {
+    "is_foreigner": false
+  },
+  "DB Ravi Teja": {
+    "is_foreigner": false
+  },
+  "D Salunkhe": {
+    "is_foreigner": false
+  },
+  "DH Yagnik": {
+    "is_foreigner": false
+  },
+  "DJ Bravo": {
+    "is_foreigner": true
+  },
+  "DJ Hussey": {
+    "is_foreigner": true
+  },
+  "DJ Harris": {
+    "is_foreigner": true
+  },
+  "DJ Hooda": {
+    "is_foreigner": false
+  },
+  "DJ Mitchell": {
+    "is_foreigner": true
+  },
+  "DJ Malan": {
+    "is_foreigner": true
+  },
+  "DJ Jacobs": {
+    "is_foreigner": true
+  },
+  "DJ Thornely": {
+    "is_foreigner": true
+  },
+  "DJ Willey": {
+    "is_foreigner": true
+  },
+  "DJM Short": {
+    "is_foreigner": true
+  },
+  "DJG Sammy": {
+    "is_foreigner": true
+  },
+  "DL Chahar": {
+    "is_foreigner": false
+  },
+  "DM Bravo": {
+    "is_foreigner": true
+  },
+  "DP Conway": {
+    "is_foreigner": true
+  },
+  "DP Nannes": {
+    "is_foreigner": true
+  },
+  "DNT Zoysa": {
+    "is_foreigner": true
+  },
+  "DP Vijaykumar": {
+    "is_foreigner": false
+  },
+  "DL Vettori": {
+    "is_foreigner": true
+  },
+  "DR Martyn": {
+    "is_foreigner": true
+  },
+  "DPMD Jayawardene": {
+    "is_foreigner": true
+  },
+  "DR Shorey": {
+    "is_foreigner": false
+  },
+  "DR Smith": {
+    "is_foreigner": true
+  },
+  "DS Kulkarni": {
+    "is_foreigner": false
+  },
+  "DS Rathi": {
+    "is_foreigner": false
+  },
+  "DJ Muthuswami": {
+    "is_foreigner": true
+  },
+  "DT Christian": {
+    "is_foreigner": true
+  },
+  "DV Malewar": {
+    "is_foreigner": false
+  },
+  "DS Lehmann": {
+    "is_foreigner": true
+  },
+  "DW Steyn": {
+    "is_foreigner": true
+  },
+  "Dhruv Jurel": {
+    "is_foreigner": false
+  },
+  "E Lewis": {
+    "is_foreigner": true
+  },
+  "E Malinga": {
+    "is_foreigner": true
+  },
+  "EJG Morgan": {
+    "is_foreigner": true
+  },
+  "ER Dwivedi": {
+    "is_foreigner": false
+  },
+  "DR Sams": {
+    "is_foreigner": true
+  },
+  "DT Patil": {
+    "is_foreigner": false
+  },
+  "F Behardien": {
+    "is_foreigner": true
+  },
+  "F du Plessis": {
+    "is_foreigner": true
+  },
+  "FA Allen": {
+    "is_foreigner": true
+  },
+  "FH Allen": {
+    "is_foreigner": true
+  },
+  "FH Edwards": {
+    "is_foreigner": true
+  },
+  "FY Fazal": {
+    "is_foreigner": false
+  },
+  "Fazalhaq Farooqi": {
+    "is_foreigner": true
+  },
+  "G Coetzee": {
+    "is_foreigner": true
+  },
+  "G Gambhir": {
+    "is_foreigner": false
+  },
+  "GC Smith": {
+    "is_foreigner": true
+  },
+  "GC Viljoen": {
+    "is_foreigner": true
+  },
+  "GD McGrath": {
+    "is_foreigner": true
+  },
+  "GD Phillips": {
+    "is_foreigner": true
+  },
+  "GH Vihari": {
+    "is_foreigner": true
+  },
+  "GF Linde": {
+    "is_foreigner": true
+  },
+  "GHS Garton": {
+    "is_foreigner": true
+  },
+  "GJ Maxwell": {
+    "is_foreigner": true
+  },
+  "GJ Bailey": {
+    "is_foreigner": true
+  },
+  "GS Sandhu": {
+    "is_foreigner": true
+  },
+  "GB Hogg": {
+    "is_foreigner": true
+  },
+  "Gagandeep Singh": {
+    "is_foreigner": false
+  },
+  "Gulbadin Naib": {
+    "is_foreigner": true
+  },
+  "Gurkeerat Singh": {
+    "is_foreigner": false
+  },
+  "GR Napier": {
+    "is_foreigner": true
+  },
+  "Gurjapneet Singh": {
+    "is_foreigner": false
+  },
+  "Gurnoor Brar": {
+    "is_foreigner": false
+  },
+  "H Das": {
+    "is_foreigner": false
+  },
+  "H Klaasen": {
+    "is_foreigner": true
+  },
+  "H Sharma": {
+    "is_foreigner": false
+  },
+  "HC Brook": {
+    "is_foreigner": true
+  },
+  "HE van der Dussen": {
+    "is_foreigner": true
+  },
+  "HF Gurney": {
+    "is_foreigner": true
+  },
+  "HH Gibbs": {
+    "is_foreigner": true
+  },
+  "HH Pandya": {
+    "is_foreigner": false
+  },
+  "HM Amla": {
+    "is_foreigner": true
+  },
+  "HR Shokeen": {
+    "is_foreigner": false
+  },
+  "HV Patel": {
+    "is_foreigner": false
+  },
+  "Harbhajan Singh": {
+    "is_foreigner": false
+  },
+  "Harmeet Singh": {
+    "is_foreigner": false
+  },
+  "Harpreet Singh": {
+    "is_foreigner": false
+  },
+  "Harpreet Brar": {
+    "is_foreigner": false
+  },
+  "Harsh Dubey": {
+    "is_foreigner": false
+  },
+  "Harshit Rana": {
+    "is_foreigner": false
+  },
+  "Himmat Singh": {
+    "is_foreigner": false
+  },
+  "I Malhotra": {
+    "is_foreigner": false
+  },
+  "I Sharma": {
+    "is_foreigner": false
+  },
+  "I Udana": {
+    "is_foreigner": true
+  },
+  "IC Pandey": {
+    "is_foreigner": false
+  },
+  "IC Porel": {
+    "is_foreigner": false
+  },
+  "IK Pathan": {
+    "is_foreigner": false
+  },
+  "IR Jaggi": {
+    "is_foreigner": false
+  },
+  "IS Sodhi": {
+    "is_foreigner": true
+  },
+  "Imran Tahir": {
+    "is_foreigner": true
+  },
+  "Iqbal Abdulla": {
+    "is_foreigner": false
+  },
+  "Ishan Kishan": {
+    "is_foreigner": false
+  },
+  "J Arunkumar": {
+    "is_foreigner": false
+  },
+  "J Botha": {
+    "is_foreigner": true
+  },
+  "J Fraser-McGurk": {
+    "is_foreigner": true
+  },
+  "J Little": {
+    "is_foreigner": true
+  },
+  "J Overton": {
+    "is_foreigner": true
+  },
+  "J Suchith": {
+    "is_foreigner": false
+  },
+  "J Syed Mohammad": {
+    "is_foreigner": false
+  },
+  "J Theron": {
+    "is_foreigner": true
+  },
+  "J Yadav": {
+    "is_foreigner": false
+  },
+  "JA Duffy": {
+    "is_foreigner": true
+  },
+  "JA Morkel": {
+    "is_foreigner": true
+  },
+  "JA Richardson": {
+    "is_foreigner": true
+  },
+  "JC Archer": {
+    "is_foreigner": true
+  },
+  "JC Buttler": {
+    "is_foreigner": true
+  },
+  "JD Ryder": {
+    "is_foreigner": true
+  },
+  "JD Unadkat": {
+    "is_foreigner": false
+  },
+  "JDP Oram": {
+    "is_foreigner": true
+  },
+  "JDS Neesham": {
+    "is_foreigner": true
+  },
+  "JE Root": {
+    "is_foreigner": true
+  },
+  "JEC Franklin": {
+    "is_foreigner": true
+  },
+  "JG Bethell": {
+    "is_foreigner": true
+  },
+  "JH Kallis": {
+    "is_foreigner": true
+  },
+  "JJ Bumrah": {
+    "is_foreigner": false
+  },
+  "JJ Roy": {
+    "is_foreigner": true
+  },
+  "JJ van der Wath": {
+    "is_foreigner": true
+  },
+  "JL Denly": {
+    "is_foreigner": true
+  },
+  "JE Taylor": {
+    "is_foreigner": true
+  },
+  "JL Pattinson": {
+    "is_foreigner": true
+  },
+  "JM Bairstow": {
+    "is_foreigner": true
+  }
+}

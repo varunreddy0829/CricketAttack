@@ -1,0 +1,1620 @@
+/* ============================================================
+   CRICKET ATTACK — "Classic" scoreboard aesthetic
+   Deep field green + cream panels + black scoreboard + leather
+   red / gold accents. Flat, high-contrast, no glassmorphism.
+   Placeholder textures/images to be layered in later.
+   ============================================================ */
+
+:root {
+    /* Field / surfaces */
+    --field-1: #0c3b22;
+    --field-2: #0a2e1a;
+    --felt-line: rgba(255, 255, 255, 0.05);
+
+    /* Panels (parchment) */
+    --cream: #f3ead3;
+    --cream-2: #e7dcbf;
+    --ink: #1c1a12;
+    --ink-soft: #4a463a;
+
+    /* Scoreboard */
+    --board-bg: #0f0f0d;
+    --board-amber: #f7b32b;
+    --board-white: #f5f3ea;
+
+    /* Accents */
+    --leather: #a11e2c;
+    --leather-hi: #c62b3b;
+    --gold: #c9a227;
+    --green-go: #2f9e5c;
+
+    /* OVR tiers */
+    --tier-gold: #c9a227;
+    --tier-silver: #b8c0c8;
+    --tier-bronze: #b5793a;
+    --tier-plain: #6b7280;
+
+    --radius: 6px;
+    --shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--cream);
+    min-height: 100vh;
+    background:
+        repeating-linear-gradient(90deg, var(--felt-line) 0 2px, transparent 2px 48px),
+        radial-gradient(ellipse at 50% 40%, var(--field-1), var(--field-2) 80%);
+    background-color: var(--field-2);
+}
+
+h1,
+h2,
+h3,
+h4,
+.display {
+    font-family: 'Oswald', 'Inter', sans-serif;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+button {
+    font-family: 'Oswald', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    padding: 0.7rem 1.2rem;
+    font-size: 0.95rem;
+    transition: transform 0.08s ease, filter 0.15s ease;
+}
+
+button:active {
+    transform: translateY(1px) scale(0.99);
+}
+
+button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.btn-go {
+    background: var(--green-go);
+    color: #06210f;
+}
+
+.btn-red {
+    background: var(--leather);
+    color: #fff;
+}
+
+.btn-gold {
+    background: var(--gold);
+    color: #241d00;
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--cream);
+    border: 1px solid rgba(243, 234, 211, 0.35);
+}
+
+.btn-retire {
+    background: transparent;
+    color: rgba(243, 234, 211, 0.55);
+    border: 1px dashed rgba(161, 30, 44, 0.6);
+    font-size: 0.62rem;
+    padding: 0.2rem 0.5rem;
+    letter-spacing: 0.04em;
+    margin-top: 0.3rem;
+}
+.btn-retire:hover { color: var(--leather-hi); border-color: var(--leather-hi); }
+
+.btn-go:hover,
+.btn-red:hover,
+.btn-gold:hover {
+    filter: brightness(1.08);
+}
+
+.btn-lg {
+    padding: 0.95rem 1.6rem;
+    font-size: 1.1rem;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ---------- Screens ---------- */
+.screen {
+    min-height: 100vh;
+    display: none;
+}
+
+.screen.active {
+    display: flex;
+}
+
+/* ---------- Landing ---------- */
+#landing {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.4rem;
+    padding: 2rem;
+}
+
+.brand {
+    font-family: 'Oswald', sans-serif;
+    font-size: clamp(2.6rem, 7vw, 5rem);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    line-height: 0.95;
+    text-align: center;
+    text-shadow: 0 2px 0 #06210f, 0 10px 24px rgba(0, 0, 0, 0.5);
+}
+
+.brand span {
+    color: var(--gold);
+}
+
+.tagline {
+    color: rgba(243, 234, 211, 0.7);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+}
+
+.panel {
+    background: linear-gradient(180deg, var(--cream), var(--cream-2));
+    color: var(--ink);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    padding: 1.8rem;
+    width: 100%;
+    max-width: 380px;
+}
+
+.panel h2 {
+    color: var(--ink);
+    margin-bottom: 1rem;
+}
+
+.panel label {
+    display: block;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-soft);
+    margin: 0.9rem 0 0.3rem;
+}
+
+.panel input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid rgba(0, 0, 0, 0.25);
+    border-radius: var(--radius);
+    background: #fffdf6;
+    color: var(--ink);
+    font-size: 1rem;
+    font-family: 'Inter', sans-serif;
+}
+
+.panel input.code-input {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 0.4em;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.panel select {
+    width: 100%;
+    padding: 0.7rem;
+    border: 1px solid rgba(0, 0, 0, 0.25);
+    border-radius: var(--radius);
+    background: #fffdf6;
+    color: var(--ink);
+    font-size: 1rem;
+    font-family: 'Inter', sans-serif;
+}
+
+/* ---------- Tournament lobby ---------- */
+.t-roster { display: flex; flex-wrap: wrap; gap: 0.7rem; justify-content: center; max-width: 560px; }
+.t-roster-slot {
+    background: linear-gradient(180deg, var(--cream), var(--cream-2)); color: var(--ink);
+    border-radius: 8px; padding: 0.6rem 1rem; min-width: 140px; text-align: center;
+    box-shadow: var(--shadow); border: 2px solid transparent;
+}
+.t-roster-slot.joined { border-color: var(--green-go); }
+.t-roster-slot.clickable { cursor: pointer; border-color: var(--gold); }
+.t-roster-slot.clickable:hover { background: linear-gradient(180deg, #fff9e8, var(--cream-2)); }
+.t-roster-slot.empty { opacity: 0.45; border-style: dashed; border-color: rgba(0,0,0,0.3); }
+.t-roster-slot .tname { font-family: 'Oswald', sans-serif; font-size: 1rem; }
+.t-roster-slot .tstatus { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-soft); }
+
+/* ---------- Tournament bracket / waiting / champion ---------- */
+#t-bracket { flex-direction: column; align-items: center; justify-content: safe center; padding: 2rem 1rem; overflow-y: auto; }
+.t-bracket-wrap { width: 100%; max-width: 780px; display: flex; flex-direction: column; gap: 1.4rem; align-items: center; }
+.t-current-fixture { background: var(--board-bg); border: 2px solid #2a2a26; border-radius: 8px; padding: 1rem 2rem; text-align: center; color: var(--board-white); }
+.t-current-fixture .vs { font-family: 'Oswald', sans-serif; color: var(--board-amber); font-size: 1.6rem; }
+.t-standings { width: 100%; background: var(--cream); color: var(--ink); border-radius: 8px; overflow: hidden; box-shadow: var(--shadow); }
+.t-standings table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+.t-standings th, .t-standings td { padding: 0.5rem 0.8rem; text-align: right; border-bottom: 1px solid rgba(0,0,0,0.08); }
+.t-standings th:first-child, .t-standings td:first-child { text-align: left; }
+.t-standings thead th { background: var(--cream-2); font-family: 'Oswald', sans-serif; text-transform: uppercase; font-size: 0.68rem; }
+.t-standings tr.qualifying td:first-child { border-left: 4px solid var(--green-go); }
+.t-fixtures { width: 100%; display: flex; flex-direction: column; gap: 0.4rem; }
+.t-fixture-row { display: flex; justify-content: space-between; background: rgba(0,0,0,0.25); border-radius: 6px; padding: 0.5rem 0.9rem; font-size: 0.85rem; }
+.t-fixture-row .kind { font-family: 'Oswald', sans-serif; text-transform: uppercase; font-size: 0.65rem; color: var(--gold); }
+.t-fixture-row.pending { opacity: 0.5; }
+.t-champion-banner { text-align: center; }
+.t-champion-banner .trophy { font-size: 4rem; }
+.t-champion-banner h1 { color: var(--gold); font-size: 2.4rem; }
+
+.panel .row {
+    display: flex;
+    gap: 0.6rem;
+    margin-top: 1.2rem;
+}
+
+.panel .row button {
+    flex: 1;
+}
+
+.divider {
+    text-align: center;
+    color: var(--ink-soft);
+    margin: 1.2rem 0 0.2rem;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+}
+
+.err-msg {
+    color: var(--leather);
+    font-size: 0.85rem;
+    margin-top: 0.8rem;
+    min-height: 1rem;
+    font-weight: 600;
+}
+
+/* ---------- Lobby ---------- */
+#lobby {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 2rem;
+}
+
+.code-badge {
+    background: var(--board-bg);
+    color: var(--board-amber);
+    font-family: 'Oswald', sans-serif;
+    font-size: 2.6rem;
+    letter-spacing: 0.35em;
+    padding: 0.6rem 1.4rem 0.6rem 1.7rem;
+    border-radius: 8px;
+    border: 2px solid #333;
+    box-shadow: inset 0 0 20px rgba(247, 179, 43, 0.15);
+}
+
+.lobby-teams {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+}
+
+.lobby-team {
+    text-align: center;
+}
+
+.lobby-team .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    background: #555;
+    margin-right: 6px;
+}
+
+.lobby-team .dot.on {
+    background: var(--green-go);
+    box-shadow: 0 0 8px var(--green-go);
+}
+
+/* ============================================================
+   GAME SHELL (tabs)
+   ============================================================ */
+#game {
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.topbar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 1rem;
+    background: rgba(0, 0, 0, 0.35);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.tabs {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.tab {
+    background: transparent;
+    color: rgba(243, 234, 211, 0.65);
+    border: 1px solid transparent;
+    border-radius: var(--radius) var(--radius) 0 0;
+}
+
+.tab.active {
+    background: var(--cream);
+    color: var(--ink);
+}
+
+.role-pill {
+    margin-left: auto;
+    font-family: 'Oswald', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 0.85rem;
+    padding: 0.35rem 0.8rem;
+    border-radius: 20px;
+}
+
+.role-pill.batting {
+    background: var(--gold);
+    color: #241d00;
+}
+
+.role-pill.bowling {
+    background: var(--leather);
+    color: #fff;
+}
+
+.tab-body {
+    flex: 1;
+    overflow: hidden;
+}
+
+.tab-panel {
+    display: none;
+    height: 100%;
+}
+
+.tab-panel.active {
+    display: flex;
+}
+
+/* ---------- Match tab layout ---------- */
+#tab-match {
+    gap: 0;
+}
+
+.match-left {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: 0.8rem;
+    gap: 0.7rem;
+    overflow: hidden;
+}
+
+.match-right {
+    width: 320px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.25);
+}
+
+/* Scoreboard */
+.scoreboard {
+    background: var(--board-bg);
+    border: 2px solid #2a2a26;
+    border-radius: 8px;
+    padding: 0.6rem 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 1.4rem;
+    box-shadow: inset 0 0 24px rgba(0, 0, 0, 0.6);
+}
+
+.sb-team {
+    font-family: 'Oswald', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--board-white);
+    font-size: 1rem;
+}
+
+.sb-score {
+    font-family: 'Oswald', sans-serif;
+    font-size: 2.2rem;
+    color: var(--board-amber);
+    line-height: 1;
+}
+
+.sb-meta {
+    color: rgba(245, 243, 234, 0.6);
+    font-size: 0.8rem;
+}
+
+.sb-target {
+    margin-left: auto;
+    text-align: right;
+}
+
+.sb-target .big {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.5rem;
+    color: var(--green-go);
+}
+
+/* The ground */
+.ground {
+    flex: 1;
+    position: relative;
+    border-radius: 48% / 42%;
+    background: radial-gradient(ellipse at 50% 45%, #2e8b57 0%, #1f6b3b 55%, #185536 100%);
+    border: 3px solid rgba(255, 255, 255, 0.25);
+    box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.35);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.4rem;
+    padding: 1.5rem;
+    min-height: 0;
+    overflow: auto;
+}
+
+.ground-row {
+    display: flex;
+    gap: 2.5rem;
+    justify-content: center;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    z-index: 1;
+}
+
+.ground::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 70px;
+    height: 60%;
+    background: linear-gradient(180deg, #cdb98a, #b8a678);
+    opacity: 0.25;
+    border-radius: 6px;
+}
+
+.ground-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    z-index: 1;
+    width: 158px;
+}
+
+.slot-label {
+    font-family: 'Oswald', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 0.68rem;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* compact cards inside the oval so they don't spill past the curve */
+.ground .pcard {
+    width: 150px;
+}
+
+.ground .pcard .pcard-body {
+    padding: 0.4rem;
+}
+
+.ground .pcard .pname {
+    font-size: 0.95rem;
+}
+
+.ground .pcard .pfig {
+    font-size: 1.2rem;
+    margin-top: 0.1rem;
+}
+
+.ground .pcard.is-empty {
+    min-height: 96px;
+}
+
+/* Player card (placeholder) */
+.pcard {
+    width: 170px;
+    background: linear-gradient(180deg, #fffdf6, var(--cream-2));
+    color: var(--ink);
+    border-radius: 8px;
+    border: 3px solid var(--tier-plain);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    position: relative;
+    user-select: none;
+}
+
+.pcard.tier-gold {
+    border-color: var(--tier-gold);
+}
+
+.pcard.tier-silver {
+    border-color: var(--tier-silver);
+}
+
+.pcard.tier-bronze {
+    border-color: var(--tier-bronze);
+}
+
+.pcard .pcard-top {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.35rem 0.5rem;
+    background: rgba(0, 0, 0, 0.06);
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.7rem;
+}
+
+.pcard .ovr-chip {
+    text-align: center;
+    line-height: 1;
+}
+
+.pcard .ovr-chip b {
+    display: block;
+    font-size: 1.15rem;
+}
+
+.pcard .ovr-chip span {
+    font-size: 0.55rem;
+    letter-spacing: 0.08em;
+    color: var(--ink-soft);
+}
+
+.pcard .pcard-body {
+    padding: 0.6rem 0.5rem;
+    text-align: center;
+}
+
+.pcard .pname {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.05rem;
+    line-height: 1.05;
+}
+
+.pcard .pfig {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.4rem;
+    color: var(--leather);
+    margin-top: 0.2rem;
+}
+
+.pcard .ptag {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--ink-soft);
+}
+
+.pcard.is-empty {
+    background: rgba(255, 255, 255, 0.08);
+    border-style: dashed;
+    border-color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.8);
+    min-height: 118px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-family: 'Oswald', sans-serif;
+    padding: 0.5rem;
+}
+
+.pcard.is-empty.drop-hot {
+    background: rgba(47, 158, 92, 0.35);
+    border-color: var(--green-go);
+}
+
+.pcard.out {
+    opacity: 0.45;
+    filter: grayscale(0.6);
+}
+
+.pcard.out .pname::after {
+    content: " \2022 OUT";
+    color: var(--leather);
+}
+
+.pcard.selectable {
+    cursor: pointer;
+}
+
+.pcard.selected {
+    outline: 3px solid var(--green-go);
+    outline-offset: 2px;
+}
+
+.pcard.dragging {
+    opacity: 0.5;
+}
+
+.pcard.disabled {
+    opacity: 0.4;
+}
+
+/* Intent slider */
+.intent {
+    width: 158px;
+    background: rgba(0, 0, 0, 0.35);
+    border-radius: var(--radius);
+    padding: 0.4rem 0.5rem;
+}
+
+.intent input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 8px;
+    border-radius: 5px;
+    outline: none;
+    background: linear-gradient(90deg, #2f9e5c 0%, #f7b32b 50%, #c62b3b 100%);
+}
+
+.intent input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--cream);
+    border: 3px solid var(--ink);
+    cursor: pointer;
+}
+
+.intent input[type=range]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--cream);
+    border: 3px solid var(--ink);
+    cursor: pointer;
+}
+
+.intent input:disabled {
+    opacity: 0.5;
+}
+
+.intent-word {
+    text-align: center;
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    margin-top: 0.3rem;
+    text-transform: uppercase;
+}
+
+/* Ready bar */
+.ready-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 0.3rem;
+}
+
+.ready-status {
+    font-family: 'Oswald', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.85rem;
+}
+
+.ready-status .on {
+    color: var(--green-go);
+}
+
+.ready-status .off {
+    color: rgba(243, 234, 211, 0.5);
+}
+
+/* Bench */
+.bench {
+    flex-shrink: 0;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 0.6rem;
+}
+
+.bench-title {
+    font-family: 'Oswald', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-size: 0.75rem;
+    color: rgba(243, 234, 211, 0.7);
+    margin-bottom: 0.4rem;
+}
+
+.bench-scroll {
+    display: flex;
+    gap: 0.7rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    min-height: 90px;
+}
+
+.bench-scroll .pcard {
+    width: 130px;
+    flex-shrink: 0;
+}
+
+.bench-scroll .pcard .pname {
+    font-size: 0.9rem;
+}
+
+.bench-empty {
+    color: rgba(243, 234, 211, 0.5);
+    font-size: 0.85rem;
+    padding: 1rem;
+}
+
+/* Sidebar: commentary + opponent list */
+.side-block {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.side-block.comm {
+    flex: 1;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
+}
+
+.side-head {
+    font-family: 'Oswald', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 0.6rem 0.8rem;
+    color: var(--gold);
+    font-size: 0.95rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.comm-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0.6rem 0.8rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.comm-line {
+    font-size: 0.85rem;
+    line-height: 1.3;
+    padding-left: 0.5rem;
+    border-left: 3px solid transparent;
+    animation: fadein 0.35s ease both;
+}
+
+.comm-line .bl {
+    font-family: 'Oswald', sans-serif;
+    color: var(--gold);
+    margin-right: 0.4rem;
+}
+
+.comm-line.boundary {
+    border-left-color: var(--green-go);
+}
+
+.comm-line.wicket {
+    border-left-color: var(--leather);
+    color: #ffb3ba;
+    font-weight: 600;
+}
+
+.comm-line.extra {
+    color: rgba(243, 234, 211, 0.7);
+}
+
+.comm-empty {
+    color: rgba(243, 234, 211, 0.45);
+    font-size: 0.85rem;
+    padding: 0.5rem;
+}
+
+@keyframes fadein {
+    from {
+        opacity: 0;
+        transform: translateX(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.opp-block {
+    height: 40%;
+}
+
+.opp-list {
+    overflow-y: auto;
+    padding: 0.4rem 0.8rem;
+}
+
+.opp-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    padding: 0.3rem 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.opp-row .ovrs {
+    color: rgba(243, 234, 211, 0.6);
+    font-family: 'Oswald', sans-serif;
+}
+
+/* ---------- Live tab ---------- */
+#tab-live {
+    padding: 1rem;
+    overflow-y: auto;
+    flex-direction: column;
+}
+
+.live-wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.live-over-head {
+    font-family: 'Oswald', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--gold);
+    margin-top: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    padding-bottom: 0.3rem;
+}
+
+/* ---------- Scorecard tab ---------- */
+#tab-scorecard {
+    padding: 1rem;
+    overflow-y: auto;
+    flex-direction: column;
+}
+
+.sc-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.sc-innings {
+    background: var(--cream);
+    color: var(--ink);
+    border-radius: 8px;
+    margin-bottom: 1.4rem;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+.sc-innings h3 {
+    background: var(--board-bg);
+    color: var(--board-white);
+    padding: 0.7rem 1rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+.sc-innings h3 .tot {
+    color: var(--board-amber);
+}
+
+.sc-innings table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.sc-innings th,
+.sc-innings td {
+    padding: 0.45rem 1rem;
+    text-align: right;
+    font-size: 0.9rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.sc-innings th:first-child,
+.sc-innings td:first-child {
+    text-align: left;
+}
+
+.sc-innings thead th {
+    background: var(--cream-2);
+    font-family: 'Oswald', sans-serif;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+}
+
+.sc-sub {
+    font-family: 'Oswald', sans-serif;
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    color: var(--ink-soft);
+    padding: 0.5rem 1rem 0.2rem;
+}
+
+.not-out {
+    color: var(--green-go);
+    font-weight: 600;
+}
+
+.sc-empty {
+    color: rgba(243, 234, 211, 0.6);
+    text-align: center;
+    padding: 2rem;
+}
+
+/* ---------- Outcome badge in commentary ---------- */
+.comm-line .oc {
+    display: inline-block;
+    min-width: 22px;
+    text-align: center;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 600;
+    font-size: 0.72rem;
+    padding: 1px 6px;
+    border-radius: 4px;
+    margin-right: 0.45rem;
+    background: #d9cfb0;
+    color: var(--ink);
+}
+
+.comm-line .oc.b {
+    background: var(--green-go);
+    color: #06210f;
+}
+
+.comm-line .oc.w {
+    background: var(--leather);
+    color: #fff;
+}
+
+.comm-line .oc.e {
+    background: #7c6f4a;
+    color: #fff;
+}
+
+.comm-line.milestone {
+    color: var(--gold);
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.8rem;
+    border-left-color: var(--gold);
+}
+
+/* ---------- Toss / Openers overlays ---------- */
+.overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 150;
+    background: rgba(6, 20, 12, 0.82);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+}
+
+.overlay.hidden {
+    display: none;
+}
+
+.overlay-card {
+    background: linear-gradient(180deg, var(--cream), var(--cream-2));
+    color: var(--ink);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 2rem;
+    max-width: 640px;
+    width: 100%;
+    text-align: center;
+    max-height: 90vh;
+    overflow: auto;
+}
+
+.overlay-card h2 {
+    color: var(--ink);
+    margin-bottom: 0.3rem;
+    font-size: 1.8rem;
+}
+
+.overlay-card .sub {
+    color: var(--ink-soft);
+    margin-bottom: 1rem;
+}
+
+.toss-coin {
+    font-size: 3rem;
+    margin: 0.5rem 0;
+}
+
+.toss-choices {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1.2rem;
+}
+
+.openers-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    justify-content: center;
+    margin: 1.2rem 0;
+}
+
+.openers-grid .pcard {
+    width: 128px;
+    cursor: pointer;
+}
+
+.openers-grid .pcard.selected {
+    outline: 3px solid var(--green-go);
+    outline-offset: 2px;
+}
+
+.pick-badge {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    z-index: 2;
+    background: var(--green-go);
+    color: #06210f;
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.68rem;
+    padding: 1px 7px;
+    border-radius: 10px;
+}
+
+.wait-note {
+    color: var(--ink-soft);
+    font-family: 'Oswald', sans-serif;
+    letter-spacing: 0.05em;
+}
+
+/* ---------- Auction ---------- */
+.auc-main {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.squad-panel {
+    width: 250px;
+    flex-shrink: 0;
+    background: rgba(0, 0, 0, 0.28);
+    padding: 0.8rem;
+    overflow-y: auto;
+}
+
+.squad-panel.opp {
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.squad-panel.me {
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.squad-panel h3 {
+    font-size: 1.15rem;
+}
+
+.purse {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.7rem;
+    color: var(--gold);
+    line-height: 1.1;
+}
+
+.squad-stats {
+    display: flex;
+    gap: 0.8rem;
+    font-size: 0.78rem;
+    color: rgba(243, 234, 211, 0.7);
+    margin: 0.3rem 0 0.6rem;
+    flex-wrap: wrap;
+}
+
+.squad-stats b {
+    color: var(--cream);
+}
+
+.roster-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    padding: 0.28rem 0.3rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    gap: 0.4rem;
+}
+
+.roster-item .price {
+    color: var(--green-go);
+    font-family: 'Oswald', sans-serif;
+}
+
+.roster-item .os {
+    color: var(--gold);
+    font-size: 0.66rem;
+}
+
+.auc-center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 1rem;
+    overflow-y: auto;
+}
+
+.auc-msg {
+    font-family: 'Oswald', sans-serif;
+    font-size: 1.15rem;
+    text-align: center;
+    min-height: 1.6rem;
+    color: var(--board-amber);
+}
+
+.auc-timer {
+    width: min(420px, 90%);
+    height: 10px;
+    background: rgba(0, 0, 0, 0.45);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.auc-timer-fill {
+    height: 100%;
+    width: 100%;
+    background: linear-gradient(90deg, var(--green-go), var(--board-amber), var(--leather));
+}
+
+.auc-bid {
+    font-family: 'Oswald', sans-serif;
+    font-size: 2rem;
+    color: var(--board-amber);
+}
+
+.auc-holder {
+    font-size: 0.9rem;
+    color: rgba(243, 234, 211, 0.85);
+    min-height: 1.2rem;
+}
+
+.bid-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    align-items: center;
+    width: min(440px, 95%);
+}
+
+.quick-adds {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.quick-adds button {
+    background: #33415a;
+    color: var(--cream);
+    padding: 0.5rem 0.85rem;
+}
+
+.bid-row {
+    display: flex;
+    gap: 0.6rem;
+}
+
+.badge-tier {
+    display: inline-block;
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.68rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: var(--gold);
+    color: #241d00;
+    margin: 0 3px;
+}
+
+.badge-os {
+    background: var(--leather);
+    color: #fff;
+}
+
+.auc-instructions {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(201, 162, 39, 0.4);
+    border-radius: 6px;
+    padding: 0.6rem 0.9rem;
+    font-size: 0.85rem;
+    max-width: 560px;
+    text-align: center;
+}
+
+.auc-instructions .note {
+    display: block;
+    margin-top: 0.3rem;
+    color: rgba(243, 234, 211, 0.65);
+    font-size: 0.78rem;
+}
+
+.big-card .pcard {
+    width: 240px;
+}
+
+.big-card .pcard .pname {
+    font-size: 1.4rem;
+}
+
+.big-card .pcard .pcard-top {
+    font-size: 0.85rem;
+}
+
+.big-card .pcard .ovr-chip b {
+    font-size: 1.5rem;
+}
+
+.pool-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    justify-content: center;
+    max-width: 900px;
+    max-height: 46vh;
+    overflow-y: auto;
+    padding: 0.3rem;
+}
+
+.pool-set {
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 6px;
+    padding: 0.5rem 0.7rem;
+    min-width: 180px;
+}
+
+.pool-set h5 {
+    font-family: 'Oswald', sans-serif;
+    color: var(--gold);
+    font-size: 0.78rem;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.3rem;
+}
+
+.pool-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.6rem;
+    font-size: 0.82rem;
+    padding: 0.15rem 0;
+}
+
+.pool-item .ovrs {
+    color: rgba(243, 234, 211, 0.6);
+    font-family: 'Oswald', sans-serif;
+}
+
+/* ---------- Auctioneer + gavel ---------- */
+.auctioneer-scene { display: flex; align-items: flex-end; justify-content: center; gap: 0.4rem; margin-bottom: 0.3rem; height: 60px; }
+.auctioneer { font-size: 2.5rem; line-height: 1; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.45)); }
+.gavel-wrap { position: relative; display: flex; flex-direction: column; align-items: center; }
+.gavel { font-size: 2rem; transform-origin: 70% 90%; display: inline-block; }
+.gavel.swing { animation: gavel-swing 0.42s cubic-bezier(.3, .7, .4, 1); }
+.gavel-block { width: 34px; height: 8px; background: var(--gold); border-radius: 3px; margin-top: -2px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4); }
+@keyframes gavel-swing {
+    0% { transform: rotate(0deg); }
+    30% { transform: rotate(-60deg); }
+    55% { transform: rotate(8deg); }
+    75% { transform: rotate(-6deg); }
+    100% { transform: rotate(0deg); }
+}
+
+/* ---------- XI selection ---------- */
+.xi-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    gap: 0.8rem;
+    overflow: hidden;
+}
+
+.xi-stats {
+    display: flex;
+    gap: 1.2rem;
+    font-family: 'Oswald', sans-serif;
+    letter-spacing: 0.04em;
+    align-items: center;
+}
+
+.xi-stats .bad {
+    color: var(--leather);
+}
+
+.xi-stats .good {
+    color: var(--green-go);
+}
+
+.xi-cols {
+    flex: 1;
+    display: flex;
+    gap: 1rem;
+    min-height: 0;
+}
+
+.xi-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 8px;
+    padding: 0.6rem;
+    min-height: 0;
+}
+
+.xi-col h4 {
+    margin-bottom: 0.5rem;
+}
+
+.xi-list {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-content: flex-start;
+}
+
+.xi-list .pcard {
+    width: 118px;
+    cursor: pointer;
+}
+
+/* ---------- Result banner ---------- */
+.result-banner {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    z-index: 100;
+    text-align: center;
+    padding: 2rem;
+}
+
+.result-banner h1 {
+    font-size: clamp(2rem, 6vw, 4rem);
+    color: var(--gold);
+}
+
+/* ---------- Toast ---------- */
+.toast {
+    position: fixed;
+    bottom: 1.2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--leather);
+    color: #fff;
+    padding: 0.7rem 1.2rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    z-index: 200;
+    font-size: 0.9rem;
+    animation: fadein 0.2s ease;
+}
+
+@media (max-width: 820px) {
+
+    /* Match Screen — stack everything and let the page scroll */
+    #tab-match { flex-direction: column; overflow-y: auto; }
+
+    .match-left { flex: none; padding: 0.6rem; gap: 0.6rem; overflow: visible; }
+
+    .ground { flex: none; height: auto; min-height: 300px; border-radius: 22px; padding: 1rem; overflow: visible; }
+    .ground-row { gap: 1rem; }
+
+    .match-right {
+        width: 100%;
+        height: auto;
+        flex-direction: column;
+        border-left: none;
+        border-top: 1px solid rgba(255, 255, 255, 0.12);
+    }
+
+    .side-block.comm {
+        border-right: none;
+        border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
+        flex: none;
+    }
+    .comm-list { max-height: 220px; }
+
+    .opp-block { height: auto; width: 100%; }
+    .opp-list { max-height: 240px; }
+
+    /* Auction Screen */
+    .auc-main {
+        flex-direction: column;
+        overflow-y: auto;
+    }
+
+    .squad-panel {
+        width: 100%;
+        min-height: fit-content;
+        border: none !important;
+        border-bottom: 2px solid rgba(0, 0, 0, 0.5) !important;
+        padding-bottom: 1.5rem;
+    }
+
+    .auc-center {
+        order: -1;
+        flex: none;
+        height: auto;
+        padding-bottom: 2rem;
+        border-bottom: 2px solid rgba(0, 0, 0, 0.8);
+        background: rgba(0, 0, 0, 0.4);
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+
+    .quick-adds {
+        flex-wrap: wrap;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .quick-adds button {
+        flex: 1 1 40%;
+        min-width: 60px;
+    }
+
+    .pool-list {
+        max-height: none;
+        padding-bottom: 2rem;
+    }
+
+    .pool-set {
+        width: 100%;
+        margin: 0 0.5rem;
+    }
+
+    /* XI Selection */
+    .xi-cols {
+        flex-direction: column;
+        overflow-y: auto;
+    }
+
+    .xi-col {
+        min-height: 40vh;
+        flex: none;
+    }
+}
+
+/* ============================================================
+   Auction layout polish — tabs at top + fill the empty space
+   ============================================================ */
+#auction { flex-direction: column; }
+#xi-screen { flex-direction: column; }
+
+.auc-center { justify-content: safe center; gap: 1rem; }
+
+.auctioneer-scene { height: 78px; }
+.auctioneer { font-size: 3.1rem; }
+.gavel { font-size: 2.5rem; }
+
+.auc-player.big-card { position: relative; padding: 0.6rem 1.6rem; }
+.auc-player.big-card::before {
+    content: ""; position: absolute; inset: -26px -10px; border-radius: 50%;
+    background: radial-gradient(ellipse at 50% 42%, rgba(247, 179, 43, 0.22), transparent 68%);
+    z-index: 0; pointer-events: none;
+}
+.big-card .pcard { width: 260px; position: relative; z-index: 1; }
+
+.auc-bid {
+    font-size: 2.7rem; background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(247, 179, 43, 0.45); padding: 0.15rem 1.4rem; border-radius: 12px;
+}
+.auc-timer { width: min(460px, 92%); height: 12px; }
+
+.squad-progress { height: 8px; background: rgba(0, 0, 0, 0.35); border-radius: 5px; overflow: hidden; margin: 0.5rem 0 0.25rem; }
+.squad-progress-fill { height: 100%; background: linear-gradient(90deg, var(--green-go), var(--gold)); transition: width 0.35s ease; }
+.squad-progress-label { font-size: 0.72rem; color: rgba(243, 234, 211, 0.6); font-family: 'Oswald', sans-serif; letter-spacing: 0.04em; margin-bottom: 0.7rem; }
+
+/* ---------- OVR tier colours ---------- */
+.pcard.tier-white { border-color: #eae6da; }
+.pcard.tier-bronze { border-color: #b5793a; }
+.pcard.tier-silver { border-color: #cfd6dd; box-shadow: 0 0 6px rgba(207, 214, 221, 0.45), var(--shadow); }
+.pcard.tier-gold { border-color: #f2cd4d; box-shadow: 0 0 10px rgba(242, 205, 77, 0.65), var(--shadow); }
+.pcard.tier-purple { border-color: #b06bff; box-shadow: 0 0 9px rgba(176, 107, 255, 0.55), var(--shadow); }
+.pcard.tier-glow {
+    border-color: #a855f7;
+    background: linear-gradient(180deg, #fbf3ff, #ecdcff);   /* soft lavender interior */
+    box-shadow: 0 0 12px 2px rgba(168, 85, 247, 0.7), inset 0 0 16px rgba(168, 85, 247, 0.28), var(--shadow);
+    animation: ovrGlow 1.7s ease-in-out infinite;
+}
+.pcard.tier-glow .pcard-top { background: rgba(168, 85, 247, 0.14); }
+@keyframes ovrGlow {
+    0%, 100% { box-shadow: 0 0 9px 1px rgba(168, 85, 247, 0.5), inset 0 0 12px rgba(168, 85, 247, 0.22), var(--shadow); }
+    50% { box-shadow: 0 0 22px 6px rgba(168, 85, 247, 0.92), inset 0 0 22px rgba(168, 85, 247, 0.42), var(--shadow); }
+}
+
+/* master exit button */
+.topbar { padding-right: 96px; }
+.exit-btn {
+    position: fixed; top: 9px; right: 12px; z-index: 200;
+    background: rgba(161, 30, 44, 0.92); color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 20px;
+    padding: 0.4rem 0.85rem; font-size: 0.78rem; cursor: pointer;
+}
+.exit-btn:hover { background: var(--leather-hi); }
+
+/* ---------- Rules / How-to-play screen ---------- */
+#rules { flex-direction: column; align-items: center; justify-content: safe center; gap: 1.2rem; padding: 2rem 1rem; overflow-y: auto; }
+.rules-grid { display: grid; grid-template-columns: repeat(2, minmax(230px, 300px)); gap: 1rem; max-width: 720px; width: 100%; }
+.rule-card { background: linear-gradient(180deg, var(--cream), var(--cream-2)); color: var(--ink); border-radius: 10px; padding: 1rem 1.15rem; box-shadow: var(--shadow); border-left: 5px solid var(--gold); }
+.rule-card h3 { font-family: 'Oswald', sans-serif; margin: 0.1rem 0 0.35rem; }
+.rule-card p { font-size: 0.88rem; line-height: 1.45; color: var(--ink-soft); }
+.rule-card p b { color: var(--ink); }
+.rule-emoji { font-size: 1.9rem; line-height: 1; }
+@media (max-width: 820px) { .rules-grid { grid-template-columns: 1fr; } }
+
+/* ---------- Mobile Playing XI: stop the squish ---------- */
+@media (max-width: 820px) {
+    .xi-main { overflow-y: auto; padding: 0.8rem; gap: 0.7rem; }
+    .xi-stats { flex-wrap: wrap; gap: 0.4rem 0.9rem; font-size: 0.82rem; }
+    .xi-stats span { margin-left: 0 !important; }
+    .xi-cols { flex-direction: column; overflow: visible; gap: 0.7rem; }
+    .xi-col { min-height: auto; flex: none; }
+    .xi-list { max-height: none; }
+    .xi-list .pcard { width: calc(50% - 0.3rem); }
+    #xi-lock { flex: none; position: sticky; bottom: 0; }
+}

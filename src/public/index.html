@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cricket Attack</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style_mobile.css?v=4.4">
+    <script src="net.js?v=3.8" defer></script>
+    <script src="app.js?v=3.9" defer></script>
+</head>
+
+<body>
+
+    <!-- ============ RULES / HOW TO PLAY ============ -->
+    <div id="rules" class="screen active">
+        <div>
+            <div class="brand" style="font-size:2.8rem;">CRICKET <span>ATTACK</span></div>
+            <div class="tagline" style="text-align:center; margin-top:0.3rem;">Two devices, one match — here's the game in 30 seconds</div>
+        </div>
+        <div class="rules-grid">
+            <div class="rule-card">
+                <div class="rule-emoji">🔨</div>
+                <h3>1 · The Auction</h3>
+                <p>60 stars are pooled into <b>12 sets</b> — 3 tiers (Marquee 🌟 opens at ₹2 Cr, Mid-Level ₹1 Cr, Group
+                    ₹0.2 Cr) across 4 roles. With a <b>₹100 Cr</b> purse, outbid your rival (every bid raises the price
+                    by ≥₹0.5 Cr) or fold with <b>“I'm Out”</b>. Grab a balanced <b>15–21</b> squad (needs ≥1 keeper),
+                    then <b>Lock In</b>. ⚠️ Miss 15 players when the auction ends and you get a 60-second grace period
+                    to Auto-Fill — fail to lock a valid squad in time and you <b>auto-forfeit the match</b>.</p>
+            </div>
+            <div class="rule-card">
+                <div class="rule-emoji">👕</div>
+                <h3>2 · Pick Your XI</h3>
+                <p>Choose your best <b>11</b> from your squad and set your openers. Max <b>4 overseas ✈</b>, at least
+                    <b>1 keeper 🧤</b>. This is where the overseas cap bites!</p>
+            </div>
+            <div class="rule-card">
+                <div class="rule-emoji">🎯</div>
+                <h3>3 · Play the Match</h3>
+                <p><b>20 overs</b> a side. Batters set a <b>secret intent</b> — Defensive ↔ Aggressive. The bowling
+                    side secretly picks who bowls <b>and their own intent</b> — Defensive ↔ Wicket-Hunting. Both
+                    sides are gambling blind — go big for runs or wickets, but the risk cuts both ways!</p>
+            </div>
+            <div class="rule-card">
+                <div class="rule-emoji">🏆</div>
+                <h3>4 · Win It</h3>
+                <p>Bat first to post a target, or chase it down. <b>Most runs wins.</b> Lose all 10 wickets or run out
+                    of overs and your innings is done. Simple as that.</p>
+            </div>
+        </div>
+        <button class="btn-go btn-lg" id="btn-ready-play">Ready to Play ▶</button>
+    </div>
+
+    <!-- ============ LANDING ============ -->
+    <div id="landing" class="screen">
+        <div>
+            <div class="brand">CRICKET <span>ATTACK</span></div>
+            <div class="tagline" style="text-align:center; margin-top:0.4rem;">Two-Device Match</div>
+        </div>
+
+        <div class="panel">
+            <h2>Create a Match</h2>
+            <label>Your team name</label>
+            <input type="text" id="create-name" placeholder="e.g. Chennai Super Kings" maxlength="24">
+            <div class="row">
+                <button class="btn-go" id="btn-create">Create Game</button>
+            </div>
+
+            <div class="divider">— OR JOIN WITH A CODE —</div>
+            <label>Game code</label>
+            <input type="text" class="code-input" id="join-code" placeholder="ABCD" maxlength="4">
+            <label>Your team name</label>
+            <input type="text" id="join-name" placeholder="e.g. Mumbai Indians" maxlength="24">
+            <div class="row">
+                <button class="btn-gold" id="btn-join">Join Game</button>
+            </div>
+            <div class="err-msg" id="landing-err"></div>
+        </div>
+
+        <div class="panel" style="margin-top:1.2rem;">
+            <h2>🏆 Tournament (3–8 teams)</h2>
+            <label>Your team name</label>
+            <input type="text" id="t-create-name" placeholder="e.g. Chennai Super Kings" maxlength="24">
+            <label>Number of teams</label>
+            <select id="t-size" >
+                <option value="3">3</option><option value="4" selected>4</option><option value="5">5</option>
+                <option value="6">6</option><option value="7">7</option><option value="8">8</option>
+            </select>
+            <div class="row">
+                <button class="btn-go" id="btn-create-tournament">Create Tournament</button>
+            </div>
+
+            <div class="divider">— OR JOIN WITH A CODE —</div>
+            <label>Tournament code</label>
+            <input type="text" class="code-input" id="t-join-code" placeholder="ABCD" maxlength="4">
+            <label>Your team name</label>
+            <input type="text" id="t-join-name" placeholder="e.g. Mumbai Indians" maxlength="24">
+            <div class="row">
+                <button class="btn-gold" id="btn-join-tournament">Join Tournament</button>
+            </div>
+            <div class="err-msg" id="t-landing-err"></div>
+        </div>
+    </div>
+
+    <!-- ============ TOURNAMENT LOBBY ============ -->
+    <div id="t-lobby" class="screen">
+        <div class="brand" style="font-size:2.2rem;">TOURNAMENT LOBBY</div>
+        <div>Share this code with your friends:</div>
+        <div class="code-badge" id="t-lobby-code">----</div>
+        <div class="tagline" id="t-lobby-count">0/0 teams joined</div>
+        <div class="t-roster" id="t-lobby-roster"></div>
+        <button class="btn-gold btn-lg hidden" id="btn-t-start">🏏 Start Auction Draft</button>
+        <div class="tagline" style="max-width:440px; text-align:center; opacity:0.7;">
+            Round robin (everyone plays everyone once) seeds the playoffs: top 2 go to Qualifier 1, the loser gets a
+            second chance against 3rd place in Qualifier 2, then it's the Final.
+        </div>
+    </div>
+
+    <!-- ============ TOURNAMENT BRACKET / WAITING / CHAMPION ============ -->
+    <div id="t-bracket" class="screen">
+        <div class="t-bracket-wrap" id="t-bracket-wrap"></div>
+    </div>
+
+    <!-- ============ LOBBY ============ -->
+    <div id="lobby" class="screen">
+        <div class="brand" style="font-size:2.2rem;">MATCH LOBBY</div>
+        <div>Share this code with your opponent:</div>
+        <div class="code-badge" id="lobby-code">----</div>
+
+        <div class="lobby-teams">
+            <div class="lobby-team">
+                <div><span class="dot" id="dot-t1"></span><strong id="lobby-t1">Team 1</strong></div>
+            </div>
+            <div style="font-family:'Oswald'; color:var(--gold); font-size:1.4rem;">VS</div>
+            <div class="lobby-team">
+                <div><span class="dot" id="dot-t2"></span><strong id="lobby-t2">Waiting…</strong></div>
+            </div>
+        </div>
+
+        <div id="lobby-wait" class="tagline">Waiting for opponent to join…</div>
+        <div id="lobby-actions" class="hidden"
+            style="display:flex; flex-direction:column; gap:0.8rem; align-items:center;">
+            <button class="btn-gold btn-lg" id="btn-auction">🏏 Start Auction Draft</button>
+            <button class="btn-ghost" id="btn-quick">⚡ Quick Match (skip auction)</button>
+        </div>
+        <div class="tagline" style="max-width:440px; text-align:center; opacity:0.7;">
+            Auction Draft: bid for players tier by tier, build a 15–21 squad, then pick your XI. Quick Match auto-drafts
+            two balanced XIs to jump straight in.
+        </div>
+    </div>
+
+    <!-- ============ AUCTION ============ -->
+    <div id="auction" class="screen">
+        <div class="topbar">
+            <div class="tabs">
+                <button class="tab auc-tab active" data-atab="bidding">Bidding Board</button>
+                <button class="tab auc-tab" data-atab="pool">Available Players</button>
+            </div>
+            <div class="role-pill" id="auc-role">—</div>
+        </div>
+
+        <div class="tab-body" style="flex: 1; display: flex; flex-direction: column; min-height: 0; width: 100%;">
+            <!-- BIDDING TAB -->
+            <div class="tab-panel active" id="atab-bidding" style="flex: 1; width: 100%;">
+                <div class="auc-main" style="width: 100%; min-height: 0;">
+                    <div class="squad-panel" id="auc-my"></div>
+                    <div class="auc-center" id="auc-center"></div>
+                    <div class="squad-panel" id="auc-opp"></div>
+                </div>
+            </div>
+
+            <!-- POOL TAB -->
+            <div class="tab-panel" id="atab-pool" style="flex: 1; width: 100%; padding: 2rem; overflow-y: auto;">
+                <h2 style="text-align: center; color: var(--gold); margin-bottom: 2rem; font-family: 'Oswald';">Draft
+                    Pool Status</h2>
+                <div id="auc-full-pool" style="max-width: 900px; margin: 0 auto;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============ XI SELECTION ============ -->
+    <div id="xi-screen" class="screen">
+        <div class="topbar">
+            <div class="auc-set" id="xi-title">Select Your Playing XI</div>
+            <div class="role-pill" id="xi-role">—</div>
+        </div>
+        <div class="xi-main" id="xi-main"></div>
+    </div>
+
+    <!-- ============ GAME (tabs) ============ -->
+    <div id="game" class="screen">
+        <div class="topbar">
+            <div class="tabs">
+                <button class="tab active" data-tab="match">Match</button>
+                <button class="tab" data-tab="live">Live</button>
+                <button class="tab" data-tab="scorecard">Scorecard</button>
+            </div>
+            <div class="role-pill" id="role-pill">—</div>
+        </div>
+
+        <div class="tab-body">
+            <!-- MATCH TAB -->
+            <div class="tab-panel active" id="tab-match">
+                <div class="match-left">
+                    <div class="scoreboard" id="scoreboard"></div>
+                    <div class="ground" id="ground"></div>
+                    <div class="ready-bar" id="ready-bar"></div>
+                    <div class="bench">
+                        <div class="bench-title" id="bench-title">Bench</div>
+                        <div class="bench-scroll" id="bench"></div>
+                    </div>
+                </div>
+                <div class="match-right">
+                    <div class="side-block comm">
+                        <div class="side-head">Commentary — This Over</div>
+                        <div class="comm-list" id="this-over"></div>
+                    </div>
+                    <div class="side-block opp-block">
+                        <div class="side-head" id="opp-head">Opponent Players</div>
+                        <div class="opp-list" id="opp-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LIVE TAB -->
+            <div class="tab-panel" id="tab-live">
+                <div class="live-wrap" id="live-wrap"></div>
+            </div>
+
+            <!-- SCORECARD TAB -->
+            <div class="tab-panel" id="tab-scorecard">
+                <div class="sc-wrap" id="sc-wrap"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Master exit button (visible during a game) -->
+    <button id="exit-btn" class="exit-btn hidden">✕ Exit Game</button>
+
+    <!-- Toss overlay -->
+    <div id="toss-overlay" class="overlay hidden">
+        <div class="overlay-card" id="toss-card"></div>
+    </div>
+
+    <!-- Openers overlay -->
+    <div id="openers-overlay" class="overlay hidden">
+        <div class="overlay-card" id="openers-card"></div>
+    </div>
+
+    <!-- Result banner -->
+    <div id="result-banner" class="result-banner hidden">
+        <div class="tagline">Full Time</div>
+        <h1 id="result-text">—</h1>
+        <div style="display:flex; gap:0.8rem; flex-wrap:wrap; justify-content:center;">
+            <button class="btn-ghost btn-lg" id="btn-view-scorecard">📋 View Scorecard</button>
+            <button class="btn-ghost btn-lg hidden" id="btn-back-to-tournament">🏆 Back to Tournament</button>
+            <button class="btn-gold btn-lg" id="btn-new-game">New Game</button>
+        </div>
+    </div>
+
+    <!-- Next-fixture ready overlay (tournament) -->
+    <div id="next-fixture-overlay" class="overlay hidden">
+        <div class="overlay-card" id="next-fixture-card"></div>
+    </div>
+
+    <!-- Rejoin-tournament picker (shown when Join says the tournament is full) -->
+    <div id="rejoin-overlay" class="overlay hidden">
+        <div class="overlay-card">
+            <h2>Tournament Full</h2>
+            <div class="sub">If you already had a team but lost your session, pick it below to rejoin.</div>
+            <div class="t-roster" id="rejoin-roster" style="margin-top:1rem;"></div>
+            <button class="btn-ghost" id="btn-rejoin-cancel" style="margin-top:1rem;">Cancel</button>
+        </div>
+    </div>
+
+</body>
+
+</html>

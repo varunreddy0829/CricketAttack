@@ -1,0 +1,51 @@
+{
+  "_comment": "Tunable weights/priors for Stage 2 (strike rate vs economy) and Stage 3 (wicket factor) of the probability engine. See src/engine/stats_calculator.py. Every score follows the same VOLUME^A x RATE^B shape, ghost-stat (Bayesian pseudo-count) smoothed toward a league prior, then divided by a league-median base (computed at load from data/players_historical.json) so an average settled regular (>=300 career balls) scores 1.0. Edit values here and restart the server to re-tune without touching code.",
+
+  "stage2_strike_rate_economy": {
+    "_comment": "P_str = bat_power / bowl_power, nudges 1/2/4/6 up (and 0 down) when > 1.",
+    "damp": 0.2,
+    "batting": {
+      "_comment": "bat_power = balls^A * ghost_sr^B / bat_power_base. ghost_sr blends real SR with K ghost balls at prior_sr.",
+      "A_volume": 0.09,
+      "B_rate": 0.91,
+      "prior_sr": 135.3,
+      "K_balls": 100.0,
+      "power_floor": 0.15
+    },
+    "bowling": {
+      "_comment": "bowl_power = legal_balls^A / ghost_eco^B / bowl_power_base. ghost_eco blends real economy with K ghost balls at prior_eco.",
+      "A_volume": 0.1,
+      "B_rate": 0.2,
+      "prior_eco": 8.38,
+      "K_balls": 60.0,
+      "power_floor": 0.15
+    }
+  },
+
+  "stage3_wicket_factor": {
+    "_comment": "P_wkt = bowler_threat * batter_defense, nudges the Out weight when > 1.",
+    "damp": 0.3,
+    "bowling": {
+      "_comment": "bowler_threat = wickets^A / ghost_sr^B / threat_base. ghost_sr blends real bowling strike rate with K ghost wickets at prior_sr.",
+      "A_volume": 0.5,
+      "B_rate": 1.0,
+      "prior_sr": 21.2,
+      "K_wickets": 5.0
+    },
+    "batting": {
+      "_comment": "batter_patience = runs^A * ghost_avg^B / patience_base; defense = 1/max(floor, patience). ghost_avg blends real batting average with K ghost dismissals at prior_avg.",
+      "A_volume": 0.3333333333333333,
+      "B_rate": 1.0,
+      "prior_avg": 27.5,
+      "K_dismissals": 4.0,
+      "patience_floor": 0.15
+    }
+  },
+
+  "stage4_intent": {
+    "_comment": "strength scales how far the base +-25 intent swing reaches (p = (intent-50)/2 * strength). strength=2.0 drives dot-ball probability to exactly 0% at full aggression (intent=100) -- the natural ceiling, since a probability can't go negative -- while leaving max defense (intent=0) meaningfully short of 100% dots, so even a weak batter can't fully escape their own fragility by turtling up. Values above ~2.0 stop affecting the aggressive extreme (already saturated) and only keep pushing the defensive extreme further, which was found to let bad batters become unrealistically safe on defense -- so 2.0 is deliberately the chosen value, not higher.",
+    "strength": 2.0
+  },
+
+  "regular_balls_cutoff": 300
+}
