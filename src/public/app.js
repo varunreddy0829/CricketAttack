@@ -134,6 +134,9 @@ function showRejoinPicker(code, roster) {
 
 $('btn-rejoin-cancel').addEventListener('click', () => $('rejoin-overlay').classList.add('hidden'));
 
+$('btn-auction-rules').addEventListener('click', () => $('auction-rules-overlay').classList.remove('hidden'));
+$('btn-close-auction-rules').addEventListener('click', () => $('auction-rules-overlay').classList.add('hidden'));
+
 $('btn-t-start').addEventListener('click', async () => {
     try { await Net.post('/api/start_auction', { token: Net.getToken() }); Net.forceRefresh(); }
     catch (e) { toast(e.message); }

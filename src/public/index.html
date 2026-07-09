@@ -9,9 +9,9 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style_mobile.css?v=4.4">
+    <link rel="stylesheet" href="style_mobile.css?v=4.5">
     <script src="net.js?v=3.8" defer></script>
-    <script src="app.js?v=3.9" defer></script>
+    <script src="app.js?v=3.10" defer></script>
 </head>
 
 <body>
@@ -20,39 +20,19 @@
     <div id="rules" class="screen active">
         <div>
             <div class="brand" style="font-size:2.8rem;">CRICKET <span>ATTACK</span></div>
-            <div class="tagline" style="text-align:center; margin-top:0.3rem;">Two devices, one match — here's the game in 30 seconds</div>
+            <div class="tagline" style="text-align:center; margin-top:0.3rem;">Can you buy a better team than your friends and win against them?</div>
         </div>
         <div class="rules-grid">
             <div class="rule-card">
-                <div class="rule-emoji">🔨</div>
-                <h3>1 · The Auction</h3>
-                <p>60 stars are pooled into <b>12 sets</b> — 3 tiers (Marquee 🌟 opens at ₹2 Cr, Mid-Level ₹1 Cr, Group
-                    ₹0.2 Cr) across 4 roles. With a <b>₹100 Cr</b> purse, outbid your rival (every bid raises the price
-                    by ≥₹0.5 Cr) or fold with <b>“I'm Out”</b>. Grab a balanced <b>15–21</b> squad (needs ≥1 keeper),
-                    then <b>Lock In</b>. ⚠️ Miss 15 players when the auction ends and you get a 60-second grace period
-                    to Auto-Fill — fail to lock a valid squad in time and you <b>auto-forfeit the match</b>.</p>
+                <h3>The Auction</h3>
+                <p>Bid against your friend to build your own squad of real players before the match starts.</p>
             </div>
             <div class="rule-card">
-                <div class="rule-emoji">👕</div>
-                <h3>2 · Pick Your XI</h3>
-                <p>Choose your best <b>11</b> from your squad and set your openers. Max <b>4 overseas ✈</b>, at least
-                    <b>1 keeper 🧤</b>. This is where the overseas cap bites!</p>
-            </div>
-            <div class="rule-card">
-                <div class="rule-emoji">🎯</div>
-                <h3>3 · Play the Match</h3>
-                <p><b>20 overs</b> a side. Batters set a <b>secret intent</b> — Defensive ↔ Aggressive. The bowling
-                    side secretly picks who bowls <b>and their own intent</b> — Defensive ↔ Wicket-Hunting. Both
-                    sides are gambling blind — go big for runs or wickets, but the risk cuts both ways!</p>
-            </div>
-            <div class="rule-card">
-                <div class="rule-emoji">🏆</div>
-                <h3>4 · Win It</h3>
-                <p>Bat first to post a target, or chase it down. <b>Most runs wins.</b> Lose all 10 wickets or run out
-                    of overs and your innings is done. Simple as that.</p>
+                <h3>The Simulation</h3>
+                <p>Play the match ball by ball — set your intent each over and watch the game unfold.</p>
             </div>
         </div>
-        <button class="btn-go btn-lg" id="btn-ready-play">Ready to Play ▶</button>
+        <button class="btn-go btn-lg" id="btn-ready-play">Ready to Play</button>
     </div>
 
     <!-- ============ LANDING ============ -->
@@ -160,6 +140,7 @@
                 <button class="tab auc-tab active" data-atab="bidding">Bidding Board</button>
                 <button class="tab auc-tab" data-atab="pool">Available Players</button>
             </div>
+            <button class="btn-ghost btn-rules" id="btn-auction-rules">📜 Rules</button>
             <div class="role-pill" id="auc-role">—</div>
         </div>
 
@@ -240,6 +221,17 @@
 
     <!-- Master exit button (visible during a game) -->
     <button id="exit-btn" class="exit-btn hidden">✕ Exit Game</button>
+
+    <!-- Auction rules overlay -->
+    <div id="auction-rules-overlay" class="overlay hidden">
+        <div class="overlay-card">
+            <h2>How the Auction Works</h2>
+            <p class="sub">60 players are pooled into 12 sets — 3 tiers (Marquee opens at ₹2 Cr, Mid-Level ₹1 Cr, Group ₹0.2 Cr) across 4 roles. With a ₹100 Cr purse, outbid your rival (every bid raises the price by at least ₹0.5 Cr) or fold with "I'm Out". Build a balanced 15–21 squad (at least 1 keeper), then Lock In.</p>
+            <p class="sub">Miss 15 players when the auction ends and you get a 60-second grace period to Auto-Fill — fail to lock a valid squad in time and you auto-forfeit the match.</p>
+            <p class="sub">Once squads are set, each side picks their best 11 (max 4 overseas, at least 1 keeper) before the match begins.</p>
+            <button class="btn-ghost btn-lg" id="btn-close-auction-rules" style="margin-top:1rem;">Close</button>
+        </div>
+    </div>
 
     <!-- Toss overlay -->
     <div id="toss-overlay" class="overlay hidden">

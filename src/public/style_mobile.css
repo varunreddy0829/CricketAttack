@@ -368,6 +368,13 @@ button:disabled {
     color: var(--ink);
 }
 
+.btn-rules {
+    margin-left: auto;
+    padding: 0.35rem 0.9rem;
+    font-size: 0.8rem;
+    border-radius: 20px;
+}
+
 .role-pill {
     margin-left: auto;
     font-family: 'Oswald', sans-serif;
