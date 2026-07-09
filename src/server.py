@@ -176,14 +176,79 @@ def _compute_league_avg():
 
 LEAGUE_AVG = _compute_league_avg()
 
-# --- The single global game --------------------------------------------------
-
+# --- Multi-game registry -----------------------------------------------------
+# GAMES holds every live game, keyed by its 4-char join code, so unrelated
+# friend groups can play concurrent, fully isolated matches on one server.
+# TOKEN_TO_CODE maps a player's session token to which game they belong to.
+#
+# GAME itself stays a bare module-level name (unchanged from the original
+# single-game version) but is now *resolved per request*: every route looks up
+# the right game by token/code and rebinds GAME to it before touching any game
+# state, all while holding LOCK -- so the huge amount of existing code below
+# that references GAME directly (as a bare name, not a parameter) keeps
+# working unchanged. Because every request serializes on the same LOCK for its
+# whole duration, rebinding GAME this way is race-free: no other thread can
+# observe or mutate GAME while the current request holds the lock. This is a
+# simple single-lock-for-all-games design, not per-game locking -- at this
+# project's scale (lightweight polling, no heavy per-request computation)
+# that's not a real bottleneck, and it avoids a much more complex, bug-prone
+# fine-grained locking scheme for no practical benefit.
+GAMES = {}
+TOKEN_TO_CODE = {}
 GAME = None
 LOCK = threading.RLock()
+
+# A game with no activity (no mutation and no /api/state poll) for this long
+# is assumed abandoned and is swept from GAMES to bound memory growth --
+# players who leave mid-lobby without explicitly forfeiting are the common
+# case this catches (an explicit exit/forfeit already ends the game sooner).
+GAME_TTL_SECONDS = 4 * 3600
+_last_sweep_at = 0.0
 
 
 def _new_code():
     return "".join(random.choices(string.ascii_uppercase + string.digits, k=4))
+
+
+def _register_game(g):
+    """Store a freshly created game, guarding against the astronomically
+    unlikely event that its random code collides with another live game."""
+    while g["code"] in GAMES:
+        g["code"] = _new_code()
+    GAMES[g["code"]] = g
+    return g
+
+
+def _game_by_code(code):
+    return GAMES.get((code or "").strip().upper())
+
+
+def _game_by_token(token):
+    code = TOKEN_TO_CODE.get(token)
+    return GAMES.get(code) if code else None
+
+
+def _register_token(code, token):
+    TOKEN_TO_CODE[token] = code
+
+
+def _sweep_stale_games():
+    """Drop games untouched for GAME_TTL_SECONDS. Throttled to once a minute
+    (called from the 0.2s auction tick, which already holds LOCK) so it
+    doesn't walk the whole registry on every tick."""
+    global _last_sweep_at
+    now = time.time()
+    if now - _last_sweep_at < 60.0:
+        return
+    _last_sweep_at = now
+    stale_codes = [code for code, g in GAMES.items()
+                   if now - g.get("last_seen", now) > GAME_TTL_SECONDS]
+    for code in stale_codes:
+        del GAMES[code]
+    if stale_codes:
+        dead_tokens = [tok for tok, code in TOKEN_TO_CODE.items() if code in stale_codes]
+        for tok in dead_tokens:
+            del TOKEN_TO_CODE[tok]
 
 
 def _fresh_game(num_teams=2):
@@ -195,6 +260,7 @@ def _fresh_game(num_teams=2):
     return {
         "code": _new_code(),
         "version": 1,
+        "last_seen": time.time(),
         "phase": "lobby",  # lobby -> [auction -> xi ->]* match -> finished
         "tokens": {},       # token -> team_id
         "team_ids": team_ids,          # ordered list of every team slot in this game
@@ -245,6 +311,7 @@ def _fresh_game(num_teams=2):
 
 def _bump():
     GAME["version"] += 1
+    GAME["last_seen"] = time.time()
 
 
 # --- Roster helpers ----------------------------------------------------------
@@ -929,22 +996,30 @@ def _process_strike():
 
 
 def _auction_tick():
-    """Background heartbeat: advances any auction whose deadline has passed.
-    Tournament fixture advancement is player-driven (/api/tournament_ready),
-    not timer-driven, so it doesn't live here."""
+    """Background heartbeat: advances any auction (across ALL concurrent games)
+    whose deadline has passed. Tournament fixture advancement is player-driven
+    (/api/tournament_ready), not timer-driven, so it doesn't live here.
+
+    Iterates every live game rather than a single global one, since multiple
+    unrelated games can now run auctions concurrently. Rebinds the module-level
+    GAME to whichever game is being advanced -- same pattern every request
+    handler uses -- so _check_auction_grace_expiry/_process_strike/_bump (which
+    reference GAME as a bare name) work unchanged."""
+    global GAME
     while True:
         time.sleep(0.2)
         with LOCK:
-            if not GAME:
-                continue
-            if GAME.get("phase") == "auction":
-                a = GAME["auction"]
-                if a and a["deadline"] and time.time() >= a["deadline"]:
-                    if a["stage"] == "done":
-                        _check_auction_grace_expiry()
-                    else:
-                        _process_strike()
-                    _bump()
+            for g in list(GAMES.values()):
+                if g.get("phase") == "auction":
+                    a = g["auction"]
+                    if a and a["deadline"] and time.time() >= a["deadline"]:
+                        GAME = g
+                        if a["stage"] == "done":
+                            _check_auction_grace_expiry()
+                        else:
+                            _process_strike()
+                        _bump()
+            _sweep_stale_games()
 
 
 def _place_bid(role, amount):
@@ -1658,27 +1733,31 @@ def handle_exception(e):
 def create_game():
     global GAME
     with LOCK:
-        GAME = _fresh_game()
+        GAME = _register_game(_fresh_game())
         data = request.get_json(silent=True) or {}
         token = secrets.token_hex(8)
         GAME["tokens"][token] = "team1"
         GAME["teams"]["team1"]["joined"] = True
         GAME["teams"]["team1"]["name"] = data.get("name") or "Team 1"
+        _register_token(GAME["code"], token)
         _bump()
         return jsonify({"status": "success", "token": token, "code": GAME["code"], "role": "team1"})
 
 
 @app.route("/api/join_game", methods=["POST"])
 def join_game():
+    global GAME
     with LOCK:
         data = request.get_json(silent=True) or {}
         code = (data.get("code") or "").strip().upper()
-        if GAME is None or code != GAME["code"]:
+        GAME = _game_by_code(code)
+        if GAME is None:
             return jsonify({"status": "error", "message": "No game found with that code."}), 404
         if GAME["teams"]["team2"]["joined"]:
             if data.get("rejoin"):
                 token = secrets.token_hex(8)
                 GAME["tokens"][token] = "team2"
+                _register_token(GAME["code"], token)
                 _bump()
                 return jsonify({"status": "success", "token": token, "code": GAME["code"], "role": "team2"})
             return jsonify({"status": "error", "message": "This game is already full.", "full": True}), 400
@@ -1686,6 +1765,7 @@ def join_game():
         GAME["tokens"][token] = "team2"
         GAME["teams"]["team2"]["joined"] = True
         GAME["teams"]["team2"]["name"] = data.get("name") or "Team 2"
+        _register_token(GAME["code"], token)
         _bump()
         return jsonify({"status": "success", "token": token, "code": GAME["code"], "role": "team2"})
 
@@ -1706,13 +1786,14 @@ def create_tournament():
         if not (TOURNAMENT_MIN <= size <= TOURNAMENT_MAX):
             return jsonify({"status": "error",
                             "message": f"Tournament size must be {TOURNAMENT_MIN}-{TOURNAMENT_MAX} teams."}), 400
-        GAME = _fresh_game(num_teams=size)
+        GAME = _register_game(_fresh_game(num_teams=size))
         GAME["tournament"] = {"size": size}
         token = secrets.token_hex(8)
         role = GAME["team_ids"][0]
         GAME["tokens"][token] = role
         GAME["teams"][role]["joined"] = True
         GAME["teams"][role]["name"] = data.get("name") or GAME["teams"][role]["name"]
+        _register_token(GAME["code"], token)
         _bump()
         return jsonify({"status": "success", "token": token, "code": GAME["code"], "role": role})
 
@@ -1725,10 +1806,12 @@ def join_tournament():
     by passing `rejoin_team_id`. Rejoining just mints a fresh token for that
     slot; it never re-checks who you were, since this is a casual game among
     friends who already have the private room code."""
+    global GAME
     with LOCK:
         data = request.get_json(silent=True) or {}
         code = (data.get("code") or "").strip().upper()
-        if GAME is None or code != GAME["code"] or not GAME.get("tournament"):
+        GAME = _game_by_code(code)
+        if GAME is None or not GAME.get("tournament"):
             return jsonify({"status": "error", "message": "No tournament found with that code."}), 404
 
         rejoin_team = data.get("rejoin_team_id")
@@ -1737,6 +1820,7 @@ def join_tournament():
                 return jsonify({"status": "error", "message": "That team isn't available to rejoin."}), 400
             token = secrets.token_hex(8)
             GAME["tokens"][token] = rejoin_team
+            _register_token(GAME["code"], token)
             _bump()
             return jsonify({"status": "success", "token": token, "code": GAME["code"], "role": rejoin_team})
 
@@ -1749,6 +1833,7 @@ def join_tournament():
         GAME["tokens"][token] = role
         GAME["teams"][role]["joined"] = True
         GAME["teams"][role]["name"] = data.get("name") or GAME["teams"][role]["name"]
+        _register_token(GAME["code"], token)
         _bump()
         return jsonify({"status": "success", "token": token, "code": GAME["code"], "role": role})
 
@@ -1757,8 +1842,13 @@ def join_tournament():
 def tournament_ready():
     """Confirm you're ready for the fixture the ready-gate is currently
     holding on. Once both of that fixture's teams confirm, it starts (toss)."""
+    global GAME
     with LOCK:
-        role = _role_of((request.get_json(silent=True) or {}).get("token", ""))
+        token = (request.get_json(silent=True) or {}).get("token", "")
+        GAME = _game_by_token(token)
+        if GAME is None:
+            return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
+        role = _role_of(token)
         if not role or not GAME.get("tournament"):
             return jsonify({"status": "error", "message": "Not in a tournament."}), 400
         try:
@@ -1775,10 +1865,13 @@ def exit_game():
     game ends. Tournament: only the caller's CURRENT fixture is forfeited (and
     they're eliminated from the rest of the tournament) — everyone else keeps
     playing (see _eliminate_from_tournament)."""
+    global GAME
     with LOCK:
+        token = (request.get_json(silent=True) or {}).get("token", "")
+        GAME = _game_by_token(token)
         if GAME is None:
             return jsonify({"status": "success"})
-        role = _role_of((request.get_json(silent=True) or {}).get("token", ""))
+        role = _role_of(token)
         if role is None:
             return jsonify({"status": "success"})
         if GAME.get("tournament"):
@@ -1796,16 +1889,24 @@ def exit_game():
 
 @app.route("/api/state")
 def api_state():
+    global GAME
     token = request.args.get("token", "")
     with LOCK:
+        GAME = _game_by_token(token)
         if GAME is None:
             return jsonify({"status": "no_game"})
+        GAME["last_seen"] = time.time()   # polling counts as activity too
         return jsonify(_serialize(token))
 
 
 @app.route("/api/quick_match", methods=["POST"])
 def quick_match():
+    global GAME
     with LOCK:
+        token = (request.get_json(silent=True) or {}).get("token", "")
+        GAME = _game_by_token(token)
+        if GAME is None:
+            return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
         _require_both_joined()
         t1_xi, t2_xi = _auto_two_xis()
         GAME["teams"]["team1"]["xi"] = t1_xi
@@ -1824,9 +1925,14 @@ def quick_match():
 @app.route("/api/start_auction", methods=["POST"])
 def start_auction():
     """Both teams must agree before the auction begins."""
+    global GAME
     with LOCK:
+        token = (request.get_json(silent=True) or {}).get("token", "")
+        GAME = _game_by_token(token)
+        if GAME is None:
+            return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
         _require_both_joined()
-        role = _role_of((request.get_json(silent=True) or {}).get("token", ""))
+        role = _role_of(token)
         if role is None:
             return jsonify({"status": "error", "message": "Unknown player."}), 403
         if GAME["phase"] != "lobby":
@@ -1841,8 +1947,13 @@ def start_auction():
 @app.route("/api/auction_ready", methods=["POST"])
 def auction_ready():
     """Ready gate: used both for the pool preview and between every lot."""
+    global GAME
     with LOCK:
-        role = _role_of((request.get_json(silent=True) or {}).get("token", ""))
+        token = (request.get_json(silent=True) or {}).get("token", "")
+        GAME = _game_by_token(token)
+        if GAME is None:
+            return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
+        role = _role_of(token)
         a = GAME["auction"]
         if not role:
             return jsonify({"status": "error", "message": "Unknown player."}), 403
@@ -1864,8 +1975,12 @@ def auction_ready():
 
 @app.route("/api/bid", methods=["POST"])
 def bid():
+    global GAME
     with LOCK:
         data = request.get_json(silent=True) or {}
+        GAME = _game_by_token(data.get("token", ""))
+        if GAME is None:
+            return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
         role = _role_of(data.get("token", ""))
         if not role:
             return jsonify({"status": "error", "message": "Unknown player."}), 403
@@ -1879,8 +1994,13 @@ def bid():
 
 @app.route("/api/pull_out", methods=["POST"])
 def pull_out():
+    global GAME
     with LOCK:
-        role = _role_of((request.get_json(silent=True) or {}).get("token", ""))
+        token = (request.get_json(silent=True) or {}).get("token", "")
+        GAME = _game_by_token(token)
+        if GAME is None:
+            return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
+        role = _role_of(token)
         if not role:
             return jsonify({"status": "error", "message": "Unknown player."}), 403
         _pull_out(role)
@@ -1890,8 +2010,13 @@ def pull_out():
 
 @app.route("/api/auto_fill", methods=["POST"])
 def auto_fill():
+    global GAME
     with LOCK:
-        role = _role_of((request.get_json(silent=True) or {}).get("token", ""))
+        token = (request.get_json(silent=True) or {}).get("token", "")
+        GAME = _game_by_token(token)
+        if GAME is None:
+            return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
+        role = _role_of(token)
         if not role or GAME.get("phase") != "auction":
             return jsonify({"status": "error", "message": "Not in an auction."}), 400
         _auto_fill_squad(role)
@@ -1904,8 +2029,13 @@ def lock_squad():
     """Lock in the squad when it satisfies the auction rules (15-21 players,
     >=1 keeper; NO overseas limit here). When both teams lock, go to XI. A
     locked team auto-passes any remaining lots."""
+    global GAME
     with LOCK:
-        role = _role_of((request.get_json(silent=True) or {}).get("token", ""))
+        token = (request.get_json(silent=True) or {}).get("token", "")
+        GAME = _game_by_token(token)
+        if GAME is None:
+            return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
+        role = _role_of(token)
         if not role or GAME.get("phase") != "auction":
             return jsonify({"status": "error", "message": "Not in an auction."}), 400
         sq = GAME["squads"][role]
@@ -1928,8 +2058,12 @@ def lock_squad():
 
 @app.route("/api/toggle_xi", methods=["POST"])
 def toggle_xi():
+    global GAME
     with LOCK:
         data = request.get_json(silent=True) or {}
+        GAME = _game_by_token(data.get("token", ""))
+        if GAME is None:
+            return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
         role = _role_of(data.get("token", ""))
         if not role or GAME["phase"] != "xi":
             return jsonify({"status": "error", "message": "Not selecting XI."}), 400
@@ -1949,8 +2083,13 @@ def toggle_xi():
 
 @app.route("/api/lock_xi", methods=["POST"])
 def lock_xi():
+    global GAME
     with LOCK:
-        role = _role_of((request.get_json(silent=True) or {}).get("token", ""))
+        token = (request.get_json(silent=True) or {}).get("token", "")
+        GAME = _game_by_token(token)
+        if GAME is None:
+            return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
+        role = _role_of(token)
         if not role or GAME["phase"] != "xi":
             return jsonify({"status": "error", "message": "Not selecting XI."}), 400
         sel = GAME["xi_select"][role]
@@ -1972,8 +2111,12 @@ def lock_xi():
 
 @app.route("/api/toss_choice", methods=["POST"])
 def toss_choice():
+    global GAME
     with LOCK:
         data = request.get_json(silent=True) or {}
+        GAME = _game_by_token(data.get("token", ""))
+        if GAME is None:
+            return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
         role = _role_of(data.get("token", ""))
         if GAME["stage"] != "toss":
             return jsonify({"status": "error", "message": "Toss already done."}), 400
@@ -1994,8 +2137,12 @@ def toss_choice():
 
 @app.route("/api/set_openers", methods=["POST"])
 def set_openers():
+    global GAME
     with LOCK:
         data = request.get_json(silent=True) or {}
+        GAME = _game_by_token(data.get("token", ""))
+        if GAME is None:
+            return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
         role = _role_of(data.get("token", ""))
         if role != GAME["batting_side"]:
             return jsonify({"status": "error", "message": "Only the batting side picks openers."}), 403
@@ -2020,8 +2167,12 @@ def set_openers():
 def ready_resume():
     """Batting side confirms (and may re-set intents) after a new batsman walks
     in mid-over, before the over resumes."""
+    global GAME
     with LOCK:
         data = request.get_json(silent=True) or {}
+        GAME = _game_by_token(data.get("token", ""))
+        if GAME is None:
+            return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
         role = _role_of(data.get("token", ""))
         if role != GAME["batting_side"]:
             return jsonify({"status": "error", "message": "Only the batting side resumes."}), 403
@@ -2048,8 +2199,12 @@ def ready_resume():
 @app.route("/api/free_hit", methods=["POST"])
 def free_hit():
     """Both sides may adjust intent for the single free-hit delivery, then ready."""
+    global GAME
     with LOCK:
         data = request.get_json(silent=True) or {}
+        GAME = _game_by_token(data.get("token", ""))
+        if GAME is None:
+            return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
         role = _role_of(data.get("token", ""))
         if GAME["stage"] != "free_hit":
             return jsonify({"status": "error", "message": "No free hit pending."}), 400
@@ -2075,8 +2230,12 @@ def retire_batsman():
     """Permanently retire the striker or non-striker. Only between overs (stage
     'play', before either half of the next over has been submitted) so the
     ball-by-ball over loop never needs to handle a mid-over interrupt."""
+    global GAME
     with LOCK:
         data = request.get_json(silent=True) or {}
+        GAME = _game_by_token(data.get("token", ""))
+        if GAME is None:
+            return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
         role = _role_of(data.get("token", ""))
         if role != GAME.get("batting_side"):
             return jsonify({"status": "error", "message": "Only the batting side can retire a batter."}), 403
@@ -2110,9 +2269,13 @@ def retire_batsman():
 
 @app.route("/api/submit_over", methods=["POST"])
 def submit_over():
+    global GAME
     with LOCK:
         data = request.get_json(silent=True) or {}
         token = data.get("token", "")
+        GAME = _game_by_token(token)
+        if GAME is None:
+            return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
         role = _role_of(token)
         if role is None:
             return jsonify({"status": "error", "message": "Unknown player."}), 403
@@ -2151,9 +2314,13 @@ def submit_over():
 
 @app.route("/api/set_next_batter", methods=["POST"])
 def set_next_batter():
+    global GAME
     with LOCK:
         data = request.get_json(silent=True) or {}
         token = data.get("token", "")
+        GAME = _game_by_token(token)
+        if GAME is None:
+            return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
         role = _role_of(token)
         if role != GAME["batting_side"]:
             return jsonify({"status": "error", "message": "Only the batting side chooses batters."}), 403
