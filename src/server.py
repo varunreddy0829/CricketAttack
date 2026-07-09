@@ -2383,12 +2383,15 @@ threading.Thread(target=_auction_tick, daemon=True).start()
 
 
 if __name__ == "__main__":
+    # Cloud hosts (Railway, etc.) assign a dynamic port via $PORT; falls back
+    # to 8000 for local dev (matches run_online.bat and the Cloudflare tunnel).
+    port = int(os.environ.get("PORT", 8000))
     print("=" * 45)
     print("CRICKET ATTACK - MULTIPLAYER SERVER")
-    print("Listening on http://0.0.0.0:8000")
+    print(f"Listening on http://0.0.0.0:{port}")
     print(f"Loaded {len(ALL_PLAYERS)} players | Stage-3 threat_base "
           f"{LEAGUE_AVG['threat_base']:.3f}, patience_base {LEAGUE_AVG['patience_base']:.1f} | "
           f"Stage-2 bat_power_base {LEAGUE_AVG['bat_power_base']:.1f}, "
           f"bowl_power_base {LEAGUE_AVG['bowl_power_base']:.3f}")
     print("=" * 45)
-    app.run(host="0.0.0.0", port=8000, debug=False, threaded=True)
+    app.run(host="0.0.0.0", port=port, debug=False, threaded=True)
