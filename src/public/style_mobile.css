@@ -1644,13 +1644,13 @@ button:disabled {
 
 /* ---------- Rules / How-to-play screen ---------- */
 #rules { flex-direction: column; align-items: center; justify-content: safe center; gap: 1.2rem; padding: 2rem 1rem; overflow-y: auto; }
-.rules-grid { display: grid; grid-template-columns: repeat(2, minmax(230px, 300px)); gap: 1rem; max-width: 720px; width: 100%; }
-.rule-card { background: linear-gradient(180deg, var(--cream), var(--cream-2)); color: var(--ink); border-radius: 10px; padding: 1rem 1.15rem; box-shadow: var(--shadow); border-left: 5px solid var(--gold); }
-.rule-card h3 { font-family: 'Oswald', sans-serif; margin: 0.1rem 0 0.35rem; }
+.rules-grid { display: grid; grid-template-columns: repeat(2, 300px); gap: 1.4rem; justify-content: center; margin: 0 auto; }
+.rule-card { background: linear-gradient(180deg, var(--cream), var(--cream-2)); color: var(--ink); border-radius: 10px; padding: 1.1rem 1.15rem; box-shadow: var(--shadow); border-top: 4px solid var(--gold); text-align: center; }
+.rule-card h3 { font-family: 'Oswald', sans-serif; margin: 0.1rem 0 0.5rem; }
 .rule-card p { font-size: 0.88rem; line-height: 1.45; color: var(--ink-soft); }
 .rule-card p b { color: var(--ink); }
 .rule-emoji { font-size: 1.9rem; line-height: 1; }
-@media (max-width: 820px) { .rules-grid { grid-template-columns: 1fr; } }
+@media (max-width: 700px) { .rules-grid { grid-template-columns: 1fr; justify-content: stretch; } .rule-card { max-width: 300px; margin: 0 auto; } }
 
 /* ---------- Mobile Playing XI: stop the squish ---------- */
 @media (max-width: 820px) {
