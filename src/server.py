@@ -1167,10 +1167,16 @@ def _pull_out(role):
     """N-way fold: a fold removes that team from contention for this lot. If
     exactly one un-folded bidder remains and they hold the active bid, sell to
     them immediately; if nobody is left un-folded, the lot goes unsold. This
-    generalizes the original 2-bidder shortcut to any number of teams."""
+    generalizes the original 2-bidder shortcut to any number of teams.
+
+    The team currently holding the top bid can't pull out -- otherwise, once
+    every rival has folded, the leading bidder could fold too and force the
+    lot unsold for free, walking away from a bid they'd otherwise have won."""
     a = GAME["auction"]
     if a["stage"] != "bidding":
         return
+    if role == a["active_bidder"]:
+        raise ValueError("You hold the top bid — you can't pull out now.")
     a["out"][role] = True
     contenders = [t for t in GAME["team_ids"] if not a["out"][t]]
     if len(contenders) == 1 and a["active_bidder"] == contenders[0]:
@@ -1188,6 +1194,17 @@ def _squad_valid(role):
 def _to_xi():
     GAME["phase"] = "xi"
     GAME["xi_select"] = {t: {"xi": [], "locked": False} for t in GAME["team_ids"]}
+    # Decide (and reveal) the venue before XI picks, not after, so squads can
+    # actually be built around the pitch conditions instead of blind.
+    if GAME.get("tournament"):
+        # This XI phase is for the opening tournament fixture; preview its
+        # venue using the same deterministic pairing _start_tournament_matches
+        # will build in a moment, so what's shown here matches what's used.
+        pairs = _round_robin_pairs(GAME["team_ids"])
+        if pairs:
+            GAME["match_ground"] = _ground_of(pairs[0][0])
+    else:
+        GAME["match_ground"] = _ground_of(random.choice(GAME["team_ids"][:2]))
 
 
 def _to_grounds():
@@ -1248,8 +1265,8 @@ def _finalize_xi_to_match():
         _start_tournament_matches()
     else:
         GAME["match_teams"] = GAME["team_ids"][:2]
-        # one-off 1v1: play at one of the two claimed home grounds, coin-flip
-        GAME["match_ground"] = _ground_of(random.choice(GAME["match_teams"]))
+        # match_ground was already decided (and shown to both teams) back in
+        # _to_xi(), before XI selection started -- don't re-roll it here.
         _start_single_match()
 
 
@@ -1418,12 +1435,12 @@ def _start_fixture(idx):
     g["abandoned_by"] = None
     g["result"] = None
     g["match_winner"] = None
-    # round robin: first-listed team hosts at their claimed home ground;
-    # playoffs are at a neutral venue (random stadium), like the real IPL
-    if fx["kind"] == "round_robin":
-        g["match_ground"] = _ground_of(fx["a"])
-    else:
-        g["match_ground"] = random.choice(STADIUMS)
+    # match_ground for this fixture was already decided (and shown to both
+    # teams during XI selection) by _set_awaiting_xi / _to_xi -- don't re-roll
+    # it here, or the venue shown pre-match wouldn't match the one actually
+    # played on. Fallback covers paths that skip that step (e.g. tests).
+    if not g.get("match_ground"):
+        g["match_ground"] = _ground_of(fx["a"]) if fx["kind"] == "round_robin" else random.choice(STADIUMS)
     _start_single_match()
 
 
@@ -1616,6 +1633,12 @@ def _set_awaiting_xi(idx):
     t["fixture_xi_idx"] = idx
     t["fixture_xi"] = {fx["a"]: {"xi": [], "locked": False}, fx["b"]: {"xi": [], "locked": False}}
     t["awaiting_xi"] = True
+    # reveal the venue now, before XI picks -- _start_fixture recomputes the
+    # identical value from the same (unchanged) inputs when the match starts.
+    if fx["kind"] == "round_robin":
+        GAME["match_ground"] = _ground_of(fx["a"])
+    else:
+        GAME["match_ground"] = random.choice(STADIUMS)
 
 
 def _lock_fixture_xi(role):
@@ -1815,6 +1838,19 @@ def _serialize(token):
     if is_tournament:
         out["tournament"] = _serialize_tournament_summary()
         t = g["tournament"]
+        if role and role in g.get("squads", {}):
+            fatigue = t.get("fatigue") or {}
+            out["my_roster"] = {
+                "team_name": g["teams"][role]["name"],
+                "players": [
+                    {"name": p["name"], "is_foreigner": p.get("is_foreigner", False),
+                     "is_keeper": p.get("is_keeper", False),
+                     "batting_ovr": p["batting_ovr"], "bowling_ovr": p["bowling_ovr"],
+                     "energy": round(max(95.0, 100.0 - 0.5 * fatigue.get(p["name"], 0)), 1),
+                     "matches_since_rest": fatigue.get(p["name"], 0)}
+                    for p in g["squads"][role]["roster"]
+                ],
+            }
         if t.get("awaiting_ready") and role in t.get("next_ready", {}):
             nf = t["fixtures"][t["next_fixture_idx"]]
             other = nf["b"] if role == nf["a"] else nf["a"]
@@ -1851,6 +1887,7 @@ def _serialize(token):
                 "others_locked_count": 1 if t["fixture_xi"][other]["locked"] else 0, "others_total": 1,
                 "count": len(mine["xi"]), "os": os_in, "wk": wk_in,
                 "size": XI_SIZE, "max_os": XI_MAX_OVERSEAS,
+                "ground": _ground_view(),
             }
             return out
 
@@ -2153,6 +2190,7 @@ def _serialize_xi(role):
         "others_locked_count": locked_others, "others_total": len(others),
         "count": len(mine["xi"]), "os": os_in, "wk": wk_in,
         "size": XI_SIZE, "max_os": XI_MAX_OVERSEAS,
+        "ground": _ground_view(),
     }
 
 
@@ -2531,7 +2569,10 @@ def pull_out():
         role = _role_of(token)
         if not role:
             return jsonify({"status": "error", "message": "Unknown player."}), 403
-        _pull_out(role)
+        try:
+            _pull_out(role)
+        except ValueError as e:
+            return jsonify({"status": "error", "message": str(e)}), 400
         _bump()
         return jsonify({"status": "success"})
 

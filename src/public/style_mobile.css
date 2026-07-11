@@ -325,6 +325,22 @@ button:disabled {
 }
 .t-award-expand:hover { opacity: 1; text-decoration: underline; }
 
+.t-roster-energy { width: 100%; max-width: 480px; margin: 0.8rem auto 0; }
+.t-roster-energy-toggle { padding: 0.3rem 0; }
+.t-roster-energy-toggle:hover { opacity: 0.85; }
+.t-roster-energy-body { margin-top: 0.4rem; display: flex; flex-direction: column; gap: 0.3rem; }
+.roster-energy-row {
+    display: flex; align-items: center; gap: 0.6rem;
+    background: rgba(0, 0, 0, 0.25); border-radius: 6px; padding: 0.4rem 0.7rem;
+    font-size: 0.8rem;
+}
+.roster-energy-row .re-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.roster-energy-row .re-bar { flex: 0 0 90px; height: 6px; background: rgba(0, 0, 0, 0.4); border-radius: 4px; overflow: hidden; }
+.roster-energy-row .re-bar-fill { display: block; height: 100%; background: var(--green-go); }
+.roster-energy-row.tired .re-bar-fill { background: var(--gold); }
+.roster-energy-row.worn .re-bar-fill { background: var(--leather); }
+.roster-energy-row .re-value { flex: 0 0 auto; font-family: 'Oswald', sans-serif; color: rgba(243, 234, 211, 0.8); width: 3.2rem; text-align: right; }
+
 /* ---------- Cinematic ball reveal ---------- */
 .ball-stamp-overlay {
     position: absolute;
@@ -447,6 +463,16 @@ button:disabled {
 .pitch-chip.flat { background: #b28704; }
 .pitch-chip.slow { background: #6b5e8e; }
 
+.xi-ground-banner {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 10px;
+    padding: 0.5rem 0.9rem;
+    margin-bottom: 0.7rem;
+    font-size: 0.82rem;
+    color: rgba(243, 234, 211, 0.9);
+}
+
 .sb-ground { margin-top: 0.25rem; }
 .phase-chip { display: inline-block; font-family: 'Oswald', sans-serif; font-size: 0.66rem; letter-spacing: 0.06em; padding: 1px 8px; border-radius: 10px; margin-left: 0.4rem; }
 .phase-chip.powerplay { background: var(--board-amber); color: #241d00; }
@@ -456,6 +482,12 @@ button:disabled {
 .gambit-btn { background: transparent; border: 1px dashed var(--gold); color: var(--gold); border-radius: 20px; padding: 0.45rem 0.9rem; font-size: 0.78rem; cursor: pointer; }
 .gambit-btn.armed { background: var(--gold); color: #241d00; border-style: solid; box-shadow: 0 0 10px var(--gold); }
 .gambit-btn.used { opacity: 0.4; border-style: solid; cursor: default; }
+.gambit-hint {
+    flex-basis: 100%;
+    font-size: 0.68rem;
+    color: rgba(243, 234, 211, 0.55);
+    margin-top: 0.15rem;
+}
 
 .energy-bar { height: 5px; background: rgba(0, 0, 0, 0.18); border-radius: 3px; margin-top: 4px; overflow: hidden; }
 .energy-bar .energy-fill { height: 100%; border-radius: 3px; }
@@ -983,6 +1015,7 @@ button:disabled {
 /* Ready bar */
 .ready-bar {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: center;
     gap: 1rem;
@@ -1967,7 +2000,7 @@ button:disabled {
 .back-to-tournament-fixed-btn:hover { background: var(--green-go); }
 
 .rejoin-code-label {
-    position: fixed; top: 9px; left: 12px; z-index: 200;
+    position: fixed; bottom: 9px; left: 50%; transform: translateX(-50%); z-index: 200;
     background: rgba(0, 0, 0, 0.45); color: rgba(243, 234, 211, 0.85);
     border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px;
     padding: 0.3rem 0.7rem; font-size: 0.68rem; letter-spacing: 0.03em;

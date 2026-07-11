@@ -44,7 +44,10 @@ PRESSURE_OUT_PER_DOT = 0.05
 PRESSURE_CAP = 6
 
 # Gambits: one-shot per-match cards, armed secretly with the over submission.
-GAMBIT_ATTACK = {"4": 1.5, "6": 1.5, "Out": 1.4, "0": 0.6}
+# Each buffs exactly one side's stat and nothing else -- no paired nerf on
+# top (any tiny redistribution elsewhere is just the renormalization every
+# stage already does to keep weights summing to 1000, not a deliberate hit).
+GAMBIT_ATTACK = {"4": 1.5, "6": 1.5}
 # Trap Set reads the striker's effective intent for the ball: punishes
 # aggression hard, mildly pressures neutral play, and is wasted on blockers.
 TRAP_VS_AGGRESSIVE = 1.6   # striker intent >= 60

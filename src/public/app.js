@@ -470,11 +470,50 @@ function renderBracket(state) {
     }
     html += awardsLeaderboard(t.awards);
     html += standingsTable(t.standings, 3);
+    html += myRosterEnergy(state.my_roster);
     html += fixturesList(t.fixtures);
     $('t-bracket-wrap').innerHTML = html;
     wireBracketActions();
     wireFixtureScorecards();
     wireAwardsExpand();
+    wireRosterEnergyExpand();
+}
+
+// ---------- squad energy tab (tournament home screen) ----------
+let rosterEnergyExpanded = false;
+function myRosterEnergy(roster) {
+    if (!roster) return '';
+    const rows = roster.players
+        .slice()
+        .sort((a, b) => a.energy - b.energy || a.name.localeCompare(b.name))
+        .map(p => {
+            const level = p.energy >= 99 ? 'fresh' : p.energy >= 97 ? 'tired' : 'worn';
+            return `<div class="roster-energy-row ${level}">
+                <span class="re-name">${p.name} ${p.is_foreigner ? '<span class="os">OS</span>' : ''}${p.is_keeper ? ' 🧤' : ''}</span>
+                <span class="re-bar"><span class="re-bar-fill" style="width:${p.energy}%"></span></span>
+                <span class="re-value">${p.energy}%</span>
+            </div>`;
+        }).join('');
+    return `<div class="t-roster-energy">
+        <div class="tagline t-roster-energy-toggle" id="roster-energy-toggle" style="text-align:center; cursor:pointer;">
+            🎽 ${roster.team_name} — Squad Energy ${rosterEnergyExpanded ? '▾' : '▸'}
+        </div>
+        <div class="t-roster-energy-body${rosterEnergyExpanded ? '' : ' hidden'}">
+            <div class="tagline" style="text-align:center; opacity:0.7; margin-bottom:0.4rem;">
+                Every player starts each tournament at 100% energy. Playing a match costs 0.5% (floor 95%);
+                resting a match fully restores it.
+            </div>
+            ${rows}
+        </div>
+    </div>`;
+}
+
+function wireRosterEnergyExpand() {
+    const el = $('roster-energy-toggle');
+    if (el) el.addEventListener('click', () => {
+        rosterEnergyExpanded = !rosterEnergyExpanded;
+        if (CURRENT) render(CURRENT);
+    });
 }
 
 const AWARDS_COLLAPSED_COUNT = 3;
@@ -1055,10 +1094,15 @@ function renderReadyBar(m) {
 }
 
 // one-shot gambit cards: armed locally, sent (secretly) with the submission
+const GAMBIT_EXPLAIN = {
+    trap: "One-shot: this over, the striker's wicket chance climbs — hardest if they're batting aggressively. Doesn't touch anything else.",
+    attack: "One-shot: this over, your boundary chances (4s and 6s) go up. Doesn't touch anything else.",
+};
 function gambitToggleHtml(m, kind, label) {
     const avail = m.gambits && m.gambits.available && m.gambits.available[kind];
-    if (!avail) return `<span class="gambit-btn used">${label} — used</span>`;
-    return `<button class="gambit-btn${ui.armGambit ? ' armed' : ''}" id="btn-gambit">${label}${ui.armGambit ? ' ✔ ARMED' : ''}</button>`;
+    const hint = `<div class="gambit-hint">${GAMBIT_EXPLAIN[kind]}</div>`;
+    if (!avail) return `<span class="gambit-btn used" title="${GAMBIT_EXPLAIN[kind]}">${label} — used</span>${hint}`;
+    return `<button class="gambit-btn${ui.armGambit ? ' armed' : ''}" id="btn-gambit" title="${GAMBIT_EXPLAIN[kind]}">${label}${ui.armGambit ? ' ✔ ARMED' : ''}</button>${hint}`;
 }
 
 function wireGambitToggle() {
@@ -1268,6 +1312,14 @@ function showBallStamp(entry) {
     playOutcomeSound(entry.outcome);
 }
 
+// Only 50/century/hat-trick are "big" milestones worth a full-screen toast --
+// server-side, plain type:'milestone' commentary also covers end-of-over
+// summaries, end-of-innings, and gambit reveals (all outcome:null), which
+// should stay as ordinary log lines, not pop the toast every single over.
+function isBigMilestone(entry) {
+    return entry.type === 'milestone' && ['50', '100', 'HT'].includes(entry.outcome);
+}
+
 function showMilestoneToast(entry) {
     const root = $('milestone-toast-root');
     if (!root) return;
@@ -1314,8 +1366,8 @@ function renderThisOver(m) {
             const tid = setTimeout(() => {
                 box.insertAdjacentHTML('beforeend', commLine(entry));
                 box.scrollTop = box.scrollHeight;
-                if (entry.type === 'milestone') showMilestoneToast(entry);
-                else showBallStamp(entry);
+                if (isBigMilestone(entry)) showMilestoneToast(entry);
+                else if (entry.type !== 'milestone') showBallStamp(entry);
             }, delay);
             overAnim.timeouts.push(tid);
         }
@@ -1810,6 +1862,11 @@ function auctionCenter(a, me) {
                 : `<span style="${bc ? `color:${bc}` : ''}">${teamName(a, a.active_bidder)}</span> holds the bid`;
         }
         const strikeTxt = a.strike === 1 ? 'GOING ONCE…' : a.strike === 2 ? 'GOING TWICE…' : '';
+        const iAmLeading = a.active_bidder === me;
+        // Leading bidders can't fold -- otherwise, once every rival has
+        // pulled out, the leader could pull out too and force the lot
+        // unsold for free instead of paying the bid they'd otherwise win.
+        const pullOutBtn = iAmLeading ? '' : '<button class="btn-red" id="bid-out">I\'m Out</button>';
         const controls = (a.out[me] || a.my_locked)
             ? `<div class="auc-holder">${a.my_locked ? 'Your squad is locked — sitting out.' : 'You pulled out of this lot.'}</div>`
             : `<div class="bid-controls">
@@ -1822,7 +1879,7 @@ function auctionCenter(a, me) {
                  <div class="bid-row">
                    <input type="number" id="bid-custom" step="0.1" min="0" placeholder="custom +" style="width:110px;">
                    <button class="btn-go" id="bid-send">Bid</button>
-                   <button class="btn-red" id="bid-out">I'm Out</button>
+                   ${pullOutBtn}
                  </div>
                </div>`;
         const strikeCls = a.strike === 1 ? 'strike-once' : a.strike === 2 ? 'strike-twice' : '';
@@ -1957,7 +2014,12 @@ function renderXI(state) {
         ? `Opponent: ${x.opponent_locked ? 'locked ✔' : 'selecting…'}`
         : `Others locked: ${x.others_locked_count}/${x.others_total}`;
 
+    const groundBanner = x.ground
+        ? `<div class="xi-ground-banner">🏟 <b>${x.ground.name}</b>, ${x.ground.city} &middot;
+             <span class="pitch-chip ${x.ground.pitch}">${x.ground.pitch} pitch</span> — ${x.ground.pitch_desc}</div>`
+        : '';
     $('xi-main').innerHTML = `
+        ${groundBanner}
         <div class="xi-stats">
             <span class="${cntOk ? 'good' : ''}">Selected ${x.count}/${x.size}</span>
             <span class="${osBad ? 'bad' : ''}">Overseas ${x.os}/${x.max_os}</span>
