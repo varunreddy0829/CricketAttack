@@ -248,6 +248,13 @@ button:disabled {
 .t-bracket-wrap { width: 100%; max-width: 780px; display: flex; flex-direction: column; gap: 1.4rem; align-items: center; }
 .t-current-fixture { background: var(--board-bg); border: 2px solid #2a2a26; border-radius: 8px; padding: 1rem 2rem; text-align: center; color: var(--board-white); }
 .t-current-fixture .vs { font-family: 'Oswald', sans-serif; color: var(--board-amber); font-size: 1.6rem; }
+.t-next-fixture { background: linear-gradient(180deg, var(--cream), var(--cream-2)); color: var(--ink); border-radius: 8px; padding: 1rem 2rem; text-align: center; box-shadow: var(--shadow); border: 2px solid var(--gold); }
+.t-next-fixture .vs { font-family: 'Oswald', sans-serif; color: var(--leather); font-size: 1.3rem; }
+.t-spectate { margin-top: 0.8rem; padding-top: 0.8rem; border-top: 1px solid rgba(255,255,255,0.15); text-align: left; }
+.t-spectate-score { font-family: 'Oswald', sans-serif; font-size: 1.15rem; color: var(--board-white); }
+.t-spectate-overs { font-size: 0.8rem; opacity: 0.75; }
+.t-spectate-sub { font-size: 0.8rem; opacity: 0.8; margin-top: 0.2rem; }
+.t-spectate-comm { max-height: 140px; overflow-y: auto; margin-top: 0.5rem; }
 .t-standings { width: 100%; background: var(--cream); color: var(--ink); border-radius: 8px; overflow: hidden; box-shadow: var(--shadow); }
 .t-standings table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
 .t-standings th, .t-standings td { padding: 0.5rem 0.8rem; text-align: right; border-bottom: 1px solid rgba(0,0,0,0.08); }
@@ -261,6 +268,20 @@ button:disabled {
 .t-champion-banner { text-align: center; }
 .t-champion-banner .trophy { font-size: 4rem; }
 .t-champion-banner h1 { color: var(--gold); font-size: 2.4rem; }
+
+.t-awards { width: 100%; }
+.t-awards-row { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-top: 0.6rem; }
+.t-award-card { background: linear-gradient(180deg, var(--cream), var(--cream-2)); color: var(--ink); border-radius: 8px; padding: 0.8rem 1.2rem; text-align: center; box-shadow: var(--shadow); min-width: 160px; }
+.t-award-cap { font-family: 'Oswald', sans-serif; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.75; }
+.t-award-name { font-family: 'Oswald', sans-serif; font-size: 1.15rem; margin-top: 0.2rem; }
+.t-award-sub { font-size: 0.75rem; opacity: 0.7; margin-top: 0.1rem; }
+
+.t-presentation { text-align: center; animation: presentFadeIn 0.5s ease; }
+.t-presentation-emoji { font-size: 3.5rem; line-height: 1; }
+.t-presentation h1 { color: var(--gold); font-size: 2rem; margin: 0.3rem 0; }
+.t-presentation.big .t-presentation-emoji { font-size: 5rem; }
+.t-presentation.big h1 { font-size: 3rem; }
+@keyframes presentFadeIn { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
 
 .panel .row {
     display: flex;
@@ -1225,6 +1246,23 @@ button:disabled {
     font-size: 0.66rem;
 }
 
+.other-squad-row:hover {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.other-squad-detail {
+    padding: 0.3rem 0.6rem 0.5rem 1.4rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.3rem 0.7rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.other-squad-player {
+    font-size: 0.74rem;
+    color: rgba(243, 234, 211, 0.85);
+}
+
 .auc-center {
     flex: 1;
     display: flex;
@@ -1443,6 +1481,14 @@ button:disabled {
 
 .xi-col h4 {
     margin-bottom: 0.5rem;
+}
+
+.xi-reorder-hint {
+    font-size: 0.68rem;
+    font-weight: 400;
+    text-transform: none;
+    opacity: 0.6;
+    margin-left: 0.5rem;
 }
 
 .xi-list {

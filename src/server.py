@@ -29,7 +29,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.models.player import Batter, Bowler
 from src.models.match_state import MatchState
 from src.engine.simulator import calculate_single_ball, EXTRAS_PROB
-from src.engine.draft_generator import generate_draft_pool
+from src.engine.draft_generator import generate_draft_pool, auction_pool_size_per_set
 
 app = Flask(__name__, static_folder="public")
 
@@ -279,6 +279,7 @@ def _fresh_game(num_teams=2):
         "bat_card": {},           # name -> batting scorecard row
         "bowl_card": {},          # name -> bowling scorecard row
         "completed_innings": [],  # snapshots for the scorecard tab
+        "motm": None,             # this match's Man of the Match (set once it finishes)
         "this_over": [],          # structured commentary for the last completed over
         "live": [],               # full running commentary (all overs, both innings)
         "pending_over": {
@@ -395,9 +396,17 @@ def _auto_two_xis():
 
 # --- Match lifecycle ---------------------------------------------------------
 
-def _prepare_innings(batting_side, target=None):
+def _prepare_innings(batting_side, target=None, keep_this_over=False):
     """Set up a fresh innings but leave the crease empty — the batting side picks
-    its openers (stage 'openers') before any ball is bowled."""
+    its openers (stage 'openers') before any ball is bowled.
+
+    keep_this_over=True is used for the innings-1 -> innings-2 handoff: the
+    final over of innings 1 was just simulated in this very request, and
+    wiping this_over here (before the client's next /api/state poll can ever
+    see it) silently drops its commentary. Leaving it be for now is safe --
+    innings 2's own first _try_resolve_over() call clears this_over itself
+    once real balls start, and the full-screen openers overlay covers the
+    match view in the meantime anyway."""
     g = GAME
     g["batting_side"] = batting_side
     g["target"] = target
@@ -412,7 +421,8 @@ def _prepare_innings(batting_side, target=None):
     g["last_bowler"] = None
     g["bat_card"] = {}
     g["bowl_card"] = {}
-    g["this_over"] = []
+    if not keep_this_over:
+        g["this_over"] = []
     g["active_over"] = None
     g["over_end_at"] = 0
     g["used_batters"] = []
@@ -728,10 +738,13 @@ def _handle_innings_over():
     if g["innings"] == 1:
         target = st.runs + 1
         g["innings"] = 2
-        _prepare_innings(_bowling_side(), target=target)
+        _prepare_innings(_bowling_side(), target=target, keep_this_over=True)
         g["live"].append({"ball": "", "type": "milestone", "outcome": None,
                           "text": f"End of Innings 1. Target: {target}.", "over": 2})
     else:
+        inn1, inn2 = g["completed_innings"][0], g["completed_innings"][1]
+        scores, _, _ = _fixture_impact_scores(inn1, inn2)
+        g["motm"] = max(scores, key=scores.get) if scores else None
         _compute_result()
         g["phase"] = "finished"
         g["stage"] = "done"
@@ -832,11 +845,16 @@ def _new_squad():
 
 
 def _start_auction():
-    sets, _total, _os = generate_draft_pool(ALL_PLAYERS)
+    per_set = auction_pool_size_per_set(len(GAME["team_ids"]))
+    sets, _total, _os = generate_draft_pool(ALL_PLAYERS, players_per_set=per_set)
     pool = []
     for s in sets:
         for p in s["players"]:
             pool.append({**_card_fields(p), "tier": s["tier"], "role": s["role"], "set_id": s["set_id"]})
+    # The "Available Players" reference list is sorted alphabetically per set —
+    # deliberately decoupled from `s["players"]`'s own (separately shuffled)
+    # presentation order, so who's up next in bidding can't be read off the list.
+    pool.sort(key=lambda c: c["name"])
     GAME["squads"] = {t: _new_squad() for t in GAME["team_ids"]}
     GAME["auction"] = {
         "sets": sets, "pool": pool, "set_index": 0, "player_index": 0,
@@ -943,14 +961,14 @@ def _auction_done():
 
 def _check_auction_grace_expiry():
     """Fired by the ticker once the post-auction grace deadline passes. Any
-    squad still under SQUAD_MIN (or without a keeper) auto-forfeits.
+    squad still under SQUAD_MIN (or without a keeper) is kicked out — no
+    auto-fill safety net.
 
     Plain 1v1 games: reuses the same 'abandoned' result path as a manual
     /api/exit_game forfeit, so _serialize's redaction/finished-banner handling
-    just works unchanged. Tournament games: eliminating a team mid-tournament
-    is a much bigger can of worms (bye fixtures, adjusted standings), so
-    instead we force-complete their squad via auto-fill so everyone can play —
-    nobody gets stuck, and no one is unfairly knocked out for being slow."""
+    just works unchanged. Tournament games: the short squad(s) are removed
+    from team_ids entirely via _eliminate_from_auction, before any fixtures
+    are generated, so the round robin is simply built among whoever's left."""
     a = GAME["auction"]
     team_ids = GAME["team_ids"]
     losers = [t for t in team_ids if not _squad_valid(t)]
@@ -960,9 +978,14 @@ def _check_auction_grace_expiry():
 
     if GAME.get("tournament"):
         for t in losers:
-            _auto_fill_squad(t)
-            GAME["squads"][t]["locked"] = True
-        if all(GAME["squads"][t]["locked"] for t in team_ids):
+            _eliminate_from_auction(t)
+        remaining = GAME["team_ids"]
+        if len(remaining) < 2:
+            GAME["abandoned"] = True
+            GAME["abandoned_by"] = "__draw__"
+            GAME["result"] = "Tournament abandoned — not enough squads reached the minimum."
+            return
+        if all(GAME["squads"][t]["locked"] for t in remaining):
             _to_xi()
         return
 
@@ -1088,33 +1111,21 @@ def _resolved_advance():
             _advance_lot()
 
 
-def _auto_fill_squad(role):
-    """Fill a squad up to SQUAD_MIN from the unsold pile then any free agents,
-    prioritising a keeper if the squad lacks one."""
-    sq = GAME["squads"][role]
-    taken = {p["name"] for r in GAME["team_ids"] for p in GAME["squads"][r]["roster"]}
-    pool = [p for p in GAME["auction"]["unsold"] if p["name"] not in taken]
-    pool += [p for p in ALL_PLAYERS if p["name"] not in taken
-             and p["name"] not in {x["name"] for x in pool}]
-
-    def add(p):
-        role_tag = "Wicket Keeper" if p.get("is_keeper") else \
-            ("Bowler" if p.get("bowling_ovr", 0) > p.get("batting_ovr", 0) else "Batsman")
-        sq["roster"].append({**_card_fields(p), "assigned_role": role_tag, "price": 0.0})
-        if p.get("is_foreigner"):
-            sq["os"] += 1
-        if p.get("is_keeper"):
-            sq["wk"] += 1
-
-    if sq["wk"] == 0:
-        kp = next((p for p in pool if p.get("is_keeper")), None)
-        if kp:
-            add(kp); pool.remove(kp)
-    for p in pool:
-        if len(sq["roster"]) >= SQUAD_MIN:
-            break
-        if p["name"] not in {x["name"] for x in sq["roster"]}:
-            add(p)
+def _eliminate_from_auction(role):
+    """A squad never reached SQUAD_MIN by the post-auction grace deadline:
+    kicked out entirely, before any fixtures/XI selection exist yet, so they
+    take no further part in this game. Their token stays registered so their
+    own client gets a clear "you're out" message (see _serialize) instead of
+    a dead/unknown-token error; everyone else's game just continues without
+    them, one team_id lighter."""
+    GAME["squads"][role]["locked"] = True
+    GAME["squads"][role]["eliminated"] = True
+    GAME["team_ids"] = [t for t in GAME["team_ids"] if t != role]
+    if GAME.get("tournament"):
+        t = GAME["tournament"]
+        t.setdefault("eliminated", [])
+        if role not in t["eliminated"]:
+            t["eliminated"].append(role)
 
 
 def _finalize_xi_to_match():
@@ -1142,6 +1153,7 @@ def _start_single_match():
     GAME["innings"] = 1
     GAME["completed_innings"] = []
     GAME["live"] = []
+    GAME["motm"] = None
     GAME["phase"] = "match"
     _do_toss()
 
@@ -1171,18 +1183,93 @@ def _ranked_teams():
 
 
 def _new_fixture(a, b, kind):
-    return {"a": a, "b": b, "kind": kind, "played": False, "winner": None, "result_text": None}
+    return {"a": a, "b": b, "kind": kind, "played": False, "winner": None,
+            "result_text": None, "motm": None}
+
+
+def _fixture_impact_scores(inn1, inn2):
+    """Combines batting + bowling performances across both innings of a
+    fixture into one impact score per player: runs + wickets*20 (a common
+    fantasy-cricket-style weighting) -- used for Man of the Match and the
+    tournament-wide MVP award. Returns (scores, per_player_runs, per_player_wkts)."""
+    scores, runs_by, wkts_by = {}, {}, {}
+    for inn in (inn1, inn2):
+        for row in inn["batting"]:
+            scores[row["name"]] = scores.get(row["name"], 0) + row["runs"]
+            runs_by[row["name"]] = runs_by.get(row["name"], 0) + row["runs"]
+        for row in inn["bowling"]:
+            scores[row["name"]] = scores.get(row["name"], 0) + row["wickets"] * 20
+            wkts_by[row["name"]] = wkts_by.get(row["name"], 0) + row["wickets"]
+    return scores, runs_by, wkts_by
+
+
+def _record_fixture_player_stats(t, a, b, inn1, inn2, motm_name):
+    """Fold one fixture's batting/bowling cards into the tournament-long
+    player_stats accumulator (Orange/Purple Cap, MVP), and bump the Man of
+    the Match's tally."""
+    stats = t.setdefault("player_stats", {})
+    for inn in (inn1, inn2):
+        batting_team = inn["batting_team"]
+        bowling_team = b if batting_team == a else a
+        for row in inn["batting"]:
+            s = stats.setdefault(row["name"], {"runs": 0, "wickets": 0, "motm": 0, "team": batting_team})
+            s["runs"] += row["runs"]
+            s["team"] = batting_team
+        for row in inn["bowling"]:
+            s = stats.setdefault(row["name"], {"runs": 0, "wickets": 0, "motm": 0, "team": bowling_team})
+            s["wickets"] += row["wickets"]
+            s["team"] = bowling_team
+    if motm_name and motm_name in stats:
+        stats[motm_name]["motm"] += 1
+
+
+def _tournament_awards(t):
+    """Orange Cap (most runs), Purple Cap (most wickets), MVP (best combined
+    impact score) across the whole tournament. None if nobody's played yet."""
+    stats = t.get("player_stats") or {}
+    if not stats:
+        return None
+    def top(key_fn):
+        name = max(stats, key=key_fn)
+        return {"name": name, "team": stats[name]["team"], "value": key_fn(name)}
+    orange = top(lambda n: stats[n]["runs"])
+    purple = top(lambda n: stats[n]["wickets"])
+    mvp = top(lambda n: stats[n]["runs"] + stats[n]["wickets"] * 20)
+    return {"orange_cap": orange, "purple_cap": purple, "mvp": mvp}
+
+
+def _round_robin_pairs(team_ids):
+    """Standard circle-method round-robin scheduling: every unique pair once,
+    ordered round by round (each round plays every team at most once) so no
+    single team is stuck playing several fixtures back-to-back before the
+    others get a turn -- fixtures still resolve one at a time in this list
+    order, but the ORDER now spreads each team's matches out realistically."""
+    teams = list(team_ids)
+    bye = object() if len(teams) % 2 == 1 else None
+    if bye is not None:
+        teams.append(bye)
+    n = len(teams)
+    rounds = []
+    for _ in range(n - 1):
+        round_pairs = []
+        for i in range(n // 2):
+            a, b = teams[i], teams[n - 1 - i]
+            if a is not bye and b is not bye:
+                round_pairs.append((a, b))
+        rounds.append(round_pairs)
+        teams = [teams[0]] + [teams[-1]] + teams[1:-1]
+    return [pair for rnd in rounds for pair in rnd]
 
 
 def _start_tournament_matches():
     """Called once every team has locked its XI: build the round-robin fixture
-    list (every unique pair, once) and start the first one. The very first
-    fixture auto-starts (everyone just finished XI selection, clearly ready);
-    every fixture after that goes through the ready-gate (see
-    _set_awaiting_ready) so nobody gets swept into a match without warning."""
+    list (every unique pair, once, realistically ordered -- see
+    _round_robin_pairs) and start the first one. The very first fixture
+    auto-starts (everyone just finished XI selection, clearly ready); every
+    fixture after that goes through the ready-gate (see _set_awaiting_ready)
+    so nobody gets swept into a match without warning."""
     team_ids = GAME["team_ids"]
-    fixtures = [_new_fixture(team_ids[i], team_ids[j], "round_robin")
-                for i in range(len(team_ids)) for j in range(i + 1, len(team_ids))]
+    fixtures = [_new_fixture(a, b, "round_robin") for a, b in _round_robin_pairs(team_ids)]
     GAME["tournament"].update({
         "fixtures": fixtures, "current_fixture": 0, "stage": "round_robin",
         "standings": {t: _blank_standing() for t in team_ids},
@@ -1216,6 +1303,8 @@ def _finish_tournament_fixture():
     a, b = g["match_teams"]
     inn1, inn2 = g["completed_innings"][0], g["completed_innings"][1]
     by_team = {inn1["batting_team"]: inn1, inn2["batting_team"]: inn2}
+    fx["motm"] = g.get("motm")
+    _record_fixture_player_stats(t, a, b, inn1, inn2, fx["motm"])
 
     for team_id in (a, b):
         row = t["standings"][team_id]
@@ -1256,8 +1345,24 @@ def _set_awaiting_ready(idx):
 
 
 def _seed_playoffs():
+    """Seeds the top-3 into Qualifier 1. Auction-time elimination (see
+    _eliminate_from_auction) can leave a tournament with fewer teams than it
+    started, so this degrades gracefully instead of assuming 3+ survivors:
+    2 teams left -> straight to a final (skip the qualifier bracket entirely);
+    1 (or 0) left -> whoever's standing is simply the champion, no match needed."""
     t = GAME["tournament"]
-    top3 = _ranked_teams()[:3]
+    ranked = _ranked_teams()
+    if len(ranked) < 2:
+        t["champion"] = ranked[0] if ranked else None
+        t["stage"] = "champion"
+        return
+    if len(ranked) == 2:
+        t["playoff_seeds"] = ranked[:2]
+        t["stage"] = "final"
+        t["fixtures"].append(_new_fixture(ranked[0], ranked[1], "final"))
+        _set_awaiting_ready(len(t["fixtures"]) - 1)
+        return
+    top3 = ranked[:3]
     t["playoff_seeds"] = top3
     t["stage"] = "qualifier1"
     t["fixtures"].append(_new_fixture(top3[0], top3[1], "qualifier1"))
@@ -1323,7 +1428,9 @@ def _determine_next_fixture():
 
 def _confirm_tournament_ready(role):
     """A team presses Ready for the fixture the ready-gate is holding on. Once
-    both of that fixture's teams have confirmed, actually start it (toss etc)."""
+    both of that fixture's teams have confirmed, move on to picking a fresh
+    XI for this specific fixture (see _set_awaiting_xi) rather than starting
+    the match immediately -- squads don't replay the same XI all tournament."""
     t = GAME["tournament"]
     if not t.get("awaiting_ready") or role not in t.get("next_ready", {}):
         raise ValueError("No fixture is waiting on you right now.")
@@ -1333,6 +1440,56 @@ def _confirm_tournament_ready(role):
         t["awaiting_ready"] = False
         t["next_fixture_idx"] = None
         t["next_ready"] = {}
+        _set_awaiting_xi(idx)
+
+
+def _set_awaiting_xi(idx):
+    """Both teams in fixture `idx` have readied up: they each pick a fresh
+    Playing XI from their (already-drafted) squad for this specific match --
+    scoped to just these two teams so every other team in the tournament
+    keeps seeing the bracket/spectator view undisturbed (GAME["phase"] is
+    deliberately left alone here)."""
+    t = GAME["tournament"]
+    fx = t["fixtures"][idx]
+    t["fixture_xi_idx"] = idx
+    t["fixture_xi"] = {fx["a"]: {"xi": [], "locked": False}, fx["b"]: {"xi": [], "locked": False}}
+    t["awaiting_xi"] = True
+
+
+def _lock_fixture_xi(role):
+    """One team locks its per-fixture XI. Once both of the fixture's teams
+    are locked, copy each into teams[side].xi (same field _prepare_innings
+    reads from) and actually start the match."""
+    t = GAME["tournament"]
+    if not t.get("awaiting_xi") or role not in t.get("fixture_xi", {}):
+        raise ValueError("Not selecting an XI right now.")
+    sel = t["fixture_xi"][role]
+    if len(sel["xi"]) != XI_SIZE:
+        raise ValueError(f"Pick exactly {XI_SIZE} players.")
+    roster_by_name = {p["name"]: p for p in GAME["squads"][role]["roster"]}
+    os_count = sum(1 for n in sel["xi"] if roster_by_name[n].get("is_foreigner"))
+    wk_count = sum(1 for n in sel["xi"] if roster_by_name[n].get("is_keeper")
+                   or roster_by_name[n].get("assigned_role") == "Wicket Keeper")
+    if os_count > XI_MAX_OVERSEAS:
+        raise ValueError(f"Max {XI_MAX_OVERSEAS} overseas players.")
+    if wk_count < 1:
+        raise ValueError("You need at least 1 wicket-keeper.")
+    sel["locked"] = True
+    idx = t["fixture_xi_idx"]
+    fx = t["fixtures"][idx]
+    if t["fixture_xi"][fx["a"]]["locked"] and t["fixture_xi"][fx["b"]]["locked"]:
+        for side in (fx["a"], fx["b"]):
+            chosen = t["fixture_xi"][side]["xi"]
+            by_name = {p["name"]: p for p in GAME["squads"][side]["roster"]}
+            GAME["teams"][side]["xi"] = [
+                {"name": n, "batting_ovr": by_name[n]["batting_ovr"],
+                 "bowling_ovr": by_name[n]["bowling_ovr"],
+                 "is_foreigner": by_name[n].get("is_foreigner", False),
+                 "is_keeper": by_name[n].get("is_keeper", False)}
+                for n in chosen
+            ]
+        t["awaiting_xi"] = False
+        t["fixture_xi"] = {}
         _start_fixture(idx)
 
 
@@ -1385,6 +1542,36 @@ def _eliminate_from_tournament(role):
         _determine_next_fixture()
 
 
+def _serialize_spectator_view():
+    """Read-only public view of the fixture currently in progress, for
+    tournament teams not playing it. Deliberately excludes hidden-intent
+    data (pending submissions, bowler pick before reveal) -- only what a
+    neutral broadcast viewer would see: score, overs, wickets, ball-by-ball
+    commentary for the current over."""
+    g = GAME
+    if g.get("phase") != "match" or g.get("state") is None or not g.get("batting_side"):
+        return None
+    st = g["state"]
+    batting = g["batting_side"]
+    bowling = _bowling_side()
+    striker = st.get_striker()
+    non_striker = st.get_non_striker()
+    bowler = g.get("bowler")
+    return {
+        "batting_team_name": g["teams"][batting]["name"],
+        "bowling_team_name": g["teams"][bowling]["name"],
+        "innings": g.get("innings"),
+        "score": st.runs, "wickets": st.wickets,
+        "overs": f"{st.balls // 6}.{st.balls % 6}",
+        "target": g.get("target"),
+        "striker_name": striker.name if striker else None,
+        "non_striker_name": non_striker.name if non_striker else None,
+        "bowler_name": bowler.name if bowler else None,
+        "this_over": g.get("this_over", []),
+        "stage": g.get("stage"),
+    }
+
+
 def _serialize_tournament_summary():
     """Public bracket/standings view — no hidden-intent data here, safe to show
     to every team including spectators of the fixture currently being played."""
@@ -1399,7 +1586,7 @@ def _serialize_tournament_summary():
         {"a_name": GAME["teams"][f["a"]]["name"], "b_name": GAME["teams"][f["b"]]["name"],
          "kind": f["kind"], "played": f["played"],
          "winner_name": GAME["teams"][f["winner"]]["name"] if f["winner"] else None,
-         "result_text": f["result_text"]}
+         "result_text": f["result_text"], "motm_name": f.get("motm")}
         for f in t.get("fixtures", [])
     ]
     current = None
@@ -1408,10 +1595,15 @@ def _serialize_tournament_summary():
     if GAME["phase"] == "match" and ci is not None and 0 <= ci < len(fixtures):
         fx = fixtures[ci]
         current = {"a_name": GAME["teams"][fx["a"]]["name"], "b_name": GAME["teams"][fx["b"]]["name"], "kind": fx["kind"]}
+    awards = _tournament_awards(t)
+    if awards:
+        for key in ("orange_cap", "purple_cap", "mvp"):
+            awards[key]["team_name"] = GAME["teams"][awards[key]["team"]]["name"]
     return {
         "stage": t.get("stage"), "standings": standings_view, "fixtures": fixtures_view,
         "current_fixture": current,
         "champion_name": GAME["teams"][t["champion"]]["name"] if t.get("champion") else None,
+        "awards": awards,
     }
 
 
@@ -1455,6 +1647,29 @@ def _serialize(token):
                 "kind": nf["kind"], "i_ready": t["next_ready"][role],
                 "opponent_ready": t["next_ready"][other],
             }
+        if t.get("awaiting_xi") and role in t.get("fixture_xi", {}):
+            idx = t["fixture_xi_idx"]
+            fx = t["fixtures"][idx]
+            other = fx["b"] if role == fx["a"] else fx["a"]
+            sq = g["squads"][role]
+            mine = t["fixture_xi"][role]
+            chosen = set(mine["xi"])
+            roster = [{**p, "selected": p["name"] in chosen} for p in sq["roster"]]
+            os_in = sum(1 for p in sq["roster"] if p["name"] in chosen and p.get("is_foreigner"))
+            wk_in = sum(1 for p in sq["roster"] if p["name"] in chosen
+                        and (p.get("is_keeper") or p.get("assigned_role") == "Wicket Keeper"))
+            # Same shape as _serialize_xi (fixture-scoped instead of once-per-
+            # tournament) so the frontend can reuse renderXI/xiCard unchanged.
+            out["fixture_xi"] = {
+                "you_role": role, "team_name": g["teams"][role]["name"],
+                "opponent_name": g["teams"][other]["name"], "kind": fx["kind"],
+                "roster": roster, "xi": mine["xi"], "locked": mine["locked"],
+                "opponent_locked": t["fixture_xi"][other]["locked"],
+                "others_locked_count": 1 if t["fixture_xi"][other]["locked"] else 0, "others_total": 1,
+                "count": len(mine["xi"]), "os": os_in, "wk": wk_in,
+                "size": XI_SIZE, "max_os": XI_MAX_OVERSEAS,
+            }
+            return out
 
     if g.get("abandoned"):
         out["abandoned"] = True
@@ -1463,6 +1678,17 @@ def _serialize(token):
             out["you_won"] = False
         else:
             out["you_won"] = role is not None and role != g.get("abandoned_by")
+        return out
+
+    # squad never reached SQUAD_MIN by the auction grace deadline -- removed
+    # from team_ids entirely (see _eliminate_from_auction), so none of the
+    # phase-specific branches below (which key off team_ids/xi_select/etc.)
+    # are safe to run for this role. Short-circuit with a clear message; the
+    # tournament summary above still lets them go watch the bracket.
+    if role is not None and (g.get("squads") or {}).get(role, {}).get("eliminated"):
+        out["eliminated"] = True
+        out["ended_result"] = "Your squad never reached the minimum 15 players in time — you're out."
+        out["waiting_for_fixture"] = True
         return out
 
     if g["phase"] == "lobby":
@@ -1495,9 +1721,13 @@ def _serialize(token):
 
     # tournament spectator: this team isn't in the fixture currently being
     # played, so none of the match/toss state below applies to them — show the
-    # bracket/standings instead (already attached above as out["tournament"]).
+    # bracket/standings instead (already attached above as out["tournament"]),
+    # plus a read-only public view of the live match if one is in progress.
     if is_tournament and role is not None and role not in (g.get("match_teams") or []):
         out["waiting_for_fixture"] = True
+        spectate = _serialize_spectator_view()
+        if spectate:
+            out["spectate"] = spectate
         return out
 
     # toss happens before any innings state exists
@@ -1623,6 +1853,7 @@ def _serialize(token):
         "pending": pending,
         "free_hit": free_hit,
         "result": g["result"],
+        "motm": g.get("motm"),
     }
 
     out["live"] = g["live"]
@@ -2008,22 +2239,6 @@ def pull_out():
         return jsonify({"status": "success"})
 
 
-@app.route("/api/auto_fill", methods=["POST"])
-def auto_fill():
-    global GAME
-    with LOCK:
-        token = (request.get_json(silent=True) or {}).get("token", "")
-        GAME = _game_by_token(token)
-        if GAME is None:
-            return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
-        role = _role_of(token)
-        if not role or GAME.get("phase") != "auction":
-            return jsonify({"status": "error", "message": "Not in an auction."}), 400
-        _auto_fill_squad(role)
-        _bump()
-        return jsonify({"status": "success"})
-
-
 @app.route("/api/lock_squad", methods=["POST"])
 def lock_squad():
     """Lock in the squad when it satisfies the auction rules (15-21 players,
@@ -2105,6 +2320,100 @@ def lock_xi():
         sel["locked"] = True
         if all(GAME["xi_select"][t]["locked"] for t in GAME["team_ids"]):
             _finalize_xi_to_match()
+        _bump()
+        return jsonify({"status": "success"})
+
+
+@app.route("/api/reorder_xi", methods=["POST"])
+def reorder_xi():
+    """Drag-and-drop reordering of the chosen XI (cosmetic/organizational --
+    the engine still picks openers/next-batter freely by name during play)."""
+    global GAME
+    with LOCK:
+        data = request.get_json(silent=True) or {}
+        GAME = _game_by_token(data.get("token", ""))
+        if GAME is None:
+            return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
+        role = _role_of(data.get("token", ""))
+        if not role or GAME["phase"] != "xi":
+            return jsonify({"status": "error", "message": "Not selecting XI."}), 400
+        sel = GAME["xi_select"][role]
+        if sel["locked"]:
+            return jsonify({"status": "error", "message": "XI already locked."}), 400
+        order = data.get("order")
+        if not isinstance(order, list) or set(order) != set(sel["xi"]):
+            return jsonify({"status": "error", "message": "Invalid order."}), 400
+        sel["xi"] = order
+        _bump()
+        return jsonify({"status": "success"})
+
+
+@app.route("/api/toggle_fixture_xi", methods=["POST"])
+def toggle_fixture_xi():
+    """Per-tournament-fixture XI pick/unpick (a fresh selection before every
+    match, not just once for the whole tournament -- see _set_awaiting_xi)."""
+    global GAME
+    with LOCK:
+        data = request.get_json(silent=True) or {}
+        GAME = _game_by_token(data.get("token", ""))
+        if GAME is None:
+            return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
+        role = _role_of(data.get("token", ""))
+        t = GAME.get("tournament") or {}
+        if not role or not t.get("awaiting_xi") or role not in t.get("fixture_xi", {}):
+            return jsonify({"status": "error", "message": "Not selecting an XI right now."}), 400
+        sel = t["fixture_xi"][role]
+        if sel["locked"]:
+            return jsonify({"status": "error", "message": "XI already locked."}), 400
+        name = data.get("player_name")
+        if name not in [p["name"] for p in GAME["squads"][role]["roster"]]:
+            return jsonify({"status": "error", "message": "Player not in your squad."}), 400
+        if name in sel["xi"]:
+            sel["xi"].remove(name)
+        elif len(sel["xi"]) < XI_SIZE:
+            sel["xi"].append(name)
+        _bump()
+        return jsonify({"status": "success"})
+
+
+@app.route("/api/reorder_fixture_xi", methods=["POST"])
+def reorder_fixture_xi():
+    global GAME
+    with LOCK:
+        data = request.get_json(silent=True) or {}
+        GAME = _game_by_token(data.get("token", ""))
+        if GAME is None:
+            return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
+        role = _role_of(data.get("token", ""))
+        t = GAME.get("tournament") or {}
+        if not role or not t.get("awaiting_xi") or role not in t.get("fixture_xi", {}):
+            return jsonify({"status": "error", "message": "Not selecting an XI right now."}), 400
+        sel = t["fixture_xi"][role]
+        if sel["locked"]:
+            return jsonify({"status": "error", "message": "XI already locked."}), 400
+        order = data.get("order")
+        if not isinstance(order, list) or set(order) != set(sel["xi"]):
+            return jsonify({"status": "error", "message": "Invalid order."}), 400
+        sel["xi"] = order
+        _bump()
+        return jsonify({"status": "success"})
+
+
+@app.route("/api/lock_fixture_xi", methods=["POST"])
+def lock_fixture_xi():
+    global GAME
+    with LOCK:
+        token = (request.get_json(silent=True) or {}).get("token", "")
+        GAME = _game_by_token(token)
+        if GAME is None:
+            return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
+        role = _role_of(token)
+        if not role:
+            return jsonify({"status": "error", "message": "Unknown player."}), 403
+        try:
+            _lock_fixture_xi(role)
+        except ValueError as e:
+            return jsonify({"status": "error", "message": str(e)}), 400
         _bump()
         return jsonify({"status": "success"})
 
@@ -2348,7 +2657,12 @@ def set_next_batter():
             GAME["stage"] = "play"
             _bump()
         elif st.balls < GAME["over_end_at"]:
-            # over still in progress -> batting side must press Ready to resume
+            # over still in progress -> batting side must press Ready to resume.
+            # Reset the batting side's pending-submitted flag so the intent
+            # sliders re-enable for the new batter (and the surviving one) --
+            # otherwise they'd stay disabled/stale from the over's original
+            # submission until ready_resume actually locks in fresh values.
+            GAME["pending_over"]["batting"]["submitted"] = False
             GAME["stage"] = "await_resume"
             _bump()
         else:

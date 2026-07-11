@@ -227,8 +227,8 @@
     <div id="auction-rules-overlay" class="overlay hidden">
         <div class="overlay-card">
             <h2>How the Auction Works</h2>
-            <p class="sub">60 players are pooled into 12 sets — 3 tiers (Marquee opens at ₹2 Cr, Mid-Level ₹1 Cr, Group ₹0.2 Cr) across 4 roles. With a ₹100 Cr purse, outbid your rival (every bid raises the price by at least ₹0.5 Cr) or fold with "I'm Out". Build a balanced 15–21 squad (at least 1 keeper), then Lock In.</p>
-            <p class="sub">Miss 15 players when the auction ends and you get a 60-second grace period to Auto-Fill — fail to lock a valid squad in time and you auto-forfeit the match.</p>
+            <p class="sub">Players are pooled into 12 sets — 3 tiers (Marquee opens at ₹2 Cr, Mid-Level ₹1 Cr, Group ₹0.2 Cr) across 4 roles, scaled up so there's always plenty to go around. With a ₹100 Cr purse, outbid your rivals (raise by ₹0.1 Cr up to ₹10 Cr at a time) or fold with "I'm Out". Build a balanced 15–21 squad (at least 1 keeper), then Lock In.</p>
+            <p class="sub">Miss 15 players when the auction ends and you get a 60-second grace period to Lock In whatever you have — fail to reach 15 by the time it runs out and you're kicked out, no auto-fill safety net.</p>
             <p class="sub">Once squads are set, each side picks their best 11 (max 4 overseas, at least 1 keeper) before the match begins.</p>
             <button class="btn-ghost btn-lg" id="btn-close-auction-rules" style="margin-top:1rem;">Close</button>
         </div>
@@ -248,16 +248,12 @@
     <div id="result-banner" class="result-banner hidden">
         <div class="tagline">Full Time</div>
         <h1 id="result-text">—</h1>
+        <div id="result-motm" class="tagline hidden" style="margin-top:-0.5rem;"></div>
         <div style="display:flex; gap:0.8rem; flex-wrap:wrap; justify-content:center;">
             <button class="btn-ghost btn-lg" id="btn-view-scorecard">📋 View Scorecard</button>
             <button class="btn-ghost btn-lg hidden" id="btn-back-to-tournament">🏆 Back to Tournament</button>
             <button class="btn-gold btn-lg" id="btn-new-game">New Game</button>
         </div>
-    </div>
-
-    <!-- Next-fixture ready overlay (tournament) -->
-    <div id="next-fixture-overlay" class="overlay hidden">
-        <div class="overlay-card" id="next-fixture-card"></div>
     </div>
 
     <!-- Rejoin-tournament picker (shown when Join says the tournament is full) -->

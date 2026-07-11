@@ -19,13 +19,14 @@ const ui = {
     bowlIntent: 50,
     selectedBowler: null,
     openerPicks: [],
+    expandedSquad: null,   // tournament auction: which "other squad" row is expanded, by team_id
 };
 
 function getBatterIntent(name) { return name in ui.batterIntents ? ui.batterIntents[name] : 50; }
 function setBatterIntent(name, v) { ui.batterIntents[name] = v; }
 
 // tracks the ball-by-ball reveal of the current over
-const overAnim = { key: null, shown: 0 };
+const overAnim = { key: null, shown: 0, revealUntil: 0 };
 
 // ---------- helpers ----------
 const $ = (id) => document.getElementById(id);
@@ -197,18 +198,27 @@ window.addEventListener('gamestate', (e) => {
 function render(state) {
     if (!state || state.status === 'no_game' || !state.you || !state.you.joined) {
         $('exit-btn').classList.add('hidden');
-        $('next-fixture-overlay').classList.add('hidden');
         showScreen('landing');
         return;
     }
     // opponent (or you) left -> show result, offer back to main
     if (state.abandoned) {
         $('exit-btn').classList.add('hidden');
-        $('next-fixture-overlay').classList.add('hidden');
         $('result-text').textContent = state.you_won
             ? '🏆 You win! Your opponent left the match.'
             : (state.ended_result || 'Match abandoned.');
+        $('result-motm').classList.add('hidden');
         $('result-banner').classList.remove('hidden');
+        return;
+    }
+    // squad never reached the minimum by the grace deadline -> kicked out
+    if (state.eliminated && !manualBracketView) {
+        $('exit-btn').classList.add('hidden');
+        $('result-text').textContent = state.ended_result || "Your squad never reached the minimum — you're out.";
+        $('result-motm').classList.add('hidden');
+        $('result-banner').classList.remove('hidden');
+        $('btn-new-game').classList.toggle('hidden', state.is_tournament);
+        $('btn-back-to-tournament').classList.toggle('hidden', !state.is_tournament);
         return;
     }
     // exit/leave button: shown during play and while browsing the final
@@ -216,14 +226,12 @@ function render(state) {
     const finished = state.phase === 'finished';
     $('exit-btn').classList.toggle('hidden', finished && !viewingScorecard);
 
-    // the "your match is next, ready?" overlay floats on top of whatever
-    // screen is behind it (match, bracket, ...) — independent of routing
-    renderNextFixtureOverlay(state);
-
-    // manualBracketView only makes sense while stuck looking at our own
-    // finished-fixture banner with nothing queued for us yet — clear it the
-    // moment that stops being true so future banners behave normally again.
-    if (!(finished && state.is_tournament && !state.next_fixture)) {
+    // manualBracketView only makes sense while our own last fixture is still
+    // the "finished" one sitting behind it (including if a next-fixture
+    // ready-prompt has since queued up — that now lives IN the bracket
+    // screen, see renderBracket) — clear it once a genuinely new phase
+    // starts for us so future banners behave normally again.
+    if (!(finished || state.eliminated)) {
         manualBracketView = false;
     }
 
@@ -234,6 +242,8 @@ function render(state) {
     }
     if (state.phase === 'auction') { showScreen('auction'); renderAuction(state); return; }
     if (state.phase === 'xi') { showScreen('xi-screen'); renderXI(state); return; }
+    // tournament: fresh per-fixture XI reselect (not the one-time phase=='xi' above)
+    if (state.fixture_xi) { showScreen('xi-screen'); renderXI(state); return; }
 
     // tournament: champion crowned takes priority over everything else
     if (state.is_tournament && state.tournament && state.tournament.stage === 'champion' && !viewingScorecard) {
@@ -258,8 +268,16 @@ function render(state) {
     showScreen('game');
     renderGame(state);
 
-    if (finished && !viewingScorecard) {
+    // hold off popping the (opaque, full-screen) result banner until the
+    // final over's ball-by-ball reveal has actually finished playing out —
+    // otherwise it covers the commentary the instant the match ends and it
+    // looks like no commentary was ever shown at all.
+    const revealDone = Date.now() >= overAnim.revealUntil;
+    if (finished && !viewingScorecard && revealDone) {
         $('result-text').textContent = (state.match && state.match.result) || 'Match complete';
+        const motm = state.match && state.match.motm;
+        $('result-motm').textContent = motm ? `🏅 Player of the Match: ${motm}` : '';
+        $('result-motm').classList.toggle('hidden', !motm);
         $('result-banner').classList.remove('hidden');
         const isChampionDone = state.is_tournament && state.tournament && state.tournament.stage === 'champion';
         // "New Game" ends the WHOLE session — only offer it for a plain 1v1
@@ -271,31 +289,6 @@ function render(state) {
     } else {
         $('result-banner').classList.add('hidden');
     }
-}
-
-// ---------- next-fixture ready overlay (tournament) ----------
-function renderNextFixtureOverlay(state) {
-    const nf = state.next_fixture;
-    if (!nf) { $('next-fixture-overlay').classList.add('hidden'); return; }
-    const card = $('next-fixture-card');
-    if (nf.i_ready) {
-        card.innerHTML = `
-            <h2>Ready ✔</h2>
-            <div class="sub">${nf.a_name} <b>vs</b> ${nf.b_name} — ${nf.kind.replace('_', ' ')}</div>
-            <div class="wait-note" style="margin-top:0.8rem;">
-                Waiting for ${nf.opponent_ready ? 'the match to start…' : 'the other team to ready up…'}</div>`;
-    } else {
-        card.innerHTML = `
-            <h2>🏏 Your Match Is Next!</h2>
-            <div class="sub">${nf.a_name} <b>vs</b> ${nf.b_name} — ${nf.kind.replace('_', ' ')}</div>
-            <button class="btn-go btn-lg" id="btn-fixture-ready" style="margin-top:1rem;">I'm Ready ✔</button>`;
-        const b = document.getElementById('btn-fixture-ready');
-        if (b) b.addEventListener('click', async () => {
-            try { await Net.post('/api/tournament_ready', { token: Net.getToken() }); Net.forceRefresh(); }
-            catch (e) { toast(e.message); }
-        });
-    }
-    $('next-fixture-overlay').classList.remove('hidden');
 }
 
 // ---------- lobby ----------
@@ -352,7 +345,7 @@ function fixturesList(fixtures) {
     const rows = fixtures.map(f => `
         <div class="t-fixture-row ${f.played ? '' : 'pending'}">
             <span><span class="kind">${f.kind.replace('_', ' ')}</span> ${f.a_name} vs ${f.b_name}</span>
-            <span>${f.played ? (f.result_text || '') : 'upcoming'}</span>
+            <span>${f.played ? (f.result_text || '') : 'upcoming'}${f.motm_name ? ` &middot; MOTM: ${f.motm_name}` : ''}</span>
         </div>`).join('');
     return `<div class="t-fixtures">${rows}</div>`;
 }
@@ -360,19 +353,135 @@ function fixturesList(fixtures) {
 function renderBracket(state) {
     const t = state.tournament;
     let html = `<div class="tagline" style="text-align:center;">Tournament Bracket</div>`;
+    // your match is next -> ready-up prompt lives HERE now (not a floating
+    // overlay stacked over the previous match's result banner), so you only
+    // see it once you've actually come back to the tournament screen
+    if (state.next_fixture) {
+        html += nextFixtureBlock(state.next_fixture);
+    }
     if (t.current_fixture) {
         html += `<div class="t-current-fixture">
             <div class="tagline">Now Playing</div>
             <div>${t.current_fixture.a_name} <span class="vs">VS</span> ${t.current_fixture.b_name}</div>
             <div class="tagline" style="margin-top:0.3rem;">${t.current_fixture.kind.replace('_', ' ')}</div>
+            ${spectateBlock(state.spectate)}
         </div>`;
     }
+    html += awardsLeaderboard(t.awards);
     html += standingsTable(t.standings, 3);
     html += fixturesList(t.fixtures);
     $('t-bracket-wrap').innerHTML = html;
+    wireBracketActions();
 }
 
+function awardsLeaderboard(awards) {
+    if (!awards) return '';
+    return `<div class="t-awards">
+        <div class="tagline" style="text-align:center;">Running Leaderboard</div>
+        <div class="t-awards-row">
+            <div class="t-award-card"><div class="t-award-cap">🧡 Orange Cap</div>
+                <div class="t-award-name">${awards.orange_cap.name}</div>
+                <div class="t-award-sub">${awards.orange_cap.team_name} &middot; ${awards.orange_cap.value} runs</div></div>
+            <div class="t-award-card"><div class="t-award-cap">💜 Purple Cap</div>
+                <div class="t-award-name">${awards.purple_cap.name}</div>
+                <div class="t-award-sub">${awards.purple_cap.team_name} &middot; ${awards.purple_cap.value} wkts</div></div>
+            <div class="t-award-card"><div class="t-award-cap">⭐ MVP</div>
+                <div class="t-award-name">${awards.mvp.name}</div>
+                <div class="t-award-sub">${awards.mvp.team_name}</div></div>
+        </div>
+    </div>`;
+}
+
+function nextFixtureBlock(nf) {
+    if (nf.i_ready) {
+        return `<div class="t-next-fixture">
+            <div class="tagline">Your Match Is Next — Ready ✔</div>
+            <div>${nf.a_name} <span class="vs">VS</span> ${nf.b_name}</div>
+            <div class="tagline" style="margin-top:0.3rem; opacity:0.75;">
+                Waiting for ${nf.opponent_ready ? 'the match to start…' : 'the other team to ready up…'}</div>
+        </div>`;
+    }
+    return `<div class="t-next-fixture">
+        <div class="tagline">Your Match Is Next</div>
+        <div>${nf.a_name} <span class="vs">VS</span> ${nf.b_name}</div>
+        <div class="tagline" style="margin-top:0.3rem;">${nf.kind.replace('_', ' ')}</div>
+        <button class="btn-go btn-lg" id="btn-fixture-ready" style="margin-top:0.8rem;">I'm Ready ✔</button>
+    </div>`;
+}
+
+function spectateBlock(sp) {
+    if (!sp) return '';
+    const overLines = (sp.this_over || []).map(commLine).join('') || '<div class="comm-empty">Over about to start…</div>';
+    const withNames = [sp.striker_name, sp.non_striker_name].filter(Boolean).join(' & ');
+    return `<div class="t-spectate">
+        <div class="t-spectate-score">${sp.batting_team_name} ${sp.score}/${sp.wickets}
+            <span class="t-spectate-overs">(${sp.overs} ov)</span></div>
+        <div class="t-spectate-sub">${withNames}${sp.bowler_name ? ' &middot; bowled by ' + sp.bowler_name : ''}</div>
+        ${sp.target ? `<div class="t-spectate-sub">Target: ${sp.target}</div>` : ''}
+        <div class="comm-list t-spectate-comm">${overLines}</div>
+    </div>`;
+}
+
+function wireBracketActions() {
+    const b = $('btn-fixture-ready');
+    if (b) b.addEventListener('click', async () => {
+        try { await Net.post('/api/tournament_ready', { token: Net.getToken() }); Net.forceRefresh(); }
+        catch (e) { toast(e.message); }
+    });
+}
+
+// one-time post-tournament awards reveal, played once per page load (a new
+// tournament always means a fresh page load via location.reload())
+let presentationShown = false;
+let presentationInProgress = false;
+
 function renderChampion(state) {
+    if (presentationInProgress) return;   // let the reveal sequence own the DOM until it's done
+    if (!presentationShown) {
+        presentationShown = true;
+        presentationInProgress = true;
+        playVictoryFanfare();
+        showPresentationSequence(state);
+        return;
+    }
+    renderChampionScreen(state);
+}
+
+function showPresentationSequence(state) {
+    const t = state.tournament;
+    const steps = [];
+    if (t.awards) {
+        steps.push({ emoji: '🧡', label: 'Orange Cap — Most Runs', name: t.awards.orange_cap.name,
+            sub: `${t.awards.orange_cap.team_name} · ${t.awards.orange_cap.value} runs` });
+        steps.push({ emoji: '💜', label: 'Purple Cap — Most Wickets', name: t.awards.purple_cap.name,
+            sub: `${t.awards.purple_cap.team_name} · ${t.awards.purple_cap.value} wkts` });
+        steps.push({ emoji: '⭐', label: 'Tournament MVP', name: t.awards.mvp.name,
+            sub: t.awards.mvp.team_name });
+    }
+    steps.push({ emoji: '🏆', label: 'Tournament Champions', name: t.champion_name, sub: 'Congratulations!', big: true });
+
+    let i = 0;
+    const showStep = () => {
+        if (i >= steps.length) {
+            presentationInProgress = false;
+            renderChampionScreen(CURRENT || state);
+            return;
+        }
+        const s = steps[i];
+        $('t-bracket-wrap').innerHTML = `
+            <div class="t-presentation${s.big ? ' big' : ''}">
+                <div class="t-presentation-emoji">${s.emoji}</div>
+                <div class="tagline">${s.label}</div>
+                <h1>${s.name}</h1>
+                <div class="tagline">${s.sub}</div>
+            </div>`;
+        i++;
+        setTimeout(showStep, s.big ? 2800 : 1900);
+    };
+    showStep();
+}
+
+function renderChampionScreen(state) {
     const t = state.tournament;
     // only the two finalists actually received match/scorecard data from the
     // server (spectators are redacted to the bracket summary only)
@@ -383,6 +492,7 @@ function renderChampion(state) {
             <h1>${t.champion_name}</h1>
             <div class="tagline">TOURNAMENT CHAMPIONS</div>
         </div>
+        ${awardsLeaderboard(t.awards)}
         ${standingsTable(t.standings, 3)}
         ${fixturesList(t.fixtures)}
         <div style="display:flex; gap:0.8rem; margin-top:1rem;">
@@ -940,6 +1050,7 @@ function renderThisOver(m) {
         box.innerHTML = '';
     }
     // reveal only the not-yet-shown deliveries, one after another
+    const newCount = entries.length - overAnim.shown;
     for (let i = overAnim.shown; i < entries.length; i++) {
         const delay = (i - overAnim.shown) * 130;
         const entry = entries[i];
@@ -948,6 +1059,9 @@ function renderThisOver(m) {
             box.scrollTop = box.scrollHeight;
         }, delay);
     }
+    // so the caller can hold off popping the result banner over an
+    // in-progress reveal (see render()'s `finished` handling)
+    if (newCount > 0) overAnim.revealUntil = Date.now() + newCount * 130 + 200;
     overAnim.shown = entries.length;
 }
 
@@ -1059,6 +1173,27 @@ function swingGavel() {
     const g = $('gavel'); if (!g) return;
     g.classList.remove('swing'); void g.offsetWidth; g.classList.add('swing');
 }
+
+function playVictoryFanfare() {
+    ensureAudio();
+    if (!audioCtx) return;
+    const t0 = audioCtx.currentTime;
+    const note = (freq, start, dur, vol) => {
+        const o = audioCtx.createOscillator(); o.type = 'triangle';
+        o.frequency.setValueAtTime(freq, start);
+        const g = audioCtx.createGain();
+        g.gain.setValueAtTime(0.0001, start);
+        g.gain.exponentialRampToValueAtTime(vol, start + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start(start); o.stop(start + dur + 0.05);
+    };
+    // short ascending arpeggio (C5 E5 G5 C6) then a sustained final chord
+    const run = [523.25, 659.25, 783.99, 1046.50];
+    run.forEach((freq, i) => note(freq, t0 + i * 0.16, 0.5, 0.32));
+    const chordStart = t0 + run.length * 0.16 + 0.05;
+    run.forEach(freq => note(freq, chordStart, 1.3, 0.24));
+}
 let aucFx = { strike: -1, stage: null };
 function maybeGavel(a) {
     const struck = a.stage === 'bidding' && a.strike > aucFx.strike && a.strike > 0;
@@ -1089,6 +1224,7 @@ function renderAuction(state) {
     $('auc-opp').innerHTML = a.opp_squad
         ? squadPanel(a.opp_squad, false, a)
         : otherSquadsPanel(a.other_squads, a);
+    if (!a.opp_squad) wireOtherSquads();
     $('auc-center').innerHTML = auctionCenter(a, me);
     wireAuctionCenter(a, me);
 
@@ -1139,12 +1275,29 @@ function teamName(a, role) {
 
 function otherSquadsPanel(others, a) {
     if (!others || !others.length) return '<h3>Other Squads</h3><div class="bench-empty">—</div>';
-    const rows = others.map(sq => `
-        <div class="roster-item" style="align-items:center;">
-            <span>${sq.name} ${sq.locked ? '<span class="badge-tier">LOCKED</span>' : ''}</span>
+    const rows = others.map(sq => {
+        const open = ui.expandedSquad === sq.team_id;
+        const names = sq.roster_names || [];
+        const detail = names.length
+            ? names.map(n => `<div class="other-squad-player">${n}</div>`).join('')
+            : '<div class="bench-empty">No buys yet.</div>';
+        return `
+        <div class="roster-item other-squad-row" data-expand-squad="${sq.team_id}" style="align-items:center; cursor:pointer;">
+            <span>${open ? '▾' : '▸'} ${sq.name} ${sq.locked ? '<span class="badge-tier">LOCKED</span>' : ''}</span>
             <span class="price">₹${sq.budget.toFixed(1)} Cr &middot; ${sq.count}/${a.squad_max} &middot; 🧤${sq.wk}</span>
-        </div>`).join('');
+        </div>
+        <div class="other-squad-detail${open ? '' : ' hidden'}">${detail}</div>`;
+    }).join('');
     return `<h3>Other Squads</h3>${rows}`;
+}
+
+function wireOtherSquads() {
+    document.querySelectorAll('#auc-opp [data-expand-squad]').forEach(el =>
+        el.addEventListener('click', () => {
+            const id = el.dataset.expandSquad;
+            ui.expandedSquad = ui.expandedSquad === id ? null : id;
+            if (CURRENT) renderAuction(CURRENT);
+        }));
 }
 
 function instructionsHtml(a) {
@@ -1211,8 +1364,10 @@ function auctionCenter(a, me) {
             ? `<div class="auc-holder">${a.my_locked ? 'Your squad is locked — sitting out.' : 'You pulled out of this lot.'}</div>`
             : `<div class="bid-controls">
                  <div class="quick-adds">
+                   <button data-bid="0.1">+0.1</button><button data-bid="0.2">+0.2</button>
                    <button data-bid="0.5">+0.5</button><button data-bid="1">+1</button>
                    <button data-bid="2">+2</button><button data-bid="5">+5</button>
+                   <button data-bid="10">+10</button>
                  </div>
                  <div class="bid-row">
                    <input type="number" id="bid-custom" step="0.1" min="0" placeholder="custom +" style="width:110px;">
@@ -1242,10 +1397,10 @@ function auctionCenter(a, me) {
     // done
     const sq = a.my_squad;
     let hint = '';
-    if (sq.count < a.squad_min) hint = `Need at least ${a.squad_min} players — use Auto-Fill.`;
+    if (sq.count < a.squad_min) hint = `Only ${sq.count}/${a.squad_min} players — you'll be kicked out when the timer runs out.`;
     else if (sq.wk < 1) hint = 'Need at least 1 wicket-keeper.';
     const secsLeft = Math.max(0, Math.ceil((a.time_left_ms || 0) / 1000));
-    const forfeitWarning = a.opp_squad ? 'or you auto-forfeit!' : 'or we auto-fill it for you!';
+    const forfeitWarning = a.opp_squad ? 'or you auto-forfeit!' : 'or you are kicked out!';
     const countdown = !a.my_locked
         ? `<div class="auc-holder" style="color:${secsLeft <= 15 ? 'var(--leather)' : 'var(--gold)'}">
              ⏱ ${secsLeft}s to lock a valid squad ${forfeitWarning}</div>
@@ -1257,7 +1412,6 @@ function auctionCenter(a, me) {
     return instr + `<div class="auc-msg">${a.message}</div>
         ${countdown}
         <div class="auc-holder">Your squad: ${sq.count}/${a.squad_max} · keepers ${sq.wk} · overseas ${sq.os}</div>
-        ${sq.count < a.squad_min ? `<button class="btn-gold btn-lg" id="auc-autofill">Auto-Fill to ${a.squad_min}</button>` : ''}
         ${lockBlock(a)}
         <div class="auc-holder">${hint}</div>
         <div class="auc-holder">${othersStatus}</div>`;
@@ -1273,7 +1427,6 @@ function wireAuctionCenter(a, me) {
         aucAction('/api/bid', { amount: v });
     });
     const out = $('bid-out'); if (out) out.addEventListener('click', () => aucAction('/api/pull_out'));
-    const af = $('auc-autofill'); if (af) af.addEventListener('click', () => aucAction('/api/auto_fill'));
     const lk = $('auc-lock'); if (lk) lk.addEventListener('click', () => aucAction('/api/lock_squad'));
 }
 
@@ -1287,13 +1440,26 @@ async function aucAction(path, body = {}) {
 //  XI SELECTION
 // ============================================================
 function renderXI(state) {
-    const x = state.xi;
+    // Same screen serves two callers: the once-per-tournament pre-match XI
+    // (state.xi) and the fresh per-fixture reselect (state.fixture_xi) --
+    // only the data source and API endpoints differ.
+    const isFixture = !!state.fixture_xi;
+    const x = isFixture ? state.fixture_xi : state.xi;
+    const eps = isFixture
+        ? { toggle: '/api/toggle_fixture_xi', lock: '/api/lock_fixture_xi', reorder: '/api/reorder_fixture_xi' }
+        : { toggle: '/api/toggle_xi', lock: '/api/lock_xi', reorder: '/api/reorder_xi' };
     $('xi-role').textContent = 'You: ' + x.team_name;
     $('xi-role').className = 'role-pill batting';
+    if ($('xi-title')) {
+        $('xi-title').textContent = isFixture ? `Select Your XI vs ${x.opponent_name}` : 'Select Your Playing XI';
+    }
 
     const osBad = x.os > x.max_os, wkBad = x.wk < 1, cntOk = x.count === x.size;
     const bench = x.roster.filter(p => !p.selected);
-    const chosen = x.roster.filter(p => p.selected);
+    // chosen list follows x.xi's own order (not roster order), so a
+    // drag-reorder sticks across the next poll's re-render
+    const byName = {}; x.roster.forEach(p => { byName[p.name] = p; });
+    const chosen = x.xi.map(n => byName[n]).filter(Boolean);
     const othersStatus = x.opponent_locked !== null
         ? `Opponent: ${x.opponent_locked ? 'locked ✔' : 'selecting…'}`
         : `Others locked: ${x.others_locked_count}/${x.others_total}`;
@@ -1308,28 +1474,55 @@ function renderXI(state) {
         </div>
         <div class="xi-cols">
             <div class="xi-col"><h4>Squad Bench (${bench.length})</h4><div class="xi-list" id="xi-bench"></div></div>
-            <div class="xi-col"><h4>Playing XI (${chosen.length}/${x.size})</h4><div class="xi-list" id="xi-chosen"></div></div>
+            <div class="xi-col"><h4>Playing XI (${chosen.length}/${x.size})
+                ${!x.locked && chosen.length > 1 ? '<span class="xi-reorder-hint">drag to reorder</span>' : ''}</h4>
+                <div class="xi-list" id="xi-chosen"></div></div>
         </div>
         <button class="btn-go btn-lg" id="xi-lock" ${(cntOk && !osBad && !wkBad && !x.locked) ? '' : 'disabled'}>
             ${x.locked ? 'XI Locked — waiting for the others…' : 'Lock In XI'}</button>`;
 
-    $('xi-bench').innerHTML = bench.map(p => xiCard(p, x)).join('') || '<div class="bench-empty">—</div>';
-    $('xi-chosen').innerHTML = chosen.map(p => xiCard(p, x)).join('') || '<div class="bench-empty">Tap players to add them</div>';
+    $('xi-bench').innerHTML = bench.map(p => xiCard(p, x, false)).join('') || '<div class="bench-empty">—</div>';
+    $('xi-chosen').innerHTML = chosen.map(p => xiCard(p, x, !x.locked)).join('') || '<div class="bench-empty">Tap players to add them</div>';
 
     if (!x.locked) {
         document.querySelectorAll('#xi-main [data-xi]').forEach(el =>
-            el.addEventListener('click', () => aucAction('/api/toggle_xi', { player_name: el.dataset.xi })));
+            el.addEventListener('click', () => aucAction(eps.toggle, { player_name: el.dataset.xi })));
+        wireXiReorder(chosen.map(p => p.name), eps.reorder);
     }
-    const lk = $('xi-lock'); if (lk) lk.addEventListener('click', () => aucAction('/api/lock_xi'));
+    const lk = $('xi-lock'); if (lk) lk.addEventListener('click', () => aucAction(eps.lock));
 }
 
-function xiCard(p, x) {
+function xiCard(p, x, draggable) {
     const isKeeper = p.is_keeper || p.assigned_role === 'Wicket Keeper';
+    const dragAttrs = draggable ? ` draggable="true" data-xi-drag="${p.name}"` : '';
     return pcard(p, {
         ovr: Math.max(p.batting_ovr || 0, p.bowling_ovr || 0),
         selectable: !x.locked, selected: p.selected,
-        attrs: !x.locked ? `data-xi="${p.name}"` : '',
+        attrs: `${!x.locked ? `data-xi="${p.name}"` : ''}${dragAttrs}`,
         tag: `${p.is_foreigner ? 'OS · ' : ''}${isKeeper ? 'WK' : (p.assigned_role || '')}`,
+    });
+}
+
+function wireXiReorder(order, reorderEndpoint) {
+    const container = $('xi-chosen');
+    if (!container) return;
+    let dragName = null;
+    container.querySelectorAll('[data-xi-drag]').forEach(el => {
+        el.addEventListener('dragstart', () => { dragName = el.dataset.xiDrag; el.classList.add('dragging'); });
+        el.addEventListener('dragend', () => el.classList.remove('dragging'));
+        el.addEventListener('dragover', (e) => e.preventDefault());
+        el.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const targetName = el.dataset.xiDrag;
+            if (!dragName || dragName === targetName) return;
+            const next = order.slice();
+            const from = next.indexOf(dragName);
+            const to = next.indexOf(targetName);
+            if (from === -1 || to === -1) return;
+            next.splice(from, 1);
+            next.splice(to, 0, dragName);
+            aucAction(reorderEndpoint, { order: next });
+        });
     });
 }
 
