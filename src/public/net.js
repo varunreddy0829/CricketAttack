@@ -26,6 +26,15 @@ const Net = (() => {
         return data;
     }
 
+    async function get(path) {
+        const res = await fetch(path);
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.status === 'error') {
+            throw new Error(data.message || `Request failed (${res.status})`);
+        }
+        return data;
+    }
+
     async function fetchState() {
         const token = getToken();
         if (!token) return null;
@@ -56,5 +65,5 @@ const Net = (() => {
 
     function forceRefresh() { lastVersion = -1; return tick(); }
 
-    return { getToken, setToken, clearToken, post, startPolling, forceRefresh };
+    return { getToken, setToken, clearToken, post, get, startPolling, forceRefresh };
 })();

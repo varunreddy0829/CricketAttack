@@ -1223,18 +1223,21 @@ def _record_fixture_player_stats(t, a, b, inn1, inn2, motm_name):
         stats[motm_name]["motm"] += 1
 
 
-def _tournament_awards(t):
+AWARDS_LEADERBOARD_SIZE = 5
+
+def _tournament_awards(t, top_n=AWARDS_LEADERBOARD_SIZE):
     """Orange Cap (most runs), Purple Cap (most wickets), MVP (best combined
-    impact score) across the whole tournament. None if nobody's played yet."""
+    impact score) leaderboards across the whole tournament -- top `top_n`
+    each, not just the single leader. None if nobody's played yet."""
     stats = t.get("player_stats") or {}
     if not stats:
         return None
-    def top(key_fn):
-        name = max(stats, key=key_fn)
-        return {"name": name, "team": stats[name]["team"], "value": key_fn(name)}
-    orange = top(lambda n: stats[n]["runs"])
-    purple = top(lambda n: stats[n]["wickets"])
-    mvp = top(lambda n: stats[n]["runs"] + stats[n]["wickets"] * 20)
+    def leaderboard(key_fn):
+        ranked = sorted(stats.keys(), key=key_fn, reverse=True)[:top_n]
+        return [{"name": n, "team": stats[n]["team"], "value": key_fn(n)} for n in ranked]
+    orange = leaderboard(lambda n: stats[n]["runs"])
+    purple = leaderboard(lambda n: stats[n]["wickets"])
+    mvp = leaderboard(lambda n: stats[n]["runs"] + stats[n]["wickets"] * 20)
     return {"orange_cap": orange, "purple_cap": purple, "mvp": mvp}
 
 
@@ -1299,12 +1302,16 @@ def _finish_tournament_fixture():
     into a new match or auto-kicked anywhere."""
     g = GAME
     t = g["tournament"]
-    fx = t["fixtures"][t["current_fixture"]]
+    fx_idx = t["current_fixture"]
+    fx = t["fixtures"][fx_idx]
     a, b = g["match_teams"]
     inn1, inn2 = g["completed_innings"][0], g["completed_innings"][1]
     by_team = {inn1["batting_team"]: inn1, inn2["batting_team"]: inn2}
     fx["motm"] = g.get("motm")
     _record_fixture_player_stats(t, a, b, inn1, inn2, fx["motm"])
+    # _start_single_match() wipes GAME["completed_innings"] the moment the next
+    # fixture kicks off, so archive this one here or it's gone for good.
+    t.setdefault("fixture_scorecards", {})[fx_idx] = [inn1, inn2]
 
     for team_id in (a, b):
         row = t["standings"][team_id]
@@ -1582,12 +1589,14 @@ def _serialize_tournament_summary():
     if t.get("standings"):
         for tid in _ranked_teams():
             standings_view.append({"team_id": tid, "name": GAME["teams"][tid]["name"], **t["standings"][tid]})
+    scorecards = t.get("fixture_scorecards") or {}
     fixtures_view = [
-        {"a_name": GAME["teams"][f["a"]]["name"], "b_name": GAME["teams"][f["b"]]["name"],
+        {"idx": i, "a_name": GAME["teams"][f["a"]]["name"], "b_name": GAME["teams"][f["b"]]["name"],
          "kind": f["kind"], "played": f["played"],
          "winner_name": GAME["teams"][f["winner"]]["name"] if f["winner"] else None,
-         "result_text": f["result_text"], "motm_name": f.get("motm")}
-        for f in t.get("fixtures", [])
+         "result_text": f["result_text"], "motm_name": f.get("motm"),
+         "has_scorecard": i in scorecards}
+        for i, f in enumerate(t.get("fixtures", []))
     ]
     current = None
     ci = t.get("current_fixture")
@@ -1598,7 +1607,8 @@ def _serialize_tournament_summary():
     awards = _tournament_awards(t)
     if awards:
         for key in ("orange_cap", "purple_cap", "mvp"):
-            awards[key]["team_name"] = GAME["teams"][awards[key]["team"]]["name"]
+            for entry in awards[key]:
+                entry["team_name"] = GAME["teams"][entry["team"]]["name"]
     return {
         "stage": t.get("stage"), "standings": standings_view, "fixtures": fixtures_view,
         "current_fixture": current,
@@ -2118,6 +2128,34 @@ def exit_game():
         return jsonify({"status": "success"})
 
 
+@app.route("/api/cancel_tournament", methods=["POST"])
+def cancel_tournament():
+    """Any team can call this to end the WHOLE tournament outright for
+    everyone -- unlike exit_game (which only forfeits the caller's own
+    fixture and lets everyone else keep playing), this stops it entirely.
+    Covers the case where a tournament is stuck (e.g. someone vanished
+    before any fixture even existed, a known gap in _eliminate_from_tournament)
+    or the group just wants to call it off."""
+    global GAME
+    with LOCK:
+        token = (request.get_json(silent=True) or {}).get("token", "")
+        GAME = _game_by_token(token)
+        if GAME is None:
+            return jsonify({"status": "success"})
+        role = _role_of(token)
+        t = GAME.get("tournament")
+        if role is None or not t:
+            return jsonify({"status": "error", "message": "Not in a tournament."}), 400
+        if GAME.get("abandoned") or t.get("stage") == "champion":
+            return jsonify({"status": "error", "message": "Tournament already over."}), 400
+        GAME["abandoned"] = True
+        GAME["abandoned_by"] = "__draw__"
+        GAME["phase"] = "finished"
+        GAME["result"] = f"Tournament cancelled by {GAME['teams'][role]['name']}."
+        _bump()
+        return jsonify({"status": "success"})
+
+
 @app.route("/api/state")
 def api_state():
     global GAME
@@ -2128,6 +2166,42 @@ def api_state():
             return jsonify({"status": "no_game"})
         GAME["last_seen"] = time.time()   # polling counts as activity too
         return jsonify(_serialize(token))
+
+
+@app.route("/api/fixture_scorecard")
+def fixture_scorecard():
+    """On-demand scorecard for a COMPLETED tournament fixture -- not part of
+    the regular polled state (would bloat every /api/state response for
+    every player), fetched only when someone actually clicks a played
+    fixture in the bracket."""
+    global GAME
+    token = request.args.get("token", "")
+    with LOCK:
+        GAME = _game_by_token(token)
+        if GAME is None:
+            return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
+        role = _role_of(token)
+        if role is None:
+            return jsonify({"status": "error", "message": "Unknown player."}), 403
+        t = GAME.get("tournament")
+        if not t:
+            return jsonify({"status": "error", "message": "Not a tournament."}), 400
+        try:
+            idx = int(request.args.get("fixture_idx", ""))
+        except ValueError:
+            return jsonify({"status": "error", "message": "Invalid fixture."}), 400
+        fixtures = t.get("fixtures", [])
+        if idx < 0 or idx >= len(fixtures) or not fixtures[idx]["played"]:
+            return jsonify({"status": "error", "message": "That fixture hasn't been played."}), 400
+        innings = (t.get("fixture_scorecards") or {}).get(idx)
+        if innings is None:
+            return jsonify({"status": "error", "message": "No scorecard available for that fixture (walkover)."}), 404
+        fx = fixtures[idx]
+        return jsonify({
+            "status": "success", "innings": innings,
+            "a_name": GAME["teams"][fx["a"]]["name"], "b_name": GAME["teams"][fx["b"]]["name"],
+            "kind": fx["kind"], "result_text": fx["result_text"], "motm_name": fx.get("motm"),
+        })
 
 
 @app.route("/api/quick_match", methods=["POST"])

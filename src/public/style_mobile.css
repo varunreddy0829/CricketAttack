@@ -265,22 +265,31 @@ button:disabled {
 .t-fixture-row { display: flex; justify-content: space-between; background: rgba(0,0,0,0.25); border-radius: 6px; padding: 0.5rem 0.9rem; font-size: 0.85rem; }
 .t-fixture-row .kind { font-family: 'Oswald', sans-serif; text-transform: uppercase; font-size: 0.65rem; color: var(--gold); }
 .t-fixture-row.pending { opacity: 0.5; }
+.t-fixture-row.clickable { cursor: pointer; }
+.t-fixture-row.clickable:hover { background: rgba(255,255,255,0.1); }
 .t-champion-banner { text-align: center; }
 .t-champion-banner .trophy { font-size: 4rem; }
 .t-champion-banner h1 { color: var(--gold); font-size: 2.4rem; }
 
 .t-awards { width: 100%; }
 .t-awards-row { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-top: 0.6rem; }
-.t-award-card { background: linear-gradient(180deg, var(--cream), var(--cream-2)); color: var(--ink); border-radius: 8px; padding: 0.8rem 1.2rem; text-align: center; box-shadow: var(--shadow); min-width: 160px; }
-.t-award-cap { font-family: 'Oswald', sans-serif; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.75; }
-.t-award-name { font-family: 'Oswald', sans-serif; font-size: 1.15rem; margin-top: 0.2rem; }
-.t-award-sub { font-size: 0.75rem; opacity: 0.7; margin-top: 0.1rem; }
+.t-award-card { background: linear-gradient(180deg, var(--cream), var(--cream-2)); color: var(--ink); border-radius: 8px; padding: 0.8rem 1.2rem; text-align: left; box-shadow: var(--shadow); min-width: 220px; }
+.t-award-cap { font-family: 'Oswald', sans-serif; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.75; text-align: center; margin-bottom: 0.4rem; }
+.t-award-row { display: flex; align-items: baseline; gap: 0.4rem; padding: 0.15rem 0; border-bottom: 1px solid rgba(0,0,0,0.08); font-size: 0.82rem; }
+.t-award-row:last-child { border-bottom: none; }
+.t-award-rank { font-family: 'Oswald', sans-serif; color: var(--leather); width: 1.1rem; flex-shrink: 0; }
+.t-award-pname { font-weight: 600; flex: 1; }
+.t-award-pteam { opacity: 0.6; font-size: 0.72rem; }
+.t-award-pvalue { font-family: 'Oswald', sans-serif; color: var(--green-go); flex-shrink: 0; }
 
 .t-presentation { text-align: center; animation: presentFadeIn 0.5s ease; }
 .t-presentation-emoji { font-size: 3.5rem; line-height: 1; }
 .t-presentation h1 { color: var(--gold); font-size: 2rem; margin: 0.3rem 0; }
 .t-presentation.big .t-presentation-emoji { font-size: 5rem; }
 .t-presentation.big h1 { font-size: 3rem; }
+.t-presentation-list { margin-top: 0.8rem; }
+.t-presentation-rank { font-family: 'Oswald', sans-serif; font-size: 1.15rem; color: var(--board-white); margin: 0.3rem 0; }
+.t-presentation-rank span { font-size: 0.75rem; opacity: 0.7; font-family: 'Inter', sans-serif; }
 @keyframes presentFadeIn { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
 
 .panel .row {
@@ -1687,6 +1696,7 @@ button:disabled {
     padding: 0.4rem 0.85rem; font-size: 0.78rem; cursor: pointer;
 }
 .exit-btn:hover { background: var(--leather-hi); }
+.cancel-tournament-btn { left: 12px; right: auto; }
 
 /* ---------- Rules / How-to-play screen ---------- */
 #rules { flex-direction: column; align-items: center; justify-content: safe center; gap: 1.2rem; padding: 2rem 1rem; overflow-y: auto; }

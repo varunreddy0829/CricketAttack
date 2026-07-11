@@ -137,6 +137,7 @@ $('btn-rejoin-cancel').addEventListener('click', () => $('rejoin-overlay').class
 
 $('btn-auction-rules').addEventListener('click', () => $('auction-rules-overlay').classList.remove('hidden'));
 $('btn-close-auction-rules').addEventListener('click', () => $('auction-rules-overlay').classList.add('hidden'));
+$('btn-close-fixture-scorecard').addEventListener('click', () => $('fixture-scorecard-overlay').classList.add('hidden'));
 
 $('btn-t-start').addEventListener('click', async () => {
     try { await Net.post('/api/start_auction', { token: Net.getToken() }); Net.forceRefresh(); }
@@ -153,6 +154,13 @@ $('exit-btn').addEventListener('click', async () => {
         : 'Leave the match? Your opponent will win.';
     if (!finished && !confirm(warning)) return;
     if (!finished) { try { await Net.post('/api/exit_game', { token: Net.getToken() }); } catch (e) { /* leaving anyway */ } }
+    localStorage.removeItem('ca_token');
+    location.reload();
+});
+
+$('cancel-tournament-btn').addEventListener('click', async () => {
+    if (!confirm('Cancel the WHOLE tournament for everyone? This cannot be undone.')) return;
+    try { await Net.post('/api/cancel_tournament', { token: Net.getToken() }); } catch (e) { /* ending anyway */ }
     localStorage.removeItem('ca_token');
     location.reload();
 });
@@ -198,12 +206,14 @@ window.addEventListener('gamestate', (e) => {
 function render(state) {
     if (!state || state.status === 'no_game' || !state.you || !state.you.joined) {
         $('exit-btn').classList.add('hidden');
+        $('cancel-tournament-btn').classList.add('hidden');
         showScreen('landing');
         return;
     }
     // opponent (or you) left -> show result, offer back to main
     if (state.abandoned) {
         $('exit-btn').classList.add('hidden');
+        $('cancel-tournament-btn').classList.add('hidden');
         $('result-text').textContent = state.you_won
             ? '🏆 You win! Your opponent left the match.'
             : (state.ended_result || 'Match abandoned.');
@@ -214,6 +224,7 @@ function render(state) {
     // squad never reached the minimum by the grace deadline -> kicked out
     if (state.eliminated && !manualBracketView) {
         $('exit-btn').classList.add('hidden');
+        $('cancel-tournament-btn').classList.toggle('hidden', !state.is_tournament);
         $('result-text').textContent = state.ended_result || "Your squad never reached the minimum — you're out.";
         $('result-motm').classList.add('hidden');
         $('result-banner').classList.remove('hidden');
@@ -225,6 +236,12 @@ function render(state) {
     // scorecard; hidden only while the result banner itself is up.
     const finished = state.phase === 'finished';
     $('exit-btn').classList.toggle('hidden', finished && !viewingScorecard);
+
+    // cancel-the-whole-tournament button: visible anywhere in a tournament
+    // that hasn't concluded yet (distinct from exit-btn, which only forfeits
+    // YOUR current fixture and lets everyone else keep playing)
+    const tournamentOver = state.tournament && state.tournament.stage === 'champion';
+    $('cancel-tournament-btn').classList.toggle('hidden', !state.is_tournament || tournamentOver);
 
     // manualBracketView only makes sense while our own last fixture is still
     // the "finished" one sitting behind it (including if a next-fixture
@@ -343,11 +360,29 @@ function standingsTable(standings, highlightTop) {
 function fixturesList(fixtures) {
     if (!fixtures || !fixtures.length) return '';
     const rows = fixtures.map(f => `
-        <div class="t-fixture-row ${f.played ? '' : 'pending'}">
+        <div class="t-fixture-row ${f.played ? '' : 'pending'}${f.has_scorecard ? ' clickable' : ''}"
+             ${f.has_scorecard ? `data-fixture-idx="${f.idx}"` : ''}>
             <span><span class="kind">${f.kind.replace('_', ' ')}</span> ${f.a_name} vs ${f.b_name}</span>
-            <span>${f.played ? (f.result_text || '') : 'upcoming'}${f.motm_name ? ` &middot; MOTM: ${f.motm_name}` : ''}</span>
+            <span>${f.played ? (f.result_text || '') : 'upcoming'}${f.motm_name ? ` &middot; MOTM: ${f.motm_name}` : ''}
+                ${f.has_scorecard ? ' &middot; 📋' : ''}</span>
         </div>`).join('');
     return `<div class="t-fixtures">${rows}</div>`;
+}
+
+function wireFixtureScorecards() {
+    document.querySelectorAll('[data-fixture-idx]').forEach(el =>
+        el.addEventListener('click', () => openFixtureScorecard(el.dataset.fixtureIdx)));
+}
+
+async function openFixtureScorecard(idx) {
+    try {
+        const r = await Net.get(`/api/fixture_scorecard?token=${Net.getToken()}&fixture_idx=${idx}`);
+        if (r.status !== 'success') { toast(r.message || 'No scorecard available.'); return; }
+        $('fixture-scorecard-title').textContent = `${r.a_name} vs ${r.b_name} — ${r.kind.replace('_', ' ')}`;
+        $('fixture-scorecard-sub').textContent = r.result_text || '';
+        renderScorecardInto('fixture-scorecard-body', r.innings);
+        $('fixture-scorecard-overlay').classList.remove('hidden');
+    } catch (e) { toast(e.message); }
 }
 
 function renderBracket(state) {
@@ -372,6 +407,17 @@ function renderBracket(state) {
     html += fixturesList(t.fixtures);
     $('t-bracket-wrap').innerHTML = html;
     wireBracketActions();
+    wireFixtureScorecards();
+}
+
+function awardsLeaderboardList(entries, unit) {
+    return entries.map((e, i) => `
+        <div class="t-award-row">
+            <span class="t-award-rank">${i + 1}</span>
+            <span class="t-award-pname">${e.name}</span>
+            <span class="t-award-pteam">${e.team_name}</span>
+            <span class="t-award-pvalue">${e.value}${unit ? ' ' + unit : ''}</span>
+        </div>`).join('');
 }
 
 function awardsLeaderboard(awards) {
@@ -380,14 +426,11 @@ function awardsLeaderboard(awards) {
         <div class="tagline" style="text-align:center;">Running Leaderboard</div>
         <div class="t-awards-row">
             <div class="t-award-card"><div class="t-award-cap">🧡 Orange Cap</div>
-                <div class="t-award-name">${awards.orange_cap.name}</div>
-                <div class="t-award-sub">${awards.orange_cap.team_name} &middot; ${awards.orange_cap.value} runs</div></div>
+                ${awardsLeaderboardList(awards.orange_cap, 'runs')}</div>
             <div class="t-award-card"><div class="t-award-cap">💜 Purple Cap</div>
-                <div class="t-award-name">${awards.purple_cap.name}</div>
-                <div class="t-award-sub">${awards.purple_cap.team_name} &middot; ${awards.purple_cap.value} wkts</div></div>
+                ${awardsLeaderboardList(awards.purple_cap, 'wkts')}</div>
             <div class="t-award-card"><div class="t-award-cap">⭐ MVP</div>
-                <div class="t-award-name">${awards.mvp.name}</div>
-                <div class="t-award-sub">${awards.mvp.team_name}</div></div>
+                ${awardsLeaderboardList(awards.mvp, '')}</div>
         </div>
     </div>`;
 }
@@ -450,13 +493,13 @@ function renderChampion(state) {
 function showPresentationSequence(state) {
     const t = state.tournament;
     const steps = [];
+    const top3 = (list, unit) => (list || []).slice(0, 3).map((e, i) =>
+        `<div class="t-presentation-rank">${i + 1}. ${e.name} <span>(${e.team_name} · ${e.value}${unit ? ' ' + unit : ''})</span></div>`
+    ).join('');
     if (t.awards) {
-        steps.push({ emoji: '🧡', label: 'Orange Cap — Most Runs', name: t.awards.orange_cap.name,
-            sub: `${t.awards.orange_cap.team_name} · ${t.awards.orange_cap.value} runs` });
-        steps.push({ emoji: '💜', label: 'Purple Cap — Most Wickets', name: t.awards.purple_cap.name,
-            sub: `${t.awards.purple_cap.team_name} · ${t.awards.purple_cap.value} wkts` });
-        steps.push({ emoji: '⭐', label: 'Tournament MVP', name: t.awards.mvp.name,
-            sub: t.awards.mvp.team_name });
+        steps.push({ emoji: '🧡', label: 'Orange Cap — Most Runs', listHtml: top3(t.awards.orange_cap, 'runs') });
+        steps.push({ emoji: '💜', label: 'Purple Cap — Most Wickets', listHtml: top3(t.awards.purple_cap, 'wkts') });
+        steps.push({ emoji: '⭐', label: 'Tournament MVP', listHtml: top3(t.awards.mvp, '') });
     }
     steps.push({ emoji: '🏆', label: 'Tournament Champions', name: t.champion_name, sub: 'Congratulations!', big: true });
 
@@ -472,11 +515,10 @@ function showPresentationSequence(state) {
             <div class="t-presentation${s.big ? ' big' : ''}">
                 <div class="t-presentation-emoji">${s.emoji}</div>
                 <div class="tagline">${s.label}</div>
-                <h1>${s.name}</h1>
-                <div class="tagline">${s.sub}</div>
+                ${s.big ? `<h1>${s.name}</h1><div class="tagline">${s.sub}</div>` : `<div class="t-presentation-list">${s.listHtml}</div>`}
             </div>`;
         i++;
-        setTimeout(showStep, s.big ? 2800 : 1900);
+        setTimeout(showStep, s.big ? 2800 : 2200);
     };
     showStep();
 }
@@ -507,6 +549,7 @@ function renderChampionScreen(state) {
         document.querySelectorAll('#game .tab').forEach(tb => tb.classList.toggle('active', tb.dataset.tab === 'scorecard'));
         document.querySelectorAll('#game .tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-scorecard'));
     });
+    wireFixtureScorecards();
 }
 
 // ---------- game shell ----------
@@ -1091,7 +1134,11 @@ function renderLive(live) {
 
 // ---------- scorecard tab ----------
 function renderScorecard(innings) {
-    const wrap = $('sc-wrap');
+    renderScorecardInto('sc-wrap', innings);
+}
+
+function renderScorecardInto(elementId, innings) {
+    const wrap = $(elementId);
     if (!innings || !innings.length) { wrap.innerHTML = '<div class="sc-empty">No scorecard yet.</div>'; return; }
     wrap.innerHTML = innings.map(inn => {
         const batRows = inn.batting.filter(b => b.balls > 0 || b.out).map(b => {

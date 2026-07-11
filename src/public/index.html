@@ -9,9 +9,9 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style_mobile.css?v=4.6">
-    <script src="net.js?v=3.8" defer></script>
-    <script src="app.js?v=3.10" defer></script>
+    <link rel="stylesheet" href="style_mobile.css?v=4.7">
+    <script src="net.js?v=3.9" defer></script>
+    <script src="app.js?v=3.11" defer></script>
 </head>
 
 <body>
@@ -223,6 +223,9 @@
     <!-- Master exit button (visible during a game) -->
     <button id="exit-btn" class="exit-btn hidden">✕ Exit Game</button>
 
+    <!-- Cancel-whole-tournament button (visible anywhere during a tournament that hasn't concluded) -->
+    <button id="cancel-tournament-btn" class="exit-btn cancel-tournament-btn hidden">✕ Cancel Tournament</button>
+
     <!-- Auction rules overlay -->
     <div id="auction-rules-overlay" class="overlay hidden">
         <div class="overlay-card">
@@ -253,6 +256,16 @@
             <button class="btn-ghost btn-lg" id="btn-view-scorecard">📋 View Scorecard</button>
             <button class="btn-ghost btn-lg hidden" id="btn-back-to-tournament">🏆 Back to Tournament</button>
             <button class="btn-gold btn-lg" id="btn-new-game">New Game</button>
+        </div>
+    </div>
+
+    <!-- Completed-fixture scorecard viewer (tournament) -->
+    <div id="fixture-scorecard-overlay" class="overlay hidden">
+        <div class="overlay-card" style="max-width:600px; max-height:80vh; overflow-y:auto;">
+            <h2 id="fixture-scorecard-title">—</h2>
+            <div class="sub" id="fixture-scorecard-sub"></div>
+            <div id="fixture-scorecard-body" style="margin-top:1rem;"></div>
+            <button class="btn-ghost btn-lg" id="btn-close-fixture-scorecard" style="margin-top:1rem;">Close</button>
         </div>
     </div>
 
