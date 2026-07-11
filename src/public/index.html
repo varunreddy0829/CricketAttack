@@ -47,6 +47,9 @@
             <h2>Create a Match</h2>
             <label>Your team name</label>
             <input type="text" id="create-name" placeholder="e.g. Chennai Super Kings" maxlength="24">
+            <label>Team color</label>
+            <div class="color-picker" id="create-color-picker"></div>
+            <input type="hidden" id="create-color">
             <div class="row">
                 <button class="btn-go" id="btn-create">Create Game</button>
             </div>
@@ -56,6 +59,9 @@
             <input type="text" class="code-input" id="join-code" placeholder="ABCD" maxlength="4">
             <label>Your team name</label>
             <input type="text" id="join-name" placeholder="e.g. Mumbai Indians" maxlength="24">
+            <label>Team color</label>
+            <div class="color-picker" id="join-color-picker"></div>
+            <input type="hidden" id="join-color">
             <div class="row">
                 <button class="btn-gold" id="btn-join">Join Game</button>
             </div>
@@ -66,6 +72,9 @@
             <h2>🏆 Tournament (3–8 teams)</h2>
             <label>Your team name</label>
             <input type="text" id="t-create-name" placeholder="e.g. Chennai Super Kings" maxlength="24">
+            <label>Team color</label>
+            <div class="color-picker" id="t-create-color-picker"></div>
+            <input type="hidden" id="t-create-color">
             <label>Number of teams</label>
             <select id="t-size" >
                 <option value="3">3</option><option value="4" selected>4</option><option value="5">5</option>
@@ -80,6 +89,9 @@
             <input type="text" class="code-input" id="t-join-code" placeholder="ABCD" maxlength="4">
             <label>Your team name</label>
             <input type="text" id="t-join-name" placeholder="e.g. Mumbai Indians" maxlength="24">
+            <label>Team color</label>
+            <div class="color-picker" id="t-join-color-picker"></div>
+            <input type="hidden" id="t-join-color">
             <div class="row">
                 <button class="btn-gold" id="btn-join-tournament">Join Tournament</button>
             </div>
@@ -198,7 +210,11 @@
             <div class="tab-panel active" id="tab-match">
                 <div class="match-left">
                     <div class="scoreboard" id="scoreboard"></div>
-                    <div class="ground" id="ground"></div>
+                    <div class="ground-wrap">
+                        <div class="ground" id="ground"></div>
+                        <div class="ball-stamp-overlay hidden" id="ball-stamp-overlay"></div>
+                        <button class="skip-reveal-btn hidden" id="btn-skip-reveal" title="Skip to end of over">⏭ Skip</button>
+                    </div>
                     <div class="ready-bar" id="ready-bar"></div>
                     <div class="bench">
                         <div class="bench-title" id="bench-title">Bench</div>
@@ -240,6 +256,9 @@
 
     <!-- Small persistent reminder of the game/tournament code, for rejoining on another device -->
     <div id="rejoin-code-label" class="rejoin-code-label hidden">To rejoin: <span id="rejoin-code-value">----</span></div>
+
+    <!-- Milestone toasts (fifties, centuries, hat-tricks) float above everything -->
+    <div id="milestone-toast-root"></div>
 
     <!-- Auction rules overlay -->
     <div id="auction-rules-overlay" class="overlay hidden">

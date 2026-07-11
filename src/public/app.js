@@ -27,7 +27,7 @@ function getBatterIntent(name) { return name in ui.batterIntents ? ui.batterInte
 function setBatterIntent(name, v) { ui.batterIntents[name] = v; }
 
 // tracks the ball-by-ball reveal of the current over
-const overAnim = { key: null, shown: 0, revealUntil: 0 };
+const overAnim = { key: null, shown: 0, revealUntil: 0, timeouts: [] };
 
 // ---------- helpers ----------
 const $ = (id) => document.getElementById(id);
@@ -60,9 +60,29 @@ function intentWord(v) {
 }
 
 // ---------- landing ----------
+// Mirrors TEAM_COLOR_PALETTE in src/server.py -- keep in sync.
+const TEAM_COLOR_PALETTE = ["#e6483c", "#3b82c4", "#e0b400", "#2f9e5c",
+                            "#9d5ce0", "#e07b2e", "#22a6a6", "#e05c9e"];
+
+function buildColorPicker(pickerId, hiddenId) {
+    const root = $(pickerId);
+    if (!root) return;
+    root.innerHTML = TEAM_COLOR_PALETTE.map(c =>
+        `<button type="button" class="color-swatch" data-color="${c}" style="background:${c}"></button>`).join('');
+    root.querySelectorAll('.color-swatch').forEach(sw => {
+        sw.addEventListener('click', () => {
+            root.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('picked'));
+            sw.classList.add('picked');
+            $(hiddenId).value = sw.dataset.color;
+        });
+    });
+}
+['create', 'join', 't-create', 't-join'].forEach(p => buildColorPicker(`${p}-color-picker`, `${p}-color`));
+
 $('btn-create').addEventListener('click', async () => {
     try {
-        const data = await Net.post('/api/create_game', { name: $('create-name').value.trim() });
+        const data = await Net.post('/api/create_game',
+            { name: $('create-name').value.trim(), color: $('create-color').value || undefined });
         Net.setToken(data.token);
         Net.startPolling();
     } catch (e) { $('landing-err').textContent = e.message; }
@@ -72,7 +92,8 @@ $('btn-join').addEventListener('click', async () => {
     const code = $('join-code').value.trim().toUpperCase();
     if (code.length !== 4) { $('landing-err').textContent = 'Enter the 4-character code.'; return; }
     try {
-        const data = await Net.post('/api/join_game', { code, name: $('join-name').value.trim() });
+        const data = await Net.post('/api/join_game',
+            { code, name: $('join-name').value.trim(), color: $('join-color').value || undefined });
         Net.setToken(data.token);
         Net.startPolling();
     } catch (e) { $('landing-err').textContent = e.message; }
@@ -93,6 +114,7 @@ $('btn-create-tournament').addEventListener('click', async () => {
         const data = await Net.post('/api/create_tournament', {
             name: $('t-create-name').value.trim(),
             size: parseInt($('t-size').value, 10),
+            color: $('t-create-color').value || undefined,
         });
         Net.setToken(data.token);
         Net.startPolling();
@@ -103,7 +125,8 @@ $('btn-join-tournament').addEventListener('click', async () => {
     const code = $('t-join-code').value.trim().toUpperCase();
     if (code.length !== 4) { $('t-landing-err').textContent = 'Enter the 4-character code.'; return; }
     try {
-        const data = await Net.post('/api/join_tournament', { code, name: $('t-join-name').value.trim() });
+        const data = await Net.post('/api/join_tournament',
+            { code, name: $('t-join-name').value.trim(), color: $('t-join-color').value || undefined });
         Net.setToken(data.token);
         Net.startPolling();
     } catch (e) {
@@ -139,6 +162,7 @@ $('btn-rejoin-cancel').addEventListener('click', () => $('rejoin-overlay').class
 $('btn-auction-rules').addEventListener('click', () => $('auction-rules-overlay').classList.remove('hidden'));
 $('btn-close-auction-rules').addEventListener('click', () => $('auction-rules-overlay').classList.add('hidden'));
 $('btn-close-fixture-scorecard').addEventListener('click', () => $('fixture-scorecard-overlay').classList.add('hidden'));
+$('btn-skip-reveal').addEventListener('click', skipReveal);
 
 $('btn-t-start').addEventListener('click', async () => {
     try { await Net.post('/api/start_auction', { token: Net.getToken() }); Net.forceRefresh(); }
@@ -346,7 +370,9 @@ function render(state) {
 function renderLobby(state) {
     $('lobby-code').textContent = state.code;
     $('lobby-t1').textContent = state.teams.team1.name;
+    $('lobby-t1').style.color = state.teams.team1.color || '';
     $('lobby-t2').textContent = state.teams.team2.joined ? state.teams.team2.name : 'Waiting…';
+    $('lobby-t2').style.color = state.teams.team2.joined ? (state.teams.team2.color || '') : '';
     $('dot-t1').classList.toggle('on', state.teams.team1.joined);
     $('dot-t2').classList.toggle('on', state.teams.team2.joined);
     const both = state.teams.team1.joined && state.teams.team2.joined;
@@ -776,12 +802,12 @@ function renderScoreboard(m) {
         ? `<span class="pressure-meter" title="Dot-ball pressure — wicket chance climbing!">${'●'.repeat(pressure)}${'○'.repeat(6 - pressure)} pressure</span>` : '';
     $('scoreboard').innerHTML = `
         <div>
-            <div class="sb-team">${m.batting_team_name}</div>
+            <div class="sb-team" style="${m.batting_team_color ? `color:${m.batting_team_color}` : ''}">${m.batting_team_name}</div>
             <div class="sb-score">${m.runs}/${m.wickets}</div>
             <div class="sb-meta">Overs ${m.overs} / ${m.max_overs} &middot; Extras ${m.extras}</div>
             ${m.ground ? `<div class="sb-meta sb-ground">🏟 ${m.ground.name} &middot; <span class="pitch-chip ${m.ground.pitch}">${m.ground.pitch} pitch</span></div>` : ''}
         </div>
-        <div class="sb-meta">bowling: ${m.bowling_team_name} ${phaseChip} ${pressureHtml}</div>
+        <div class="sb-meta">bowling: <span style="${m.bowling_team_color ? `color:${m.bowling_team_color}` : ''}">${m.bowling_team_name}</span> ${phaseChip} ${pressureHtml}</div>
         ${target}`;
 }
 
@@ -1186,6 +1212,74 @@ function commLine(entry) {
     return `<div class="${cls.join(' ')}">${ball}${badge}${entry.text}</div>`;
 }
 
+// Per-entry reveal weight: dots/singles stay brisk so overs don't drag, the
+// big moments (boundaries, wickets) get a beat of extra weight to land.
+function ballRevealDelay(entry) {
+    if (entry.type === 'milestone') return 150;
+    if (entry.type === 'wicket') return 520;
+    if (entry.type === 'boundary') return entry.outcome === '6' ? 540 : 460;
+    if (entry.type === 'extra') return 280;
+    if (entry.outcome === '0') return 240;
+    return 290; // 1, 2, 3, 5
+}
+
+// lightweight schematic ball-flight arc, keyed off the outcome only
+const TRAJECTORY_ARCS = {
+    '0': { d: 'M 50 96 Q 50 90 50 84', cls: 'traj-run' },
+    '1': { d: 'M 50 96 Q 62 72 74 52', cls: 'traj-run' },
+    '2': { d: 'M 50 96 Q 66 58 84 32', cls: 'traj-run' },
+    '3': { d: 'M 50 96 Q 38 56 24 30', cls: 'traj-run' },
+    '5': { d: 'M 50 96 Q 32 54 14 26', cls: 'traj-run' },
+    '4': { d: 'M 50 96 Q 78 44 98 10', cls: 'traj-four' },
+    '6': { d: 'M 50 96 Q 58 6 48 -6', cls: 'traj-six' },
+};
+function trajectorySvg(entry) {
+    // outcome keys are plain run counts ('0'-'6') -- wicket/extra/milestone
+    // entries use non-numeric outcome codes (Out/Wd/Nb/HT/etc) and simply
+    // won't match, so no separate type check is needed here.
+    const arc = TRAJECTORY_ARCS[entry.outcome];
+    if (!arc) return '';
+    return `<svg class="ball-traj ${arc.cls}" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <path d="${arc.d}"/></svg>`;
+}
+
+function showBallStamp(entry) {
+    const overlay = $('ball-stamp-overlay');
+    if (!overlay) { playOutcomeSound(entry.outcome); return; }
+    let cls = 'run', label = '+' + entry.outcome;
+    if (entry.type === 'boundary') { cls = entry.outcome === '6' ? 'six' : 'four'; label = entry.outcome === '6' ? 'SIX!' : 'FOUR!'; }
+    else if (entry.type === 'wicket') { cls = 'wicket'; label = 'OUT!'; }
+    else if (entry.type === 'extra') { cls = 'extra'; label = entry.outcome === 'Wd' ? 'WIDE' : 'NO BALL'; }
+    else if (entry.outcome === '0') { cls = 'dot'; label = '•'; }
+    overlay.innerHTML = `${trajectorySvg(entry)}<div class="ball-stamp ${cls}">${label}</div>`;
+    overlay.classList.remove('hidden');
+    setTimeout(() => overlay.classList.add('hidden'), 560);
+
+    if (entry.type === 'wicket' || entry.outcome === '6') {
+        const wrap = document.querySelector('.ground-wrap');
+        if (wrap) { wrap.classList.remove('screen-shake'); void wrap.offsetWidth; wrap.classList.add('screen-shake'); }
+    }
+    if (entry.type === 'wicket') {
+        const flash = document.createElement('div');
+        flash.className = 'screen-flash';
+        document.body.appendChild(flash);
+        setTimeout(() => flash.remove(), 400);
+    }
+    playOutcomeSound(entry.outcome);
+}
+
+function showMilestoneToast(entry) {
+    const root = $('milestone-toast-root');
+    if (!root) return;
+    const title = entry.outcome === 'HT' ? '🎩 HAT-TRICK!' : entry.outcome === '100' ? '💯 CENTURY!' : '🎉 FIFTY!';
+    const el = document.createElement('div');
+    el.className = 'milestone-toast';
+    el.innerHTML = `<div class="mt-title">${title}</div><div class="mt-sub">${entry.text.replace(/^[^\s]+\s/, '')}</div>`;
+    root.appendChild(el);
+    playOutcomeSound(entry.outcome);
+    setTimeout(() => el.remove(), 2800);
+}
+
 function renderThisOver(m) {
     const box = $('this-over');
     const entries = m.this_over;
@@ -1193,6 +1287,9 @@ function renderThisOver(m) {
         box.innerHTML = '<div class="comm-empty">The over will play out here, ball by ball.</div>';
         overAnim.key = null;
         overAnim.shown = 0;
+        overAnim.timeouts.forEach(clearTimeout);
+        overAnim.timeouts = [];
+        $('btn-skip-reveal').classList.add('hidden');
         return;
     }
     // key changes when a fresh over starts (server clears this_over each over)
@@ -1200,22 +1297,47 @@ function renderThisOver(m) {
     if (key !== overAnim.key) {
         overAnim.key = key;
         overAnim.shown = 0;
+        overAnim.timeouts.forEach(clearTimeout);
+        overAnim.timeouts = [];
         box.innerHTML = '';
     }
-    // reveal only the not-yet-shown deliveries, one after another
-    const newCount = entries.length - overAnim.shown;
-    for (let i = overAnim.shown; i < entries.length; i++) {
-        const delay = (i - overAnim.shown) * 130;
-        const entry = entries[i];
-        setTimeout(() => {
-            box.insertAdjacentHTML('beforeend', commLine(entry));
-            box.scrollTop = box.scrollHeight;
-        }, delay);
+    // reveal only the not-yet-shown deliveries, one after another, each
+    // carrying its own weighted delay (see ballRevealDelay)
+    const startIdx = overAnim.shown;
+    const newCount = entries.length - startIdx;
+    if (newCount > 0) {
+        let cumDelay = 0;
+        for (let i = startIdx; i < entries.length; i++) {
+            const entry = entries[i];
+            const delay = cumDelay;
+            cumDelay += ballRevealDelay(entry);
+            const tid = setTimeout(() => {
+                box.insertAdjacentHTML('beforeend', commLine(entry));
+                box.scrollTop = box.scrollHeight;
+                if (entry.type === 'milestone') showMilestoneToast(entry);
+                else showBallStamp(entry);
+            }, delay);
+            overAnim.timeouts.push(tid);
+        }
+        // so the caller can hold off popping the result banner over an
+        // in-progress reveal (see render()'s `finished` handling)
+        overAnim.revealUntil = Date.now() + cumDelay + 200;
+        $('btn-skip-reveal').classList.remove('hidden');
+        setTimeout(() => $('btn-skip-reveal').classList.add('hidden'), cumDelay + 50);
     }
-    // so the caller can hold off popping the result banner over an
-    // in-progress reveal (see render()'s `finished` handling)
-    if (newCount > 0) overAnim.revealUntil = Date.now() + newCount * 130 + 200;
     overAnim.shown = entries.length;
+}
+
+function skipReveal() {
+    overAnim.timeouts.forEach(clearTimeout);
+    overAnim.timeouts = [];
+    if (CURRENT && CURRENT.match) {
+        $('this-over').innerHTML = CURRENT.match.this_over.map(commLine).join('');
+        $('this-over').scrollTop = $('this-over').scrollHeight;
+    }
+    $('ball-stamp-overlay').classList.add('hidden');
+    $('btn-skip-reveal').classList.add('hidden');
+    overAnim.revealUntil = 0;
 }
 
 // ---------- opponent list ----------
@@ -1263,7 +1385,7 @@ function renderScorecardInto(elementId, innings) {
         }).join('');
         return `
         <div class="sc-innings">
-            <h3><span>${inn.batting_team_name}${inn.in_progress ? ' (batting)' : ''}</span>
+            <h3><span style="${inn.batting_team_color ? `color:${inn.batting_team_color}` : ''}">${inn.batting_team_name}${inn.in_progress ? ' (batting)' : ''}</span>
                 <span class="tot">${inn.runs}/${inn.wickets} &nbsp; (${inn.overs})</span></h3>
             <div class="sc-sub">Batting &middot; Extras ${inn.extras}</div>
             <table>
@@ -1351,12 +1473,138 @@ function playVictoryFanfare() {
     const chordStart = t0 + run.length * 0.16 + 0.05;
     run.forEach(freq => note(freq, chordStart, 1.3, 0.24));
 }
+// ---------- ball-by-ball sound design ----------
+function playDotTick() {
+    ensureAudio();
+    if (!audioCtx) return;
+    const t = audioCtx.currentTime;
+    const o = audioCtx.createOscillator(); o.type = 'square';
+    o.frequency.setValueAtTime(220, t);
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0.045, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(t); o.stop(t + 0.06);
+}
+
+function playBatCrack(big) {
+    ensureAudio();
+    if (!audioCtx) return;
+    const t = audioCtx.currentTime;
+    const dur = 0.06, sr = audioCtx.sampleRate;
+    const buf = audioCtx.createBuffer(1, Math.floor(sr * dur), sr);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 2);
+    const src = audioCtx.createBufferSource(); src.buffer = buf;
+    const bp = audioCtx.createBiquadFilter(); bp.type = 'bandpass';
+    bp.frequency.value = big ? 2200 : 2800; bp.Q.value = 1.2;
+    const g = audioCtx.createGain(); g.gain.value = big ? 0.6 : 0.4;
+    src.connect(bp); bp.connect(g); g.connect(audioCtx.destination); src.start(t);
+}
+
+function playCrowdRoar(intensity) {
+    // intensity: 1 (four) or 2 (six) -- a filtered-noise swell standing in for a crowd roar
+    ensureAudio();
+    if (!audioCtx) return;
+    const t0 = audioCtx.currentTime;
+    const dur = intensity >= 2 ? 1.5 : 0.85;
+    const sr = audioCtx.sampleRate;
+    const buf = audioCtx.createBuffer(1, Math.floor(sr * dur), sr);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    const src = audioCtx.createBufferSource(); src.buffer = buf;
+    const bp = audioCtx.createBiquadFilter(); bp.type = 'bandpass';
+    bp.frequency.setValueAtTime(500, t0);
+    bp.frequency.linearRampToValueAtTime(1400, t0 + dur * 0.4);
+    bp.frequency.linearRampToValueAtTime(700, t0 + dur);
+    bp.Q.value = 0.6;
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(intensity >= 2 ? 0.38 : 0.24, t0 + dur * 0.25);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    src.connect(bp); bp.connect(g); g.connect(audioCtx.destination);
+    src.start(t0); src.stop(t0 + dur + 0.05);
+}
+
+function playWicketSting() {
+    ensureAudio();
+    if (!audioCtx) return;
+    const t0 = audioCtx.currentTime;
+    const o = audioCtx.createOscillator(); o.type = 'sawtooth';
+    o.frequency.setValueAtTime(300, t0);
+    o.frequency.exponentialRampToValueAtTime(85, t0 + 0.4);
+    const g = audioCtx.createGain();
+    g.gain.setValueAtTime(0.32, t0);
+    g.gain.exponentialRampToValueAtTime(0.001, t0 + 0.45);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(t0); o.stop(t0 + 0.5);
+    // crowd gasp
+    const dur = 0.5, sr = audioCtx.sampleRate;
+    const buf = audioCtx.createBuffer(1, Math.floor(sr * dur), sr);
+    const d = buf.getChannelData(0);
+    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+    const src = audioCtx.createBufferSource(); src.buffer = buf;
+    const bp = audioCtx.createBiquadFilter(); bp.type = 'bandpass';
+    bp.frequency.setValueAtTime(800, t0); bp.frequency.linearRampToValueAtTime(1600, t0 + 0.15);
+    bp.Q.value = 0.7;
+    const gg = audioCtx.createGain();
+    gg.gain.setValueAtTime(0.0001, t0);
+    gg.gain.exponentialRampToValueAtTime(0.28, t0 + 0.1);
+    gg.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    src.connect(bp); bp.connect(gg); gg.connect(audioCtx.destination);
+    src.start(t0); src.stop(t0 + dur + 0.05);
+}
+
+function playMilestoneSting() {
+    ensureAudio();
+    if (!audioCtx) return;
+    const t0 = audioCtx.currentTime;
+    const note = (freq, start, dur, vol) => {
+        const o = audioCtx.createOscillator(); o.type = 'triangle';
+        o.frequency.setValueAtTime(freq, start);
+        const g = audioCtx.createGain();
+        g.gain.setValueAtTime(0.0001, start);
+        g.gain.exponentialRampToValueAtTime(vol, start + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start(start); o.stop(start + dur + 0.05);
+    };
+    [659.25, 783.99, 1046.50].forEach((freq, i) => note(freq, t0 + i * 0.1, 0.35, 0.26));
+}
+
+function playHatTrickSting() {
+    for (let i = 0; i < 3; i++) setTimeout(() => playWicketSting(), i * 180);
+}
+
+function playOutcomeSound(outcome) {
+    if (outcome === '0') playDotTick();
+    else if (outcome === '4') { playBatCrack(false); playCrowdRoar(1); }
+    else if (outcome === '6') { playBatCrack(true); playCrowdRoar(2); }
+    else if (outcome === '1' || outcome === '2' || outcome === '3' || outcome === '5') playBatCrack(false);
+    else if (outcome === 'W') playWicketSting();
+    else if (outcome === '50' || outcome === '100') playMilestoneSting();
+    else if (outcome === 'HT') playHatTrickSting();
+}
+
 let aucFx = { strike: -1, stage: null };
 function maybeGavel(a) {
     const struck = a.stage === 'bidding' && a.strike > aucFx.strike && a.strike > 0;
     const resolved = a.stage === 'resolved' && aucFx.stage !== 'resolved';
     if (struck || resolved) { swingGavel(); playGavel(resolved); }
     aucFx = { strike: a.stage === 'bidding' ? a.strike : 0, stage: a.stage };
+}
+
+let lastBidder = null;
+function maybeFlashRivalBid(a, me) {
+    if (a.stage === 'bidding' && a.active_bidder && a.active_bidder !== me && a.active_bidder !== lastBidder) {
+        const holder = document.querySelector('#auc-center .auc-holder');
+        if (holder) {
+            holder.classList.remove('rival-bid-flash');
+            void holder.offsetWidth;
+            holder.classList.add('rival-bid-flash');
+        }
+    }
+    lastBidder = a.stage === 'bidding' ? a.active_bidder : null;
 }
 
 function auctioneerScene() {
@@ -1382,8 +1630,11 @@ function renderAuction(state) {
         ? squadPanel(a.opp_squad, false, a)
         : otherSquadsPanel(a.other_squads, a);
     if (!a.opp_squad) wireOtherSquads();
+    animatePurseValues($('auc-my'));
+    animatePurseValues($('auc-opp'));
     $('auc-center').innerHTML = auctionCenter(a, me);
     wireAuctionCenter(a, me);
+    maybeFlashRivalBid(a, me);
 
     // Always render full pool into the new tab -- every poll rebuilds this
     // (bids, timer ticks, sales...), so explicitly preserve scroll position
@@ -1417,8 +1668,9 @@ function squadPanel(sq, isMe, a) {
     const progLabel = sq.count >= a.squad_min
         ? (sq.wk >= 1 ? 'Squad legal — can lock in ✔' : 'Need a wicket-keeper')
         : `${need} more to reach the minimum ${a.squad_min}`;
-    return `<h3>${sq.name}${isMe ? ' (You)' : ''} ${sq.locked ? '<span class="badge-tier">LOCKED</span>' : ''}</h3>
-        <div class="purse">₹${sq.budget.toFixed(1)} Cr</div>
+    const dot = sq.color ? `<span class="team-dot" style="background:${sq.color}"></span>` : '';
+    return `<h3>${dot}${sq.name}${isMe ? ' (You)' : ''} ${sq.locked ? '<span class="badge-tier">LOCKED</span>' : ''}</h3>
+        <div class="purse" data-purse="${sq.budget}" data-purse-key="${sq.name}">₹${sq.budget.toFixed(1)} Cr</div>
         <div class="squad-stats">
             <span>Squad <b>${sq.count}</b>/${a.squad_max}</span>
             <span>Overseas <b>${sq.os}</b></span>
@@ -1429,11 +1681,41 @@ function squadPanel(sq, isMe, a) {
         ${rows}`;
 }
 
+// ---------- auction theater: animated purse ticks ----------
+const purseCache = {};
+function animatePurseValues(root) {
+    (root || document).querySelectorAll('[data-purse]').forEach(el => {
+        const key = el.dataset.purseKey;
+        const target = parseFloat(el.dataset.purse);
+        const from = purseCache[key] !== undefined ? purseCache[key] : target;
+        purseCache[key] = target;
+        if (Math.abs(from - target) < 0.001) { el.textContent = `₹${target.toFixed(1)} Cr`; return; }
+        el.classList.add(target < from ? 'purse-tick-down' : 'purse-tick-up');
+        setTimeout(() => el.classList.remove('purse-tick-down', 'purse-tick-up'), 500);
+        const start = performance.now();
+        const dur = 450;
+        const step = (now) => {
+            const t = Math.min(1, (now - start) / dur);
+            el.textContent = `₹${(from + (target - from) * t).toFixed(1)} Cr`;
+            if (t < 1) requestAnimationFrame(step);
+            else el.textContent = `₹${target.toFixed(1)} Cr`;
+        };
+        requestAnimationFrame(step);
+    });
+}
+
 function teamName(a, role) {
     if (role === a.you_role) return a.my_squad.name;
     if (a.opp_squad && a.opp_squad.team_id === role) return a.opp_squad.name;
     const found = (a.other_squads || []).find(s => s.team_id === role);
     return found ? found.name : role;
+}
+
+function teamColor(a, role) {
+    if (role === a.you_role) return a.my_squad.color;
+    if (a.opp_squad && a.opp_squad.team_id === role) return a.opp_squad.color;
+    const found = (a.other_squads || []).find(s => s.team_id === role);
+    return found ? found.color : null;
 }
 
 function otherSquadsPanel(others, a) {
@@ -1444,9 +1726,10 @@ function otherSquadsPanel(others, a) {
         const detail = names.length
             ? names.map(n => `<div class="other-squad-player">${n}</div>`).join('')
             : '<div class="bench-empty">No buys yet.</div>';
+        const dot = sq.color ? `<span class="team-dot" style="background:${sq.color}"></span>` : '';
         return `
         <div class="roster-item other-squad-row" data-expand-squad="${sq.team_id}" style="align-items:center; cursor:pointer;">
-            <span>${open ? '▾' : '▸'} ${sq.name} ${sq.locked ? '<span class="badge-tier">LOCKED</span>' : ''}</span>
+            <span>${open ? '▾' : '▸'} ${dot}${sq.name} ${sq.locked ? '<span class="badge-tier">LOCKED</span>' : ''}</span>
             <span class="price">₹${sq.budget.toFixed(1)} Cr &middot; ${sq.count}/${a.squad_max} &middot; 🧤${sq.wk}</span>
         </div>
         <div class="other-squad-detail${open ? '' : ' hidden'}">${detail}</div>`;
@@ -1521,7 +1804,11 @@ function auctionCenter(a, me) {
         const tier = c.is_foreigner ? '<span class="badge-tier badge-os">OVERSEAS</span>' : '';
         const card = pcard(c, { ovr: Math.max(c.batting_ovr, c.bowling_ovr), tag: `${a.tier} ${a.role_name}` });
         let holder = 'No bids yet — opening price.';
-        if (a.active_bidder) holder = a.active_bidder === me ? '⭐ You hold the top bid' : `${teamName(a, a.active_bidder)} holds the bid`;
+        if (a.active_bidder) {
+            const bc = teamColor(a, a.active_bidder);
+            holder = a.active_bidder === me ? '⭐ You hold the top bid'
+                : `<span style="${bc ? `color:${bc}` : ''}">${teamName(a, a.active_bidder)}</span> holds the bid`;
+        }
         const strikeTxt = a.strike === 1 ? 'GOING ONCE…' : a.strike === 2 ? 'GOING TWICE…' : '';
         const controls = (a.out[me] || a.my_locked)
             ? `<div class="auc-holder">${a.my_locked ? 'Your squad is locked — sitting out.' : 'You pulled out of this lot.'}</div>`
@@ -1538,10 +1825,11 @@ function auctionCenter(a, me) {
                    <button class="btn-red" id="bid-out">I'm Out</button>
                  </div>
                </div>`;
+        const strikeCls = a.strike === 1 ? 'strike-once' : a.strike === 2 ? 'strike-twice' : '';
         return auctioneerScene() + `<div class="auc-msg">${a.message}</div>
             <div class="auc-timer"><div class="auc-timer-fill" id="auc-timer-fill"></div></div>
             <div style="text-align:center">${tier}</div>
-            <div class="auc-player big-card">${card}</div>
+            <div class="auc-player big-card ${strikeCls}">${card}</div>
             <div class="auc-bid">₹${a.current_bid.toFixed(1)} Cr</div>
             <div class="auc-holder">${holder}</div>
             <div class="auc-msg" style="color:var(--leather); min-height:1rem">${strikeTxt}</div>
@@ -1550,8 +1838,17 @@ function auctionCenter(a, me) {
     }
 
     if (a.stage === 'resolved') {
-        const col = a.last_result === 'sold' ? 'var(--green-go)' : 'var(--leather)';
+        const sold = a.last_result === 'sold';
+        const col = sold ? 'var(--green-go)' : 'var(--leather)';
+        const c = a.current;
+        const stampCard = c
+            ? `<div class="auc-player big-card resolved-card">
+                 <div class="auc-stamp ${sold ? 'stamp-sold' : 'stamp-unsold'}">${sold ? 'SOLD' : 'UNSOLD'}</div>
+                 ${pcard(c, { ovr: Math.max(c.batting_ovr, c.bowling_ovr), tag: `${a.tier} ${a.role_name}` })}
+               </div>`
+            : '';
         return instr + auctioneerScene()
+            + stampCard
             + `<div class="auc-msg" style="font-size:1.5rem; color:${col}">${a.message}</div>`
             + lockBlock(a)
             + readyBlock(a, me, 'Ready for Next Lot');

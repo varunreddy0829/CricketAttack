@@ -266,6 +266,10 @@ def _sweep_stale_games():
             del TOKEN_TO_CODE[tok]
 
 
+TEAM_COLOR_PALETTE = ["#e6483c", "#3b82c4", "#e0b400", "#2f9e5c",
+                      "#9d5ce0", "#e07b2e", "#22a6a6", "#e05c9e"]
+
+
 def _fresh_game(num_teams=2):
     """A plain 1v1 game is just num_teams=2 — the generalized N-team registry
     (team_ids/teams keyed "team1".."teamN") transparently degrades to the
@@ -279,7 +283,8 @@ def _fresh_game(num_teams=2):
         "phase": "lobby",  # lobby -> [auction -> xi ->]* match -> finished
         "tokens": {},       # token -> team_id
         "team_ids": team_ids,          # ordered list of every team slot in this game
-        "teams": {t: {"name": f"Team {i+1}", "joined": False, "xi": [], "ready": False}
+        "teams": {t: {"name": f"Team {i+1}", "joined": False, "xi": [], "ready": False,
+                      "color": TEAM_COLOR_PALETTE[i % len(TEAM_COLOR_PALETTE)]}
                   for i, t in enumerate(team_ids)},
         "match_teams": team_ids[:2],   # the two teams contesting the CURRENT match
         # match state (populated when the match starts)
@@ -691,8 +696,16 @@ def _simulate_until_pause():
         elif outcome == "Out":
             row["out"] = True
             row["how_out"] = f"b {bowler.name}"
-            g["bowl_card"][bowler.name]["wickets"] += 1
+            bc = g["bowl_card"][bowler.name]
+            bc["wickets"] += 1
             _emit(ball_no, "wicket", _say("wicket", striker.name, bowler.name), outcome="W")
+            # hat-trick: consecutive wickets on this bowler's own consecutive
+            # deliveries (extras don't break the streak -- see the extras
+            # branch above, which deliberately leaves last_ball_wicket alone)
+            bc["consec_wkts"] = bc.get("consec_wkts", 0) + 1 if bc.get("last_ball_wicket") else 1
+            bc["last_ball_wicket"] = True
+            if bc["consec_wkts"] == 3:
+                _emit(ball_no, "milestone", f"🎩 HAT-TRICK! {bowler.name} takes three wickets in a row!", outcome="HT")
             g["pressure"] = 0   # the squeeze got its wicket; the new batter starts fresh
             state.handle_wicket()
             g["vacant_slot"] = "striker"   # the batter facing the ball is always the striker
@@ -702,12 +715,21 @@ def _simulate_until_pause():
         else:
             runs = int(outcome)
             state.add_runs(runs)
+            prev_runs = row["runs"]
             row["runs"] += runs
             g["bowl_card"][bowler.name]["runs"] += runs
+            g["bowl_card"][bowler.name]["last_ball_wicket"] = False
             if runs == 4:
                 row["fours"] += 1
             elif runs == 6:
                 row["sixes"] += 1
+            # milestones: guarded so a player already past a threshold never
+            # re-fires it on a later ball, and the two are mutually exclusive
+            # (a single ball can cross at most one, since max runs/ball = 6)
+            if prev_runs < 50 <= row["runs"] < 100:
+                _emit(ball_no, "milestone", f"🎉 FIFTY! {striker.name} brings up his half-century!", outcome="50")
+            elif prev_runs < 100 <= row["runs"]:
+                _emit(ball_no, "milestone", f"💯 CENTURY! {striker.name} reaches three figures!", outcome="100")
             # dot-ball pressure: dots stack it, boundaries burst it, rotating
             # the strike bleeds it off one notch
             if runs == 0:
@@ -781,6 +803,8 @@ def _snapshot_innings():
         "batting_team": g["batting_side"],
         "batting_team_name": g["teams"][g["batting_side"]]["name"],
         "bowling_team_name": g["teams"][_bowling_side()]["name"],
+        "batting_team_color": g["teams"][g["batting_side"]].get("color"),
+        "bowling_team_color": g["teams"][_bowling_side()].get("color"),
         "runs": st.runs, "wickets": st.wickets,
         "overs": _overs_str(st.balls), "extras": st.extras,
         "batting": list(g["bat_card"].values()),
@@ -1698,6 +1722,8 @@ def _serialize_spectator_view():
     return {
         "batting_team_name": g["teams"][batting]["name"],
         "bowling_team_name": g["teams"][bowling]["name"],
+        "batting_team_color": g["teams"][batting].get("color"),
+        "bowling_team_color": g["teams"][bowling].get("color"),
         "innings": g.get("innings"),
         "score": st.runs, "wickets": st.wickets,
         "overs": f"{st.balls // 6}.{st.balls % 6}",
@@ -1774,13 +1800,17 @@ def _serialize(token):
         "code": g["code"],
         "is_tournament": is_tournament,
         "you": {"role": role, "joined": role is not None,
-                "name": g["teams"][role]["name"] if role else None},
+                "name": g["teams"][role]["name"] if role else None,
+                "color": g["teams"][role].get("color") if role else None},
         "opponent": {
             "joined": g["teams"][opp_role]["joined"] if opp_role else False,
             "name": g["teams"][opp_role]["name"] if opp_role else None,
+            "color": g["teams"][opp_role].get("color") if opp_role else None,
         } if opp_role else {"joined": False, "name": None},
-        "teams": {t: {"name": g["teams"][t]["name"], "joined": g["teams"][t]["joined"]}
+        "teams": {t: {"name": g["teams"][t]["name"], "joined": g["teams"][t]["joined"],
+                      "color": g["teams"][t].get("color")}
                   for t in g["team_ids"]},
+        "color_palette": TEAM_COLOR_PALETTE,
     }
     if is_tournament:
         out["tournament"] = _serialize_tournament_summary()
@@ -2017,6 +2047,8 @@ def _serialize(token):
         "bowling_team": bowling,
         "batting_team_name": g["teams"][batting]["name"],
         "bowling_team_name": g["teams"][bowling]["name"],
+        "batting_team_color": g["teams"][batting].get("color"),
+        "bowling_team_color": g["teams"][bowling].get("color"),
         "i_am_batting": i_bat,
         "runs": st.runs, "wickets": st.wickets, "balls": st.balls,
         "overs": _overs_str(st.balls), "max_overs": OVERS_PER_INNINGS,
@@ -2058,7 +2090,8 @@ def _serialize_auction(role):
 
     def squad_view(r):
         x = sq[r]
-        return {"name": GAME["teams"][r]["name"], "budget": round(x["budget"], 1),
+        return {"name": GAME["teams"][r]["name"], "color": GAME["teams"][r].get("color"),
+                "budget": round(x["budget"], 1),
                 "count": len(x["roster"]), "os": x["os"], "wk": x["wk"],
                 "locked": x["locked"], "roster": x["roster"]}
 
@@ -2071,7 +2104,8 @@ def _serialize_auction(role):
 
     def summary_view(r):
         x = sq[r]
-        return {"team_id": r, "name": GAME["teams"][r]["name"], "budget": round(x["budget"], 1),
+        return {"team_id": r, "name": GAME["teams"][r]["name"], "color": GAME["teams"][r].get("color"),
+                "budget": round(x["budget"], 1),
                 "count": len(x["roster"]), "os": x["os"], "wk": x["wk"], "locked": x["locked"],
                 "roster_names": [p["name"] for p in x["roster"]]}
 
@@ -2131,6 +2165,8 @@ def _serialize_scorecard():
             "batting_team": g["batting_side"],
             "batting_team_name": g["teams"][g["batting_side"]]["name"],
             "bowling_team_name": g["teams"][_bowling_side()]["name"],
+            "batting_team_color": g["teams"][g["batting_side"]].get("color"),
+            "bowling_team_color": g["teams"][_bowling_side()].get("color"),
             "runs": st.runs, "wickets": st.wickets,
             "overs": _overs_str(st.balls), "extras": st.extras,
             "batting": list(g["bat_card"].values()),
@@ -2149,6 +2185,12 @@ def handle_exception(e):
                     "trace": traceback.format_exc()}), 500
 
 
+def _apply_color(role, data):
+    c = data.get("color")
+    if c in TEAM_COLOR_PALETTE:
+        GAME["teams"][role]["color"] = c
+
+
 @app.route("/api/create_game", methods=["POST"])
 def create_game():
     global GAME
@@ -2159,6 +2201,7 @@ def create_game():
         GAME["tokens"][token] = "team1"
         GAME["teams"]["team1"]["joined"] = True
         GAME["teams"]["team1"]["name"] = data.get("name") or "Team 1"
+        _apply_color("team1", data)
         _register_token(GAME["code"], token)
         _bump()
         return jsonify({"status": "success", "token": token, "code": GAME["code"], "role": "team1"})
@@ -2185,6 +2228,7 @@ def join_game():
         GAME["tokens"][token] = "team2"
         GAME["teams"]["team2"]["joined"] = True
         GAME["teams"]["team2"]["name"] = data.get("name") or "Team 2"
+        _apply_color("team2", data)
         _register_token(GAME["code"], token)
         _bump()
         return jsonify({"status": "success", "token": token, "code": GAME["code"], "role": "team2"})
@@ -2213,6 +2257,7 @@ def create_tournament():
         GAME["tokens"][token] = role
         GAME["teams"][role]["joined"] = True
         GAME["teams"][role]["name"] = data.get("name") or GAME["teams"][role]["name"]
+        _apply_color(role, data)
         _register_token(GAME["code"], token)
         _bump()
         return jsonify({"status": "success", "token": token, "code": GAME["code"], "role": role})
@@ -2253,6 +2298,7 @@ def join_tournament():
         GAME["tokens"][token] = role
         GAME["teams"][role]["joined"] = True
         GAME["teams"][role]["name"] = data.get("name") or GAME["teams"][role]["name"]
+        _apply_color(role, data)
         _register_token(GAME["code"], token)
         _bump()
         return jsonify({"status": "success", "token": token, "code": GAME["code"], "role": role})
