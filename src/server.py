@@ -1838,7 +1838,7 @@ def _serialize(token):
     if is_tournament:
         out["tournament"] = _serialize_tournament_summary()
         t = g["tournament"]
-        if role and role in g.get("squads", {}):
+        if role and g.get("squads") and role in g["squads"]:
             fatigue = t.get("fatigue") or {}
             out["my_roster"] = {
                 "team_name": g["teams"][role]["name"],
