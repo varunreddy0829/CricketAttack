@@ -20,6 +20,7 @@ const ui = {
     selectedBowler: null,
     openerPicks: [],
     expandedSquad: null,   // tournament auction: which "other squad" row is expanded, by team_id
+    armGambit: false,      // one-shot gambit toggled on for the upcoming over submission
 };
 
 function getBatterIntent(name) { return name in ui.batterIntents ? ui.batterIntents[name] : 50; }
@@ -174,6 +175,14 @@ $('btn-back-to-tournament').addEventListener('click', () => {
     if (CURRENT) renderBracket(CURRENT);
 });
 
+$('back-to-tournament-fixed-btn').addEventListener('click', () => {
+    viewingScorecard = false;
+    manualBracketView = true;
+    $('result-banner').classList.add('hidden');
+    showScreen('t-bracket');
+    if (CURRENT) renderBracket(CURRENT);
+});
+
 $('btn-view-scorecard').addEventListener('click', () => {
     viewingScorecard = true;
     $('result-banner').classList.add('hidden');
@@ -203,17 +212,31 @@ window.addEventListener('gamestate', (e) => {
     render(CURRENT);
 });
 
+function updateRejoinLabel(state) {
+    const el = $('rejoin-code-label');
+    if (state && state.code) {
+        $('rejoin-code-value').textContent = state.code;
+        el.classList.remove('hidden');
+    } else {
+        el.classList.add('hidden');
+    }
+}
+
 function render(state) {
     if (!state || state.status === 'no_game' || !state.you || !state.you.joined) {
         $('exit-btn').classList.add('hidden');
         $('cancel-tournament-btn').classList.add('hidden');
+        $('back-to-tournament-fixed-btn').classList.add('hidden');
+        updateRejoinLabel(null);
         showScreen('landing');
         return;
     }
+    updateRejoinLabel(state);
     // opponent (or you) left -> show result, offer back to main
     if (state.abandoned) {
         $('exit-btn').classList.add('hidden');
         $('cancel-tournament-btn').classList.add('hidden');
+        $('back-to-tournament-fixed-btn').classList.add('hidden');
         $('result-text').textContent = state.you_won
             ? '🏆 You win! Your opponent left the match.'
             : (state.ended_result || 'Match abandoned.');
@@ -225,6 +248,7 @@ function render(state) {
     if (state.eliminated && !manualBracketView) {
         $('exit-btn').classList.add('hidden');
         $('cancel-tournament-btn').classList.toggle('hidden', !state.is_tournament);
+        $('back-to-tournament-fixed-btn').classList.add('hidden');
         $('result-text').textContent = state.ended_result || "Your squad never reached the minimum — you're out.";
         $('result-motm').classList.add('hidden');
         $('result-banner').classList.remove('hidden');
@@ -243,6 +267,12 @@ function render(state) {
     const tournamentOver = state.tournament && state.tournament.stage === 'champion';
     $('cancel-tournament-btn').classList.toggle('hidden', !state.is_tournament || tournamentOver);
 
+    // escape hatch: browsing the scorecard while some OTHER fixture plays on
+    // elsewhere used to leave you stranded there with no way back (the
+    // automatic "waiting_for_fixture" redirect only kicks in once the other
+    // fixture actually starts, which can lag well behind your own finishing)
+    $('back-to-tournament-fixed-btn').classList.toggle('hidden', !(state.is_tournament && viewingScorecard));
+
     // manualBracketView only makes sense while our own last fixture is still
     // the "finished" one sitting behind it (including if a next-fixture
     // ready-prompt has since queued up — that now lives IN the bracket
@@ -258,6 +288,7 @@ function render(state) {
         return;
     }
     if (state.phase === 'auction') { showScreen('auction'); renderAuction(state); return; }
+    if (state.phase === 'grounds') { showScreen('grounds-screen'); renderGrounds(state); return; }
     if (state.phase === 'xi') { showScreen('xi-screen'); renderXI(state); return; }
     // tournament: fresh per-fixture XI reselect (not the one-time phase=='xi' above)
     if (state.fixture_xi) { showScreen('xi-screen'); renderXI(state); return; }
@@ -274,9 +305,12 @@ function render(state) {
         renderBracket(state);
         return;
     }
-    // tournament: just played, nothing queued for us yet, and we chose to
-    // stop looking at the old result banner -> show the bracket instead
-    if (finished && state.is_tournament && manualBracketView) {
+    // tournament: our own fixture just ended -> ALWAYS land back on the
+    // bracket automatically (no manual "Back to Tournament" click required,
+    // and no separate scorecard screen to get stranded on — the just-played
+    // match's result/MOTM shows inline, and its full scorecard is one tap
+    // away via the same fixture-scorecard popup as any other match).
+    if (finished && state.is_tournament) {
         showScreen('t-bracket');
         renderBracket(state);
         return;
@@ -388,6 +422,12 @@ async function openFixtureScorecard(idx) {
 function renderBracket(state) {
     const t = state.tournament;
     let html = `<div class="tagline" style="text-align:center;">Tournament Bracket</div>`;
+    // just came straight back from our own finished fixture (no more manual
+    // "Back to Tournament" click needed — see render()) -> show the result
+    // and MOTM inline, with the full scorecard one tap away
+    if (state.phase === 'finished' && state.match && state.match.result) {
+        html += lastResultBlock(state.match, t.current_fixture_idx);
+    }
     // your match is next -> ready-up prompt lives HERE now (not a floating
     // overlay stacked over the previous match's result banner), so you only
     // see it once you've actually come back to the tournament screen
@@ -408,16 +448,27 @@ function renderBracket(state) {
     $('t-bracket-wrap').innerHTML = html;
     wireBracketActions();
     wireFixtureScorecards();
+    wireAwardsExpand();
 }
 
-function awardsLeaderboardList(entries, unit) {
-    return entries.map((e, i) => `
+const AWARDS_COLLAPSED_COUNT = 3;
+const awardsExpanded = { orange_cap: false, purple_cap: false, mvp: false };
+
+function awardsLeaderboardList(key, entries, unit) {
+    const expanded = awardsExpanded[key];
+    const shown = expanded ? entries : entries.slice(0, AWARDS_COLLAPSED_COUNT);
+    const rows = shown.map((e, i) => `
         <div class="t-award-row">
             <span class="t-award-rank">${i + 1}</span>
             <span class="t-award-pname">${e.name}</span>
             <span class="t-award-pteam">${e.team_name}</span>
             <span class="t-award-pvalue">${e.value}${unit ? ' ' + unit : ''}</span>
         </div>`).join('');
+    const hidden = entries.length - AWARDS_COLLAPSED_COUNT;
+    const hint = hidden > 0
+        ? `<div class="t-award-expand" data-award-key="${key}">${expanded ? '▾ show less' : `▸ show ${hidden} more`}</div>`
+        : '';
+    return rows + hint;
 }
 
 function awardsLeaderboard(awards) {
@@ -426,12 +477,32 @@ function awardsLeaderboard(awards) {
         <div class="tagline" style="text-align:center;">Running Leaderboard</div>
         <div class="t-awards-row">
             <div class="t-award-card"><div class="t-award-cap">🧡 Orange Cap</div>
-                ${awardsLeaderboardList(awards.orange_cap, 'runs')}</div>
+                ${awardsLeaderboardList('orange_cap', awards.orange_cap, 'runs')}</div>
             <div class="t-award-card"><div class="t-award-cap">💜 Purple Cap</div>
-                ${awardsLeaderboardList(awards.purple_cap, 'wkts')}</div>
+                ${awardsLeaderboardList('purple_cap', awards.purple_cap, 'wkts')}</div>
             <div class="t-award-card"><div class="t-award-cap">⭐ MVP</div>
-                ${awardsLeaderboardList(awards.mvp, '')}</div>
+                ${awardsLeaderboardList('mvp', awards.mvp, '')}</div>
         </div>
+    </div>`;
+}
+
+function wireAwardsExpand() {
+    document.querySelectorAll('[data-award-key]').forEach(el =>
+        el.addEventListener('click', () => {
+            const key = el.dataset.awardKey;
+            awardsExpanded[key] = !awardsExpanded[key];
+            if (CURRENT) render(CURRENT);
+        }));
+}
+
+function lastResultBlock(m, fixtureIdx) {
+    return `<div class="t-last-result">
+        <div class="tagline">Your Match</div>
+        <div class="t-last-result-text">${m.result}</div>
+        ${m.motm ? `<div class="t-last-result-motm">🏅 Player of the Match: ${m.motm}</div>` : ''}
+        ${fixtureIdx !== null && fixtureIdx !== undefined
+            ? `<button class="btn-ghost" id="btn-last-result-scorecard" data-fixture-idx="${fixtureIdx}">📋 View Scorecard</button>`
+            : ''}
     </div>`;
 }
 
@@ -459,6 +530,7 @@ function spectateBlock(sp) {
     return `<div class="t-spectate">
         <div class="t-spectate-score">${sp.batting_team_name} ${sp.score}/${sp.wickets}
             <span class="t-spectate-overs">(${sp.overs} ov)</span></div>
+        ${sp.ground ? `<div class="t-spectate-sub">🏟 ${sp.ground.name} &middot; <span class="pitch-chip ${sp.ground.pitch}">${sp.ground.pitch}</span></div>` : ''}
         <div class="t-spectate-sub">${withNames}${sp.bowler_name ? ' &middot; bowled by ' + sp.bowler_name : ''}</div>
         ${sp.target ? `<div class="t-spectate-sub">Target: ${sp.target}</div>` : ''}
         <div class="comm-list t-spectate-comm">${overLines}</div>
@@ -550,6 +622,7 @@ function renderChampionScreen(state) {
         document.querySelectorAll('#game .tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-scorecard'));
     });
     wireFixtureScorecards();
+    wireAwardsExpand();
 }
 
 // ---------- game shell ----------
@@ -601,10 +674,15 @@ function hideOverlay(id) { $(id).classList.add('hidden'); }
 // ---------- toss ----------
 function renderToss(m) {
     const card = $('toss-card');
+    const groundLine = m.ground
+        ? `<div class="sub toss-ground">🏟 ${m.ground.name}, ${m.ground.city}<br>
+             <span class="pitch-chip ${m.ground.pitch}">${m.ground.pitch} pitch</span> — ${m.ground.pitch_desc}</div>`
+        : '';
     if (m.toss.i_won) {
         card.innerHTML = `
             <div class="toss-coin">🪙</div>
             <h2>You won the toss!</h2>
+            ${groundLine}
             <div class="sub">${m.toss.winner_name}, what will you do?</div>
             <div class="toss-choices">
                 <button class="btn-go btn-lg" data-toss="bat">Bat First</button>
@@ -616,6 +694,7 @@ function renderToss(m) {
         card.innerHTML = `
             <div class="toss-coin">🪙</div>
             <h2>Coin is in the air…</h2>
+            ${groundLine}
             <div class="sub wait-note">${m.toss.winner_name} won the toss and is deciding to bat or bowl.</div>`;
     }
     $('toss-overlay').classList.remove('hidden');
@@ -690,13 +769,19 @@ function renderScoreboard(m) {
     } else {
         target = `<div class="sb-target"><div class="sb-meta">1st Innings</div></div>`;
     }
+    const phaseChip = m.phase_label && m.phase_label !== 'middle'
+        ? `<span class="phase-chip ${m.phase_label}">${m.phase_label === 'powerplay' ? '⚡ POWERPLAY' : '🔥 DEATH OVERS'}</span>` : '';
+    const pressure = Math.min(m.pressure || 0, 6);
+    const pressureHtml = pressure > 0
+        ? `<span class="pressure-meter" title="Dot-ball pressure — wicket chance climbing!">${'●'.repeat(pressure)}${'○'.repeat(6 - pressure)} pressure</span>` : '';
     $('scoreboard').innerHTML = `
         <div>
             <div class="sb-team">${m.batting_team_name}</div>
             <div class="sb-score">${m.runs}/${m.wickets}</div>
             <div class="sb-meta">Overs ${m.overs} / ${m.max_overs} &middot; Extras ${m.extras}</div>
+            ${m.ground ? `<div class="sb-meta sb-ground">🏟 ${m.ground.name} &middot; <span class="pitch-chip ${m.ground.pitch}">${m.ground.pitch} pitch</span></div>` : ''}
         </div>
-        <div class="sb-meta">bowling: ${m.bowling_team_name}</div>
+        <div class="sb-meta">bowling: ${m.bowling_team_name} ${phaseChip} ${pressureHtml}</div>
         ${target}`;
 }
 
@@ -749,7 +834,8 @@ function bowlerCard(cb) {
 function renderGround(m) {
     const g = $('ground');
     const isFreeHit = m.stage === 'free_hit';
-    const locked = isFreeHit ? m.free_hit.i_ready : m.pending.i_submitted;
+    const isResume = m.stage === 'await_resume';
+    const locked = isFreeHit ? m.free_hit.i_ready : isResume ? (m.resume && m.resume.i_ready) : m.pending.i_submitted;
     const canIntent = m.stage === 'play' || m.stage === 'free_hit' || m.stage === 'await_resume';
     const slDisabled = locked || !canIntent;
     // retiring is only allowed between overs, before either half is submitted
@@ -879,12 +965,17 @@ function renderReadyBar(m) {
     }
 
     if (m.stage === 'await_resume') {
-        if (m.i_am_batting) {
+        const oppTxt = oppReadyTxt(m.resume && m.resume.opponent_ready);
+        if (m.resume && m.resume.i_ready) {
+            bar.innerHTML = `<button class="btn-ghost" disabled>Ready ✔ — waiting…</button>${oppTxt}`;
+        } else if (m.i_am_batting) {
             bar.innerHTML = `<button class="btn-go btn-lg" id="btn-resume">Ready to Resume Over ✔</button>
-                <span class="ready-status"><span class="off">New batsman is in — set intent, then resume.</span></span>`;
+                <span class="ready-status"><span class="off">New batsman is in — set intent, then resume.</span></span>${oppTxt}`;
             $('btn-resume').addEventListener('click', submitResume);
         } else {
-            bar.innerHTML = `<div class="ready-status"><span class="off">Waiting for the batting side to resume the over…</span></div>`;
+            bar.innerHTML = `<button class="btn-go btn-lg" id="btn-resume">Ready to Resume Over ✔</button>
+                <span class="ready-status"><span class="off">New batsman is in — react with your bowling intent, then resume.</span></span>${oppTxt}`;
+            $('btn-resume').addEventListener('click', submitResume);
         }
         return;
     }
@@ -909,10 +1000,12 @@ function renderReadyBar(m) {
         } else {
             const disabled = !ui.selectedBowler;
             bar.innerHTML =
-                `<button class="btn-go btn-lg" id="btn-ready" ${disabled ? 'disabled' : ''}>Lock In Bowler ✔</button>
+                `${gambitToggleHtml(m, 'trap', '🪤 Set Trap')}
+                 <button class="btn-go btn-lg" id="btn-ready" ${disabled ? 'disabled' : ''}>Lock In Bowler ✔</button>
                  <span class="ready-status"><span class="off">${disabled ? 'Pick a bowler first' : "Batsmen won't see your intent"}</span></span>`;
             const btn = $('btn-ready');
             if (btn) btn.addEventListener('click', submitOver);
+            wireGambitToggle();
         }
         return;
     }
@@ -929,8 +1022,25 @@ function renderReadyBar(m) {
     const bn = m.pending.opponent_bowler ? m.pending.opponent_bowler.name : 'the bowler';
     bar.innerHTML =
         `<span class="ready-status" style="color:var(--gold)">Bowling: ${bn}</span>
+         ${gambitToggleHtml(m, 'attack', '⚡ All Out Attack')}
          <button class="btn-go btn-lg" id="btn-ready">Set Strategy &amp; Ready ✔</button>`;
     $('btn-ready').addEventListener('click', submitOver);
+    wireGambitToggle();
+}
+
+// one-shot gambit cards: armed locally, sent (secretly) with the submission
+function gambitToggleHtml(m, kind, label) {
+    const avail = m.gambits && m.gambits.available && m.gambits.available[kind];
+    if (!avail) return `<span class="gambit-btn used">${label} — used</span>`;
+    return `<button class="gambit-btn${ui.armGambit ? ' armed' : ''}" id="btn-gambit">${label}${ui.armGambit ? ' ✔ ARMED' : ''}</button>`;
+}
+
+function wireGambitToggle() {
+    const b = $('btn-gambit');
+    if (b) b.addEventListener('click', () => {
+        ui.armGambit = !ui.armGambit;
+        if (CURRENT) renderGame(CURRENT);
+    });
 }
 
 async function submitOver() {
@@ -941,6 +1051,7 @@ async function submitOver() {
                 token: Net.getToken(),
                 striker_intent: getBatterIntent(m.striker.name),
                 non_striker_intent: getBatterIntent(m.non_striker.name),
+                gambit: ui.armGambit,
             });
         } else {
             if (!ui.selectedBowler) return toast('Pick a bowler first.');
@@ -948,8 +1059,10 @@ async function submitOver() {
                 token: Net.getToken(),
                 bowler_name: ui.selectedBowler,
                 bowl_intent: ui.bowlIntent,
+                gambit: ui.armGambit,
             });
         }
+        ui.armGambit = false;
         Net.forceRefresh();
     } catch (e) { toast(e.message); }
 }
@@ -965,14 +1078,11 @@ async function submitFreeHit() {
 
 async function submitResume() {
     const m = CURRENT.match;
-    try {
-        await Net.post('/api/ready_resume', {
-            token: Net.getToken(),
-            striker_intent: getBatterIntent(m.striker.name),
-            non_striker_intent: getBatterIntent(m.non_striker.name),
-        });
-        Net.forceRefresh();
-    } catch (e) { toast(e.message); }
+    const body = m.i_am_batting
+        ? { token: Net.getToken(), striker_intent: getBatterIntent(m.striker.name), non_striker_intent: getBatterIntent(m.non_striker.name) }
+        : { token: Net.getToken(), bowl_intent: ui.bowlIntent };
+    try { await Net.post('/api/ready_resume', body); Net.forceRefresh(); }
+    catch (e) { toast(e.message); }
 }
 
 // ---------- bench ----------
@@ -1275,14 +1385,20 @@ function renderAuction(state) {
     $('auc-center').innerHTML = auctionCenter(a, me);
     wireAuctionCenter(a, me);
 
-    // Always render full pool into the new tab
+    // Always render full pool into the new tab -- every poll rebuilds this
+    // (bids, timer ticks, sales...), so explicitly preserve scroll position
+    // or browsing the list while an auction is live gets yanked back to the
+    // top on every single update.
     if ($('auc-full-pool')) {
         const sold = [
             ...(a.my_squad ? a.my_squad.roster.map(p => p.name) : []),
             ...(a.opp_squad ? a.opp_squad.roster.map(p => p.name) : []),
             ...(a.other_squads || []).flatMap(s => s.roster_names || []),
         ];
+        const poolScroller = $('atab-pool');
+        const prevScrollTop = poolScroller ? poolScroller.scrollTop : 0;
         $('auc-full-pool').innerHTML = poolList(a.pool, sold);
+        if (poolScroller) poolScroller.scrollTop = prevScrollTop;
     }
 
     if (a.stage === 'bidding' || a.stage === 'done') setAucTimer(a.time_left_ms, a.total_wait_ms);
@@ -1486,6 +1602,39 @@ async function aucAction(path, body = {}) {
 // ============================================================
 //  XI SELECTION
 // ============================================================
+// ---------- home ground selection (phase == 'grounds') ----------
+function renderGrounds(state) {
+    const gr = state.grounds;
+    $('grounds-role').textContent = 'You: ' + (state.you.name || '');
+    $('grounds-role').className = 'role-pill batting';
+    const cards = gr.stadiums.map(s => {
+        const takenByOther = s.claimed_by && !s.claimed_by_me;
+        const cls = ['ground-card', s.pitch];
+        if (s.claimed_by_me) cls.push('mine');
+        if (takenByOther) cls.push('taken');
+        return `<div class="${cls.join(' ')}" ${(!takenByOther && !gr.my_locked) ? `data-ground="${s.id}"` : ''}>
+            <div class="ground-name">🏟 ${s.name}</div>
+            <div class="ground-city">${s.city}</div>
+            <div class="pitch-chip ${s.pitch}">${s.pitch} pitch</div>
+            <div class="ground-desc">${s.pitch_desc}</div>
+            ${s.claimed_by ? `<div class="ground-claim">${s.claimed_by_me ? '✔ Your home ground' : `Claimed by ${s.claimed_by}`}</div>` : ''}
+        </div>`;
+    }).join('');
+    $('grounds-main').innerHTML = `
+        <div class="grounds-hint">Every team claims a different home ground — its pitch shapes your matches
+            (round-robin fixtures are played at the FIRST-listed team's home). Coordinate below, then lock in.
+            ${gr.locked_count}/${gr.total_teams} locked.</div>
+        <div class="grounds-grid">${cards}</div>
+        <button class="btn-go btn-lg" id="btn-lock-ground" ${(gr.my_ground && !gr.my_locked) ? '' : 'disabled'}>
+            ${gr.my_locked ? 'Locked ✔ — waiting for the others…' : 'Lock In Home Ground'}</button>`;
+    if (!gr.my_locked) {
+        document.querySelectorAll('#grounds-main [data-ground]').forEach(el =>
+            el.addEventListener('click', () => aucAction('/api/claim_ground', { ground_id: el.dataset.ground })));
+    }
+    const lk = $('btn-lock-ground');
+    if (lk) lk.addEventListener('click', () => aucAction('/api/lock_ground'));
+}
+
 function renderXI(state) {
     // Same screen serves two callers: the once-per-tournament pre-match XI
     // (state.xi) and the fresh per-fixture reselect (state.fixture_xi) --
@@ -1542,11 +1691,19 @@ function renderXI(state) {
 function xiCard(p, x, draggable) {
     const isKeeper = p.is_keeper || p.assigned_role === 'Wicket Keeper';
     const dragAttrs = draggable ? ` draggable="true" data-xi-drag="${p.name}"` : '';
+    // tournament energy meter: rest-planning gauge + the real (small) stat hit
+    let energyHtml = '';
+    if (p.energy !== undefined && p.energy < 100) {
+        const level = p.energy >= 80 ? 'ok' : p.energy >= 50 ? 'tired' : 'gassed';
+        energyHtml = `<div class="energy-bar ${level}" title="Stats -${p.fatigue_penalty}% until rested">
+            <div class="energy-fill" style="width:${p.energy}%"></div></div>`;
+    }
     return pcard(p, {
         ovr: Math.max(p.batting_ovr || 0, p.bowling_ovr || 0),
         selectable: !x.locked, selected: p.selected,
         attrs: `${!x.locked ? `data-xi="${p.name}"` : ''}${dragAttrs}`,
         tag: `${p.is_foreigner ? 'OS · ' : ''}${isKeeper ? 'WK' : (p.assigned_role || '')}`,
+        extraHtml: energyHtml,
     });
 }
 

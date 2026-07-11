@@ -250,6 +250,10 @@ button:disabled {
 .t-current-fixture .vs { font-family: 'Oswald', sans-serif; color: var(--board-amber); font-size: 1.6rem; }
 .t-next-fixture { background: linear-gradient(180deg, var(--cream), var(--cream-2)); color: var(--ink); border-radius: 8px; padding: 1rem 2rem; text-align: center; box-shadow: var(--shadow); border: 2px solid var(--gold); }
 .t-next-fixture .vs { font-family: 'Oswald', sans-serif; color: var(--leather); font-size: 1.3rem; }
+.t-last-result { background: var(--board-bg); border: 2px solid #2a2a26; border-radius: 8px; padding: 1rem 2rem; text-align: center; color: var(--board-white); }
+.t-last-result-text { font-family: 'Oswald', sans-serif; font-size: 1.15rem; color: var(--gold); margin-top: 0.2rem; }
+.t-last-result-motm { font-size: 0.8rem; opacity: 0.85; margin-top: 0.3rem; }
+.t-last-result button { margin-top: 0.6rem; }
 .t-spectate { margin-top: 0.8rem; padding-top: 0.8rem; border-top: 1px solid rgba(255,255,255,0.15); text-align: left; }
 .t-spectate-score { font-family: 'Oswald', sans-serif; font-size: 1.15rem; color: var(--board-white); }
 .t-spectate-overs { font-size: 0.8rem; opacity: 0.75; }
@@ -281,6 +285,47 @@ button:disabled {
 .t-award-pname { font-weight: 600; flex: 1; }
 .t-award-pteam { opacity: 0.6; font-size: 0.72rem; }
 .t-award-pvalue { font-family: 'Oswald', sans-serif; color: var(--green-go); flex-shrink: 0; }
+.t-award-expand {
+    text-align: center; font-size: 0.72rem; font-weight: 600; cursor: pointer;
+    color: var(--leather); padding: 0.35rem 0 0.1rem; opacity: 0.85;
+}
+.t-award-expand:hover { opacity: 1; text-decoration: underline; }
+
+/* ---------- Home grounds / pitch conditions ---------- */
+.grounds-main { flex: 1; overflow-y: auto; display: flex; flex-direction: column; align-items: center; gap: 1rem; padding: 1.2rem; width: 100%; }
+.grounds-hint { max-width: 640px; text-align: center; font-size: 0.85rem; opacity: 0.85; }
+.grounds-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 240px)); gap: 0.9rem; justify-content: center; width: 100%; max-width: 1040px; }
+.ground-card { background: linear-gradient(180deg, var(--cream), var(--cream-2)); color: var(--ink); border-radius: 10px; padding: 0.9rem 1rem; box-shadow: var(--shadow); cursor: pointer; border: 2px solid transparent; transition: transform 0.1s ease; }
+.ground-card:hover { transform: translateY(-2px); }
+.ground-card.mine { border-color: var(--green-go); outline: 2px solid var(--green-go); }
+.ground-card.taken { opacity: 0.45; cursor: not-allowed; }
+.ground-name { font-family: 'Oswald', sans-serif; font-size: 1rem; }
+.ground-city { font-size: 0.75rem; opacity: 0.65; margin-bottom: 0.35rem; }
+.ground-desc { font-size: 0.72rem; opacity: 0.75; margin-top: 0.3rem; line-height: 1.35; }
+.ground-claim { font-family: 'Oswald', sans-serif; font-size: 0.72rem; margin-top: 0.4rem; color: var(--leather); }
+.ground-card.mine .ground-claim { color: var(--green-go); }
+
+.pitch-chip { display: inline-block; font-family: 'Oswald', sans-serif; font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.05em; padding: 1px 8px; border-radius: 10px; color: #fff; }
+.pitch-chip.dusty { background: #a5702a; }
+.pitch-chip.green { background: #2f7a45; }
+.pitch-chip.flat { background: #b28704; }
+.pitch-chip.slow { background: #6b5e8e; }
+
+.sb-ground { margin-top: 0.25rem; }
+.phase-chip { display: inline-block; font-family: 'Oswald', sans-serif; font-size: 0.66rem; letter-spacing: 0.06em; padding: 1px 8px; border-radius: 10px; margin-left: 0.4rem; }
+.phase-chip.powerplay { background: var(--board-amber); color: #241d00; }
+.phase-chip.death { background: var(--leather); color: #fff; }
+.pressure-meter { font-size: 0.7rem; color: var(--leather); margin-left: 0.5rem; letter-spacing: 0.12em; }
+
+.gambit-btn { background: transparent; border: 1px dashed var(--gold); color: var(--gold); border-radius: 20px; padding: 0.45rem 0.9rem; font-size: 0.78rem; cursor: pointer; }
+.gambit-btn.armed { background: var(--gold); color: #241d00; border-style: solid; box-shadow: 0 0 10px var(--gold); }
+.gambit-btn.used { opacity: 0.4; border-style: solid; cursor: default; }
+
+.energy-bar { height: 5px; background: rgba(0, 0, 0, 0.18); border-radius: 3px; margin-top: 4px; overflow: hidden; }
+.energy-bar .energy-fill { height: 100%; border-radius: 3px; }
+.energy-bar.ok .energy-fill { background: var(--green-go); }
+.energy-bar.tired .energy-fill { background: var(--board-amber); }
+.energy-bar.gassed .energy-fill { background: var(--leather); }
 
 .t-presentation { text-align: center; animation: presentFadeIn 0.5s ease; }
 .t-presentation-emoji { font-size: 3.5rem; line-height: 1; }
@@ -1696,7 +1741,33 @@ button:disabled {
     padding: 0.4rem 0.85rem; font-size: 0.78rem; cursor: pointer;
 }
 .exit-btn:hover { background: var(--leather-hi); }
-.cancel-tournament-btn { left: 12px; right: auto; }
+.cancel-tournament-btn { top: auto; bottom: 9px; left: 12px; right: auto; }
+.back-to-tournament-fixed-btn {
+    top: auto; bottom: 9px; left: auto; right: 12px;
+    background: rgba(47, 158, 92, 0.92);
+}
+.back-to-tournament-fixed-btn:hover { background: var(--green-go); }
+
+.rejoin-code-label {
+    position: fixed; top: 9px; left: 12px; z-index: 200;
+    background: rgba(0, 0, 0, 0.45); color: rgba(243, 234, 211, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px;
+    padding: 0.3rem 0.7rem; font-size: 0.68rem; letter-spacing: 0.03em;
+    pointer-events: none;
+}
+.rejoin-code-label span { font-family: 'Oswald', sans-serif; color: var(--gold); font-weight: 600; }
+
+/* Ghost buttons (e.g. "Close") sit on light cream overlay cards, where their
+   default cream-on-transparent styling is nearly invisible -- give them a
+   dark, high-contrast look specifically in that context. */
+.overlay-card .btn-ghost {
+    background: rgba(0, 0, 0, 0.08);
+    color: var(--ink);
+    border-color: rgba(0, 0, 0, 0.35);
+}
+.overlay-card .btn-ghost:hover {
+    background: rgba(0, 0, 0, 0.18);
+}
 
 /* ---------- Rules / How-to-play screen ---------- */
 #rules { flex-direction: column; align-items: center; justify-content: safe center; gap: 1.2rem; padding: 2rem 1rem; overflow-y: auto; }

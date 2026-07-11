@@ -1,0 +1,21 @@
+{
+  "_comment": "Stadiums compiled from data/All_Matches_Json venue fields (top 10 IPL venues by match count, deduped across city-suffix variants). pitch drives the engine's conditions stage (src/engine/conditions.py): dusty=spinners bite, green=pacers bite, flat=batting paradise, slow=low & hard to time.",
+  "pitch_types": {
+    "dusty": "Dust bowl — turns square, spinners are lethal",
+    "green": "Green seamer — nip, bounce and movement for pacers",
+    "flat": "Flat road — batting paradise, boundaries flow",
+    "slow": "Slow and low — timing is hard, run-making is a grind"
+  },
+  "stadiums": [
+    { "id": "chepauk",      "name": "MA Chidambaram Stadium", "city": "Chennai",   "pitch": "dusty" },
+    { "id": "eden",         "name": "Eden Gardens",           "city": "Kolkata",   "pitch": "dusty" },
+    { "id": "mohali",       "name": "PCA Stadium",            "city": "Mohali",    "pitch": "green" },
+    { "id": "motera",       "name": "Narendra Modi Stadium",  "city": "Ahmedabad", "pitch": "green" },
+    { "id": "wankhede",     "name": "Wankhede Stadium",       "city": "Mumbai",    "pitch": "flat" },
+    { "id": "chinnaswamy",  "name": "M Chinnaswamy Stadium",  "city": "Bengaluru", "pitch": "flat" },
+    { "id": "sms",          "name": "Sawai Mansingh Stadium", "city": "Jaipur",    "pitch": "flat" },
+    { "id": "kotla",        "name": "Arun Jaitley Stadium",   "city": "Delhi",     "pitch": "slow" },
+    { "id": "uppal",        "name": "Rajiv Gandhi Stadium",   "city": "Hyderabad", "pitch": "slow" },
+    { "id": "ekana",        "name": "Ekana Cricket Stadium",  "city": "Lucknow",   "pitch": "slow" }
+  ]
+}

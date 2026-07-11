@@ -29,6 +29,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.models.player import Batter, Bowler
 from src.models.match_state import MatchState
 from src.engine.simulator import calculate_single_ball, EXTRAS_PROB
+from src.engine.conditions import phase_for_over
 from src.engine.draft_generator import generate_draft_pool, auction_pool_size_per_set
 
 app = Flask(__name__, static_folder="public")
@@ -97,6 +98,20 @@ def _load_baseline_weights():
         return json.load(f)
 
 BASELINE_WEIGHTS = _load_baseline_weights()
+
+# Stadiums + pitch personalities (compiled from the raw match data's venue
+# fields — see config/ground_configs.json). Teams claim unique home grounds
+# after the auction; the pitch feeds the engine's conditions stage.
+GROUND_CONFIGS_PATH = os.path.join(REPO_ROOT, "config", "ground_configs.json")
+
+def _load_grounds():
+    with open(GROUND_CONFIGS_PATH, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+_GROUNDS_CFG = _load_grounds()
+STADIUMS = _GROUNDS_CFG["stadiums"]
+STADIUM_BY_ID = {s["id"]: s for s in STADIUMS}
+PITCH_DESCRIPTIONS = _GROUNDS_CFG["pitch_types"]
 
 def _compute_league_avg():
     cfg = BASELINE_WEIGHTS
@@ -301,11 +316,15 @@ def _fresh_game(num_teams=2):
         "next_ball_free_hit": False,
         "free_hit": {"active": False, "batting_ready": False, "bowling_ready": False,
                      "striker_intent": 50, "non_striker_intent": 50, "bowl_intent": 50},
-        # auction / squad / XI selection (phase == "auction" / "xi")
+        # auction / squad / XI selection (phase == "auction" / "grounds" / "xi")
         "start_votes": {t: False for t in team_ids},   # every team must agree to start the auction
         "auction": None,
         "squads": None,
         "xi_select": None,
+        "ground_pick": None,      # phase == "grounds": {team: {"ground": id|None, "locked": bool}}
+        "match_ground": None,     # stadium dict for the CURRENT match (set at match start)
+        "pressure": 0,            # consecutive-dot pressure counter (per innings)
+        "gambit_cards": None,     # {team: {"attack": bool_available, "trap": bool_available}} per match
         "tournament": None,   # populated only for tournament games (see _start_tournament)
     }
 
@@ -317,11 +336,23 @@ def _bump():
 
 # --- Roster helpers ----------------------------------------------------------
 
+def _energy_mult(name):
+    """Tournament fatigue: each consecutive match a player appears in costs
+    0.5% of his effective OVR, restored fully by sitting one game out. Small
+    per match, meaningful over a long unbroken run (see _finish_tournament_fixture
+    for the bookkeeping). Non-tournament games are unaffected."""
+    t = GAME.get("tournament") if GAME else None
+    if not t:
+        return 1.0
+    fatigue = (t.get("fatigue") or {}).get(name, 0)
+    return max(0.95, 1.0 - 0.005 * fatigue)
+
+
 def _make_batter(record):
     b = record["batting"]
     return Batter(
         name=record["name"],
-        ovr=record["batting_ovr"],
+        ovr=max(1, round(record["batting_ovr"] * _energy_mult(record["name"]))),
         career_runs=b["runs"],
         career_balls=b["balls"],
         fours=b["fours"],
@@ -335,11 +366,12 @@ def _make_bowler(record, intent=50):
     bw = record["bowling"]
     return Bowler(
         name=record["name"],
-        ovr=record["bowling_ovr"],
+        ovr=max(1, round(record["bowling_ovr"] * _energy_mult(record["name"]))),
         eco=bw["eco"] if bw["eco"] and bw["eco"] > 0 else 8.5,
         wkt=bw["wickets"],
         intent=intent,
         legal_balls=bw["legal_balls"],
+        style=record.get("bowling_style", "Pace"),
     )
 
 
@@ -351,6 +383,7 @@ def _card_fields(record):
         "bowling_ovr": record["bowling_ovr"],
         "is_foreigner": record.get("is_foreigner", False),
         "is_keeper": record.get("is_keeper", False),
+        "bowling_style": record.get("bowling_style", "Pace"),
     }
 
 
@@ -428,6 +461,7 @@ def _prepare_innings(batting_side, target=None, keep_this_over=False):
     g["used_batters"] = []
     g["vacant_slot"] = "striker"   # which crease slot set_next_batter should fill
     g["next_ball_free_hit"] = False
+    g["pressure"] = 0              # consecutive-dot pressure resets each innings
     g["free_hit"] = {"active": False, "batting_ready": False, "bowling_ready": False,
                      "striker_intent": 50, "non_striker_intent": 50, "bowl_intent": 50}
     _reset_pending()
@@ -611,6 +645,7 @@ def _simulate_until_pause():
             kind = "wide" if is_wide else "noball"
             _emit(ball_no, "extra", _say(kind, striker.name, bowler.name),
                   outcome=("Wd" if is_wide else "Nb"))
+            g["pressure"] = max(0, g["pressure"] - 1)   # a freebie releases some squeeze
             if g["target"] is not None and state.runs >= g["target"]:
                 return "innings_over"
             if not is_wide:
@@ -630,7 +665,19 @@ def _simulate_until_pause():
                 _ns.intent = fh["non_striker_intent"]
             bowler.intent = fh["bowl_intent"]
 
-        outcome = calculate_single_ball(striker, bowler, LEAGUE_AVG)
+        # match conditions for THIS ball: home-ground pitch vs bowler style,
+        # innings phase, accumulated dot-ball pressure, and any armed gambits
+        # (striker.intent is already the effective value, incl. free-hit override)
+        ctx = {
+            "pitch": (g.get("match_ground") or {}).get("pitch"),
+            "bowler_style": bowler.style,
+            "over_num": state.balls // 6,
+            "pressure": g["pressure"],
+            "attack_gambit": ao.get("attack_gambit"),
+            "trap_gambit": ao.get("trap_gambit"),
+            "striker_intent": striker.intent,
+        }
+        outcome = calculate_single_ball(striker, bowler, LEAGUE_AVG, ctx)
         state.add_ball()
         g["bowl_card"][bowler.name]["balls"] += 1
         row = g["bat_card"][striker.name]
@@ -640,11 +687,13 @@ def _simulate_until_pause():
         if outcome == "Out" and free_ball:
             # can't be dismissed on a free hit (bowled/caught) -> treated as a dot
             _emit(ball_no, "run", fh_prefix + "Beaten, but not out on the free hit — no run.", outcome="0")
+            g["pressure"] += 1
         elif outcome == "Out":
             row["out"] = True
             row["how_out"] = f"b {bowler.name}"
             g["bowl_card"][bowler.name]["wickets"] += 1
             _emit(ball_no, "wicket", _say("wicket", striker.name, bowler.name), outcome="W")
+            g["pressure"] = 0   # the squeeze got its wicket; the new batter starts fresh
             state.handle_wicket()
             g["vacant_slot"] = "striker"   # the batter facing the ball is always the striker
             if state.is_all_out():
@@ -659,6 +708,14 @@ def _simulate_until_pause():
                 row["fours"] += 1
             elif runs == 6:
                 row["sixes"] += 1
+            # dot-ball pressure: dots stack it, boundaries burst it, rotating
+            # the strike bleeds it off one notch
+            if runs == 0:
+                g["pressure"] += 1
+            elif runs in (4, 6):
+                g["pressure"] = 0
+            else:
+                g["pressure"] = max(0, g["pressure"] - 1)
             label = "boundary" if runs in (4, 6) else "run"
             if free_ball and runs == 0:
                 text = _say("free_dot", striker.name, bowler.name)   # swing-and-miss, not a block
@@ -794,12 +851,25 @@ def _try_resolve_over():
             **({striker.name: p["batting"]["striker_intent"]} if striker else {}),
             **({non_striker.name: p["batting"]["non_striker_intent"]} if non_striker else {}),
         },
+        # one-shot gambits, armed secretly with the submissions and consumed here
+        "attack_gambit": bool(p["batting"].get("gambit")),
+        "trap_gambit": bool(p["bowling"].get("gambit")),
     }
     g["bowler"] = _make_bowler(BY_NAME[p["bowling"]["bowler_name"]], p["bowling"]["bowl_intent"])
     g["this_over"] = []
     g["over_end_at"] = st.balls + (6 - st.balls % 6 if st.balls % 6 else 6)
     g["over_start_runs"] = st.runs
     g["over_start_wickets"] = st.wickets
+
+    # consume + reveal gambits at over start (both sides are committed by now,
+    # so announcing them here leaks no decision-relevant information)
+    cards = g.get("gambit_cards") or {}
+    if g["active_over"]["attack_gambit"]:
+        cards.get(g["batting_side"], {})["attack"] = False
+        _emit("", "milestone", f"⚡ GAMBIT — {g['teams'][g['batting_side']]['name']} go ALL OUT ATTACK this over!")
+    if g["active_over"]["trap_gambit"]:
+        cards.get(_bowling_side(), {})["trap"] = False
+        _emit("", "milestone", f"⚡ GAMBIT — {g['teams'][_bowling_side()]['name']} set a TRAP this over!")
 
     _run_and_route()
 
@@ -986,7 +1056,7 @@ def _check_auction_grace_expiry():
             GAME["result"] = "Tournament abandoned — not enough squads reached the minimum."
             return
         if all(GAME["squads"][t]["locked"] for t in remaining):
-            _to_xi()
+            _to_grounds()
         return
 
     if len(losers) == len(team_ids):
@@ -1096,9 +1166,17 @@ def _to_xi():
     GAME["xi_select"] = {t: {"xi": [], "locked": False} for t in GAME["team_ids"]}
 
 
+def _to_grounds():
+    """Post-auction home-ground selection: every team claims a UNIQUE stadium
+    (server-enforced -- claiming one someone else holds is rejected, so the
+    players coordinate in the UI), then locks it. Once all locked -> XI."""
+    GAME["phase"] = "grounds"
+    GAME["ground_pick"] = {t: {"ground": None, "locked": False} for t in GAME["team_ids"]}
+
+
 def _resolved_advance():
     """In the 'resolved' ready-gate, advance once every team is ready-or-locked.
-    If every team has locked its squad, jump to XI selection."""
+    If every team has locked its squad, move on to home-ground selection."""
     a = GAME["auction"]
     sq = GAME["squads"]
     team_ids = GAME["team_ids"]
@@ -1106,7 +1184,7 @@ def _resolved_advance():
         return a["ready"][t] or sq[t]["locked"]
     if all(ready(t) for t in team_ids):
         if all(sq[t]["locked"] for t in team_ids):
-            _to_xi()
+            _to_grounds()
         else:
             _advance_lot()
 
@@ -1146,7 +1224,26 @@ def _finalize_xi_to_match():
         _start_tournament_matches()
     else:
         GAME["match_teams"] = GAME["team_ids"][:2]
+        # one-off 1v1: play at one of the two claimed home grounds, coin-flip
+        GAME["match_ground"] = _ground_of(random.choice(GAME["match_teams"]))
         _start_single_match()
+
+
+def _ground_of(team_id):
+    """The stadium dict a team claimed in the grounds phase (random fallback
+    for paths that never ran it, e.g. Quick Match)."""
+    gp = GAME.get("ground_pick") or {}
+    gid = (gp.get(team_id) or {}).get("ground")
+    return STADIUM_BY_ID.get(gid) or random.choice(STADIUMS)
+
+
+def _ground_view():
+    """Public serialization of the current match's stadium."""
+    mg = GAME.get("match_ground")
+    if not mg:
+        return None
+    return {"name": mg["name"], "city": mg["city"], "pitch": mg["pitch"],
+            "pitch_desc": PITCH_DESCRIPTIONS.get(mg["pitch"], "")}
 
 
 def _start_single_match():
@@ -1154,6 +1251,11 @@ def _start_single_match():
     GAME["completed_innings"] = []
     GAME["live"] = []
     GAME["motm"] = None
+    if not GAME.get("match_ground"):
+        GAME["match_ground"] = random.choice(STADIUMS)
+    # one-shot gambit cards, per match per team: All Out Attack is played
+    # while batting, Trap Set while bowling (see conditions.py for effects)
+    GAME["gambit_cards"] = {t: {"attack": True, "trap": True} for t in GAME["match_teams"]}
     GAME["phase"] = "match"
     _do_toss()
 
@@ -1223,7 +1325,7 @@ def _record_fixture_player_stats(t, a, b, inn1, inn2, motm_name):
         stats[motm_name]["motm"] += 1
 
 
-AWARDS_LEADERBOARD_SIZE = 5
+AWARDS_LEADERBOARD_SIZE = 20
 
 def _tournament_awards(t, top_n=AWARDS_LEADERBOARD_SIZE):
     """Orange Cap (most runs), Purple Cap (most wickets), MVP (best combined
@@ -1278,6 +1380,7 @@ def _start_tournament_matches():
         "standings": {t: _blank_standing() for t in team_ids},
         "champion": None, "eliminated": [],
         "awaiting_ready": False, "next_fixture_idx": None, "next_ready": {},
+        "fatigue": {},   # player name -> consecutive matches played without a rest
     })
     _start_fixture(0)
 
@@ -1291,6 +1394,12 @@ def _start_fixture(idx):
     g["abandoned_by"] = None
     g["result"] = None
     g["match_winner"] = None
+    # round robin: first-listed team hosts at their claimed home ground;
+    # playoffs are at a neutral venue (random stadium), like the real IPL
+    if fx["kind"] == "round_robin":
+        g["match_ground"] = _ground_of(fx["a"])
+    else:
+        g["match_ground"] = random.choice(STADIUMS)
     _start_single_match()
 
 
@@ -1313,30 +1422,52 @@ def _finish_tournament_fixture():
     # fixture kicks off, so archive this one here or it's gone for good.
     t.setdefault("fixture_scorecards", {})[fx_idx] = [inn1, inn2]
 
-    for team_id in (a, b):
-        row = t["standings"][team_id]
-        mine = by_team[team_id]
-        theirs = by_team[b if team_id == a else a]
-        row["runs_for"] += mine["runs"]
-        row["overs_for"] += _overs_to_float(mine["overs"], mine["wickets"] >= 10)
-        row["runs_against"] += theirs["runs"]
-        row["overs_against"] += _overs_to_float(theirs["overs"], theirs["wickets"] >= 10)
-        row["played"] += 1
-        row["nrr"] = ((row["runs_for"] / row["overs_for"] if row["overs_for"] else 0.0)
-                      - (row["runs_against"] / row["overs_against"] if row["overs_against"] else 0.0))
+    # Energy bookkeeping: everyone who played this fixture tires a notch
+    # (-0.5% effective OVR per consecutive match, see _energy_mult); squad
+    # members who sat this one out come back fully refreshed.
+    fatigue = t.setdefault("fatigue", {})
+    for side in (a, b):
+        xi_names = {p["name"] for p in g["teams"][side]["xi"]}
+        for p in (g.get("squads") or {}).get(side, {}).get("roster", []):
+            if p["name"] in xi_names:
+                fatigue[p["name"]] = fatigue.get(p["name"], 0) + 1
+            else:
+                fatigue[p["name"]] = 0
+
+    # Points-table standings are a round-robin-only concept in real
+    # tournaments -- playoff fixtures (qualifier1/qualifier2/final) decide the
+    # champion directly and must NOT inflate a team's played/won/points/NRR.
+    if fx["kind"] == "round_robin":
+        for team_id in (a, b):
+            row = t["standings"][team_id]
+            mine = by_team[team_id]
+            theirs = by_team[b if team_id == a else a]
+            row["runs_for"] += mine["runs"]
+            row["overs_for"] += _overs_to_float(mine["overs"], mine["wickets"] >= 10)
+            row["runs_against"] += theirs["runs"]
+            row["overs_against"] += _overs_to_float(theirs["overs"], theirs["wickets"] >= 10)
+            row["played"] += 1
+            row["nrr"] = ((row["runs_for"] / row["overs_for"] if row["overs_for"] else 0.0)
+                          - (row["runs_against"] / row["overs_against"] if row["overs_against"] else 0.0))
 
     fx["played"] = True
     fx["result_text"] = g["result"]
     winner = g.get("match_winner")
-    if winner:
-        loser = b if winner == a else a
+    if fx["kind"] == "round_robin":
+        if winner:
+            loser = b if winner == a else a
+            fx["winner"] = winner
+            t["standings"][winner]["won"] += 1
+            t["standings"][winner]["points"] += 2
+            t["standings"][loser]["lost"] += 1
+        else:
+            t["standings"][a]["points"] += 1
+            t["standings"][b]["points"] += 1
+    elif winner:
+        # a playoff fixture won outright on the field -- _playoff_winner (in
+        # _determine_next_fixture, called below) only needs to step in for a
+        # genuine tie, which doesn't touch standings either way
         fx["winner"] = winner
-        t["standings"][winner]["won"] += 1
-        t["standings"][winner]["points"] += 2
-        t["standings"][loser]["lost"] += 1
-    else:
-        t["standings"][a]["points"] += 1
-        t["standings"][b]["points"] += 1
 
     _determine_next_fixture()
 
@@ -1576,6 +1707,8 @@ def _serialize_spectator_view():
         "bowler_name": bowler.name if bowler else None,
         "this_over": g.get("this_over", []),
         "stage": g.get("stage"),
+        "ground": _ground_view(),
+        "pressure": g.get("pressure", 0),
     }
 
 
@@ -1612,6 +1745,9 @@ def _serialize_tournament_summary():
     return {
         "stage": t.get("stage"), "standings": standings_view, "fixtures": fixtures_view,
         "current_fixture": current,
+        "current_fixture_idx": ci,  # unconditional (unlike `current` above) so the
+                                     # client can still find "the fixture I just
+                                     # finished" once phase has already moved past "match"
         "champion_name": GAME["teams"][t["champion"]]["name"] if t.get("champion") else None,
         "awards": awards,
     }
@@ -1664,7 +1800,14 @@ def _serialize(token):
             sq = g["squads"][role]
             mine = t["fixture_xi"][role]
             chosen = set(mine["xi"])
-            roster = [{**p, "selected": p["name"] in chosen} for p in sq["roster"]]
+            fatigue = t.get("fatigue") or {}
+            # energy meter: a legible 10%-per-match visual gauge for the
+            # rest-or-play decision; the ACTUAL stat penalty is the gentler
+            # 0.5%/match shown alongside (see _energy_mult)
+            roster = [{**p, "selected": p["name"] in chosen,
+                       "energy": max(0, 100 - 10 * fatigue.get(p["name"], 0)),
+                       "fatigue_penalty": round(min(5.0, 0.5 * fatigue.get(p["name"], 0)), 1)}
+                      for p in sq["roster"]]
             os_in = sum(1 for p in sq["roster"] if p["name"] in chosen and p.get("is_foreigner"))
             wk_in = sum(1 for p in sq["roster"] if p["name"] in chosen
                         and (p.get("is_keeper") or p.get("assigned_role") == "Wicket Keeper"))
@@ -1725,6 +1868,21 @@ def _serialize(token):
         out["auction"] = _serialize_auction(role)
         return out
 
+    if g["phase"] == "grounds":
+        gp = g["ground_pick"]
+        out["grounds"] = {
+            "stadiums": [{**s, "pitch_desc": PITCH_DESCRIPTIONS[s["pitch"]],
+                          "claimed_by": next((g["teams"][t]["name"] for t in g["team_ids"]
+                                              if gp[t]["ground"] == s["id"]), None),
+                          "claimed_by_me": gp.get(role, {}).get("ground") == s["id"]}
+                         for s in STADIUMS],
+            "my_ground": gp.get(role, {}).get("ground"),
+            "my_locked": gp.get(role, {}).get("locked", False),
+            "locked_count": sum(1 for t in g["team_ids"] if gp[t]["locked"]),
+            "total_teams": len(g["team_ids"]),
+        }
+        return out
+
     if g["phase"] == "xi":
         out["xi"] = _serialize_xi(role)
         return out
@@ -1746,6 +1904,7 @@ def _serialize(token):
         out["match"] = {
             "stage": "toss",
             "toss": {"i_won": role == winner, "winner_name": g["teams"][winner]["name"]},
+            "ground": _ground_view(),
         }
         return out
 
@@ -1842,6 +2001,15 @@ def _serialize(token):
                  if i_bat else {"bowl_intent": fh["bowl_intent"]}),
     }
 
+    # mid-over resume window after a new batter walks in (REDACTED the same way)
+    resume = None
+    ao_for_resume = g.get("active_over")
+    if g["stage"] == "await_resume" and ao_for_resume:
+        resume = {
+            "i_ready": ao_for_resume.get("resume_batting_ready" if i_bat else "resume_bowling_ready", False),
+            "opponent_ready": ao_for_resume.get("resume_bowling_ready" if i_bat else "resume_batting_ready", False),
+        }
+
     out["match"] = {
         "stage": g["stage"],
         "innings": g["innings"],
@@ -1862,8 +2030,19 @@ def _serialize(token):
         "this_over": g["this_over"],
         "pending": pending,
         "free_hit": free_hit,
+        "resume": resume,
         "result": g["result"],
         "motm": g.get("motm"),
+        "ground": _ground_view(),
+        "pressure": g.get("pressure", 0),
+        "phase_label": phase_for_over(st.balls // 6),
+        # own gambit availability + whether one is armed in my pending
+        # submission; the opponent's is NEVER exposed pre-resolution (the
+        # over-start commentary reveal covers post-resolution)
+        "gambits": {
+            "available": dict((g.get("gambit_cards") or {}).get(role, {})),
+            "i_armed": bool(my_pending.get("gambit")),
+        },
     }
 
     out["live"] = g["live"]
@@ -2216,11 +2395,9 @@ def quick_match():
         t1_xi, t2_xi = _auto_two_xis()
         GAME["teams"]["team1"]["xi"] = t1_xi
         GAME["teams"]["team2"]["xi"] = t2_xi
-        GAME["innings"] = 1
-        GAME["completed_innings"] = []
-        GAME["live"] = []
-        GAME["phase"] = "match"
-        _do_toss()
+        GAME["match_teams"] = GAME["team_ids"][:2]
+        GAME["match_ground"] = random.choice(STADIUMS)
+        _start_single_match()
         _bump()
         return jsonify({"status": "success"})
 
@@ -2336,11 +2513,61 @@ def lock_squad():
         sq["locked"] = True
         a = GAME["auction"]
         if all(GAME["squads"][t]["locked"] for t in GAME["team_ids"]):
-            _to_xi()
+            _to_grounds()
         elif a["stage"] == "resolved":
             _resolved_advance()      # locked side counts as ready
         elif a["stage"] == "bidding":
             a["out"][role] = True    # drop out of the live lot
+        _bump()
+        return jsonify({"status": "success"})
+
+
+@app.route("/api/claim_ground", methods=["POST"])
+def claim_ground():
+    """Claim (or switch to) a home ground during the grounds phase. Uniqueness
+    is enforced here: a stadium anyone else currently holds is rejected, so
+    conflicting teams have to coordinate and pick different ones."""
+    global GAME
+    with LOCK:
+        data = request.get_json(silent=True) or {}
+        GAME = _game_by_token(data.get("token", ""))
+        if GAME is None:
+            return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
+        role = _role_of(data.get("token", ""))
+        if not role or GAME.get("phase") != "grounds":
+            return jsonify({"status": "error", "message": "Not selecting grounds."}), 400
+        gp = GAME["ground_pick"]
+        if gp[role]["locked"]:
+            return jsonify({"status": "error", "message": "You already locked your home ground."}), 400
+        gid = data.get("ground_id")
+        if gid not in STADIUM_BY_ID:
+            return jsonify({"status": "error", "message": "Unknown stadium."}), 400
+        holder = next((t for t in GAME["team_ids"] if t != role and gp[t]["ground"] == gid), None)
+        if holder:
+            return jsonify({"status": "error",
+                            "message": f"{GAME['teams'][holder]['name']} has already claimed {STADIUM_BY_ID[gid]['name']} — pick another."}), 400
+        gp[role]["ground"] = gid
+        _bump()
+        return jsonify({"status": "success"})
+
+
+@app.route("/api/lock_ground", methods=["POST"])
+def lock_ground():
+    global GAME
+    with LOCK:
+        token = (request.get_json(silent=True) or {}).get("token", "")
+        GAME = _game_by_token(token)
+        if GAME is None:
+            return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
+        role = _role_of(token)
+        if not role or GAME.get("phase") != "grounds":
+            return jsonify({"status": "error", "message": "Not selecting grounds."}), 400
+        gp = GAME["ground_pick"]
+        if gp[role]["ground"] is None:
+            return jsonify({"status": "error", "message": "Claim a stadium first."}), 400
+        gp[role]["locked"] = True
+        if all(gp[t]["locked"] for t in GAME["team_ids"]):
+            _to_xi()
         _bump()
         return jsonify({"status": "success"})
 
@@ -2548,8 +2775,10 @@ def set_openers():
 
 @app.route("/api/ready_resume", methods=["POST"])
 def ready_resume():
-    """Batting side confirms (and may re-set intents) after a new batsman walks
-    in mid-over, before the over resumes."""
+    """Both sides confirm (and may re-set intent) after a new batsman walks in
+    mid-over, before the over resumes -- the bowling side gets a say too,
+    since a fresh batter at the crease can be worth attacking or containing
+    differently than whoever was just dismissed."""
     global GAME
     with LOCK:
         data = request.get_json(silent=True) or {}
@@ -2557,25 +2786,33 @@ def ready_resume():
         if GAME is None:
             return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
         role = _role_of(data.get("token", ""))
-        if role != GAME["batting_side"]:
-            return jsonify({"status": "error", "message": "Only the batting side resumes."}), 403
         if GAME["stage"] != "await_resume":
             return jsonify({"status": "error", "message": "Nothing to resume."}), 400
         ao = GAME["active_over"]
-        ao["striker_intent"] = int(data.get("striker_intent", ao["striker_intent"]))
-        ao["non_striker_intent"] = int(data.get("non_striker_intent", ao["non_striker_intent"]))
-        # register whoever is now at the crease (the new batter, and the
-        # survivor) by NAME, so the rest of the over stays identity-locked
-        # even through a further rotation or a second wicket later on
-        st = GAME["state"]
-        by_name = ao.setdefault("intent_by_name", {})
-        s, ns = st.get_striker(), st.get_non_striker()
-        if s:
-            by_name[s.name] = ao["striker_intent"]
-        if ns:
-            by_name[ns.name] = ao["non_striker_intent"]
-        GAME["stage"] = "play"
-        _run_and_route()
+        if role == GAME["batting_side"]:
+            ao["striker_intent"] = int(data.get("striker_intent", ao["striker_intent"]))
+            ao["non_striker_intent"] = int(data.get("non_striker_intent", ao["non_striker_intent"]))
+            # register whoever is now at the crease (the new batter, and the
+            # survivor) by NAME, so the rest of the over stays identity-locked
+            # even through a further rotation or a second wicket later on
+            st = GAME["state"]
+            by_name = ao.setdefault("intent_by_name", {})
+            s, ns = st.get_striker(), st.get_non_striker()
+            if s:
+                by_name[s.name] = ao["striker_intent"]
+            if ns:
+                by_name[ns.name] = ao["non_striker_intent"]
+            ao["resume_batting_ready"] = True
+        elif role == _bowling_side():
+            ao["bowl_intent"] = int(data.get("bowl_intent", ao["bowl_intent"]))
+            ao["resume_bowling_ready"] = True
+        else:
+            return jsonify({"status": "error", "message": "Unknown player."}), 403
+        if ao.get("resume_batting_ready") and ao.get("resume_bowling_ready"):
+            GAME["stage"] = "play"
+            _run_and_route()
+        else:
+            _bump()
         return jsonify({"status": "success"})
 
 
@@ -2666,6 +2903,10 @@ def submit_over():
             return jsonify({"status": "error", "message": "Not ready for a new over yet."}), 400
 
         i_bat = role == GAME["batting_side"]
+        wants_gambit = bool(data.get("gambit"))
+        cards = (GAME.get("gambit_cards") or {}).get(role, {})
+        if wants_gambit and not cards.get("attack" if i_bat else "trap"):
+            return jsonify({"status": "error", "message": "Gambit already used this match."}), 400
         if i_bat:
             # sequenced over: the bowler must be locked in first
             if not GAME["pending_over"]["bowling"]["submitted"]:
@@ -2675,6 +2916,7 @@ def submit_over():
                 "submitted": True,
                 "striker_intent": int(data.get("striker_intent", 50)),
                 "non_striker_intent": int(data.get("non_striker_intent", 50)),
+                "gambit": wants_gambit,
             }
         else:
             bowler_name = data.get("bowler_name")
@@ -2688,6 +2930,7 @@ def submit_over():
                 "submitted": True,
                 "bowler_name": bowler_name,
                 "bowl_intent": int(data.get("bowl_intent", 50)),
+                "gambit": wants_gambit,
             }
         GAME["teams"][role]["ready"] = True
         _try_resolve_over()
@@ -2731,12 +2974,17 @@ def set_next_batter():
             GAME["stage"] = "play"
             _bump()
         elif st.balls < GAME["over_end_at"]:
-            # over still in progress -> batting side must press Ready to resume.
-            # Reset the batting side's pending-submitted flag so the intent
-            # sliders re-enable for the new batter (and the surviving one) --
-            # otherwise they'd stay disabled/stale from the over's original
-            # submission until ready_resume actually locks in fresh values.
+            # over still in progress -> BOTH sides must press Ready to resume.
+            # Reset both sides' pending-submitted flags so the intent sliders
+            # re-enable (otherwise they'd stay disabled/stale from the over's
+            # original submission), and clear the resume-ready flags fresh --
+            # the bowling side gets a say too, since a new batter at the
+            # crease can be worth attacking/containing differently.
             GAME["pending_over"]["batting"]["submitted"] = False
+            GAME["pending_over"]["bowling"]["submitted"] = False
+            ao = GAME["active_over"]
+            ao["resume_batting_ready"] = False
+            ao["resume_bowling_ready"] = False
             GAME["stage"] = "await_resume"
             _bump()
         else:

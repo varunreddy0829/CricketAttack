@@ -20,7 +20,7 @@ class Batter:
 
 
 class Bowler:
-    def __init__(self, name: str, ovr: int, eco: float, wkt: int, intent: int = 50, legal_balls: int = 0):
+    def __init__(self, name: str, ovr: int, eco: float, wkt: int, intent: int = 50, legal_balls: int = 0, style: str = "Pace"):
         self.name = name
         self.ovr = ovr
         self.eco = eco
@@ -29,6 +29,9 @@ class Bowler:
         # Career legal balls bowled. Needed by the Stage-3 ghost-stat wicket
         # factor to derive a smoothed bowling strike rate (balls per wicket).
         self.legal_balls = legal_balls
+        # "Pace" or "Spin" — drives the pitch-conditions stage (dusty pitches
+        # favour spinners, green ones favour pacers).
+        self.style = style
 
     def __repr__(self):
-        return f"Bowler({self.name}, OVR={self.ovr}, Eco={self.eco}, Wickets={self.wkt}, Balls={self.legal_balls}, Intent={self.intent})"
+        return f"Bowler({self.name}, OVR={self.ovr}, Eco={self.eco}, Wickets={self.wkt}, Balls={self.legal_balls}, {self.style}, Intent={self.intent})"

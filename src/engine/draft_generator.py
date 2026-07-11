@@ -2,7 +2,11 @@ import json
 import random
 
 def determine_role(player):
-    """Sorts players into 4 clear IPL Auction roles."""
+    """Sorts players into 5 clear IPL Auction roles. Bowlers are split into
+    Pacer/Spinner (by the `bowling_style` field baked into players_historical.json
+    at compile time) so genuine specialist bowlers get two dedicated auction
+    roles' worth of pool slots instead of being lumped into one -- All-Rounder
+    stays a single role regardless of bowling style."""
     if player.get('is_keeper', False):
         return "Wicket Keeper"
 
@@ -13,7 +17,7 @@ def determine_role(player):
         return "All-Rounder"
     if bat_ovr > bowl_ovr:
         return "Batsman"
-    return "Bowler"
+    return "Spinner" if player.get('bowling_style') == "Spin" else "Pacer"
 
 def determine_tier(max_ovr):
     if max_ovr >= 75: return "Marquee"
@@ -22,7 +26,7 @@ def determine_tier(max_ovr):
 
 def _role_ovr_key(role):
     """Returns the OVR field a set's role should be ranked/balanced on."""
-    if role == "Bowler":
+    if role in ("Pacer", "Spinner"):
         return lambda p: p.get('bowling_ovr', 55)
     if role == "Batsman":
         return lambda p: p.get('batting_ovr', 55)
@@ -50,16 +54,17 @@ def _balanced_order(players, key_fn, num_bands):
                 result.append(b[i])
     return result
 
-def auction_pool_size_per_set(num_teams, players_per_team=25, num_sets=12):
+def auction_pool_size_per_set(num_teams, players_per_team=25, num_sets=15):
     """At least `players_per_team` players available per team in the game,
-    spread evenly across the 12 sets."""
+    spread evenly across the 15 sets (3 tiers x 5 roles)."""
     target_total = players_per_team * max(1, num_teams)
     per_set = (target_total + num_sets - 1) // num_sets
     return max(5, per_set)
 
 def generate_draft_pool(all_players, players_per_set=5):
     """
-    Generates 12 sets (3 Tiers x 4 Roles).
+    Generates 15 sets (3 Tiers x 5 Roles: Batsman, Pacer, Spinner, All-Rounder,
+    Wicket Keeper).
     Pulls up to `players_per_set` players per set (default 5, scaled up by
     callers for larger tournaments so there's always at least ~25 players
     per team). Selection is quality-balanced (drawn from bat/bowl-OVR bands,
@@ -68,9 +73,9 @@ def generate_draft_pool(all_players, players_per_set=5):
     Max 40% foreigners per set (ensuring conservative overseas ratio globally).
     """
     buckets = {
-        "Marquee": {"Batsman": [], "Bowler": [], "All-Rounder": [], "Wicket Keeper": []},
-        "Mid-Level": {"Batsman": [], "Bowler": [], "All-Rounder": [], "Wicket Keeper": []},
-        "Group 3": {"Batsman": [], "Bowler": [], "All-Rounder": [], "Wicket Keeper": []}
+        "Marquee": {"Batsman": [], "Pacer": [], "Spinner": [], "All-Rounder": [], "Wicket Keeper": []},
+        "Mid-Level": {"Batsman": [], "Pacer": [], "Spinner": [], "All-Rounder": [], "Wicket Keeper": []},
+        "Group 3": {"Batsman": [], "Pacer": [], "Spinner": [], "All-Rounder": [], "Wicket Keeper": []}
     }
 
     for p in all_players:
@@ -85,7 +90,7 @@ def generate_draft_pool(all_players, players_per_set=5):
     total_foreigners_pulled = 0
 
     tiers = ["Marquee", "Mid-Level", "Group 3"]
-    roles = ["Batsman", "Bowler", "All-Rounder", "Wicket Keeper"]
+    roles = ["Batsman", "Pacer", "Wicket Keeper", "Spinner", "All-Rounder"]
     max_foreigners_per_set = max(2, round(players_per_set * 0.4))
 
     for tier in tiers:

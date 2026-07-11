@@ -6,6 +6,7 @@
     "name": "A Ashish Reddy",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 280,
       "balls": 193,
@@ -32,6 +33,7 @@
     "name": "A Badoni",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1178,
       "balls": 836,
@@ -58,6 +60,7 @@
     "name": "A Chandila",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 4,
       "balls": 7,
@@ -84,6 +87,7 @@
     "name": "A Chopra",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 53,
       "balls": 71,
@@ -110,6 +114,7 @@
     "name": "A Choudhary",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 25,
       "balls": 20,
@@ -136,6 +141,7 @@
     "name": "A Dananjaya",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 4,
       "balls": 5,
@@ -162,6 +168,7 @@
     "name": "A Flintoff",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 62,
       "balls": 53,
@@ -188,6 +195,7 @@
     "name": "A Kamboj",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 74,
       "balls": 52,
@@ -214,6 +222,7 @@
     "name": "A Kumble",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 35,
       "balls": 47,
@@ -240,6 +249,7 @@
     "name": "A Manohar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 292,
       "balls": 235,
@@ -266,6 +276,7 @@
     "name": "A Mhatre",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 441,
       "balls": 240,
@@ -292,6 +303,7 @@
     "name": "A Mishra",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 381,
       "balls": 419,
@@ -318,6 +330,7 @@
     "name": "A Mithun",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 34,
       "balls": 26,
@@ -344,6 +357,7 @@
     "name": "A Mukund",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 19,
       "balls": 22,
@@ -370,6 +384,7 @@
     "name": "A Nehra",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 41,
       "balls": 62,
@@ -396,6 +411,7 @@
     "name": "A Nel",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -422,6 +438,7 @@
     "name": "A Nortje",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 49,
       "balls": 50,
@@ -448,6 +465,7 @@
     "name": "A Raghuvanshi",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 885,
       "balls": 608,
@@ -474,6 +492,7 @@
     "name": "A Singh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2,
       "balls": 10,
@@ -500,6 +519,7 @@
     "name": "A Symonds",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 974,
       "balls": 750,
@@ -526,6 +546,7 @@
     "name": "A Tomar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 4,
       "balls": 8,
@@ -552,6 +573,7 @@
     "name": "A Uniyal",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 4,
       "balls": 7,
@@ -578,6 +600,7 @@
     "name": "A Zampa",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 15,
       "balls": 24,
@@ -604,6 +627,7 @@
     "name": "AA Bilakhia",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 69,
       "balls": 85,
@@ -630,6 +654,7 @@
     "name": "AA Chavan",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 12,
       "balls": 11,
@@ -656,6 +681,7 @@
     "name": "AA Jhunjhunwala",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 217,
       "balls": 210,
@@ -682,6 +708,7 @@
     "name": "AA Kazi",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -708,6 +735,7 @@
     "name": "AA Kulkarni",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 26,
       "balls": 33,
@@ -734,6 +762,7 @@
     "name": "AA Noffke",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 9,
       "balls": 10,
@@ -760,6 +789,7 @@
     "name": "AB Agarkar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 179,
       "balls": 154,
@@ -786,6 +816,7 @@
     "name": "AB Barath",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 42,
       "balls": 42,
@@ -812,6 +843,7 @@
     "name": "AB Dinda",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 26,
       "balls": 48,
@@ -838,6 +870,7 @@
     "name": "AB McDonald",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 123,
       "balls": 100,
@@ -864,6 +897,7 @@
     "name": "AB de Villiers",
     "is_keeper": true,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 5181,
       "balls": 3411,
@@ -890,6 +924,7 @@
     "name": "AC Blizzard",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 120,
       "balls": 90,
@@ -916,6 +951,7 @@
     "name": "AC Gilchrist",
     "is_keeper": true,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2069,
       "balls": 1495,
@@ -942,6 +978,7 @@
     "name": "AC Thomas",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 20,
       "balls": 19,
@@ -968,6 +1005,7 @@
     "name": "AC Voges",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 181,
       "balls": 143,
@@ -994,6 +1032,7 @@
     "name": "AD Hales",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 148,
       "balls": 118,
@@ -1020,6 +1059,7 @@
     "name": "AD Mascarenhas",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 79,
       "balls": 78,
@@ -1046,6 +1086,7 @@
     "name": "AD Mathews",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 724,
       "balls": 575,
@@ -1072,6 +1113,7 @@
     "name": "AD Nath",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 90,
       "balls": 98,
@@ -1098,6 +1140,7 @@
     "name": "AD Russell",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2655,
       "balls": 1525,
@@ -1124,6 +1167,7 @@
     "name": "AF Milne",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 25,
       "balls": 31,
@@ -1150,6 +1194,7 @@
     "name": "AG Murtaza",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 10,
       "balls": 14,
@@ -1176,6 +1221,7 @@
     "name": "AG Paunikar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 49,
       "balls": 58,
@@ -1202,6 +1248,7 @@
     "name": "AJ Finch",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2092,
       "balls": 1635,
@@ -1228,6 +1275,7 @@
     "name": "AJ Hosein",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 21,
       "balls": 13,
@@ -1254,6 +1302,7 @@
     "name": "AJ Turner",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 24,
       "balls": 28,
@@ -1280,6 +1329,7 @@
     "name": "AJ Tye",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 91,
       "balls": 76,
@@ -1306,6 +1356,7 @@
     "name": "AK Markram",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1671,
       "balls": 1234,
@@ -1332,6 +1383,7 @@
     "name": "AL Menaria",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 401,
       "balls": 356,
@@ -1358,6 +1410,7 @@
     "name": "AM Ghazanfar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 2,
       "balls": 3,
@@ -1384,6 +1437,7 @@
     "name": "AM Nayar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 672,
       "balls": 577,
@@ -1410,6 +1464,7 @@
     "name": "AM Rahane",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 5367,
       "balls": 4273,
@@ -1436,6 +1491,7 @@
     "name": "AM Salvi",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -1462,6 +1518,7 @@
     "name": "AN Ahmed",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 36,
       "balls": 26,
@@ -1488,6 +1545,7 @@
     "name": "AN Ghosh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 7,
       "balls": 8,
@@ -1514,6 +1572,7 @@
     "name": "AP Dole",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 34,
       "balls": 22,
@@ -1540,6 +1599,7 @@
     "name": "AP Majumdar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 87,
       "balls": 76,
@@ -1566,6 +1626,7 @@
     "name": "AP Tare",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 339,
       "balls": 273,
@@ -1592,6 +1653,7 @@
     "name": "AR Bawne",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 12,
       "balls": 12,
@@ -1618,6 +1680,7 @@
     "name": "AR Patel",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2089,
       "balls": 1562,
@@ -1644,6 +1707,7 @@
     "name": "AS Joseph",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 27,
       "balls": 32,
@@ -1670,6 +1734,7 @@
     "name": "AS Rajpoot",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 26,
       "balls": 41,
@@ -1696,6 +1761,7 @@
     "name": "AS Raut",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 194,
       "balls": 167,
@@ -1722,6 +1788,7 @@
     "name": "AS Roy",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 78,
       "balls": 64,
@@ -1748,6 +1815,7 @@
     "name": "AS Yadav",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 49,
       "balls": 39,
@@ -1774,6 +1842,7 @@
     "name": "AT Carey",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 32,
       "balls": 29,
@@ -1800,6 +1869,7 @@
     "name": "AT Rayudu",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 4348,
       "balls": 3409,
@@ -1826,6 +1896,7 @@
     "name": "AU Rashid",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 22,
       "balls": 16,
@@ -1852,6 +1923,7 @@
     "name": "AUK Pathan",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 39,
       "balls": 23,
@@ -1878,6 +1950,7 @@
     "name": "Abdul Basith",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1,
       "balls": 1,
@@ -1904,6 +1977,7 @@
     "name": "Abdul Samad",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 859,
       "balls": 578,
@@ -1930,6 +2004,7 @@
     "name": "Abdur Razzak",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 2,
@@ -1956,6 +2031,7 @@
     "name": "Abhinandan Singh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -1982,6 +2058,7 @@
     "name": "Abhishek Sharma",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2379,
       "balls": 1389,
@@ -2008,6 +2085,7 @@
     "name": "Abishek Porel",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 769,
       "balls": 529,
@@ -2034,6 +2112,7 @@
     "name": "Akash Deep",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 25,
       "balls": 14,
@@ -2060,6 +2139,7 @@
     "name": "Akash Madhwal",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 8,
       "balls": 14,
@@ -2086,6 +2166,7 @@
     "name": "Akash Singh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -2112,6 +2193,7 @@
     "name": "Akshat Raghuwanshi",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 29,
       "balls": 25,
@@ -2138,6 +2220,7 @@
     "name": "Aman Hakim Khan",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 115,
       "balls": 104,
@@ -2164,6 +2247,7 @@
     "name": "Anand Rajan",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -2190,6 +2274,7 @@
     "name": "Aniket Verma",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 315,
       "balls": 196,
@@ -2216,6 +2301,7 @@
     "name": "Anirudh Singh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 63,
       "balls": 66,
@@ -2242,6 +2328,7 @@
     "name": "Ankit Sharma",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 87,
       "balls": 67,
@@ -2268,6 +2355,7 @@
     "name": "Ankit Soni",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 7,
       "balls": 9,
@@ -2294,6 +2382,7 @@
     "name": "Anmolpreet Singh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 139,
       "balls": 115,
@@ -2320,6 +2409,7 @@
     "name": "Anuj Rawat",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 318,
       "balls": 267,
@@ -2346,6 +2436,7 @@
     "name": "Anureet Singh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 36,
       "balls": 47,
@@ -2372,6 +2463,7 @@
     "name": "Arjun Tendulkar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 18,
       "balls": 14,
@@ -2398,6 +2490,7 @@
     "name": "Arshad Khan",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 142,
       "balls": 95,
@@ -2424,6 +2517,7 @@
     "name": "Arshad Khan (2)",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 5,
       "balls": 4,
@@ -2450,6 +2544,7 @@
     "name": "Arshdeep Singh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 32,
       "balls": 47,
@@ -2476,6 +2571,7 @@
     "name": "Ashok Sharma",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1,
       "balls": 4,
@@ -2502,6 +2598,7 @@
     "name": "Ashutosh Sharma",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 564,
       "balls": 334,
@@ -2528,6 +2625,7 @@
     "name": "Ashwani Kumar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1,
       "balls": 6,
@@ -2554,6 +2652,7 @@
     "name": "Atharva Taide",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 260,
       "balls": 177,
@@ -2580,6 +2679,7 @@
     "name": "Auqib Nabi",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 14,
       "balls": 4,
@@ -2606,6 +2706,7 @@
     "name": "Avesh Khan",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 68,
       "balls": 43,
@@ -2632,6 +2733,7 @@
     "name": "Azhar Mahmood",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 388,
       "balls": 303,
@@ -2658,6 +2760,7 @@
     "name": "Azmatullah Omarzai",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 151,
       "balls": 101,
@@ -2684,6 +2787,7 @@
     "name": "B Akhil",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 76,
       "balls": 55,
@@ -2710,6 +2814,7 @@
     "name": "B Chipli",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 280,
       "balls": 251,
@@ -2736,6 +2841,7 @@
     "name": "B Geeves",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -2762,6 +2868,7 @@
     "name": "B Indrajith",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 21,
       "balls": 30,
@@ -2788,6 +2895,7 @@
     "name": "B Kumar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 354,
       "balls": 377,
@@ -2814,6 +2922,7 @@
     "name": "B Laughlin",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 5,
       "balls": 13,
@@ -2840,6 +2949,7 @@
     "name": "B Lee",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 124,
       "balls": 97,
@@ -2866,6 +2976,7 @@
     "name": "B Muzarabani",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -2892,6 +3003,7 @@
     "name": "B Sai Sudharsan",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2515,
       "balls": 1686,
@@ -2918,6 +3030,7 @@
     "name": "B Stanlake",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 5,
       "balls": 2,
@@ -2944,6 +3057,7 @@
     "name": "B Sumanth",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 35,
       "balls": 37,
@@ -2970,6 +3084,7 @@
     "name": "BA Bhatt",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 6,
       "balls": 7,
@@ -2996,6 +3111,7 @@
     "name": "BA Stokes",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 935,
       "balls": 698,
@@ -3022,6 +3138,7 @@
     "name": "BAW Mendis",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 3,
       "balls": 6,
@@ -3048,6 +3165,7 @@
     "name": "BB McCullum",
     "is_keeper": true,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2882,
       "balls": 2190,
@@ -3074,6 +3192,7 @@
     "name": "BB Samantray",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 125,
       "balls": 113,
@@ -3100,6 +3219,7 @@
     "name": "BB Sran",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 10,
       "balls": 14,
@@ -3126,6 +3246,7 @@
     "name": "BCJ Cutting",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 238,
       "balls": 141,
@@ -3152,6 +3273,7 @@
     "name": "BE Hendricks",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1,
       "balls": 3,
@@ -3178,6 +3300,7 @@
     "name": "BJ Dwarshuis",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -3204,6 +3327,7 @@
     "name": "BJ Haddin",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 18,
       "balls": 11,
@@ -3230,6 +3354,7 @@
     "name": "BJ Hodge",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1400,
       "balls": 1118,
@@ -3256,6 +3381,7 @@
     "name": "BJ Rohrer",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 193,
       "balls": 141,
@@ -3282,6 +3408,7 @@
     "name": "BKG Mendis",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 20,
       "balls": 10,
@@ -3308,6 +3435,7 @@
     "name": "BMAJ Mendis",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 23,
       "balls": 27,
@@ -3334,6 +3462,7 @@
     "name": "BR Dunk",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 40,
       "balls": 35,
@@ -3360,6 +3489,7 @@
     "name": "BR Sharath",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2,
       "balls": 5,
@@ -3386,6 +3516,7 @@
     "name": "BW Hilfenhaus",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -3412,6 +3543,7 @@
     "name": "Basil Thampi",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 32,
       "balls": 35,
@@ -3438,6 +3570,7 @@
     "name": "Bipul Sharma",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 187,
       "balls": 123,
@@ -3464,6 +3597,7 @@
     "name": "Brijesh Sharma",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2,
       "balls": 4,
@@ -3490,6 +3624,7 @@
     "name": "C Bosch",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 97,
       "balls": 63,
@@ -3516,6 +3651,7 @@
     "name": "C Connolly",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 491,
       "balls": 301,
@@ -3542,6 +3678,7 @@
     "name": "C Ganapathy",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -3568,6 +3705,7 @@
     "name": "C Green",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1029,
       "balls": 681,
@@ -3594,6 +3732,7 @@
     "name": "C Madan",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 15,
       "balls": 19,
@@ -3620,6 +3759,7 @@
     "name": "C Munro",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 177,
       "balls": 141,
@@ -3646,6 +3786,7 @@
     "name": "C Nanda",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 1,
@@ -3672,6 +3813,7 @@
     "name": "C Sakariya",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 20,
       "balls": 31,
@@ -3698,6 +3840,7 @@
     "name": "C de Grandhomme",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 303,
       "balls": 225,
@@ -3724,6 +3867,7 @@
     "name": "CA Ingram",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 205,
       "balls": 180,
@@ -3750,6 +3894,7 @@
     "name": "CA Lynn",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1329,
       "balls": 945,
@@ -3776,6 +3921,7 @@
     "name": "CA Pujara",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 390,
       "balls": 391,
@@ -3802,6 +3948,7 @@
     "name": "CH Gayle",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 4997,
       "balls": 3346,
@@ -3828,6 +3975,7 @@
     "name": "CH Morris",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 618,
       "balls": 398,
@@ -3854,6 +4002,7 @@
     "name": "CJ Anderson",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 538,
       "balls": 423,
@@ -3880,6 +4029,7 @@
     "name": "CJ Dala",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -3906,6 +4056,7 @@
     "name": "CJ Ferguson",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 98,
       "balls": 117,
@@ -3932,6 +4083,7 @@
     "name": "CJ Green",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -3958,6 +4110,7 @@
     "name": "CJ Jordan",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 81,
       "balls": 77,
@@ -3984,6 +4137,7 @@
     "name": "CJ McKay",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 8,
       "balls": 15,
@@ -4010,6 +4164,7 @@
     "name": "CK Kapugedera",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 16,
       "balls": 23,
@@ -4036,6 +4191,7 @@
     "name": "CK Langeveldt",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 8,
       "balls": 9,
@@ -4062,6 +4218,7 @@
     "name": "CL White",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 971,
       "balls": 760,
@@ -4088,6 +4245,7 @@
     "name": "CM Gautam",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 169,
       "balls": 150,
@@ -4114,6 +4272,7 @@
     "name": "CR Brathwaite",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 181,
       "balls": 111,
@@ -4140,6 +4299,7 @@
     "name": "CR Woakes",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 78,
       "balls": 77,
@@ -4166,6 +4326,7 @@
     "name": "CRD Fernando",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 4,
       "balls": 3,
@@ -4192,6 +4353,7 @@
     "name": "CV Varun",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 31,
       "balls": 53,
@@ -4218,6 +4380,7 @@
     "name": "D Brevis",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 606,
       "balls": 415,
@@ -4244,6 +4407,7 @@
     "name": "D Ferreira",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 326,
       "balls": 191,
@@ -4270,6 +4434,7 @@
     "name": "D Jansen",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -4296,6 +4461,7 @@
     "name": "D Kalyankrishna",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 3,
       "balls": 8,
@@ -4322,6 +4488,7 @@
     "name": "D Madushanka",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -4348,6 +4515,7 @@
     "name": "D Padikkal",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2270,
       "balls": 1705,
@@ -4374,6 +4542,7 @@
     "name": "D Pretorius",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 44,
       "balls": 28,
@@ -4400,6 +4569,7 @@
     "name": "D Salunkhe",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 33,
       "balls": 24,
@@ -4426,6 +4596,7 @@
     "name": "D Wiese",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 148,
       "balls": 101,
@@ -4452,6 +4623,7 @@
     "name": "D du Preez",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 10,
       "balls": 13,
@@ -4478,6 +4650,7 @@
     "name": "DA Miller",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 3288,
       "balls": 2358,
@@ -4504,6 +4677,7 @@
     "name": "DA Payne",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 6,
       "balls": 5,
@@ -4530,6 +4704,7 @@
     "name": "DA Warner",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 6567,
       "balls": 4702,
@@ -4556,6 +4731,7 @@
     "name": "DAJ Bracewell",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 12,
       "balls": 9,
@@ -4582,6 +4758,7 @@
     "name": "DB Das",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 304,
       "balls": 261,
@@ -4608,6 +4785,7 @@
     "name": "DB Ravi Teja",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 375,
       "balls": 317,
@@ -4634,6 +4812,7 @@
     "name": "DE Bollinger",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 21,
       "balls": 23,
@@ -4660,6 +4839,7 @@
     "name": "DG Nalkande",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 12,
       "balls": 12,
@@ -4686,6 +4866,7 @@
     "name": "DH Yagnik",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 170,
       "balls": 137,
@@ -4712,6 +4893,7 @@
     "name": "DJ Bravo",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1560,
       "balls": 1204,
@@ -4738,6 +4920,7 @@
     "name": "DJ Harris",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 111,
       "balls": 101,
@@ -4764,6 +4947,7 @@
     "name": "DJ Hooda",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1497,
       "balls": 1173,
@@ -4790,6 +4974,7 @@
     "name": "DJ Hussey",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1322,
       "balls": 1075,
@@ -4816,6 +5001,7 @@
     "name": "DJ Jacobs",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 92,
       "balls": 98,
@@ -4842,6 +5028,7 @@
     "name": "DJ Malan",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 26,
       "balls": 26,
@@ -4868,6 +5055,7 @@
     "name": "DJ Mitchell",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 351,
       "balls": 267,
@@ -4894,6 +5082,7 @@
     "name": "DJ Muthuswami",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1,
       "balls": 3,
@@ -4920,6 +5109,7 @@
     "name": "DJ Thornely",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 39,
       "balls": 53,
@@ -4946,6 +5136,7 @@
     "name": "DJ Willey",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 53,
       "balls": 62,
@@ -4972,6 +5163,7 @@
     "name": "DJG Sammy",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 295,
       "balls": 241,
@@ -4998,6 +5190,7 @@
     "name": "DJM Short",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 115,
       "balls": 99,
@@ -5024,6 +5217,7 @@
     "name": "DL Chahar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 142,
       "balls": 103,
@@ -5050,6 +5244,7 @@
     "name": "DL Vettori",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 121,
       "balls": 113,
@@ -5076,6 +5271,7 @@
     "name": "DM Bravo",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 6,
       "balls": 5,
@@ -5102,6 +5298,7 @@
     "name": "DNT Zoysa",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 11,
       "balls": 9,
@@ -5128,6 +5325,7 @@
     "name": "DP Conway",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1080,
       "balls": 773,
@@ -5154,6 +5352,7 @@
     "name": "DP Nannes",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 4,
       "balls": 13,
@@ -5180,6 +5379,7 @@
     "name": "DP Vijaykumar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1,
       "balls": 1,
@@ -5206,6 +5406,7 @@
     "name": "DPMD Jayawardene",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1808,
       "balls": 1464,
@@ -5232,6 +5433,7 @@
     "name": "DR Martyn",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 19,
       "balls": 24,
@@ -5258,6 +5460,7 @@
     "name": "DR Sams",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 44,
       "balls": 44,
@@ -5284,6 +5487,7 @@
     "name": "DR Shorey",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 13,
       "balls": 17,
@@ -5310,6 +5514,7 @@
     "name": "DR Smith",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2385,
       "balls": 1764,
@@ -5336,6 +5541,7 @@
     "name": "DS Kulkarni",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 104,
       "balls": 108,
@@ -5362,6 +5568,7 @@
     "name": "DS Lehmann",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 18,
       "balls": 18,
@@ -5388,6 +5595,7 @@
     "name": "DS Rathi",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 3,
       "balls": 8,
@@ -5414,6 +5622,7 @@
     "name": "DT Christian",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 460,
       "balls": 398,
@@ -5440,6 +5649,7 @@
     "name": "DT Patil",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 13,
       "balls": 13,
@@ -5466,6 +5676,7 @@
     "name": "DV Malewar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2,
       "balls": 5,
@@ -5492,6 +5703,7 @@
     "name": "DW Steyn",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 167,
       "balls": 160,
@@ -5518,6 +5730,7 @@
     "name": "Dhruv Jurel",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1195,
       "balls": 775,
@@ -5544,6 +5757,7 @@
     "name": "E Lewis",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 654,
       "balls": 477,
@@ -5570,6 +5784,7 @@
     "name": "E Malinga",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 7,
       "balls": 17,
@@ -5596,6 +5811,7 @@
     "name": "EJG Morgan",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1406,
       "balls": 1148,
@@ -5622,6 +5838,7 @@
     "name": "ER Dwivedi",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 24,
       "balls": 14,
@@ -5648,6 +5865,7 @@
     "name": "F Behardien",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 14,
       "balls": 13,
@@ -5674,6 +5892,7 @@
     "name": "F du Plessis",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 4773,
       "balls": 3515,
@@ -5700,6 +5919,7 @@
     "name": "FA Allen",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 14,
       "balls": 19,
@@ -5726,6 +5946,7 @@
     "name": "FH Allen",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 349,
       "balls": 163,
@@ -5752,6 +5973,7 @@
     "name": "FH Edwards",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 4,
       "balls": 5,
@@ -5778,6 +6000,7 @@
     "name": "FY Fazal",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 183,
       "balls": 173,
@@ -5804,6 +6027,7 @@
     "name": "Fazalhaq Farooqi",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 5,
       "balls": 15,
@@ -5830,6 +6054,7 @@
     "name": "G Coetzee",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 31,
       "balls": 33,
@@ -5856,6 +6081,7 @@
     "name": "G Gambhir",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 4217,
       "balls": 3404,
@@ -5882,6 +6108,7 @@
     "name": "GB Hogg",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 22,
       "balls": 22,
@@ -5908,6 +6135,7 @@
     "name": "GC Smith",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 739,
       "balls": 668,
@@ -5934,6 +6162,7 @@
     "name": "GC Viljoen",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 3,
       "balls": 7,
@@ -5960,6 +6189,7 @@
     "name": "GD McGrath",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 4,
       "balls": 5,
@@ -5986,6 +6216,7 @@
     "name": "GD Phillips",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 132,
       "balls": 109,
@@ -6012,6 +6243,7 @@
     "name": "GF Linde",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 31,
       "balls": 21,
@@ -6038,6 +6270,7 @@
     "name": "GH Vihari",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 284,
       "balls": 321,
@@ -6064,6 +6297,7 @@
     "name": "GHS Garton",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2,
       "balls": 4,
@@ -6090,6 +6324,7 @@
     "name": "GJ Bailey",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 663,
       "balls": 544,
@@ -6116,6 +6351,7 @@
     "name": "GJ Maxwell",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2820,
       "balls": 1818,
@@ -6142,6 +6378,7 @@
     "name": "GR Napier",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 15,
       "balls": 16,
@@ -6168,6 +6405,7 @@
     "name": "GS Sandhu",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -6194,6 +6432,7 @@
     "name": "Gagandeep Singh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -6220,6 +6459,7 @@
     "name": "Gulbadin Naib",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 19,
       "balls": 15,
@@ -6246,6 +6486,7 @@
     "name": "Gurjapneet Singh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -6272,6 +6513,7 @@
     "name": "Gurkeerat Singh",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 511,
       "balls": 422,
@@ -6298,6 +6540,7 @@
     "name": "Gurnoor Brar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -6324,6 +6567,7 @@
     "name": "H Das",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2,
       "balls": 5,
@@ -6350,6 +6594,7 @@
     "name": "H Klaasen",
     "is_keeper": true,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2104,
       "balls": 1262,
@@ -6376,6 +6621,7 @@
     "name": "H Sharma",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -6402,6 +6648,7 @@
     "name": "HC Brook",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 190,
       "balls": 154,
@@ -6428,6 +6675,7 @@
     "name": "HE van der Dussen",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 22,
       "balls": 24,
@@ -6454,6 +6702,7 @@
     "name": "HF Gurney",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1,
       "balls": 5,
@@ -6480,6 +6729,7 @@
     "name": "HH Gibbs",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 886,
       "balls": 807,
@@ -6506,6 +6756,7 @@
     "name": "HH Pandya",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2964,
       "balls": 2025,
@@ -6532,6 +6783,7 @@
     "name": "HM Amla",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 577,
       "balls": 407,
@@ -6558,6 +6810,7 @@
     "name": "HR Shokeen",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 66,
       "balls": 65,
@@ -6584,6 +6837,7 @@
     "name": "HV Patel",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 280,
       "balls": 238,
@@ -6610,6 +6864,7 @@
     "name": "Harbhajan Singh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 833,
       "balls": 604,
@@ -6636,6 +6891,7 @@
     "name": "Harmeet Singh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 18,
       "balls": 12,
@@ -6662,6 +6918,7 @@
     "name": "Harpreet Brar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 249,
       "balls": 206,
@@ -6688,6 +6945,7 @@
     "name": "Harpreet Singh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 123,
       "balls": 119,
@@ -6714,6 +6972,7 @@
     "name": "Harsh Dubey",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 13,
       "balls": 9,
@@ -6740,6 +6999,7 @@
     "name": "Harshit Rana",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 59,
       "balls": 56,
@@ -6766,6 +7026,7 @@
     "name": "Himmat Singh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 92,
       "balls": 69,
@@ -6792,6 +7053,7 @@
     "name": "I Malhotra",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 7,
       "balls": 4,
@@ -6818,6 +7080,7 @@
     "name": "I Sharma",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 57,
       "balls": 69,
@@ -6844,6 +7107,7 @@
     "name": "I Udana",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 15,
       "balls": 11,
@@ -6870,6 +7134,7 @@
     "name": "IC Pandey",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 2,
@@ -6896,6 +7161,7 @@
     "name": "IC Porel",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -6922,6 +7188,7 @@
     "name": "IK Pathan",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1150,
       "balls": 950,
@@ -6948,6 +7215,7 @@
     "name": "IR Jaggi",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 76,
       "balls": 97,
@@ -6974,6 +7242,7 @@
     "name": "IS Sodhi",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 7,
       "balls": 17,
@@ -7000,6 +7269,7 @@
     "name": "Imran Tahir",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 33,
       "balls": 37,
@@ -7026,6 +7296,7 @@
     "name": "Iqbal Abdulla",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 88,
       "balls": 84,
@@ -7052,6 +7323,7 @@
     "name": "Ishan Kishan",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 3600,
       "balls": 2508,
@@ -7078,6 +7350,7 @@
     "name": "J Arunkumar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 23,
       "balls": 23,
@@ -7104,6 +7377,7 @@
     "name": "J Botha",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 409,
       "balls": 359,
@@ -7130,6 +7404,7 @@
     "name": "J Fraser-McGurk",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 385,
       "balls": 193,
@@ -7156,6 +7431,7 @@
     "name": "J Little",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -7182,6 +7458,7 @@
     "name": "J Overton",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 151,
       "balls": 93,
@@ -7208,6 +7485,7 @@
     "name": "J Suchith",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 70,
       "balls": 61,
@@ -7234,6 +7512,7 @@
     "name": "J Syed Mohammad",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 29,
       "balls": 26,
@@ -7260,6 +7539,7 @@
     "name": "J Theron",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 10,
       "balls": 12,
@@ -7286,6 +7566,7 @@
     "name": "J Yadav",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 40,
       "balls": 36,
@@ -7312,6 +7593,7 @@
     "name": "JA Duffy",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -7338,6 +7620,7 @@
     "name": "JA Morkel",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 975,
       "balls": 687,
@@ -7364,6 +7647,7 @@
     "name": "JA Richardson",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 17,
       "balls": 26,
@@ -7390,6 +7674,7 @@
     "name": "JC Archer",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 326,
       "balls": 225,
@@ -7416,6 +7701,7 @@
     "name": "JC Buttler",
     "is_keeper": true,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 4647,
       "balls": 3105,
@@ -7442,6 +7728,7 @@
     "name": "JD Ryder",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 604,
       "balls": 458,
@@ -7468,6 +7755,7 @@
     "name": "JD Unadkat",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 201,
       "balls": 169,
@@ -7494,6 +7782,7 @@
     "name": "JDP Oram",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 106,
       "balls": 108,
@@ -7520,6 +7809,7 @@
     "name": "JDS Neesham",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 92,
       "balls": 93,
@@ -7546,6 +7836,7 @@
     "name": "JE Root",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 10,
       "balls": 15,
@@ -7572,6 +7863,7 @@
     "name": "JE Taylor",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 3,
       "balls": 3,
@@ -7598,6 +7890,7 @@
     "name": "JEC Franklin",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 327,
       "balls": 301,
@@ -7624,6 +7917,7 @@
     "name": "JG Bethell",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 163,
       "balls": 116,
@@ -7650,6 +7944,7 @@
     "name": "JH Kallis",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2427,
       "balls": 2222,
@@ -7676,6 +7971,7 @@
     "name": "JJ Bumrah",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 75,
       "balls": 86,
@@ -7702,6 +7998,7 @@
     "name": "JJ Roy",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 614,
       "balls": 443,
@@ -7728,6 +8025,7 @@
     "name": "JJ van der Wath",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 18,
       "balls": 16,
@@ -7754,6 +8052,7 @@
     "name": "JL Denly",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 1,
@@ -7780,6 +8079,7 @@
     "name": "JL Pattinson",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 15,
       "balls": 13,
@@ -7806,6 +8106,7 @@
     "name": "JM Bairstow",
     "is_keeper": true,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1674,
       "balls": 1146,
@@ -7832,6 +8133,7 @@
     "name": "JM Kemp",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 26,
       "balls": 24,
@@ -7858,6 +8160,7 @@
     "name": "JM Sharma",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1107,
       "balls": 726,
@@ -7884,6 +8187,7 @@
     "name": "JO Holder",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 324,
       "balls": 263,
@@ -7910,6 +8214,7 @@
     "name": "JP Behrendorff",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 6,
       "balls": 9,
@@ -7936,6 +8241,7 @@
     "name": "JP Duminy",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2029,
       "balls": 1636,
@@ -7962,6 +8268,7 @@
     "name": "JP Faulkner",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 527,
       "balls": 390,
@@ -7988,6 +8295,7 @@
     "name": "JP Inglis",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 544,
       "balls": 314,
@@ -8014,6 +8322,7 @@
     "name": "JPR Scantlebury-Searles",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 8,
       "balls": 6,
@@ -8040,6 +8349,7 @@
     "name": "JR Hazlewood",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 19,
       "balls": 30,
@@ -8066,6 +8376,7 @@
     "name": "JR Hopes",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 417,
       "balls": 306,
@@ -8092,6 +8403,7 @@
     "name": "JR Philippe",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 78,
       "balls": 77,
@@ -8118,6 +8430,7 @@
     "name": "JW Hastings",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -8144,6 +8457,7 @@
     "name": "Jalaj S Saxena",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -8170,6 +8484,7 @@
     "name": "Jaskaran Singh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 8,
       "balls": 11,
@@ -8196,6 +8511,7 @@
     "name": "Joginder Sharma",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 36,
       "balls": 30,
@@ -8222,6 +8538,7 @@
     "name": "K Goel",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 218,
       "balls": 231,
@@ -8248,6 +8565,7 @@
     "name": "K Gowtham",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 247,
       "balls": 148,
@@ -8274,6 +8592,7 @@
     "name": "K Kartikeya",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 12,
       "balls": 17,
@@ -8300,6 +8619,7 @@
     "name": "K Khejroliya",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -8326,6 +8646,7 @@
     "name": "K Rabada",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 262,
       "balls": 239,
@@ -8352,6 +8673,7 @@
     "name": "K Santokie",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -8378,6 +8700,7 @@
     "name": "K Upadhyay",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 12,
       "balls": 9,
@@ -8404,6 +8727,7 @@
     "name": "K Yadav",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 4,
@@ -8430,6 +8754,7 @@
     "name": "KA Jamieson",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 77,
       "balls": 73,
@@ -8456,6 +8781,7 @@
     "name": "KA Maharaj",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 1,
       "balls": 2,
@@ -8482,6 +8808,7 @@
     "name": "KA Pollard",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 3437,
       "balls": 2329,
@@ -8508,6 +8835,7 @@
     "name": "KAJ Roach",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 10,
       "balls": 9,
@@ -8534,6 +8862,7 @@
     "name": "KB Arun Karthik",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 51,
       "balls": 51,
@@ -8560,6 +8889,7 @@
     "name": "KC Cariappa",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 24,
       "balls": 21,
@@ -8586,6 +8916,7 @@
     "name": "KC Sangakkara",
     "is_keeper": true,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1687,
       "balls": 1392,
@@ -8612,6 +8943,7 @@
     "name": "KD Karthik",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 4843,
       "balls": 3580,
@@ -8638,6 +8970,7 @@
     "name": "KH Devdhar",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -8664,6 +8997,7 @@
     "name": "KH Pandya",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1982,
       "balls": 1481,
@@ -8690,6 +9024,7 @@
     "name": "KJ Abbott",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 13,
       "balls": 8,
@@ -8716,6 +9051,7 @@
     "name": "KK Ahmed",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2,
       "balls": 9,
@@ -8742,6 +9078,7 @@
     "name": "KK Cooper",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 116,
       "balls": 68,
@@ -8768,6 +9105,7 @@
     "name": "KK Nair",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1712,
       "balls": 1304,
@@ -8794,6 +9132,7 @@
     "name": "KL Nagarkoti",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 22,
       "balls": 33,
@@ -8820,6 +9159,7 @@
     "name": "KL Rahul",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 5828,
       "balls": 4188,
@@ -8846,6 +9186,7 @@
     "name": "KM Asif",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 2,
@@ -8872,6 +9213,7 @@
     "name": "KM Jadhav",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1208,
       "balls": 981,
@@ -8898,6 +9240,7 @@
     "name": "KMA Paul",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 18,
       "balls": 24,
@@ -8924,6 +9267,7 @@
     "name": "KMDN Kulasekara",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 5,
       "balls": 3,
@@ -8950,6 +9294,7 @@
     "name": "KP Appanna",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 2,
       "balls": 4,
@@ -8976,6 +9321,7 @@
     "name": "KP Pietersen",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1001,
       "balls": 743,
@@ -9002,6 +9348,7 @@
     "name": "KR Mayers",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 379,
       "balls": 263,
@@ -9028,6 +9375,7 @@
     "name": "KR Sen",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 3,
@@ -9054,6 +9402,7 @@
     "name": "KS Bharat",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 199,
       "balls": 163,
@@ -9080,6 +9429,7 @@
     "name": "KS Rathore",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 5,
@@ -9106,6 +9456,7 @@
     "name": "KS Sharma",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 16,
       "balls": 25,
@@ -9132,6 +9483,7 @@
     "name": "KS Williamson",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2132,
       "balls": 1697,
@@ -9158,6 +9510,7 @@
     "name": "KT Maphaka",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 8,
       "balls": 2,
@@ -9184,6 +9537,7 @@
     "name": "KV Sharma",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 352,
       "balls": 295,
@@ -9210,6 +9564,7 @@
     "name": "KW Richardson",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 36,
       "balls": 39,
@@ -9236,6 +9591,7 @@
     "name": "Kamran Akmal",
     "is_keeper": true,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 128,
       "balls": 78,
@@ -9262,6 +9618,7 @@
     "name": "Kamran Khan",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 3,
       "balls": 5,
@@ -9288,6 +9645,7 @@
     "name": "Karanveer Singh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 12,
       "balls": 17,
@@ -9314,6 +9672,7 @@
     "name": "Karim Janat",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -9340,6 +9699,7 @@
     "name": "Kartik Sharma",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 295,
       "balls": 216,
@@ -9366,6 +9726,7 @@
     "name": "Kartik Tyagi",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 24,
       "balls": 26,
@@ -9392,6 +9753,7 @@
     "name": "Krish Bhagat",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 10,
       "balls": 21,
@@ -9418,6 +9780,7 @@
     "name": "Kuldeep Yadav",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 210,
       "balls": 253,
@@ -9444,6 +9807,7 @@
     "name": "Kumar Kushagra",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 21,
       "balls": 21,
@@ -9470,6 +9834,7 @@
     "name": "L Ablish",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 2,
@@ -9496,6 +9861,7 @@
     "name": "L Balaji",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 36,
       "balls": 49,
@@ -9522,6 +9888,7 @@
     "name": "L Ngidi",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 4,
       "balls": 9,
@@ -9548,6 +9915,7 @@
     "name": "L Ronchi",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 34,
       "balls": 34,
@@ -9574,6 +9942,7 @@
     "name": "L Wood",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 9,
       "balls": 3,
@@ -9600,6 +9969,7 @@
     "name": "LA Carseldine",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 81,
       "balls": 68,
@@ -9626,6 +9996,7 @@
     "name": "LA Pomersbach",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 302,
       "balls": 246,
@@ -9652,6 +10023,7 @@
     "name": "LB Williams",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1,
       "balls": 2,
@@ -9678,6 +10050,7 @@
     "name": "LE Plunkett",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1,
       "balls": 3,
@@ -9704,6 +10077,7 @@
     "name": "LG Pretorius",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 7,
       "balls": 8,
@@ -9730,6 +10104,7 @@
     "name": "LH Ferguson",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 72,
       "balls": 47,
@@ -9756,6 +10131,7 @@
     "name": "LI Meriwala",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -9782,6 +10158,7 @@
     "name": "LJ Wright",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 106,
       "balls": 60,
@@ -9808,6 +10185,7 @@
     "name": "LMP Simmons",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1079,
       "balls": 852,
@@ -9834,6 +10212,7 @@
     "name": "LPC Silva",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 40,
       "balls": 26,
@@ -9860,6 +10239,7 @@
     "name": "LR Shukla",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 405,
       "balls": 350,
@@ -9886,6 +10266,7 @@
     "name": "LRPL Taylor",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1017,
       "balls": 822,
@@ -9912,6 +10293,7 @@
     "name": "LS Livingstone",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1066,
       "balls": 687,
@@ -9938,6 +10320,7 @@
     "name": "Lalit Yadav",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 305,
       "balls": 290,
@@ -9964,6 +10347,7 @@
     "name": "Liton Das",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 4,
       "balls": 4,
@@ -9990,6 +10374,7 @@
     "name": "M Ashwin",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 35,
       "balls": 50,
@@ -10016,6 +10401,7 @@
     "name": "M Jansen",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 192,
       "balls": 174,
@@ -10042,6 +10428,7 @@
     "name": "M Kaif",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 259,
       "balls": 250,
@@ -10068,6 +10455,7 @@
     "name": "M Kartik",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 113,
       "balls": 108,
@@ -10094,6 +10482,7 @@
     "name": "M Klinger",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 73,
       "balls": 77,
@@ -10120,6 +10509,7 @@
     "name": "M Manhas",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 514,
       "balls": 470,
@@ -10146,6 +10536,7 @@
     "name": "M Markande",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 48,
       "balls": 42,
@@ -10172,6 +10563,7 @@
     "name": "M Morkel",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 126,
       "balls": 90,
@@ -10198,6 +10590,7 @@
     "name": "M Muralitharan",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 20,
       "balls": 30,
@@ -10224,6 +10617,7 @@
     "name": "M Ntini",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 11,
       "balls": 18,
@@ -10250,6 +10644,7 @@
     "name": "M Pathirana",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -10276,6 +10671,7 @@
     "name": "M Prasidh Krishna",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 15,
       "balls": 31,
@@ -10302,6 +10698,7 @@
     "name": "M Rawat",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 55,
       "balls": 69,
@@ -10328,6 +10725,7 @@
     "name": "M Shahrukh Khan",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 775,
       "balls": 524,
@@ -10354,6 +10752,7 @@
     "name": "M Siddharth",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -10380,6 +10779,7 @@
     "name": "M Theekshana",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 17,
       "balls": 34,
@@ -10406,6 +10806,7 @@
     "name": "M Tiwari",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 21,
       "balls": 12,
@@ -10432,6 +10833,7 @@
     "name": "M Vijay",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2619,
       "balls": 2149,
@@ -10458,6 +10860,7 @@
     "name": "M Vohra",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1083,
       "balls": 829,
@@ -10484,6 +10887,7 @@
     "name": "M de Lange",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1,
       "balls": 2,
@@ -10510,6 +10914,7 @@
     "name": "MA Agarwal",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2764,
       "balls": 2066,
@@ -10536,6 +10941,7 @@
     "name": "MA Khote",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 24,
       "balls": 22,
@@ -10562,6 +10968,7 @@
     "name": "MA Starc",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 111,
       "balls": 121,
@@ -10588,6 +10995,7 @@
     "name": "MA Wood",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 12,
       "balls": 8,
@@ -10614,6 +11022,7 @@
     "name": "MB Parmar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -10640,6 +11049,7 @@
     "name": "MC Henriques",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1000,
       "balls": 788,
@@ -10666,6 +11076,7 @@
     "name": "MC Juneja",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 125,
       "balls": 128,
@@ -10692,6 +11103,7 @@
     "name": "MD Choudhary",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 170,
       "balls": 120,
@@ -10718,6 +11130,7 @@
     "name": "MD Mishra",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 237,
       "balls": 208,
@@ -10744,6 +11157,7 @@
     "name": "MD Shanaka",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 89,
       "balls": 72,
@@ -10770,6 +11184,7 @@
     "name": "MDKJ Perera",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 14,
       "balls": 13,
@@ -10796,6 +11211,7 @@
     "name": "MEK Hussey",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1977,
       "balls": 1612,
@@ -10822,6 +11238,7 @@
     "name": "MF Maharoof",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 177,
       "balls": 123,
@@ -10848,6 +11265,7 @@
     "name": "MG Bracewell",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 58,
       "balls": 47,
@@ -10874,6 +11292,7 @@
     "name": "MG Johnson",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 167,
       "balls": 164,
@@ -10900,6 +11319,7 @@
     "name": "MG Neser",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -10926,6 +11346,7 @@
     "name": "MJ Clarke",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 98,
       "balls": 94,
@@ -10952,6 +11373,7 @@
     "name": "MJ Guptill",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 271,
       "balls": 197,
@@ -10978,6 +11400,7 @@
     "name": "MJ Henry",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 7,
       "balls": 10,
@@ -11004,6 +11427,7 @@
     "name": "MJ Lumb",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 278,
       "balls": 194,
@@ -11030,6 +11454,7 @@
     "name": "MJ McClenaghan",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 85,
       "balls": 70,
@@ -11056,6 +11481,7 @@
     "name": "MJ Owen",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 2,
@@ -11082,6 +11508,7 @@
     "name": "MJ Santner",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 136,
       "balls": 123,
@@ -11108,6 +11535,7 @@
     "name": "MJ Suthar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1,
       "balls": 2,
@@ -11134,6 +11562,7 @@
     "name": "MK Lomror",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 527,
       "balls": 373,
@@ -11160,6 +11589,7 @@
     "name": "MK Pandey",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 4021,
       "balls": 3297,
@@ -11186,6 +11616,7 @@
     "name": "MK Tiwary",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1695,
       "balls": 1449,
@@ -11212,6 +11643,7 @@
     "name": "ML Hayden",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1107,
       "balls": 806,
@@ -11238,6 +11670,7 @@
     "name": "MM Ali",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1167,
       "balls": 835,
@@ -11264,6 +11697,7 @@
     "name": "MM Patel",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 39,
       "balls": 41,
@@ -11290,6 +11724,7 @@
     "name": "MM Sharma",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 125,
       "balls": 136,
@@ -11316,6 +11751,7 @@
     "name": "MN Samuels",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 161,
       "balls": 172,
@@ -11342,6 +11778,7 @@
     "name": "MN van Wyk",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 167,
       "balls": 132,
@@ -11368,6 +11805,7 @@
     "name": "MP Breetzke",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 14,
       "balls": 12,
@@ -11394,6 +11832,7 @@
     "name": "MP Stoinis",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2242,
       "balls": 1520,
@@ -11420,6 +11859,7 @@
     "name": "MP Yadav",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 5,
       "balls": 5,
@@ -11446,6 +11886,7 @@
     "name": "MR Marsh",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1855,
       "balls": 1249,
@@ -11472,6 +11913,7 @@
     "name": "MS Bhandage",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1,
       "balls": 4,
@@ -11498,6 +11940,7 @@
     "name": "MS Bisla",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 798,
       "balls": 702,
@@ -11524,6 +11967,7 @@
     "name": "MS Dhoni",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 5439,
       "balls": 3957,
@@ -11550,6 +11994,7 @@
     "name": "MS Gony",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 99,
       "balls": 71,
@@ -11576,6 +12021,7 @@
     "name": "MS Wade",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 183,
       "balls": 177,
@@ -11602,6 +12048,7 @@
     "name": "MV Boucher",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 394,
       "balls": 309,
@@ -11628,6 +12075,7 @@
     "name": "MW Short",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 177,
       "balls": 143,
@@ -11654,6 +12102,7 @@
     "name": "Mandeep Singh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1706,
       "balls": 1388,
@@ -11680,6 +12129,7 @@
     "name": "Mashrafe Mortaza",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2,
       "balls": 2,
@@ -11706,6 +12156,7 @@
     "name": "Mayank Dagar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 0,
       "balls": 1,
@@ -11732,6 +12183,7 @@
     "name": "Mayank Rawat",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -11758,6 +12210,7 @@
     "name": "Misbah-ul-Haq",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 117,
       "balls": 81,
@@ -11784,6 +12237,7 @@
     "name": "Mohammad Ashraful",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2,
       "balls": 10,
@@ -11810,6 +12264,7 @@
     "name": "Mohammad Asif",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 3,
       "balls": 6,
@@ -11836,6 +12291,7 @@
     "name": "Mohammad Hafeez",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 64,
       "balls": 83,
@@ -11862,6 +12318,7 @@
     "name": "Mohammad Nabi",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 221,
       "balls": 152,
@@ -11888,6 +12345,7 @@
     "name": "Mohammed Shami",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 115,
       "balls": 111,
@@ -11914,6 +12372,7 @@
     "name": "Mohammed Siraj",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 117,
       "balls": 139,
@@ -11940,6 +12399,7 @@
     "name": "Mohit Rathee",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1,
       "balls": 2,
@@ -11966,6 +12426,7 @@
     "name": "Mohsin Khan",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 25,
       "balls": 28,
@@ -11992,6 +12453,7 @@
     "name": "Monu Kumar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -12018,6 +12480,7 @@
     "name": "Mujeeb Ur Rahman",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 12,
       "balls": 15,
@@ -12044,6 +12507,7 @@
     "name": "Mukesh Choudhary",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 8,
       "balls": 8,
@@ -12070,6 +12534,7 @@
     "name": "Mukesh Kumar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 10,
       "balls": 18,
@@ -12096,6 +12561,7 @@
     "name": "Musheer Khan",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 3,
@@ -12122,6 +12588,7 @@
     "name": "Mustafizur Rahman",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 13,
       "balls": 24,
@@ -12148,6 +12615,7 @@
     "name": "N Burger",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 14,
       "balls": 9,
@@ -12174,6 +12642,7 @@
     "name": "N Jagadeesan",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 162,
       "balls": 147,
@@ -12200,6 +12669,7 @@
     "name": "N Pooran",
     "is_keeper": true,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2527,
       "balls": 1543,
@@ -12226,6 +12696,7 @@
     "name": "N Rana",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 3078,
       "balls": 2235,
@@ -12252,6 +12723,7 @@
     "name": "N Saini",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 140,
       "balls": 141,
@@ -12278,6 +12750,7 @@
     "name": "N Sindhu",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 63,
       "balls": 50,
@@ -12304,6 +12777,7 @@
     "name": "N Thushara",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -12330,6 +12804,7 @@
     "name": "N Wadhera",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 784,
       "balls": 560,
@@ -12356,6 +12831,7 @@
     "name": "NA Saini",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -12382,6 +12858,7 @@
     "name": "NB Singh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -12408,6 +12885,7 @@
     "name": "ND Doshi",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 13,
@@ -12434,6 +12912,7 @@
     "name": "NJ Maddinson",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 20,
       "balls": 21,
@@ -12460,6 +12939,7 @@
     "name": "NJ Rimmington",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1,
       "balls": 1,
@@ -12486,6 +12966,7 @@
     "name": "NK Patel",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 121,
       "balls": 119,
@@ -12512,6 +12993,7 @@
     "name": "NL McCullum",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 26,
       "balls": 22,
@@ -12538,6 +13020,7 @@
     "name": "NLTC Perera",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 424,
       "balls": 309,
@@ -12564,6 +13047,7 @@
     "name": "NM Coulter-Nile",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 82,
       "balls": 72,
@@ -12590,6 +13074,7 @@
     "name": "NS Naik",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 31,
       "balls": 50,
@@ -12616,6 +13101,7 @@
     "name": "NT Ellis",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 19,
       "balls": 25,
@@ -12642,6 +13128,7 @@
     "name": "NV Ojha",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1554,
       "balls": 1313,
@@ -12668,6 +13155,7 @@
     "name": "Naman Dhir",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 710,
       "balls": 433,
@@ -12694,6 +13182,7 @@
     "name": "Navdeep Saini",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 33,
       "balls": 37,
@@ -12720,6 +13209,7 @@
     "name": "Naveen-ul-Haq",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 18,
       "balls": 25,
@@ -12746,6 +13236,7 @@
     "name": "Nithish Kumar Reddy",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 787,
       "balls": 541,
@@ -12772,6 +13263,7 @@
     "name": "Noor Ahmad",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 31,
       "balls": 58,
@@ -12798,6 +13290,7 @@
     "name": "O Thomas",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -12824,6 +13317,7 @@
     "name": "OA Shah",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 506,
       "balls": 389,
@@ -12850,6 +13344,7 @@
     "name": "OC McCoy",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 8,
       "balls": 5,
@@ -12876,6 +13371,7 @@
     "name": "OF Smith",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 51,
       "balls": 44,
@@ -12902,6 +13398,7 @@
     "name": "P Amarnath",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -12928,6 +13425,7 @@
     "name": "P Awana",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 5,
       "balls": 14,
@@ -12954,6 +13452,7 @@
     "name": "P Chopra",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 8,
       "balls": 6,
@@ -12980,6 +13479,7 @@
     "name": "P Dharmani",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -13006,6 +13506,7 @@
     "name": "P Dogra",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 127,
       "balls": 138,
@@ -13032,6 +13533,7 @@
     "name": "P Dubey",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 23,
       "balls": 33,
@@ -13058,6 +13560,7 @@
     "name": "P Kumar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 340,
       "balls": 314,
@@ -13084,6 +13587,7 @@
     "name": "P Negi",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 365,
       "balls": 289,
@@ -13110,6 +13614,7 @@
     "name": "P Nissanka",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 278,
       "balls": 175,
@@ -13136,6 +13641,7 @@
     "name": "P Parameswaran",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1,
       "balls": 2,
@@ -13162,6 +13668,7 @@
     "name": "P Prasanth",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -13188,6 +13695,7 @@
     "name": "P Ray Barman",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 19,
       "balls": 24,
@@ -13214,6 +13722,7 @@
     "name": "P Sahu",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 19,
       "balls": 13,
@@ -13240,6 +13749,7 @@
     "name": "P Simran Singh",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1865,
       "balls": 1189,
@@ -13266,6 +13776,7 @@
     "name": "P Suyal",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -13292,6 +13803,7 @@
     "name": "PA Patel",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2848,
       "balls": 2358,
@@ -13318,6 +13830,7 @@
     "name": "PA Reddy",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 164,
       "balls": 160,
@@ -13344,6 +13857,7 @@
     "name": "PBB Rajapaksa",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 277,
       "balls": 191,
@@ -13370,6 +13884,7 @@
     "name": "PC Valthaty",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 505,
       "balls": 418,
@@ -13396,6 +13911,7 @@
     "name": "PD Collingwood",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 203,
       "balls": 156,
@@ -13422,6 +13938,7 @@
     "name": "PD Salt",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1258,
       "balls": 721,
@@ -13448,6 +13965,7 @@
     "name": "PH Solanki",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -13474,6 +13992,7 @@
     "name": "PHKD Mendis",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 92,
       "balls": 69,
@@ -13500,6 +14019,7 @@
     "name": "PJ Cummins",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 642,
       "balls": 421,
@@ -13526,6 +14046,7 @@
     "name": "PJ Sangwan",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 26,
       "balls": 44,
@@ -13552,6 +14073,7 @@
     "name": "PK Garg",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 273,
       "balls": 241,
@@ -13578,6 +14100,7 @@
     "name": "PM Sarvesh Kumar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1,
       "balls": 2,
@@ -13604,6 +14127,7 @@
     "name": "PN Mankad",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 97,
       "balls": 73,
@@ -13630,6 +14154,7 @@
     "name": "PP Chawla",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 624,
       "balls": 563,
@@ -13656,6 +14181,7 @@
     "name": "PP Hinge",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 3,
       "balls": 9,
@@ -13682,6 +14208,7 @@
     "name": "PP Ojha",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 16,
       "balls": 45,
@@ -13708,6 +14235,7 @@
     "name": "PP Shaw",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1892,
       "balls": 1283,
@@ -13734,6 +14262,7 @@
     "name": "PR Shah",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 92,
       "balls": 91,
@@ -13760,6 +14289,7 @@
     "name": "PR Veer",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 90,
       "balls": 67,
@@ -13786,6 +14316,7 @@
     "name": "PSP Handscomb",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 6,
       "balls": 12,
@@ -13812,6 +14343,7 @@
     "name": "PV Tambe",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 18,
       "balls": 39,
@@ -13838,6 +14370,7 @@
     "name": "PVD Chameera",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 53,
       "balls": 45,
@@ -13864,6 +14397,7 @@
     "name": "PVSN Raju",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1,
       "balls": 1,
@@ -13890,6 +14424,7 @@
     "name": "PWA Mulder",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 9,
       "balls": 11,
@@ -13916,6 +14451,7 @@
     "name": "PWH de Silva",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 81,
       "balls": 88,
@@ -13942,6 +14478,7 @@
     "name": "Pankaj Singh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 7,
       "balls": 12,
@@ -13968,6 +14505,7 @@
     "name": "Parvez Rasool",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 17,
       "balls": 20,
@@ -13994,6 +14532,7 @@
     "name": "Prince Yadav",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 5,
       "balls": 11,
@@ -14020,6 +14559,7 @@
     "name": "Priyansh Arya",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 909,
       "balls": 471,
@@ -14046,6 +14586,7 @@
     "name": "Q de Kock",
     "is_keeper": true,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 3444,
       "balls": 2553,
@@ -14072,6 +14613,7 @@
     "name": "R Ashwin",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 833,
       "balls": 705,
@@ -14098,6 +14640,7 @@
     "name": "R Bhatia",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 342,
       "balls": 284,
@@ -14124,6 +14667,7 @@
     "name": "R Bishnoi",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 19,
       "balls": 17,
@@ -14150,6 +14694,7 @@
     "name": "R Dhawan",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 210,
       "balls": 187,
@@ -14176,6 +14721,7 @@
     "name": "R Dravid",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2174,
       "balls": 1882,
@@ -14202,6 +14748,7 @@
     "name": "R Goyal",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -14228,6 +14775,7 @@
     "name": "R McLaren",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 159,
       "balls": 171,
@@ -14254,6 +14802,7 @@
     "name": "R Minz",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 12,
       "balls": 19,
@@ -14280,6 +14829,7 @@
     "name": "R Ninan",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 3,
       "balls": 6,
@@ -14306,6 +14856,7 @@
     "name": "R Parag",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1879,
       "balls": 1302,
@@ -14332,6 +14883,7 @@
     "name": "R Powell",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 555,
       "balls": 390,
@@ -14358,6 +14910,7 @@
     "name": "R Rampaul",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 51,
       "balls": 50,
@@ -14384,6 +14937,7 @@
     "name": "R Ravindra",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 413,
       "balls": 287,
@@ -14410,6 +14964,7 @@
     "name": "R Sai Kishore",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 18,
       "balls": 16,
@@ -14436,6 +14991,7 @@
     "name": "R Sanjay Yadav",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 2,
@@ -14462,6 +15018,7 @@
     "name": "R Sathish",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 270,
       "balls": 231,
@@ -14488,6 +15045,7 @@
     "name": "R Sharma",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 66,
       "balls": 75,
@@ -14514,6 +15072,7 @@
     "name": "R Shepherd",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 268,
       "balls": 153,
@@ -14540,6 +15099,7 @@
     "name": "R Shukla",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 19,
       "balls": 23,
@@ -14566,6 +15126,7 @@
     "name": "R Smaran",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 19,
       "balls": 25,
@@ -14592,6 +15153,7 @@
     "name": "R Tewatia",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1302,
       "balls": 943,
@@ -14618,6 +15180,7 @@
     "name": "R Vinay Kumar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 310,
       "balls": 274,
@@ -14644,6 +15207,7 @@
     "name": "RA Bawa",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 35,
       "balls": 32,
@@ -14670,6 +15234,7 @@
     "name": "RA Jadeja",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 3526,
       "balls": 2699,
@@ -14696,6 +15261,7 @@
     "name": "RA Shaikh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -14722,6 +15288,7 @@
     "name": "RA Tripathi",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2291,
       "balls": 1662,
@@ -14748,6 +15315,7 @@
     "name": "RD Chahar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 129,
       "balls": 124,
@@ -14774,6 +15342,7 @@
     "name": "RD Gaikwad",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2839,
       "balls": 2093,
@@ -14800,6 +15369,7 @@
     "name": "RD Rickelton",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 836,
       "balls": 497,
@@ -14826,6 +15396,7 @@
     "name": "RE Levi",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 83,
       "balls": 73,
@@ -14852,6 +15423,7 @@
     "name": "RE van der Merwe",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 159,
       "balls": 141,
@@ -14878,6 +15450,7 @@
     "name": "RG More",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2,
       "balls": 2,
@@ -14904,6 +15477,7 @@
     "name": "RG Sharma",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 7331,
       "balls": 5517,
@@ -14930,6 +15504,7 @@
     "name": "RJ Gleeson",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2,
       "balls": 2,
@@ -14956,6 +15531,7 @@
     "name": "RJ Harris",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 117,
       "balls": 112,
@@ -14982,6 +15558,7 @@
     "name": "RJ Peterson",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 32,
       "balls": 30,
@@ -15008,6 +15585,7 @@
     "name": "RJ Quiney",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 103,
       "balls": 102,
@@ -15034,6 +15612,7 @@
     "name": "RJW Topley",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 3,
       "balls": 6,
@@ -15060,6 +15639,7 @@
     "name": "RK Bhui",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 10,
       "balls": 26,
@@ -15086,6 +15666,7 @@
     "name": "RK Singh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1398,
       "balls": 956,
@@ -15112,6 +15693,7 @@
     "name": "RM Patidar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1612,
       "balls": 980,
@@ -15138,6 +15720,7 @@
     "name": "RN ten Doeschate",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 326,
       "balls": 235,
@@ -15164,6 +15747,7 @@
     "name": "RP Meredith",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 3,
@@ -15190,6 +15774,7 @@
     "name": "RP Singh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 52,
       "balls": 76,
@@ -15216,6 +15801,7 @@
     "name": "RR Bhatkal",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 2,
@@ -15242,6 +15828,7 @@
     "name": "RR Bose",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -15268,6 +15855,7 @@
     "name": "RR Pant",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 3879,
       "balls": 2644,
@@ -15294,6 +15882,7 @@
     "name": "RR Powar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 67,
       "balls": 64,
@@ -15320,6 +15909,7 @@
     "name": "RR Raje",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 20,
       "balls": 18,
@@ -15346,6 +15936,7 @@
     "name": "RR Rossouw",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 473,
       "balls": 308,
@@ -15372,6 +15963,7 @@
     "name": "RR Sarwan",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 73,
       "balls": 75,
@@ -15398,6 +15990,7 @@
     "name": "RS Bopara",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 531,
       "balls": 453,
@@ -15424,6 +16017,7 @@
     "name": "RS Gavaskar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2,
       "balls": 8,
@@ -15450,6 +16044,7 @@
     "name": "RS Ghosh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -15476,6 +16071,7 @@
     "name": "RS Hangargekar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -15502,6 +16098,7 @@
     "name": "RS Sodhi",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 4,
       "balls": 2,
@@ -15528,6 +16125,7 @@
     "name": "RT Ponting",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 91,
       "balls": 128,
@@ -15554,6 +16152,7 @@
     "name": "RV Gomez",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 50,
       "balls": 51,
@@ -15580,6 +16179,7 @@
     "name": "RV Patel",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 80,
       "balls": 73,
@@ -15606,6 +16206,7 @@
     "name": "RV Pawar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -15632,6 +16233,7 @@
     "name": "RV Uthappa",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 4954,
       "balls": 3801,
@@ -15658,6 +16260,7 @@
     "name": "RW Price",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -15684,6 +16287,7 @@
     "name": "Raghu Sharma",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -15710,6 +16314,7 @@
     "name": "Rahmanullah Gurbaz",
     "is_keeper": true,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 363,
       "balls": 269,
@@ -15736,6 +16341,7 @@
     "name": "Ramandeep Singh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 299,
       "balls": 205,
@@ -15762,6 +16368,7 @@
     "name": "Rashid Khan",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 635,
       "balls": 406,
@@ -15788,6 +16395,7 @@
     "name": "Rasikh Salam",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 43,
       "balls": 42,
@@ -15814,6 +16422,7 @@
     "name": "Ravi Bishnoi",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 45,
       "balls": 69,
@@ -15840,6 +16449,7 @@
     "name": "Ravi Singh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 4,
       "balls": 2,
@@ -15866,6 +16476,7 @@
     "name": "S Anirudha",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 136,
       "balls": 113,
@@ -15892,6 +16503,7 @@
     "name": "S Aravind",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 59,
       "balls": 57,
@@ -15918,6 +16530,7 @@
     "name": "S Arora",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 121,
       "balls": 77,
@@ -15944,6 +16557,7 @@
     "name": "S Badree",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 13,
       "balls": 23,
@@ -15970,6 +16584,7 @@
     "name": "S Badrinath",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1441,
       "balls": 1212,
@@ -15996,6 +16611,7 @@
     "name": "S Chanderpaul",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 25,
       "balls": 31,
@@ -16022,6 +16638,7 @@
     "name": "S Dhawan",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 6769,
       "balls": 5326,
@@ -16048,6 +16665,7 @@
     "name": "S Dube",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2129,
       "balls": 1464,
@@ -16074,6 +16692,7 @@
     "name": "S Gopal",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 180,
       "balls": 169,
@@ -16100,6 +16719,7 @@
     "name": "S Joseph",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -16126,6 +16746,7 @@
     "name": "S Kaul",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 20,
       "balls": 36,
@@ -16152,6 +16773,7 @@
     "name": "S Kaushik",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 1,
@@ -16178,6 +16800,7 @@
     "name": "S Ladda",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 9,
@@ -16204,6 +16827,7 @@
     "name": "S Lamichhane",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 0,
       "balls": 1,
@@ -16230,6 +16854,7 @@
     "name": "S Midhun",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -16256,6 +16881,7 @@
     "name": "S Nadeem",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 39,
       "balls": 87,
@@ -16282,6 +16908,7 @@
     "name": "S Narwal",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 37,
       "balls": 27,
@@ -16308,6 +16935,7 @@
     "name": "S Rana",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 91,
       "balls": 81,
@@ -16334,6 +16962,7 @@
     "name": "S Randiv",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 2,
       "balls": 4,
@@ -16360,6 +16989,7 @@
     "name": "S Sandeep Warrier",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -16386,6 +17016,7 @@
     "name": "S Sohal",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 368,
       "balls": 292,
@@ -16412,6 +17043,7 @@
     "name": "S Sreesanth",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 34,
       "balls": 55,
@@ -16438,6 +17070,7 @@
     "name": "S Sriram",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 31,
       "balls": 36,
@@ -16464,6 +17097,7 @@
     "name": "S Tyagi",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 3,
       "balls": 4,
@@ -16490,6 +17124,7 @@
     "name": "S Vidyut",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 145,
       "balls": 109,
@@ -16516,6 +17151,7 @@
     "name": "SA Abbott",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 22,
       "balls": 18,
@@ -16542,6 +17178,7 @@
     "name": "SA Asnodkar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 423,
       "balls": 339,
@@ -16568,6 +17205,7 @@
     "name": "SA Yadav",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 4581,
       "balls": 3084,
@@ -16594,6 +17232,7 @@
     "name": "SB Bangar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 49,
       "balls": 58,
@@ -16620,6 +17259,7 @@
     "name": "SB Dubey",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 220,
       "balls": 143,
@@ -16646,6 +17286,7 @@
     "name": "SB Jakati",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 28,
       "balls": 29,
@@ -16672,6 +17313,7 @@
     "name": "SB Joshi",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 6,
       "balls": 14,
@@ -16698,6 +17340,7 @@
     "name": "SB Styris",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 131,
       "balls": 133,
@@ -16724,6 +17367,7 @@
     "name": "SB Wagh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2,
       "balls": 3,
@@ -16750,6 +17394,7 @@
     "name": "SC Ganguly",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1349,
       "balls": 1263,
@@ -16776,6 +17421,7 @@
     "name": "SC Kuggeleijn",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -16802,6 +17448,7 @@
     "name": "SD Chitnis",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 99,
       "balls": 89,
@@ -16828,6 +17475,7 @@
     "name": "SD Hope",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 183,
       "balls": 122,
@@ -16854,6 +17502,7 @@
     "name": "SD Lad",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 15,
       "balls": 13,
@@ -16880,6 +17529,7 @@
     "name": "SE Bond",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1,
       "balls": 2,
@@ -16906,6 +17556,7 @@
     "name": "SE Marsh",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2489,
       "balls": 1871,
@@ -16932,6 +17583,7 @@
     "name": "SE Rutherford",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 520,
       "balls": 364,
@@ -16958,6 +17610,7 @@
     "name": "SH Johnson",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 8,
       "balls": 12,
@@ -16984,6 +17637,7 @@
     "name": "SJ Srivastava",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 5,
       "balls": 5,
@@ -17010,6 +17664,7 @@
     "name": "SK Raina",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 5536,
       "balls": 4046,
@@ -17036,6 +17691,7 @@
     "name": "SK Rasheed",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 71,
       "balls": 63,
@@ -17062,6 +17718,7 @@
     "name": "SK Trivedi",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 42,
       "balls": 59,
@@ -17088,6 +17745,7 @@
     "name": "SK Warne",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 198,
       "balls": 214,
@@ -17114,6 +17772,7 @@
     "name": "SL Malinga",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 88,
       "balls": 99,
@@ -17140,6 +17799,7 @@
     "name": "SM Boland",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -17166,6 +17826,7 @@
     "name": "SM Curran",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 997,
       "balls": 731,
@@ -17192,6 +17853,7 @@
     "name": "SM Harwood",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 9,
       "balls": 14,
@@ -17218,6 +17880,7 @@
     "name": "SM Katich",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 241,
       "balls": 186,
@@ -17244,6 +17907,7 @@
     "name": "SM Pollock",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 147,
       "balls": 111,
@@ -17270,6 +17934,7 @@
     "name": "SMSM Senanayake",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 10,
       "balls": 17,
@@ -17296,6 +17961,7 @@
     "name": "SN Khan",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 746,
       "balls": 543,
@@ -17322,6 +17988,7 @@
     "name": "SN Thakur",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 349,
       "balls": 263,
@@ -17348,6 +18015,7 @@
     "name": "SO Hetmyer",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1566,
       "balls": 1049,
@@ -17374,6 +18042,7 @@
     "name": "SP Fleming",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 196,
       "balls": 165,
@@ -17400,6 +18069,7 @@
     "name": "SP Goswami",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 293,
       "balls": 295,
@@ -17426,6 +18096,7 @@
     "name": "SP Jackson",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 61,
       "balls": 57,
@@ -17452,6 +18123,7 @@
     "name": "SP Narine",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1820,
       "balls": 1101,
@@ -17478,6 +18150,7 @@
     "name": "SPD Smith",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2495,
       "balls": 1945,
@@ -17504,6 +18177,7 @@
     "name": "SR Dubey",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 4,
       "balls": 2,
@@ -17530,6 +18204,7 @@
     "name": "SR Tendulkar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2334,
       "balls": 1948,
@@ -17556,6 +18231,7 @@
     "name": "SR Watson",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 3880,
       "balls": 2813,
@@ -17582,6 +18258,7 @@
     "name": "SS Agarwal",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -17608,6 +18285,7 @@
     "name": "SS Cottrell",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 2,
@@ -17634,6 +18312,7 @@
     "name": "SS Iyer",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 4233,
       "balls": 3095,
@@ -17660,6 +18339,7 @@
     "name": "SS Mishra",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1,
       "balls": 3,
@@ -17686,6 +18366,7 @@
     "name": "SS Mundhe",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -17712,6 +18393,7 @@
     "name": "SS Prabhudessai",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 126,
       "balls": 106,
@@ -17738,6 +18420,7 @@
     "name": "SS Sarkar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -17764,6 +18447,7 @@
     "name": "SS Shaikh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 6,
       "balls": 7,
@@ -17790,6 +18474,7 @@
     "name": "SS Tiwary",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1494,
       "balls": 1244,
@@ -17816,6 +18501,7 @@
     "name": "SSB Magala",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -17842,6 +18528,7 @@
     "name": "ST Jayasuriya",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 768,
       "balls": 532,
@@ -17868,6 +18555,7 @@
     "name": "STR Binny",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 880,
       "balls": 683,
@@ -17894,6 +18582,7 @@
     "name": "SU Parakh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 46,
       "balls": 33,
@@ -17920,6 +18609,7 @@
     "name": "SV Samson",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 5181,
       "balls": 3671,
@@ -17946,6 +18636,7 @@
     "name": "SW Billings",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 503,
       "balls": 388,
@@ -17972,6 +18663,7 @@
     "name": "SW Tait",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 23,
       "balls": 26,
@@ -17998,6 +18690,7 @@
     "name": "SZ Mulani",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1,
       "balls": 1,
@@ -18024,6 +18717,7 @@
     "name": "Sachin Baby",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 144,
       "balls": 118,
@@ -18050,6 +18744,7 @@
     "name": "Sakib Hussain",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 5,
       "balls": 7,
@@ -18076,6 +18771,7 @@
     "name": "Salil Arora",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 35,
       "balls": 21,
@@ -18102,6 +18798,7 @@
     "name": "Salman Butt",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 193,
       "balls": 161,
@@ -18128,6 +18825,7 @@
     "name": "Sameer Rizvi",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 424,
       "balls": 293,
@@ -18154,6 +18852,7 @@
     "name": "Sandeep Sharma",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 60,
       "balls": 75,
@@ -18180,6 +18879,7 @@
     "name": "Sanvir Singh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 25,
       "balls": 21,
@@ -18206,6 +18906,7 @@
     "name": "Saurav Chauhan",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 18,
       "balls": 15,
@@ -18232,6 +18933,7 @@
     "name": "Sediqullah Atal",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 22,
       "balls": 16,
@@ -18258,6 +18960,7 @@
     "name": "Shahbaz Ahmed",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 603,
       "balls": 489,
@@ -18284,6 +18987,7 @@
     "name": "Shahid Afridi",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 81,
       "balls": 46,
@@ -18310,6 +19014,7 @@
     "name": "Shakib Al Hasan",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 795,
       "balls": 639,
@@ -18336,6 +19041,7 @@
     "name": "Shashank Singh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 905,
       "balls": 560,
@@ -18362,6 +19068,7 @@
     "name": "Shivam Mavi",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 51,
       "balls": 56,
@@ -18388,6 +19095,7 @@
     "name": "Shivam Sharma",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 5,
       "balls": 3,
@@ -18414,6 +19122,7 @@
     "name": "Shivam Singh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2,
       "balls": 3,
@@ -18440,6 +19149,7 @@
     "name": "Shivang Kumar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 53,
       "balls": 46,
@@ -18466,6 +19176,7 @@
     "name": "Shoaib Ahmed",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1,
       "balls": 6,
@@ -18492,6 +19203,7 @@
     "name": "Shoaib Akhtar",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2,
       "balls": 7,
@@ -18518,6 +19230,7 @@
     "name": "Shoaib Malik",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 52,
       "balls": 47,
@@ -18544,6 +19257,7 @@
     "name": "Shubman Gill",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 4598,
       "balls": 3236,
@@ -18570,6 +19284,7 @@
     "name": "Sikandar Raza",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 182,
       "balls": 136,
@@ -18596,6 +19311,7 @@
     "name": "Simarjeet Singh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 10,
       "balls": 15,
@@ -18622,6 +19338,7 @@
     "name": "Sohail Tanvir",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 36,
       "balls": 29,
@@ -18648,6 +19365,7 @@
     "name": "Sumit Kumar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 18,
       "balls": 24,
@@ -18674,6 +19392,7 @@
     "name": "Sunny Gupta",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 1,
@@ -18700,6 +19419,7 @@
     "name": "Sunny Singh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 43,
       "balls": 31,
@@ -18726,6 +19446,7 @@
     "name": "Suryansh Shedge",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 165,
       "balls": 101,
@@ -18752,6 +19473,7 @@
     "name": "Suyash Sharma",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -18778,6 +19500,7 @@
     "name": "Swapnil Singh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 51,
       "balls": 45,
@@ -18804,6 +19527,7 @@
     "name": "T Banton",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 18,
       "balls": 20,
@@ -18830,6 +19554,7 @@
     "name": "T Dahiya",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 12,
       "balls": 15,
@@ -18856,6 +19581,7 @@
     "name": "T Henderson",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 11,
       "balls": 16,
@@ -18882,6 +19608,7 @@
     "name": "T Kohler-Cadmore",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 48,
       "balls": 54,
@@ -18908,6 +19635,7 @@
     "name": "T Kohli",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 11,
       "balls": 19,
@@ -18934,6 +19662,7 @@
     "name": "T Mishra",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -18960,6 +19689,7 @@
     "name": "T Natarajan",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 4,
       "balls": 7,
@@ -18986,6 +19716,7 @@
     "name": "T Shamsi",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 2,
       "balls": 4,
@@ -19012,6 +19743,7 @@
     "name": "T Stubbs",
     "is_keeper": true,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 986,
       "balls": 649,
@@ -19038,6 +19770,7 @@
     "name": "T Taibu",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 31,
       "balls": 26,
@@ -19064,6 +19797,7 @@
     "name": "T Thushara",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 12,
       "balls": 18,
@@ -19090,6 +19824,7 @@
     "name": "T Vijay",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -19116,6 +19851,7 @@
     "name": "TA Boult",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 93,
       "balls": 85,
@@ -19142,6 +19878,7 @@
     "name": "TD Paine",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 10,
       "balls": 26,
@@ -19168,6 +19905,7 @@
     "name": "TG Southee",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 120,
       "balls": 107,
@@ -19194,6 +19932,7 @@
     "name": "TH David",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1151,
       "balls": 650,
@@ -19220,6 +19959,7 @@
     "name": "TK Curran",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 127,
       "balls": 107,
@@ -19246,6 +19986,7 @@
     "name": "TL Seifert",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 45,
       "balls": 41,
@@ -19272,6 +20013,7 @@
     "name": "TL Suman",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 676,
       "balls": 575,
@@ -19298,6 +20040,7 @@
     "name": "TM Dilshan",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1153,
       "balls": 1007,
@@ -19324,6 +20067,7 @@
     "name": "TM Head",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1556,
       "balls": 915,
@@ -19350,6 +20094,7 @@
     "name": "TM Srivastava",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 8,
       "balls": 11,
@@ -19376,6 +20121,7 @@
     "name": "TP Sudhindra",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -19402,6 +20148,7 @@
     "name": "TR Birt",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 75,
       "balls": 58,
@@ -19428,6 +20175,7 @@
     "name": "TS Mills",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 8,
       "balls": 14,
@@ -19454,6 +20202,7 @@
     "name": "TU Deshpande",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 54,
       "balls": 36,
@@ -19480,6 +20229,7 @@
     "name": "Tanush Kotian",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 24,
       "balls": 31,
@@ -19506,6 +20256,7 @@
     "name": "Tejas Baroka",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -19532,6 +20283,7 @@
     "name": "Tilak Varma",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1858,
       "balls": 1284,
@@ -19558,6 +20310,7 @@
     "name": "U Kaul",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 1,
@@ -19584,6 +20337,7 @@
     "name": "UA Birla",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 7,
       "balls": 14,
@@ -19610,6 +20364,7 @@
     "name": "UBT Chand",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 300,
       "balls": 300,
@@ -19636,6 +20391,7 @@
     "name": "UT Khawaja",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 127,
       "balls": 100,
@@ -19662,6 +20418,7 @@
     "name": "UT Yadav",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 208,
       "balls": 201,
@@ -19688,6 +20445,7 @@
     "name": "Umar Gul",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 39,
       "balls": 19,
@@ -19714,6 +20472,7 @@
     "name": "Umran Malik",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 23,
       "balls": 16,
@@ -19740,6 +20499,7 @@
     "name": "Urvil Patel",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 197,
       "balls": 96,
@@ -19766,6 +20526,7 @@
     "name": "V Kaverappa",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -19792,6 +20553,7 @@
     "name": "V Kohli",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 9346,
       "balls": 6930,
@@ -19818,6 +20580,7 @@
     "name": "V Nigam",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 157,
       "balls": 89,
@@ -19844,6 +20607,7 @@
     "name": "V Pratap Singh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 1,
@@ -19870,6 +20634,7 @@
     "name": "V Puthur",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -19896,6 +20661,7 @@
     "name": "V Sehwag",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2728,
       "balls": 1755,
@@ -19922,6 +20688,7 @@
     "name": "V Shankar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1233,
       "balls": 950,
@@ -19948,6 +20715,7 @@
     "name": "V Suryavanshi",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1028,
       "balls": 449,
@@ -19974,6 +20742,7 @@
     "name": "V Viyaskanth",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 7,
       "balls": 5,
@@ -20000,6 +20769,7 @@
     "name": "VG Arora",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 10,
       "balls": 27,
@@ -20026,6 +20796,7 @@
     "name": "VH Zol",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 29,
       "balls": 26,
@@ -20052,6 +20823,7 @@
     "name": "VR Aaron",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 50,
       "balls": 72,
@@ -20078,6 +20850,7 @@
     "name": "VR Iyer",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 1677,
       "balls": 1181,
@@ -20104,6 +20877,7 @@
     "name": "VRV Singh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 4,
       "balls": 3,
@@ -20130,6 +20904,7 @@
     "name": "VS Malik",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 7,
       "balls": 7,
@@ -20156,6 +20931,7 @@
     "name": "VS Yeligati",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2,
       "balls": 2,
@@ -20182,6 +20958,7 @@
     "name": "VVS Laxman",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 282,
       "balls": 267,
@@ -20208,6 +20985,7 @@
     "name": "VY Mahesh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 15,
       "balls": 27,
@@ -20234,6 +21012,7 @@
     "name": "Vijaykumar Vyshak",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 16,
       "balls": 16,
@@ -20260,6 +21039,7 @@
     "name": "Virat Singh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 15,
       "balls": 26,
@@ -20286,6 +21066,7 @@
     "name": "Vishnu Vinod",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 71,
       "balls": 65,
@@ -20312,6 +21093,7 @@
     "name": "Vivrant Sharma",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 69,
       "balls": 47,
@@ -20338,6 +21120,7 @@
     "name": "W Jaffer",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 130,
       "balls": 121,
@@ -20364,6 +21147,7 @@
     "name": "W O'Rourke",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -20390,6 +21174,7 @@
     "name": "WA Mota",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 56,
       "balls": 75,
@@ -20416,6 +21201,7 @@
     "name": "WD Parnell",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 65,
       "balls": 80,
@@ -20442,6 +21228,7 @@
     "name": "WG Jacks",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 602,
       "balls": 379,
@@ -20468,6 +21255,7 @@
     "name": "WP Saha",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2934,
       "balls": 2300,
@@ -20494,6 +21282,7 @@
     "name": "WPUJC Vaas",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 81,
       "balls": 73,
@@ -20520,6 +21309,7 @@
     "name": "Washington Sundar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 888,
       "balls": 656,
@@ -20546,6 +21336,7 @@
     "name": "X Thalaivan Sargunam",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 10,
       "balls": 17,
@@ -20572,6 +21363,7 @@
     "name": "XC Bartlett",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 40,
       "balls": 28,
@@ -20598,6 +21390,7 @@
     "name": "Y Gnaneswara Rao",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 19,
       "balls": 17,
@@ -20624,6 +21417,7 @@
     "name": "Y Nagar",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 285,
       "balls": 259,
@@ -20650,6 +21444,7 @@
     "name": "Y Prithvi Raj",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 1,
@@ -20676,6 +21471,7 @@
     "name": "Y Venugopal Rao",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 985,
       "balls": 836,
@@ -20702,6 +21498,7 @@
     "name": "YA Abdulla",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 1,
@@ -20728,6 +21525,7 @@
     "name": "YBK Jaiswal",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2593,
       "balls": 1697,
@@ -20754,6 +21552,7 @@
     "name": "YK Pathan",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 3222,
       "balls": 2245,
@@ -20780,6 +21579,7 @@
     "name": "YS Chahal",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 37,
       "balls": 86,
@@ -20806,6 +21606,7 @@
     "name": "YV Dhull",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 16,
       "balls": 23,
@@ -20832,6 +21633,7 @@
     "name": "YV Takawale",
     "is_keeper": true,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 192,
       "balls": 178,
@@ -20858,6 +21660,7 @@
     "name": "Yash Dayal",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 4,
       "balls": 9,
@@ -20884,6 +21687,7 @@
     "name": "Yash Raj Punja",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -20910,6 +21714,7 @@
     "name": "Yash Thakur",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 0,
       "balls": 0,
@@ -20936,6 +21741,7 @@
     "name": "Yashpal Singh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 47,
       "balls": 66,
@@ -20962,6 +21768,7 @@
     "name": "Younis Khan",
     "is_keeper": false,
     "is_foreigner": true,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 3,
       "balls": 7,
@@ -20988,6 +21795,7 @@
     "name": "Yudhvir Singh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 22,
       "balls": 16,
@@ -21014,6 +21822,7 @@
     "name": "Yuvraj Singh",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 2754,
       "balls": 2122,
@@ -21040,6 +21849,7 @@
     "name": "Z Khan",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Pace",
     "batting": {
       "runs": 117,
       "balls": 141,
@@ -21066,6 +21876,7 @@
     "name": "Zeeshan Ansari",
     "is_keeper": false,
     "is_foreigner": false,
+    "bowling_style": "Spin",
     "batting": {
       "runs": 0,
       "balls": 0,

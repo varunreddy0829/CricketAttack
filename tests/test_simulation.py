@@ -94,6 +94,65 @@ class TestCricketMathEngine(unittest.TestCase):
         w3 = apply_stage3_wicket_factor(w2, self.kohli, self.bumrah, self.league_avg)
         self.assertAlmostEqual(sum(w3.values()), 1000.0, places=4)
 
+    def test_conditions_stage_probability_sum(self):
+        """Stage 3.5 (pitch/phase/pressure/gambits) must conserve the 1000 sum
+        for every combination of conditions, and be a no-op without context."""
+        from src.engine.conditions import apply_conditions
+        w1 = apply_stage1_ovr(BASELINE_WEIGHTS, self.kohli, self.bumrah)
+        w2 = apply_stage2_strike_rate_economy(w1, self.kohli, self.bumrah, self.league_avg)
+        w3 = apply_stage3_wicket_factor(w2, self.kohli, self.bumrah, self.league_avg)
+
+        # no context -> identical weights
+        self.assertEqual(apply_conditions(w3, None), w3)
+
+        for pitch in [None, "dusty", "green", "flat", "slow"]:
+            for style in ["Pace", "Spin"]:
+                for over_num in [0, 8, 17]:
+                    for pressure in [0, 3, 6]:
+                        for attack, trap in [(False, False), (True, False), (False, True), (True, True)]:
+                            ctx = {"pitch": pitch, "bowler_style": style, "over_num": over_num,
+                                   "pressure": pressure, "attack_gambit": attack,
+                                   "trap_gambit": trap, "striker_intent": 75}
+                            wc = apply_conditions(w3, ctx)
+                            self.assertAlmostEqual(sum(wc.values()), 1000.0, places=4,
+                                                   msg=f"conservation broke for {ctx}")
+                            for v in wc.values():
+                                self.assertGreaterEqual(v, 0.0)
+
+    def test_conditions_directionality(self):
+        """Spot-check the intended direction of each effect (after renormalizing,
+        compare SHARES of the total rather than raw weights)."""
+        from src.engine.conditions import apply_conditions
+        w1 = apply_stage1_ovr(BASELINE_WEIGHTS, self.kohli, self.bumrah)
+        w2 = apply_stage2_strike_rate_economy(w1, self.kohli, self.bumrah, self.league_avg)
+        base = apply_stage3_wicket_factor(w2, self.kohli, self.bumrah, self.league_avg)
+
+        def share(w, k):
+            return w[k] / sum(w.values())
+
+        # dusty pitch: a spinner's Out share rises, a pacer's falls
+        dusty_spin = apply_conditions(base, {"pitch": "dusty", "bowler_style": "Spin"})
+        dusty_pace = apply_conditions(base, {"pitch": "dusty", "bowler_style": "Pace"})
+        self.assertGreater(share(dusty_spin, "Out"), share(base, "Out"))
+        self.assertLess(share(dusty_pace, "Out"), share(base, "Out"))
+
+        # death overs: boundaries and wickets both up vs middle overs
+        death = apply_conditions(base, {"over_num": 17})
+        middle = apply_conditions(base, {"over_num": 8})
+        self.assertGreater(share(death, "6"), share(middle, "6"))
+        self.assertGreater(share(death, "Out"), share(middle, "Out"))
+
+        # pressure: more stacked dots -> higher Out share
+        p0 = apply_conditions(base, {"pressure": 0})
+        p5 = apply_conditions(base, {"pressure": 5})
+        self.assertGreater(share(p5, "Out"), share(p0, "Out"))
+
+        # trap gambit: brutal vs aggression, wasted vs a blocker
+        trap_aggr = apply_conditions(base, {"trap_gambit": True, "striker_intent": 90})
+        trap_def = apply_conditions(base, {"trap_gambit": True, "striker_intent": 20})
+        self.assertGreater(share(trap_aggr, "Out"), share(base, "Out"))
+        self.assertLess(share(trap_def, "Out"), share(base, "Out"))
+
     def test_intent_meter_attacking(self):
         """Test that batter intent > 50 increases run and wicket weights and decreases dots"""
         w3 = apply_stage3_wicket_factor(BASELINE_WEIGHTS, self.kohli, self.bumrah, self.league_avg)

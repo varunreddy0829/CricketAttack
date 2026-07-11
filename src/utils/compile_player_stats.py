@@ -40,10 +40,26 @@ KNOWN_FOREIGNERS = {
 }
 
 KNOWN_KEEPERS = {
-    "MS Dhoni", "Q de Kock", "JC Buttler", "RR Pant", "KL Rahul", "Ishan Kishan", "WP Saha", "KD Karthik", 
+    "MS Dhoni", "Q de Kock", "JC Buttler", "RR Pant", "KL Rahul", "Ishan Kishan", "WP Saha", "KD Karthik",
     "SV Samson", "JM Bairstow", "N Pooran", "PA Patel", "RV Uthappa", "NV Ojha", "AC Gilchrist", "KC Sangakkara",
-    "BB McCullum", "Kamran Akmal", "Litton Das", "Mushfiqur Rahim", "Rahmanullah Gurbaz", "H Klaasen", 
+    "BB McCullum", "Kamran Akmal", "Litton Das", "Mushfiqur Rahim", "Rahmanullah Gurbaz", "H Klaasen",
     "Jitesh Sharma", "Dhruv Jurel", "KS Bharat", "Anuj Rawat", "SW Billings", "SS Goswami", "CM Gautam", "MS Bisla"
+}
+
+# Best-effort hand-curated from general cricket knowledge (no bowling-style
+# field exists anywhere in the raw Cricsheet data or ETL pipeline -- see the
+# pace/spin split investigation). Only covers bowlers we're confident about;
+# anyone not listed here defaults to "Pace" in compile_stats() below, which
+# also matches the real-world global split (pace bowlers are the majority).
+KNOWN_SPINNERS = {
+    "A Kumble", "A Mishra", "A Zampa", "AU Rashid", "AM Ghazanfar", "DL Vettori", "GB Hogg", "IS Sodhi",
+    "Imran Tahir", "J Suchith", "Jalaj S Saxena", "KA Maharaj", "Kuldeep Yadav", "M Kartik", "M Markande",
+    "M Muralitharan", "M Theekshana", "Mohammad Hafeez", "Mujeeb Ur Rahman", "Noor Ahmad", "Parvez Rasool",
+    "PP Ojha", "PV Tambe", "R Sai Kishore", "Ravi Bishnoi", "S Badree", "S Gopal", "S Lamichhane", "S Nadeem",
+    "S Randiv", "SB Jakati", "SB Joshi", "Shahid Afridi", "Shoaib Malik", "SK Warne", "SMSM Senanayake",
+    "Swapnil Singh", "T Shamsi", "YS Chahal", "Zeeshan Ansari", "CV Varun", "M Siddharth", "Harsh Dubey",
+    "Suyash Sharma", "HR Shokeen", "K Kartikeya", "KP Appanna", "Mayank Dagar", "MB Parmar",
+    "R Ashwin", "RA Jadeja", "Washington Sundar", "Harbhajan Singh",
 }
 
 def compile_stats():
@@ -190,6 +206,7 @@ def compile_stats():
             "name": name,
             "is_keeper": (name in KNOWN_KEEPERS) or (name in dynamic_keepers),
             "is_foreigner": name in KNOWN_FOREIGNERS,
+            "bowling_style": "Spin" if name in KNOWN_SPINNERS else "Pace",
             "batting": {
                 "runs": runs,
                 "balls": balls,

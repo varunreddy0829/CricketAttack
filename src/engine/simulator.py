@@ -10,27 +10,33 @@ from src.engine.stats_calculator import (
     apply_stage3_wicket_factor
 )
 from src.engine.intent_handler import apply_intents
+from src.engine.conditions import apply_conditions
 
 # Independent extras master probability configuration
 EXTRAS_PROB = 0.04  # 4% chance of an extra (Wide or No Ball)
 
-def calculate_single_ball(striker: Batter, bowler: Bowler, league_avg: dict) -> str:
+def calculate_single_ball(striker: Batter, bowler: Bowler, league_avg: dict, context: dict = None) -> str:
     """
     Runs the striker and bowler through the math engine pipeline.
     Returns the resolved delivery outcome (e.g. '0', '1', '2', '3', '4', '5', '6', 'Out').
+    `context` (optional) carries match conditions — pitch, innings phase,
+    pressure, gambits (see conditions.apply_conditions); None skips the stage.
     """
     # Stage 1: OVR Strength Adjustment (starts from the shared global baseline --
     # no per-batter DNA stage; see BASELINE_WEIGHTS' comment in stats_calculator.py)
     weights_s1 = apply_stage1_ovr(BASELINE_WEIGHTS, striker, bowler)
-    
+
     # Stage 2: Strike Rate vs Economy Adjustment
     weights_s2 = apply_stage2_strike_rate_economy(weights_s1, striker, bowler, league_avg)
-    
+
     # Stage 3: Wicket Factor Adjustment
     weights_s3 = apply_stage3_wicket_factor(weights_s2, striker, bowler, league_avg)
-    
-    # Stage 4: Intent Meter Adjustment
-    final_weights = apply_intents(weights_s3, striker.intent, bowler.intent, league_avg)
+
+    # Stage 3.5: Match conditions (pitch, phase, pressure, gambits)
+    weights_c = apply_conditions(weights_s3, context)
+
+    # Stage 4: Intent Meter Adjustment (always last)
+    final_weights = apply_intents(weights_c, striker.intent, bowler.intent, league_avg)
     
     outcomes = list(final_weights.keys())
     values = list(final_weights.values())

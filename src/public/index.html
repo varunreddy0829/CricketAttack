@@ -9,9 +9,9 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style_mobile.css?v=4.7">
+    <link rel="stylesheet" href="style_mobile.css?v=4.8">
     <script src="net.js?v=3.9" defer></script>
-    <script src="app.js?v=3.11" defer></script>
+    <script src="app.js?v=3.12" defer></script>
 </head>
 
 <body>
@@ -164,6 +164,15 @@
         </div>
     </div>
 
+    <!-- ============ HOME GROUND SELECTION ============ -->
+    <div id="grounds-screen" class="screen">
+        <div class="topbar">
+            <div class="auc-set">Claim Your Home Ground</div>
+            <div class="role-pill" id="grounds-role">—</div>
+        </div>
+        <div class="grounds-main" id="grounds-main"></div>
+    </div>
+
     <!-- ============ XI SELECTION ============ -->
     <div id="xi-screen" class="screen">
         <div class="topbar">
@@ -226,11 +235,17 @@
     <!-- Cancel-whole-tournament button (visible anywhere during a tournament that hasn't concluded) -->
     <button id="cancel-tournament-btn" class="exit-btn cancel-tournament-btn hidden">✕ Cancel Tournament</button>
 
+    <!-- Escape hatch back to the bracket while browsing a scorecard with nothing of ours live -->
+    <button id="back-to-tournament-fixed-btn" class="exit-btn back-to-tournament-fixed-btn hidden">🏆 Back to Tournament</button>
+
+    <!-- Small persistent reminder of the game/tournament code, for rejoining on another device -->
+    <div id="rejoin-code-label" class="rejoin-code-label hidden">To rejoin: <span id="rejoin-code-value">----</span></div>
+
     <!-- Auction rules overlay -->
     <div id="auction-rules-overlay" class="overlay hidden">
         <div class="overlay-card">
             <h2>How the Auction Works</h2>
-            <p class="sub">Players are pooled into 12 sets — 3 tiers (Marquee opens at ₹2 Cr, Mid-Level ₹1 Cr, Group ₹0.2 Cr) across 4 roles, scaled up so there's always plenty to go around. With a ₹100 Cr purse, outbid your rivals (raise by ₹0.1 Cr up to ₹10 Cr at a time) or fold with "I'm Out". Build a balanced 15–21 squad (at least 1 keeper), then Lock In.</p>
+            <p class="sub">Players are pooled into 15 sets — 3 tiers (Marquee opens at ₹2 Cr, Mid-Level ₹1 Cr, Group ₹0.2 Cr) across 5 roles (Batsman, Pacer, Spinner, All-Rounder, Wicket Keeper), scaled up so there's always plenty to go around. With a ₹100 Cr purse, outbid your rivals (raise by ₹0.1 Cr up to ₹10 Cr at a time) or fold with "I'm Out". Build a balanced 15–21 squad (at least 1 keeper), then Lock In.</p>
             <p class="sub">Miss 15 players when the auction ends and you get a 60-second grace period to Lock In whatever you have — fail to reach 15 by the time it runs out and you're kicked out, no auto-fill safety net.</p>
             <p class="sub">Once squads are set, each side picks their best 11 (max 4 overseas, at least 1 keeper) before the match begins.</p>
             <button class="btn-ghost btn-lg" id="btn-close-auction-rules" style="margin-top:1rem;">Close</button>
