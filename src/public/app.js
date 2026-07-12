@@ -1042,13 +1042,17 @@ function renderReadyBar(m) {
         if (m.resume && m.resume.i_ready) {
             bar.innerHTML = `<button class="btn-ghost" disabled>Ready ✔ — waiting…</button>${oppTxt}`;
         } else if (m.i_am_batting) {
-            bar.innerHTML = `<button class="btn-go btn-lg" id="btn-resume">Ready to Resume Over ✔</button>
+            bar.innerHTML = `${impactButtonHtml(m)}
+                <button class="btn-go btn-lg" id="btn-resume">Ready to Resume Over ✔</button>
                 <span class="ready-status"><span class="off">New batsman is in — set intent, then resume.</span></span>${oppTxt}`;
             $('btn-resume').addEventListener('click', submitResume);
+            wireImpactButton();
         } else {
-            bar.innerHTML = `<button class="btn-go btn-lg" id="btn-resume">Ready to Resume Over ✔</button>
+            bar.innerHTML = `${impactButtonHtml(m)}
+                <button class="btn-go btn-lg" id="btn-resume">Ready to Resume Over ✔</button>
                 <span class="ready-status"><span class="off">New batsman is in — react with your bowling intent, then resume.</span></span>${oppTxt}`;
             $('btn-resume').addEventListener('click', submitResume);
+            wireImpactButton();
         }
         return;
     }
@@ -1155,7 +1159,7 @@ function renderImpactOverlay(m) {
         selected: ui.impactPick.in === p.name, attrs: `data-impact-in="${p.name}"`,
     })).join('') || '<div class="bench-empty">No bench players available.</div>';
     const outCards = imp.out_options.map(p => pcard(p, {
-        ovr: Math.max(p.batting_ovr, p.bowling_ovr), selectable: true,
+        ovr: Math.max(p.batting_ovr, p.bowling_ovr), selectable: true, out: p.dismissed,
         selected: ui.impactPick.out === p.name, attrs: `data-impact-out="${p.name}"`,
     })).join('') || '<div class="bench-empty">No one eligible to replace right now.</div>';
     const ready = ui.impactPick.in && ui.impactPick.out;
@@ -1743,6 +1747,28 @@ function auctioneerScene() {
     </div>`;
 }
 
+// Captures scrollTop for every selector that currently matches, runs
+// rebuildFn (which typically replaces innerHTML somewhere in that subtree --
+// destroying and recreating those very elements), then re-applies the
+// captured values to whatever now matches the same selectors. Necessary
+// because .pool-list caps its own height and scrolls internally on desktop
+// (its parent doesn't scroll at all in that case), while on mobile the
+// .pool-list cap is lifted and an ANCESTOR scrolls instead -- so which
+// element is "the" scroll container depends on viewport, and a rebuild
+// always creates a brand-new .pool-list node with scrollTop reset to 0.
+function withScrollPreserved(selectors, rebuildFn) {
+    const prev = selectors.map(sel => {
+        const el = document.querySelector(sel);
+        return el ? el.scrollTop : null;
+    });
+    rebuildFn();
+    selectors.forEach((sel, i) => {
+        if (prev[i] === null) return;
+        const el = document.querySelector(sel);
+        if (el) el.scrollTop = prev[i];
+    });
+}
+
 function renderAuction(state) {
     const a = state.auction;
     const me = a.you_role;
@@ -1755,28 +1781,20 @@ function renderAuction(state) {
     // Every poll (bid, timer tick, opponent ready...) rebuilds this whole
     // panel, which yanks any scroll position back to the top -- most
     // noticeable while scrolling the pool list during the 'preview' stage.
-    // auc-center scrolls internally on desktop (overflow-y: auto); on mobile
-    // auc-main itself is the scrolling element instead -- preserve both.
-    const centerEl = $('auc-center');
-    const mainEl = document.querySelector('.auc-main');
-    const prevCenterScroll = centerEl ? centerEl.scrollTop : 0;
-    const prevMainScroll = mainEl ? mainEl.scrollTop : 0;
-
-    $('auc-my').className = 'squad-panel me';
-    $('auc-opp').className = 'squad-panel opp';
-    $('auc-my').innerHTML = squadPanel(a.my_squad, true, a);
-    $('auc-opp').innerHTML = a.opp_squad
-        ? squadPanel(a.opp_squad, false, a)
-        : otherSquadsPanel(a.other_squads, a);
-    if (!a.opp_squad) wireOtherSquads();
-    animatePurseValues($('auc-my'));
-    animatePurseValues($('auc-opp'));
-    centerEl.innerHTML = auctionCenter(a, me);
-    wireAuctionCenter(a, me);
-    maybeFlashRivalBid(a, me);
-
-    centerEl.scrollTop = prevCenterScroll;
-    if (mainEl) mainEl.scrollTop = prevMainScroll;
+    withScrollPreserved(['#auc-center', '.auc-main', '#auc-center .pool-list'], () => {
+        $('auc-my').className = 'squad-panel me';
+        $('auc-opp').className = 'squad-panel opp';
+        $('auc-my').innerHTML = squadPanel(a.my_squad, true, a);
+        $('auc-opp').innerHTML = a.opp_squad
+            ? squadPanel(a.opp_squad, false, a)
+            : otherSquadsPanel(a.other_squads, a);
+        if (!a.opp_squad) wireOtherSquads();
+        animatePurseValues($('auc-my'));
+        animatePurseValues($('auc-opp'));
+        $('auc-center').innerHTML = auctionCenter(a, me);
+        wireAuctionCenter(a, me);
+        maybeFlashRivalBid(a, me);
+    });
 
     // Always render full pool into the new tab -- every poll rebuilds this
     // (bids, timer ticks, sales...), so explicitly preserve scroll position
@@ -1788,10 +1806,9 @@ function renderAuction(state) {
             ...(a.opp_squad ? a.opp_squad.roster.map(p => p.name) : []),
             ...(a.other_squads || []).flatMap(s => s.roster_names || []),
         ];
-        const poolScroller = $('atab-pool');
-        const prevScrollTop = poolScroller ? poolScroller.scrollTop : 0;
-        $('auc-full-pool').innerHTML = poolList(a.pool, sold);
-        if (poolScroller) poolScroller.scrollTop = prevScrollTop;
+        withScrollPreserved(['#atab-pool', '#auc-full-pool .pool-list'], () => {
+            $('auc-full-pool').innerHTML = poolList(a.pool, sold);
+        });
     }
 
     if (a.stage === 'bidding' || a.stage === 'done') setAucTimer(a.time_left_ms, a.total_wait_ms);
@@ -1934,6 +1951,7 @@ function lockBlock(a) {
 function skipSetBlock(a) {
     if (a.my_locked || !a.skip_set) return '';
     const sv = a.skip_set;
+    if (sv.blocked) return `<div class="auc-holder" title="Not enough players would be left for everyone to build a full squad.">⏭ Can't skip this set — too few players would be left</div>`;
     if (sv.i_voted) return `<div class="auc-holder">⏭ Voted to skip this set (${sv.count}/${sv.total})</div>`;
     return `<button class="btn-ghost" id="auc-skip-set">⏭ Vote to skip this set (${sv.count}/${sv.total})</button>`;
 }

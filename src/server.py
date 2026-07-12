@@ -393,10 +393,16 @@ def _card_fields(record):
 
 
 def _auto_two_xis():
-    """Draft two balanced, realistic XIs for Quick Match: 6 top specialist
-    batsmen at the top of the order + 5 frontline bowlers in the tail, per team.
+    """Draft two balanced, realistic squads for Quick Match: an 11-player XI
+    (6 top specialist batsmen at the top of the order + 5 frontline bowlers in
+    the tail, per team) plus 2 spare reserves each (1 more batter, 1 more
+    bowler) so Impact Player has an actual bench to draw from -- Quick Match
+    skips the draft UI, but that shouldn't mean skipping the feature entirely.
     Batting order (top batsmen first) makes the lower order behave like a real
-    tail rather than 6 pure bowlers collapsing."""
+    tail rather than 6 pure bowlers collapsing.
+
+    Returns (xi1, xi2, roster1, roster2) -- roster includes the XI plus the
+    2 reserves, in the shape GAME["squads"][t]["roster"] expects."""
     bats = sorted([p for p in ALL_PLAYERS if p["batting"]["balls"] >= 300],
                   key=lambda p: -p["batting_ovr"])[:40]
     bowls = sorted([p for p in ALL_PLAYERS if p["bowling"]["legal_balls"] >= 300],
@@ -429,7 +435,20 @@ def _auto_two_xis():
             p = next(filler)
             used.add(p["name"])
             team.append(p)
-    return [_card_fields(p) for p in t1[:11]], [_card_fields(p) for p in t2[:11]]
+
+    reserves = {"team1": [], "team2": []}
+    for key, team in (("team1", t1), ("team2", t2)):
+        take(bats, 1, reserves[key])
+        take(bowls, 1, reserves[key])
+        while len(reserves[key]) < 2:
+            p = next(filler)
+            used.add(p["name"])
+            reserves[key].append(p)
+
+    xi1, xi2 = [_card_fields(p) for p in t1[:11]], [_card_fields(p) for p in t2[:11]]
+    roster1 = xi1 + [_card_fields(p) for p in reserves["team1"]]
+    roster2 = xi2 + [_card_fields(p) for p in reserves["team2"]]
+    return xi1, xi2, roster1, roster2
 
 
 # --- Match lifecycle ---------------------------------------------------------
@@ -780,8 +799,11 @@ def _emit(ball, ev_type, text, outcome=None, extra=False):
 def _apply_impact_sub(role, out_name, in_name):
     """One bench-for-XI swap per team, once for the whole match. Allowed only
     at safe checkpoints (never mid-over): the batting side may swap between
-    overs or right after a wicket (filling the open crease slot); the bowling
-    side may swap between overs. Who's in your XI isn't hidden information
+    overs, right after a wicket (filling the open crease slot), or during the
+    resume-confirmation window that follows (a fresh batter just walked in --
+    still "after a wicket"); the bowling side may swap between overs, or
+    during that same resume window (a fresh batter is exactly when a bowling
+    side would want to react). Who's in your XI isn't hidden information
     (only intents/bowler-before-lock are), so the swap is revealed to both
     sides immediately via commentary."""
     g = GAME
@@ -796,7 +818,12 @@ def _apply_impact_sub(role, out_name, in_name):
     i_bat = role == g["batting_side"]
     stage = g["stage"]
     my_pending = g["pending_over"]["batting" if i_bat else "bowling"]
-    if i_bat:
+    if stage == "await_resume":
+        ao = g.get("active_over") or {}
+        already_ready = ao.get("resume_batting_ready" if i_bat else "resume_bowling_ready", False)
+        if already_ready:
+            raise ValueError("Too late — you've already confirmed you're ready to resume.")
+    elif i_bat:
         if stage not in ("play", "await_batter"):
             raise ValueError("Can't make an Impact Player swap right now.")
         if stage == "play" and my_pending["submitted"]:
@@ -822,12 +849,14 @@ def _apply_impact_sub(role, out_name, in_name):
     non_striker = st.get_non_striker() if i_bat else None
     is_striker = i_bat and striker is not None and striker.name == out_name
     is_non_striker = i_bat and non_striker is not None and non_striker.name == out_name
-    if i_bat:
-        out_row = g["bat_card"].get(out_name)
-        if out_row and out_row["out"]:
-            raise ValueError("That batter is already out.")
-        if stage == "await_batter" and (is_striker or is_non_striker):
-            raise ValueError("Pick a batter who hasn't been to the crease yet.")
+    # Any of the 11 can be replaced -- including one who's already out (they
+    # can still be swapped for a fresh bowling option, since dismissal only
+    # ends a player's batting, not their standing in the XI). The one thing
+    # that's NOT allowed: at await_batter, out_name can't be whoever's still
+    # live in the OTHER crease slot -- that slot isn't part of this action
+    # (it's not vacant), so swapping them here would corrupt the XI/lineup.
+    if i_bat and stage == "await_batter" and (is_striker or is_non_striker):
+        raise ValueError("That batter is still in — pick someone else to replace.")
 
     # squad-composition guard on the resulting XI (same rule as locking one)
     new_xi = [dict(p) for p in xi]
@@ -845,15 +874,42 @@ def _apply_impact_sub(role, out_name, in_name):
     if i_bat:
         new_batter = _make_batter(BY_NAME[in_name])
         if stage == "await_batter":
-            # fills the open crease slot, same as set_next_batter
-            lu_idx = len(st.lineup)
-            st.lineup.append(new_batter)
+            # Fills the open crease slot by replacing out_name's slot IN
+            # PLACE (not appended -- keeps len(lineup) fixed at the original
+            # XI size, same pattern as every other case below). out_name's
+            # array slot is just a pointer target, safe to reuse whether they
+            # were dismissed already or never batted -- their own bat_card
+            # row is keyed by name and stays untouched either way (see the
+            # guard above, which only rules out the OTHER still-live slot).
+            # Then runs the SAME post-fill bookkeeping set_next_batter does:
+            # whether the game moves to
+            # 'play', 'await_resume', or straight into finishing the over
+            # depends on whether one was already mid-flight when the wicket
+            # fell. Omitting this left the game stuck in 'await_batter'
+            # forever -- the crease was filled internally, but nothing ever
+            # advanced the stage, so neither side ever saw a way to proceed.
+            lu_idx = next(i for i, b in enumerate(st.lineup) if b.name == out_name)
+            st.lineup[lu_idx] = new_batter
             if g.get("vacant_slot") == "non_striker":
                 st.non_striker_index = lu_idx
             else:
                 st.striker_index = lu_idx
             g["used_batters"].append(in_name)
             _ensure_bat_row(in_name)
+
+            if g["active_over"] is None:
+                g["stage"] = "play"
+            elif st.balls < g["over_end_at"]:
+                g["pending_over"]["batting"]["submitted"] = False
+                g["pending_over"]["bowling"]["submitted"] = False
+                ao = g["active_over"]
+                ao["resume_batting_ready"] = False
+                ao["resume_bowling_ready"] = False
+                g["stage"] = "await_resume"
+            else:
+                if st.get_striker() is not None:
+                    st.rotate_strike()
+                _complete_over()
         else:
             lu_idx = next(i for i, b in enumerate(st.lineup) if b.name == out_name)
             st.lineup[lu_idx] = new_batter
@@ -1107,6 +1163,41 @@ def _advance_lot():
 
 def _reset_skip_votes():
     GAME["auction"]["skip_votes"] = {t: False for t in GAME["team_ids"]}
+
+
+def _skip_would_strand_squads():
+    """Would skipping the rest of THIS set make it mathematically impossible
+    for every still-active team to reach a legal squad? There's no auto-fill
+    safety net, so once the numbers don't add up, someone is guaranteed to
+    get kicked out at the grace period with no way to prevent it -- players
+    should see that coming, not discover it after the fact.
+
+    Two ways a skip can strand a team:
+    1. Not enough total players left afterward for everyone's outstanding
+       SQUAD_MIN need combined (ignores that teams also compete for the same
+       players, so it's a necessary-not-sufficient check -- but it catches
+       the worst case, which is what actually burned someone here).
+    2. This is the LAST Wicket Keeper set left in the pool and some active
+       team still has zero keepers -- total headcount could be fine while
+       the keeper requirement becomes impossible to ever satisfy."""
+    a = GAME["auction"]
+    remaining_sets = a["sets"][a["set_index"] + 1:]
+    active = [t for t in GAME["team_ids"] if not GAME["squads"][t]["locked"]]
+    if not active:
+        return False
+
+    remaining_supply = sum(len(s["players"]) for s in remaining_sets)
+    need = sum(max(0, SQUAD_MIN - len(GAME["squads"][t]["roster"])) for t in active)
+    if remaining_supply < need:
+        return True
+
+    keeper_sets_left = any(s["role"] == "Wicket Keeper" for s in remaining_sets)
+    cur = _cur_set()
+    is_last_keeper_set = (cur is not None and cur["role"] == "Wicket Keeper" and not keeper_sets_left)
+    if is_last_keeper_set and any(GAME["squads"][t]["wk"] < 1 for t in active):
+        return True
+
+    return False
 
 
 def _skip_to_next_set():
@@ -2203,7 +2294,10 @@ def _serialize(token):
     # nothing spare) -- there's simply no one to bring on, so it's unavailable.
     has_bench = bool(g.get("squads")) and role in g["squads"]
     ip_state = (g.get("impact_player") or {}).get(role, {"used": True})
-    if i_bat:
+    if g["stage"] == "await_resume":
+        already_ready = (ao_for_resume or {}).get("resume_batting_ready" if i_bat else "resume_bowling_ready", False)
+        ip_can_use = not already_ready
+    elif i_bat:
         ip_can_use = g["stage"] == "await_batter" or (g["stage"] == "play" and not my_pending["submitted"])
     else:
         ip_can_use = g["stage"] == "play" and not my_pending["submitted"]
@@ -2213,16 +2307,17 @@ def _serialize(token):
         xi_names = {p["name"] for p in g["teams"][role]["xi"]}
         ip_pool = [_card_fields(BY_NAME[p["name"]]) for p in g["squads"][role]["roster"]
                    if p["name"] not in xi_names]
-        if i_bat:
-            dismissed = {n for n, row in g["bat_card"].items() if row["out"]}
-            if g["stage"] == "await_batter":
-                already_batted = set(g["used_batters"])
-                ip_out_options = [p for p in g["teams"][role]["xi"]
-                                  if p["name"] not in dismissed and p["name"] not in already_batted]
-            else:
-                ip_out_options = [p for p in g["teams"][role]["xi"] if p["name"] not in dismissed]
+        dismissed = {n for n, row in g["bat_card"].items() if row["out"]} if i_bat else set()
+        if i_bat and g["stage"] == "await_batter":
+            # Any of the 11 can be swapped out -- including already-dismissed
+            # batters (still swappable for a fresh bowling option later) --
+            # EXCEPT whoever's still live in the other crease slot right now,
+            # since that slot isn't the one this action is filling.
+            live_name = striker.name if striker else (non_striker.name if non_striker else None)
+            ip_out_options = [{**p, "dismissed": p["name"] in dismissed}
+                              for p in g["teams"][role]["xi"] if p["name"] != live_name]
         else:
-            ip_out_options = list(g["teams"][role]["xi"])
+            ip_out_options = [{**p, "dismissed": p["name"] in dismissed} for p in g["teams"][role]["xi"]]
     impact = {
         "used": ip_state["used"],
         "swap_text": (f"Impact Player used: {ip_state['in_name']} on for {ip_state['out_name']}"
@@ -2331,6 +2426,7 @@ def _serialize_auction(role):
             "i_voted": bool(skip_votes.get(role)) if role else False,
             "count": sum(1 for t in active_teams if skip_votes.get(t)),
             "total": len(active_teams),
+            "blocked": _skip_would_strand_squads(),
         },
     }
 
@@ -2640,9 +2736,17 @@ def quick_match():
         if GAME is None:
             return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
         _require_both_joined()
-        t1_xi, t2_xi = _auto_two_xis()
+        t1_xi, t2_xi, t1_roster, t2_roster = _auto_two_xis()
         GAME["teams"]["team1"]["xi"] = t1_xi
         GAME["teams"]["team2"]["xi"] = t2_xi
+        # populate squads (XI + 2 reserves each) so Impact Player has a bench
+        # to draw from -- Quick Match otherwise never touches GAME["squads"]
+        GAME["squads"] = {
+            t: {**_new_squad(), "roster": roster, "locked": True,
+                "os": sum(1 for p in roster if p.get("is_foreigner")),
+                "wk": sum(1 for p in roster if p.get("is_keeper"))}
+            for t, roster in (("team1", t1_roster), ("team2", t2_roster))
+        }
         GAME["match_teams"] = GAME["team_ids"][:2]
         GAME["match_ground"] = random.choice(STADIUMS)
         _start_single_match()
@@ -2760,6 +2864,9 @@ def vote_skip_set():
             return jsonify({"status": "error", "message": "Can't vote to skip right now."}), 400
         if GAME["squads"][role]["locked"]:
             return jsonify({"status": "error", "message": "Your squad is locked."}), 400
+        if _skip_would_strand_squads():
+            return jsonify({"status": "error",
+                             "message": "Can't skip — too few players would be left for every team to build a full squad."}), 400
         a.setdefault("skip_votes", {})[role] = True
         active = [t for t in GAME["team_ids"] if not GAME["squads"][t]["locked"]]
         if active and all(a["skip_votes"].get(t) for t in active):
