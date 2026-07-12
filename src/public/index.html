@@ -264,9 +264,10 @@
     <div id="auction-rules-overlay" class="overlay hidden">
         <div class="overlay-card">
             <h2>How the Auction Works</h2>
-            <p class="sub">Players are pooled into 15 sets — 3 tiers (Marquee opens at ₹2 Cr, Mid-Level ₹1 Cr, Group ₹0.2 Cr) across 5 roles (Batsman, Pacer, Spinner, All-Rounder, Wicket Keeper), scaled up so there's always plenty to go around. With a ₹100 Cr purse, outbid your rivals (raise by ₹0.1 Cr up to ₹10 Cr at a time) or fold with "I'm Out". Build a balanced 15–21 squad (at least 1 keeper), then Lock In.</p>
-            <p class="sub">Miss 15 players when the auction ends and you get a 60-second grace period to Lock In whatever you have — fail to reach 15 by the time it runs out and you're kicked out, no auto-fill safety net.</p>
-            <p class="sub">Once squads are set, each side picks their best 11 (max 4 overseas, at least 1 keeper) before the match begins.</p>
+            <p class="sub">₹100 Cr purse. Bid or fold with "I'm Out" — build a 15–21 squad with at least 1 keeper.</p>
+            <p class="sub">Not interested in the rest of a set? Everyone can vote to skip it and move on.</p>
+            <p class="sub">Before each match, pick your XI: 11 players, max 5 overseas, at least 1 keeper.</p>
+            <p class="sub">Each team also gets one Impact Player swap per match — bring a bench player on for anyone in your XI, once, between overs or after a wicket.</p>
             <button class="btn-ghost btn-lg" id="btn-close-auction-rules" style="margin-top:1rem;">Close</button>
         </div>
     </div>
@@ -279,6 +280,11 @@
     <!-- Openers overlay -->
     <div id="openers-overlay" class="overlay hidden">
         <div class="overlay-card" id="openers-card"></div>
+    </div>
+
+    <!-- Impact Player swap overlay -->
+    <div id="impact-overlay" class="overlay hidden">
+        <div class="overlay-card" style="max-width:640px; max-height:85vh; overflow-y:auto;" id="impact-card"></div>
     </div>
 
     <!-- Result banner -->

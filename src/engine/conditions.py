@@ -44,12 +44,16 @@ PRESSURE_OUT_PER_DOT = 0.05
 PRESSURE_CAP = 6
 
 # Gambits: one-shot per-match cards, armed secretly with the over submission.
-# Each buffs exactly one side's stat and nothing else -- no paired nerf on
-# top (any tiny redistribution elsewhere is just the renormalization every
-# stage already does to keep weights summing to 1000, not a deliberate hit).
-GAMBIT_ATTACK = {"4": 1.5, "6": 1.5}
+# Each is a DIRECT transfer of weight out of '0' into the buffed stat(s) --
+# not a plain multiply left for the final renormalization to sort out, which
+# would have quietly shaved a bit off every other category too (including
+# the ones a gambit is explicitly supposed to leave alone, like Out on
+# Attack or 4/5/6 on Trap). See _apply_gambit_* below.
+GAMBIT_ATTACK_BOOST = 1.5   # '4' and '6' each get 50% more weight, paid for by '0'
 # Trap Set reads the striker's effective intent for the ball: punishes
-# aggression hard, mildly pressures neutral play, and is wasted on blockers.
+# aggression hard, mildly pressures neutral play, and is wasted on blockers
+# (intent<=40 actually GIVES weight back to '0' -- a trap sprung on a
+# blocker is a wasted card, not a bonus).
 TRAP_VS_AGGRESSIVE = 1.6   # striker intent >= 60
 TRAP_VS_NEUTRAL = 1.2
 TRAP_VS_DEFENSIVE = 0.75   # striker intent <= 40
@@ -67,6 +71,42 @@ def _apply_mults(weights, mults):
     for k, m in mults.items():
         if k in weights:
             weights[k] *= m
+
+
+def _transfer(w, src, dst_delta):
+    """Move exactly sum(dst_delta.values()) of weight from w[src] into the
+    dst keys (each grown by its own delta) -- a true zero-sum swap between
+    two specific buckets, immune to whatever the final global renormalize
+    does to everything else. Caps at what `src` actually has (only matters
+    in extreme edge cases where an earlier stage already crushed it)."""
+    need = sum(dst_delta.values())
+    if need <= 0:
+        w[src] = w.get(src, 0) - need   # negative need = giving weight back to src
+        for k, d in dst_delta.items():
+            w[k] = w.get(k, 0) + d
+        return
+    take = min(w.get(src, 0), need)
+    scale = take / need if need else 0
+    for k, d in dst_delta.items():
+        w[k] = w.get(k, 0) + d * scale
+    w[src] = w.get(src, 0) - take
+
+
+def _apply_gambit_attack(w):
+    add4 = w["4"] * (GAMBIT_ATTACK_BOOST - 1)
+    add6 = w["6"] * (GAMBIT_ATTACK_BOOST - 1)
+    _transfer(w, "0", {"4": add4, "6": add6})
+
+
+def _apply_gambit_trap(w, intent):
+    if intent >= 60:
+        mult = TRAP_VS_AGGRESSIVE
+    elif intent <= 40:
+        mult = TRAP_VS_DEFENSIVE
+    else:
+        mult = TRAP_VS_NEUTRAL
+    add_out = w["Out"] * (mult - 1)   # negative when mult < 1 (wasted on a blocker)
+    _transfer(w, "0", {"Out": add_out})
 
 
 def apply_conditions(weights, ctx):
@@ -91,16 +131,10 @@ def apply_conditions(weights, ctx):
         w["Out"] *= 1.0 + PRESSURE_OUT_PER_DOT * pressure
 
     if ctx.get("attack_gambit"):
-        _apply_mults(w, GAMBIT_ATTACK)
+        _apply_gambit_attack(w)
 
     if ctx.get("trap_gambit"):
-        intent = ctx.get("striker_intent", 50)
-        if intent >= 60:
-            w["Out"] *= TRAP_VS_AGGRESSIVE
-        elif intent <= 40:
-            w["Out"] *= TRAP_VS_DEFENSIVE
-        else:
-            w["Out"] *= TRAP_VS_NEUTRAL
+        _apply_gambit_trap(w, ctx.get("striker_intent", 50))
 
     total = sum(w.values())
     if total <= 0:

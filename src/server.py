@@ -56,7 +56,7 @@ MAX_OVERS_PER_BOWLER = 4
 INITIAL_PURSE = 100.0        # Cr
 SQUAD_MIN, SQUAD_MAX = 15, 21
 XI_SIZE = 11
-XI_MAX_OVERSEAS = 4
+XI_MAX_OVERSEAS = 5
 BASE_BID = 0.5               # minimum bid increment
 # Opening (base) price per tier, in Cr. Group 3 = 0.2 Cr (20 lakh).
 TIER_OPENING = {"Marquee": 2.0, "Mid-Level": 1.0, "Group 3": 0.2}
@@ -777,6 +777,103 @@ def _emit(ball, ev_type, text, outcome=None, extra=False):
     GAME["live"].append(entry)
 
 
+def _apply_impact_sub(role, out_name, in_name):
+    """One bench-for-XI swap per team, once for the whole match. Allowed only
+    at safe checkpoints (never mid-over): the batting side may swap between
+    overs or right after a wicket (filling the open crease slot); the bowling
+    side may swap between overs. Who's in your XI isn't hidden information
+    (only intents/bowler-before-lock are), so the swap is revealed to both
+    sides immediately via commentary."""
+    g = GAME
+    if not g.get("squads") or role not in g["squads"]:
+        raise ValueError("No bench to bring on for this match.")
+    ip = (g.get("impact_player") or {}).get(role)
+    if ip is None:
+        raise ValueError("Impact Player isn't available in this match.")
+    if ip["used"]:
+        raise ValueError("You've already used your Impact Player this match.")
+
+    i_bat = role == g["batting_side"]
+    stage = g["stage"]
+    my_pending = g["pending_over"]["batting" if i_bat else "bowling"]
+    if i_bat:
+        if stage not in ("play", "await_batter"):
+            raise ValueError("Can't make an Impact Player swap right now.")
+        if stage == "play" and my_pending["submitted"]:
+            raise ValueError("Too late — you've already locked in this over.")
+    else:
+        if stage != "play":
+            raise ValueError("Can't make an Impact Player swap right now.")
+        if my_pending["submitted"]:
+            raise ValueError("Too late — you've already locked in this over.")
+
+    xi = g["teams"][role]["xi"]
+    xi_names = [p["name"] for p in xi]
+    if out_name not in xi_names:
+        raise ValueError("That player isn't in your XI.")
+    squad_by_name = {p["name"]: p for p in g["squads"][role]["roster"]}
+    if in_name not in squad_by_name or in_name in xi_names:
+        raise ValueError("That player isn't available on your bench.")
+    if in_name == out_name:
+        raise ValueError("Pick a different player to bring on.")
+
+    st = g["state"]
+    striker = st.get_striker() if i_bat else None
+    non_striker = st.get_non_striker() if i_bat else None
+    is_striker = i_bat and striker is not None and striker.name == out_name
+    is_non_striker = i_bat and non_striker is not None and non_striker.name == out_name
+    if i_bat:
+        out_row = g["bat_card"].get(out_name)
+        if out_row and out_row["out"]:
+            raise ValueError("That batter is already out.")
+        if stage == "await_batter" and (is_striker or is_non_striker):
+            raise ValueError("Pick a batter who hasn't been to the crease yet.")
+
+    # squad-composition guard on the resulting XI (same rule as locking one)
+    new_xi = [dict(p) for p in xi]
+    idx = next(i for i, p in enumerate(new_xi) if p["name"] == out_name)
+    new_xi[idx] = _card_fields(BY_NAME[in_name])
+    os_in = sum(1 for p in new_xi if p.get("is_foreigner"))
+    wk_in = sum(1 for p in new_xi if p.get("is_keeper"))
+    if os_in > XI_MAX_OVERSEAS:
+        raise ValueError(f"Max {XI_MAX_OVERSEAS} overseas players.")
+    if wk_in < 1:
+        raise ValueError("Your XI needs at least 1 wicket-keeper.")
+
+    g["teams"][role]["xi"] = new_xi
+
+    if i_bat:
+        new_batter = _make_batter(BY_NAME[in_name])
+        if stage == "await_batter":
+            # fills the open crease slot, same as set_next_batter
+            lu_idx = len(st.lineup)
+            st.lineup.append(new_batter)
+            if g.get("vacant_slot") == "non_striker":
+                st.non_striker_index = lu_idx
+            else:
+                st.striker_index = lu_idx
+            g["used_batters"].append(in_name)
+            _ensure_bat_row(in_name)
+        else:
+            lu_idx = next(i for i, b in enumerate(st.lineup) if b.name == out_name)
+            st.lineup[lu_idx] = new_batter
+            if is_striker or is_non_striker:
+                if is_striker:
+                    st.striker_index = lu_idx
+                else:
+                    st.non_striker_index = lu_idx
+                g["used_batters"].append(in_name)
+                _ensure_bat_row(in_name)
+                if out_name in g["bat_card"]:
+                    g["bat_card"][out_name]["how_out"] = "retired (Impact sub)"
+
+    ip["used"] = True
+    ip["in_name"] = in_name
+    ip["out_name"] = out_name
+    _emit("", "milestone",
+          f"🔄 IMPACT PLAYER — {g['teams'][role]['name']} bring on {in_name} for {out_name}!")
+
+
 def _finish_over():
     """Called when an over is fully complete: post the end-of-over summary,
     credit the bowler's over, and reset the ready handshake for the next over."""
@@ -957,6 +1054,7 @@ def _start_auction():
         "deadline": None, "total_wait": 0.0,
         "out": {t: False for t in GAME["team_ids"]},        # folded on the CURRENT lot
         "ready": {t: False for t in GAME["team_ids"]},
+        "skip_votes": {t: False for t in GAME["team_ids"]},  # want to skip the rest of THIS set
         "message": "Review the full player pool. All teams press Ready to begin.",
         "unsold": [],
     }
@@ -1000,6 +1098,28 @@ def _advance_lot():
         a["set_index"] += 1
         a["player_index"] = 0
         s = _cur_set()
+        _reset_skip_votes()
+    if s is None:
+        _auction_done()
+    else:
+        _present_player()
+
+
+def _reset_skip_votes():
+    GAME["auction"]["skip_votes"] = {t: False for t in GAME["team_ids"]}
+
+
+def _skip_to_next_set():
+    """Every active team agreed to skip whatever's left of the current set.
+    Whatever lot is currently up (if any) just goes unsold -- everyone
+    consented to move on rather than deal with it."""
+    a = GAME["auction"]
+    if a["current"]:
+        a["unsold"].append(_card_fields(a["current"]))
+    a["set_index"] += 1
+    a["player_index"] = 0
+    _reset_skip_votes()
+    s = _cur_set()
     if s is None:
         _auction_done()
     else:
@@ -1155,9 +1275,10 @@ def _place_bid(role, amount):
         raise ValueError("Not enough purse for that bid.")
     a["active_bidder"] = role
     a["current_bid"] = nxt
-    # reset 'out' for un-locked teams; locked teams stay out
-    a["out"] = {t: GAME["squads"][t]["locked"] for t in GAME["team_ids"]}
-    a["out"][role] = False
+    # Once a team pulls out of THIS lot, they stay out for the rest of it --
+    # a rival bid must not bring them back in. (out[role] can't already be
+    # True here anyway, since the check above rejects bids from a pulled-out
+    # team; a["out"] only fully resets on the next lot, see _present_player.)
     a["strike"] = 0
     a["message"] = f"{GAME['teams'][role]['name']} bids ₹{nxt:.1f} Cr!"
     _set_deadline(_cur_set()["tier"])
@@ -1192,19 +1313,14 @@ def _squad_valid(role):
 
 
 def _to_xi():
+    """Plain 1v1 only -- tournaments skip straight from grounds into fixture 0's
+    per-fixture XI pick instead (see _start_tournament_matches / _set_awaiting_xi),
+    since they'd otherwise ask for an XI twice in a row for no reason."""
     GAME["phase"] = "xi"
     GAME["xi_select"] = {t: {"xi": [], "locked": False} for t in GAME["team_ids"]}
     # Decide (and reveal) the venue before XI picks, not after, so squads can
     # actually be built around the pitch conditions instead of blind.
-    if GAME.get("tournament"):
-        # This XI phase is for the opening tournament fixture; preview its
-        # venue using the same deterministic pairing _start_tournament_matches
-        # will build in a moment, so what's shown here matches what's used.
-        pairs = _round_robin_pairs(GAME["team_ids"])
-        if pairs:
-            GAME["match_ground"] = _ground_of(pairs[0][0])
-    else:
-        GAME["match_ground"] = _ground_of(random.choice(GAME["team_ids"][:2]))
+    GAME["match_ground"] = _ground_of(random.choice(GAME["team_ids"][:2]))
 
 
 def _to_grounds():
@@ -1297,6 +1413,10 @@ def _start_single_match():
     # one-shot gambit cards, per match per team: All Out Attack is played
     # while batting, Trap Set while bowling (see conditions.py for effects)
     GAME["gambit_cards"] = {t: {"attack": True, "trap": True} for t in GAME["match_teams"]}
+    # Impact Player: one bench-for-XI swap per team, once for the whole match
+    # (usable whichever innings/role they're in when they choose to spend it)
+    GAME["impact_player"] = {t: {"used": False, "in_name": None, "out_name": None}
+                              for t in GAME["match_teams"]}
     GAME["phase"] = "match"
     _do_toss()
 
@@ -1408,12 +1528,12 @@ def _round_robin_pairs(team_ids):
 
 
 def _start_tournament_matches():
-    """Called once every team has locked its XI: build the round-robin fixture
-    list (every unique pair, once, realistically ordered -- see
-    _round_robin_pairs) and start the first one. The very first fixture
-    auto-starts (everyone just finished XI selection, clearly ready); every
-    fixture after that goes through the ready-gate (see _set_awaiting_ready)
-    so nobody gets swept into a match without warning."""
+    """Called once every team has locked its home ground: build the
+    round-robin fixture list (every unique pair, once, realistically ordered
+    -- see _round_robin_pairs), then send fixture 0's two teams straight into
+    picking their XI for it via the SAME per-fixture flow every later fixture
+    uses (_set_awaiting_xi) -- there's no separate one-off XI pick right after
+    the auction that just gets asked again before the real first match."""
     team_ids = GAME["team_ids"]
     fixtures = [_new_fixture(a, b, "round_robin") for a, b in _round_robin_pairs(team_ids)]
     GAME["tournament"].update({
@@ -1423,7 +1543,7 @@ def _start_tournament_matches():
         "awaiting_ready": False, "next_fixture_idx": None, "next_ready": {},
         "fatigue": {},   # player name -> consecutive matches played without a rest
     })
-    _start_fixture(0)
+    _set_awaiting_xi(0)
 
 
 def _start_fixture(idx):
@@ -2077,6 +2197,41 @@ def _serialize(token):
             "opponent_ready": ao_for_resume.get("resume_bowling_ready" if i_bat else "resume_batting_ready", False),
         }
 
+    # Impact Player: who's in your XI isn't hidden info, so this is fine to
+    # compute the same way for both sides -- only WHEN it's usable differs.
+    # Quick Match games have no squad/bench at all (exactly 11 auto-drafted,
+    # nothing spare) -- there's simply no one to bring on, so it's unavailable.
+    has_bench = bool(g.get("squads")) and role in g["squads"]
+    ip_state = (g.get("impact_player") or {}).get(role, {"used": True})
+    if i_bat:
+        ip_can_use = g["stage"] == "await_batter" or (g["stage"] == "play" and not my_pending["submitted"])
+    else:
+        ip_can_use = g["stage"] == "play" and not my_pending["submitted"]
+    ip_can_use = ip_can_use and not ip_state["used"] and has_bench
+    ip_pool, ip_out_options = [], []
+    if ip_can_use:
+        xi_names = {p["name"] for p in g["teams"][role]["xi"]}
+        ip_pool = [_card_fields(BY_NAME[p["name"]]) for p in g["squads"][role]["roster"]
+                   if p["name"] not in xi_names]
+        if i_bat:
+            dismissed = {n for n, row in g["bat_card"].items() if row["out"]}
+            if g["stage"] == "await_batter":
+                already_batted = set(g["used_batters"])
+                ip_out_options = [p for p in g["teams"][role]["xi"]
+                                  if p["name"] not in dismissed and p["name"] not in already_batted]
+            else:
+                ip_out_options = [p for p in g["teams"][role]["xi"] if p["name"] not in dismissed]
+        else:
+            ip_out_options = list(g["teams"][role]["xi"])
+    impact = {
+        "used": ip_state["used"],
+        "swap_text": (f"Impact Player used: {ip_state['in_name']} on for {ip_state['out_name']}"
+                      if ip_state["used"] and ip_state.get("in_name") else None),
+        "can_use": ip_can_use,
+        "pool": ip_pool,
+        "out_options": ip_out_options,
+    }
+
     out["match"] = {
         "stage": g["stage"],
         "innings": g["innings"],
@@ -2112,6 +2267,7 @@ def _serialize(token):
             "available": dict((g.get("gambit_cards") or {}).get(role, {})),
             "i_armed": bool(my_pending.get("gambit")),
         },
+        "impact": impact,
     }
 
     out["live"] = g["live"]
@@ -2151,6 +2307,9 @@ def _serialize_auction(role):
     # 2-team back-compat: opp_squad/opp_locked (single opponent, full roster detail)
     opp = others[0] if len(team_ids) == 2 and others else None
 
+    active_teams = [t for t in team_ids if not sq[t]["locked"]]
+    skip_votes = a.get("skip_votes", {})
+
     return {
         "you_role": role, "stage": a["stage"], "message": a["message"],
         "set_id": s["set_id"] if s else None,
@@ -2168,6 +2327,11 @@ def _serialize_auction(role):
         "can_lock": _squad_valid(role) if role else False,
         "pool": a.get("pool"),
         "squad_min": SQUAD_MIN, "squad_max": SQUAD_MAX, "xi_max_os": XI_MAX_OVERSEAS,
+        "skip_set": {
+            "i_voted": bool(skip_votes.get(role)) if role else False,
+            "count": sum(1 for t in active_teams if skip_votes.get(t)),
+            "total": len(active_teams),
+        },
     }
 
 
@@ -2577,6 +2741,33 @@ def pull_out():
         return jsonify({"status": "success"})
 
 
+@app.route("/api/vote_skip_set", methods=["POST"])
+def vote_skip_set():
+    """Vote to skip whatever's left of the CURRENT set. Once every active
+    (unlocked) team has voted yes, the auction jumps straight to the next
+    set -- a one-way vote, like auction_ready, not a toggle."""
+    global GAME
+    with LOCK:
+        token = (request.get_json(silent=True) or {}).get("token", "")
+        GAME = _game_by_token(token)
+        if GAME is None:
+            return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
+        role = _role_of(token)
+        if not role or GAME.get("phase") != "auction":
+            return jsonify({"status": "error", "message": "Not in the auction."}), 400
+        a = GAME["auction"]
+        if a["stage"] not in ("bidding", "resolved"):
+            return jsonify({"status": "error", "message": "Can't vote to skip right now."}), 400
+        if GAME["squads"][role]["locked"]:
+            return jsonify({"status": "error", "message": "Your squad is locked."}), 400
+        a.setdefault("skip_votes", {})[role] = True
+        active = [t for t in GAME["team_ids"] if not GAME["squads"][t]["locked"]]
+        if active and all(a["skip_votes"].get(t) for t in active):
+            _skip_to_next_set()
+        _bump()
+        return jsonify({"status": "success"})
+
+
 @app.route("/api/lock_squad", methods=["POST"])
 def lock_squad():
     """Lock in the squad when it satisfies the auction rules (15-21 players,
@@ -2654,7 +2845,14 @@ def lock_ground():
             return jsonify({"status": "error", "message": "Claim a stadium first."}), 400
         gp[role]["locked"] = True
         if all(gp[t]["locked"] for t in GAME["team_ids"]):
-            _to_xi()
+            if GAME.get("tournament"):
+                # Tournaments pick a fresh XI before EVERY fixture anyway (see
+                # _set_awaiting_xi) -- asking again right after the auction,
+                # before fixture 1 even exists, was a pointless extra step.
+                GAME["phase"] = "match"
+                _start_tournament_matches()
+            else:
+                _to_xi()
         _bump()
         return jsonify({"status": "success"})
 
@@ -2929,6 +3127,32 @@ def free_hit():
             _run_and_route()
         else:
             _bump()
+        return jsonify({"status": "success"})
+
+
+@app.route("/api/impact_sub", methods=["POST"])
+def impact_sub():
+    """One bench-for-XI swap per team, once for the whole match -- see
+    _apply_impact_sub for the exact checkpoints/eligibility rules."""
+    global GAME
+    with LOCK:
+        data = request.get_json(silent=True) or {}
+        token = data.get("token", "")
+        GAME = _game_by_token(token)
+        if GAME is None:
+            return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
+        role = _role_of(token)
+        if role is None or GAME.get("phase") != "match":
+            return jsonify({"status": "error", "message": "Not in a live match."}), 400
+        out_name = data.get("out_name")
+        in_name = data.get("in_name")
+        if not out_name or not in_name:
+            return jsonify({"status": "error", "message": "Pick both an outgoing and incoming player."}), 400
+        try:
+            _apply_impact_sub(role, out_name, in_name)
+        except ValueError as e:
+            return jsonify({"status": "error", "message": str(e)}), 400
+        _bump()
         return jsonify({"status": "success"})
 
 

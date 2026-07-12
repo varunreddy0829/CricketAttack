@@ -21,6 +21,7 @@ const ui = {
     openerPicks: [],
     expandedSquad: null,   // tournament auction: which "other squad" row is expanded, by team_id
     armGambit: false,      // one-shot gambit toggled on for the upcoming over submission
+    impactPick: { in: null, out: null },   // Impact Player overlay: currently-selected in/out names
 };
 
 function getBatterIntent(name) { return name in ui.batterIntents ? ui.batterIntents[name] : 50; }
@@ -723,6 +724,12 @@ function renderGame(state) {
     renderScoreboard(m);
     renderGround(m);
     renderReadyBar(m);
+    // keep the Impact Player overlay's picks in sync if it's open when a poll
+    // lands (e.g. the pool/out-options shift, or the window closes entirely)
+    if (!$('impact-overlay').classList.contains('hidden')) {
+        if (m.impact && m.impact.can_use) renderImpactOverlay(m);
+        else closeImpactOverlay();
+    }
     renderBench(m);
     renderThisOver(m);
     renderOppList(m);
@@ -1024,8 +1031,9 @@ function renderReadyBar(m) {
 
     if (m.stage === 'await_batter') {
         bar.innerHTML = m.i_am_batting
-            ? `<div class="ready-status"><span class="off">Send in a new batsman — tap or drag one from your bench.</span></div>`
+            ? `<div class="ready-status"><span class="off">Send in a new batsman — tap or drag one from your bench.</span></div>${impactButtonHtml(m)}`
             : `<div class="ready-status"><span class="off">Waiting for the batting side to send a new batsman…</span></div>`;
+        if (m.i_am_batting) wireImpactButton();
         return;
     }
 
@@ -1066,11 +1074,13 @@ function renderReadyBar(m) {
             const disabled = !ui.selectedBowler;
             bar.innerHTML =
                 `${gambitToggleHtml(m, 'trap', '🪤 Set Trap')}
+                 ${impactButtonHtml(m)}
                  <button class="btn-go btn-lg" id="btn-ready" ${disabled ? 'disabled' : ''}>Lock In Bowler ✔</button>
                  <span class="ready-status"><span class="off">${disabled ? 'Pick a bowler first' : "Batsmen won't see your intent"}</span></span>`;
             const btn = $('btn-ready');
             if (btn) btn.addEventListener('click', submitOver);
             wireGambitToggle();
+            wireImpactButton();
         }
         return;
     }
@@ -1088,15 +1098,17 @@ function renderReadyBar(m) {
     bar.innerHTML =
         `<span class="ready-status" style="color:var(--gold)">Bowling: ${bn}</span>
          ${gambitToggleHtml(m, 'attack', '⚡ All Out Attack')}
+         ${impactButtonHtml(m)}
          <button class="btn-go btn-lg" id="btn-ready">Set Strategy &amp; Ready ✔</button>`;
     $('btn-ready').addEventListener('click', submitOver);
     wireGambitToggle();
+    wireImpactButton();
 }
 
 // one-shot gambit cards: armed locally, sent (secretly) with the submission
 const GAMBIT_EXPLAIN = {
-    trap: "One-shot: this over, the striker's wicket chance climbs — hardest if they're batting aggressively. Doesn't touch anything else.",
-    attack: "One-shot: this over, your boundary chances (4s and 6s) go up. Doesn't touch anything else.",
+    trap: "One-shot: this over, the striker's wicket chance climbs, taken straight out of their dot-ball chance — hardest if they're batting aggressively, wasted on a blocker. Nothing else changes.",
+    attack: "One-shot: this over, your 4 and 6 chances go up, taken straight out of your dot-ball chance. Nothing else changes — wicket risk is untouched.",
 };
 function gambitToggleHtml(m, kind, label) {
     const avail = m.gambits && m.gambits.available && m.gambits.available[kind];
@@ -1111,6 +1123,71 @@ function wireGambitToggle() {
         ui.armGambit = !ui.armGambit;
         if (CURRENT) renderGame(CURRENT);
     });
+}
+
+// ---------- Impact Player: one bench-for-XI swap per team, once per match ----------
+function impactButtonHtml(m) {
+    if (!m.impact) return '';
+    if (m.impact.used) return `<span class="gambit-btn used" title="${m.impact.swap_text || 'Already used this match'}">🔄 Impact Player — used</span>`;
+    if (!m.impact.can_use) return '';
+    return `<button class="gambit-btn" id="btn-impact">🔄 Impact Player</button>`;
+}
+
+function wireImpactButton() {
+    const b = $('btn-impact');
+    if (b) b.addEventListener('click', openImpactOverlay);
+}
+
+function openImpactOverlay() {
+    ui.impactPick = { in: null, out: null };
+    renderImpactOverlay(CURRENT.match);
+    $('impact-overlay').classList.remove('hidden');
+}
+
+function closeImpactOverlay() {
+    $('impact-overlay').classList.add('hidden');
+}
+
+function renderImpactOverlay(m) {
+    const imp = m.impact || { pool: [], out_options: [] };
+    const inCards = imp.pool.map(p => pcard(p, {
+        ovr: Math.max(p.batting_ovr, p.bowling_ovr), selectable: true,
+        selected: ui.impactPick.in === p.name, attrs: `data-impact-in="${p.name}"`,
+    })).join('') || '<div class="bench-empty">No bench players available.</div>';
+    const outCards = imp.out_options.map(p => pcard(p, {
+        ovr: Math.max(p.batting_ovr, p.bowling_ovr), selectable: true,
+        selected: ui.impactPick.out === p.name, attrs: `data-impact-out="${p.name}"`,
+    })).join('') || '<div class="bench-empty">No one eligible to replace right now.</div>';
+    const ready = ui.impactPick.in && ui.impactPick.out;
+    $('impact-card').innerHTML = `
+        <h2>🔄 Bring On Your Impact Player</h2>
+        <div class="sub">One-shot for the whole match — pick who comes IN, then who they replace.</div>
+        <h4 style="margin-top:1rem;">Bring In</h4>
+        <div class="xi-list">${inCards}</div>
+        <h4 style="margin-top:1rem;">Replaces</h4>
+        <div class="xi-list">${outCards}</div>
+        <div style="display:flex; margin-top:1rem; justify-content:center; gap:0.8rem; flex-wrap:wrap;">
+            <button class="btn-go btn-lg" id="impact-confirm" ${ready ? '' : 'disabled'}>Confirm Swap</button>
+            <button class="btn-ghost" id="impact-cancel">Cancel</button>
+        </div>`;
+    $('impact-card').querySelectorAll('[data-impact-in]').forEach(el =>
+        el.addEventListener('click', () => { ui.impactPick.in = el.dataset.impactIn; renderImpactOverlay(m); }));
+    $('impact-card').querySelectorAll('[data-impact-out]').forEach(el =>
+        el.addEventListener('click', () => { ui.impactPick.out = el.dataset.impactOut; renderImpactOverlay(m); }));
+    const confirmBtn = $('impact-confirm');
+    if (confirmBtn) confirmBtn.addEventListener('click', confirmImpactSub);
+    $('impact-cancel').addEventListener('click', closeImpactOverlay);
+}
+
+async function confirmImpactSub() {
+    if (!ui.impactPick.in || !ui.impactPick.out) return;
+    try {
+        await Net.post('/api/impact_sub', {
+            token: Net.getToken(), in_name: ui.impactPick.in, out_name: ui.impactPick.out,
+        });
+        closeImpactOverlay();
+        Net.forceRefresh();
+    } catch (e) { toast(e.message); }
 }
 
 async function submitOver() {
@@ -1675,6 +1752,16 @@ function renderAuction(state) {
         $('auc-set').textContent = a.set_id ? `Set ${a.set_id}: ${a.tier} ${a.role_name}s` : 'Auction';
     }
 
+    // Every poll (bid, timer tick, opponent ready...) rebuilds this whole
+    // panel, which yanks any scroll position back to the top -- most
+    // noticeable while scrolling the pool list during the 'preview' stage.
+    // auc-center scrolls internally on desktop (overflow-y: auto); on mobile
+    // auc-main itself is the scrolling element instead -- preserve both.
+    const centerEl = $('auc-center');
+    const mainEl = document.querySelector('.auc-main');
+    const prevCenterScroll = centerEl ? centerEl.scrollTop : 0;
+    const prevMainScroll = mainEl ? mainEl.scrollTop : 0;
+
     $('auc-my').className = 'squad-panel me';
     $('auc-opp').className = 'squad-panel opp';
     $('auc-my').innerHTML = squadPanel(a.my_squad, true, a);
@@ -1684,9 +1771,12 @@ function renderAuction(state) {
     if (!a.opp_squad) wireOtherSquads();
     animatePurseValues($('auc-my'));
     animatePurseValues($('auc-opp'));
-    $('auc-center').innerHTML = auctionCenter(a, me);
+    centerEl.innerHTML = auctionCenter(a, me);
     wireAuctionCenter(a, me);
     maybeFlashRivalBid(a, me);
+
+    centerEl.scrollTop = prevCenterScroll;
+    if (mainEl) mainEl.scrollTop = prevMainScroll;
 
     // Always render full pool into the new tab -- every poll rebuilds this
     // (bids, timer ticks, sales...), so explicitly preserve scroll position
@@ -1841,6 +1931,13 @@ function lockBlock(a) {
     return '';
 }
 
+function skipSetBlock(a) {
+    if (a.my_locked || !a.skip_set) return '';
+    const sv = a.skip_set;
+    if (sv.i_voted) return `<div class="auc-holder">⏭ Voted to skip this set (${sv.count}/${sv.total})</div>`;
+    return `<button class="btn-ghost" id="auc-skip-set">⏭ Vote to skip this set (${sv.count}/${sv.total})</button>`;
+}
+
 function auctionCenter(a, me) {
     const instr = instructionsHtml(a);
 
@@ -1867,11 +1964,16 @@ function auctionCenter(a, me) {
         // pulled out, the leader could pull out too and force the lot
         // unsold for free instead of paying the bid they'd otherwise win.
         const pullOutBtn = iAmLeading ? '' : '<button class="btn-red" id="bid-out">I\'m Out</button>';
+        // Marquee lots open big (₹2 Cr) and usually move in big jumps early on --
+        // +0.1 only clutters that. It shows up once the bid actually gets
+        // expensive (>₹10 Cr), where fine control starts to matter. Every
+        // other tier keeps +0.1 available from the start.
+        const showTenth = a.tier !== 'Marquee' || a.current_bid > 10;
         const controls = (a.out[me] || a.my_locked)
             ? `<div class="auc-holder">${a.my_locked ? 'Your squad is locked — sitting out.' : 'You pulled out of this lot.'}</div>`
             : `<div class="bid-controls">
                  <div class="quick-adds">
-                   <button data-bid="0.1">+0.1</button><button data-bid="0.2">+0.2</button>
+                   ${showTenth ? '<button data-bid="0.1">+0.1</button>' : ''}<button data-bid="0.2">+0.2</button>
                    <button data-bid="0.5">+0.5</button><button data-bid="1">+1</button>
                    <button data-bid="2">+2</button><button data-bid="5">+5</button>
                    <button data-bid="10">+10</button>
@@ -1891,7 +1993,8 @@ function auctionCenter(a, me) {
             <div class="auc-holder">${holder}</div>
             <div class="auc-msg" style="color:var(--leather); min-height:1rem">${strikeTxt}</div>
             ${controls}
-            ${lockBlock(a)}`;
+            ${lockBlock(a)}
+            ${skipSetBlock(a)}`;
     }
 
     if (a.stage === 'resolved') {
@@ -1908,7 +2011,8 @@ function auctionCenter(a, me) {
             + stampCard
             + `<div class="auc-msg" style="font-size:1.5rem; color:${col}">${a.message}</div>`
             + lockBlock(a)
-            + readyBlock(a, me, 'Ready for Next Lot');
+            + readyBlock(a, me, 'Ready for Next Lot')
+            + skipSetBlock(a);
     }
 
     // done
@@ -1945,6 +2049,7 @@ function wireAuctionCenter(a, me) {
     });
     const out = $('bid-out'); if (out) out.addEventListener('click', () => aucAction('/api/pull_out'));
     const lk = $('auc-lock'); if (lk) lk.addEventListener('click', () => aucAction('/api/lock_squad'));
+    const skip = $('auc-skip-set'); if (skip) skip.addEventListener('click', () => aucAction('/api/vote_skip_set'));
 }
 
 async function aucAction(path, body = {}) {
@@ -1990,9 +2095,10 @@ function renderGrounds(state) {
 }
 
 function renderXI(state) {
-    // Same screen serves two callers: the once-per-tournament pre-match XI
-    // (state.xi) and the fresh per-fixture reselect (state.fixture_xi) --
-    // only the data source and API endpoints differ.
+    // Same screen serves two callers: the plain 1v1 game's one-time XI pick
+    // (state.xi) and a tournament's per-fixture reselect (state.fixture_xi,
+    // used for EVERY fixture including the first) -- only the data source
+    // and API endpoints differ.
     const isFixture = !!state.fixture_xi;
     const x = isFixture ? state.fixture_xi : state.xi;
     const eps = isFixture
