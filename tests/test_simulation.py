@@ -95,7 +95,7 @@ class TestCricketMathEngine(unittest.TestCase):
         self.assertAlmostEqual(sum(w3.values()), 1000.0, places=4)
 
     def test_conditions_stage_probability_sum(self):
-        """Stage 3.5 (pitch/phase/pressure/gambits) must conserve the 1000 sum
+        """Stage 3.5 (pitch/phase/gambits) must conserve the 1000 sum
         for every combination of conditions, and be a no-op without context."""
         from src.engine.conditions import apply_conditions
         w1 = apply_stage1_ovr(BASELINE_WEIGHTS, self.kohli, self.bumrah)
@@ -108,16 +108,15 @@ class TestCricketMathEngine(unittest.TestCase):
         for pitch in [None, "dusty", "green", "flat", "slow"]:
             for style in ["Pace", "Spin"]:
                 for over_num in [0, 8, 17]:
-                    for pressure in [0, 3, 6]:
-                        for attack, trap in [(False, False), (True, False), (False, True), (True, True)]:
-                            ctx = {"pitch": pitch, "bowler_style": style, "over_num": over_num,
-                                   "pressure": pressure, "attack_gambit": attack,
-                                   "trap_gambit": trap, "striker_intent": 75}
-                            wc = apply_conditions(w3, ctx)
-                            self.assertAlmostEqual(sum(wc.values()), 1000.0, places=4,
-                                                   msg=f"conservation broke for {ctx}")
-                            for v in wc.values():
-                                self.assertGreaterEqual(v, 0.0)
+                    for attack, trap in [(False, False), (True, False), (False, True), (True, True)]:
+                        ctx = {"pitch": pitch, "bowler_style": style, "over_num": over_num,
+                               "attack_gambit": attack,
+                               "trap_gambit": trap, "striker_intent": 75}
+                        wc = apply_conditions(w3, ctx)
+                        self.assertAlmostEqual(sum(wc.values()), 1000.0, places=4,
+                                               msg=f"conservation broke for {ctx}")
+                        for v in wc.values():
+                            self.assertGreaterEqual(v, 0.0)
 
     def test_conditions_directionality(self):
         """Spot-check the intended direction of each effect (after renormalizing,
@@ -141,11 +140,6 @@ class TestCricketMathEngine(unittest.TestCase):
         middle = apply_conditions(base, {"over_num": 8})
         self.assertGreater(share(death, "6"), share(middle, "6"))
         self.assertGreater(share(death, "Out"), share(middle, "Out"))
-
-        # pressure: more stacked dots -> higher Out share
-        p0 = apply_conditions(base, {"pressure": 0})
-        p5 = apply_conditions(base, {"pressure": 5})
-        self.assertGreater(share(p5, "Out"), share(p0, "Out"))
 
         # trap gambit: brutal vs aggression, wasted vs a blocker
         trap_aggr = apply_conditions(base, {"trap_gambit": True, "striker_intent": 90})

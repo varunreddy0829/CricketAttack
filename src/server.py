@@ -328,7 +328,6 @@ def _fresh_game(num_teams=2):
         "xi_select": None,
         "ground_pick": None,      # phase == "grounds": {team: {"ground": id|None, "locked": bool}}
         "match_ground": None,     # stadium dict for the CURRENT match (set at match start)
-        "pressure": 0,            # consecutive-dot pressure counter (per innings)
         "gambit_cards": None,     # {team: {"attack": bool_available, "trap": bool_available}} per match
         "tournament": None,   # populated only for tournament games (see _start_tournament)
     }
@@ -485,7 +484,6 @@ def _prepare_innings(batting_side, target=None, keep_this_over=False):
     g["used_batters"] = []
     g["vacant_slot"] = "striker"   # which crease slot set_next_batter should fill
     g["next_ball_free_hit"] = False
-    g["pressure"] = 0              # consecutive-dot pressure resets each innings
     g["free_hit"] = {"active": False, "batting_ready": False, "bowling_ready": False,
                      "striker_intent": 50, "non_striker_intent": 50, "bowl_intent": 50}
     _reset_pending()
@@ -669,7 +667,6 @@ def _simulate_until_pause():
             kind = "wide" if is_wide else "noball"
             _emit(ball_no, "extra", _say(kind, striker.name, bowler.name),
                   outcome=("Wd" if is_wide else "Nb"))
-            g["pressure"] = max(0, g["pressure"] - 1)   # a freebie releases some squeeze
             if g["target"] is not None and state.runs >= g["target"]:
                 return "innings_over"
             if not is_wide:
@@ -690,13 +687,12 @@ def _simulate_until_pause():
             bowler.intent = fh["bowl_intent"]
 
         # match conditions for THIS ball: home-ground pitch vs bowler style,
-        # innings phase, accumulated dot-ball pressure, and any armed gambits
+        # innings phase, and any armed gambits
         # (striker.intent is already the effective value, incl. free-hit override)
         ctx = {
             "pitch": (g.get("match_ground") or {}).get("pitch"),
             "bowler_style": bowler.style,
             "over_num": state.balls // 6,
-            "pressure": g["pressure"],
             "attack_gambit": ao.get("attack_gambit"),
             "trap_gambit": ao.get("trap_gambit"),
             "striker_intent": striker.intent,
@@ -711,7 +707,6 @@ def _simulate_until_pause():
         if outcome == "Out" and free_ball:
             # can't be dismissed on a free hit (bowled/caught) -> treated as a dot
             _emit(ball_no, "run", fh_prefix + "Beaten, but not out on the free hit — no run.", outcome="0")
-            g["pressure"] += 1
         elif outcome == "Out":
             row["out"] = True
             row["how_out"] = f"b {bowler.name}"
@@ -725,7 +720,6 @@ def _simulate_until_pause():
             bc["last_ball_wicket"] = True
             if bc["consec_wkts"] == 3:
                 _emit(ball_no, "milestone", f"🎩 HAT-TRICK! {bowler.name} takes three wickets in a row!", outcome="HT")
-            g["pressure"] = 0   # the squeeze got its wicket; the new batter starts fresh
             state.handle_wicket()
             g["vacant_slot"] = "striker"   # the batter facing the ball is always the striker
             if state.is_all_out():
@@ -749,14 +743,6 @@ def _simulate_until_pause():
                 _emit(ball_no, "milestone", f"🎉 FIFTY! {striker.name} brings up his half-century!", outcome="50")
             elif prev_runs < 100 <= row["runs"]:
                 _emit(ball_no, "milestone", f"💯 CENTURY! {striker.name} reaches three figures!", outcome="100")
-            # dot-ball pressure: dots stack it, boundaries burst it, rotating
-            # the strike bleeds it off one notch
-            if runs == 0:
-                g["pressure"] += 1
-            elif runs in (4, 6):
-                g["pressure"] = 0
-            else:
-                g["pressure"] = max(0, g["pressure"] - 1)
             label = "boundary" if runs in (4, 6) else "run"
             if free_ball and runs == 0:
                 text = _say("free_dot", striker.name, bowler.name)   # swing-and-miss, not a block
@@ -1968,7 +1954,6 @@ def _serialize_spectator_view():
         "this_over": g.get("this_over", []),
         "stage": g.get("stage"),
         "ground": _ground_view(),
-        "pressure": g.get("pressure", 0),
     }
 
 
@@ -2353,7 +2338,6 @@ def _serialize(token):
         "result": g["result"],
         "motm": g.get("motm"),
         "ground": _ground_view(),
-        "pressure": g.get("pressure", 0),
         "phase_label": phase_for_over(st.balls // 6),
         # own gambit availability + whether one is armed in my pending
         # submission; the opponent's is NEVER exposed pre-resolution (the

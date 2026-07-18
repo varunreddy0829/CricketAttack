@@ -20,7 +20,7 @@ def calculate_single_ball(striker: Batter, bowler: Bowler, league_avg: dict, con
     Runs the striker and bowler through the math engine pipeline.
     Returns the resolved delivery outcome (e.g. '0', '1', '2', '3', '4', '5', '6', 'Out').
     `context` (optional) carries match conditions — pitch, innings phase,
-    pressure, gambits (see conditions.apply_conditions); None skips the stage.
+    gambits (see conditions.apply_conditions); None skips the stage.
     """
     # Stage 1: OVR Strength Adjustment (starts from the shared global baseline --
     # no per-batter DNA stage; see BASELINE_WEIGHTS' comment in stats_calculator.py)
@@ -32,7 +32,7 @@ def calculate_single_ball(striker: Batter, bowler: Bowler, league_avg: dict, con
     # Stage 3: Wicket Factor Adjustment
     weights_s3 = apply_stage3_wicket_factor(weights_s2, striker, bowler, league_avg)
 
-    # Stage 3.5: Match conditions (pitch, phase, pressure, gambits)
+    # Stage 3.5: Match conditions (pitch, phase, gambits)
     weights_c = apply_conditions(weights_s3, context)
 
     # Stage 4: Intent Meter Adjustment (always last)

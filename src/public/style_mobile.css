@@ -477,7 +477,6 @@ button:disabled {
 .phase-chip { display: inline-block; font-family: 'Oswald', sans-serif; font-size: 0.66rem; letter-spacing: 0.06em; padding: 1px 8px; border-radius: 10px; margin-left: 0.4rem; }
 .phase-chip.powerplay { background: var(--board-amber); color: #241d00; }
 .phase-chip.death { background: var(--leather); color: #fff; }
-.pressure-meter { font-size: 0.7rem; color: var(--leather); margin-left: 0.5rem; letter-spacing: 0.12em; }
 
 .gambit-btn { background: transparent; border: 1px dashed var(--gold); color: var(--gold); border-radius: 20px; padding: 0.45rem 0.9rem; font-size: 0.78rem; cursor: pointer; }
 .gambit-btn.armed { background: var(--gold); color: #241d00; border-style: solid; box-shadow: 0 0 10px var(--gold); }

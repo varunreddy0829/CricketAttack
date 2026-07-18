@@ -843,9 +843,6 @@ function renderScoreboard(m) {
     }
     const phaseChip = m.phase_label && m.phase_label !== 'middle'
         ? `<span class="phase-chip ${m.phase_label}">${m.phase_label === 'powerplay' ? '⚡ POWERPLAY' : '🔥 DEATH OVERS'}</span>` : '';
-    const pressure = Math.min(m.pressure || 0, 6);
-    const pressureHtml = pressure > 0
-        ? `<span class="pressure-meter" title="Dot-ball pressure — wicket chance climbing!">${'●'.repeat(pressure)}${'○'.repeat(6 - pressure)} pressure</span>` : '';
     $('scoreboard').innerHTML = `
         <div>
             <div class="sb-team" style="${m.batting_team_color ? `color:${m.batting_team_color}` : ''}">${m.batting_team_name}</div>
@@ -853,7 +850,7 @@ function renderScoreboard(m) {
             <div class="sb-meta">Overs ${m.overs} / ${m.max_overs} &middot; Extras ${m.extras}</div>
             ${m.ground ? `<div class="sb-meta sb-ground">🏟 ${m.ground.name} &middot; <span class="pitch-chip ${m.ground.pitch}">${m.ground.pitch} pitch</span></div>` : ''}
         </div>
-        <div class="sb-meta">bowling: <span style="${m.bowling_team_color ? `color:${m.bowling_team_color}` : ''}">${m.bowling_team_name}</span> ${phaseChip} ${pressureHtml}</div>
+        <div class="sb-meta">bowling: <span style="${m.bowling_team_color ? `color:${m.bowling_team_color}` : ''}">${m.bowling_team_name}</span> ${phaseChip}</div>
         ${target}`;
 }
 
