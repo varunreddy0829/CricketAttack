@@ -1111,8 +1111,8 @@ function renderReadyBar(m) {
 
 // one-shot gambit cards: armed locally, sent (secretly) with the submission
 const GAMBIT_EXPLAIN = {
-    trap: "One-shot: this over, the striker's wicket chance climbs, taken straight out of their dot-ball chance — hardest if they're batting aggressively, wasted on a blocker. Nothing else changes.",
-    attack: "One-shot: this over, your 4 and 6 chances go up, taken straight out of your dot-ball chance. Nothing else changes — wicket risk is untouched.",
+    trap: "One-shot: this over, the striker's wicket chance climbs (hardest if they're batting aggressively, wasted on a blocker) and their 4/6 chance drops. 1s, 2s and dot-ball chance are untouched.",
+    attack: "One-shot: this over, your 4 and 6 chances go up and your wicket risk drops. 1s, 2s and dot-ball chance are untouched.",
 };
 function gambitToggleHtml(m, kind, label) {
     const avail = m.gambits && m.gambits.available && m.gambits.available[kind];

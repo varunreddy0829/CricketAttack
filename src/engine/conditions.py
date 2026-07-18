@@ -10,13 +10,13 @@
 # style matches; "all" applies regardless of who's bowling.
 PITCH_EFFECTS = {
     "dusty": {
-        "vs_spin": {"Out": 1.18, "0": 1.08},
-        "vs_pace": {"Out": 0.92},
+        "vs_spin": {"Out": 1.12, "0": 1.08},
+        "vs_pace": {"Out": 0.96},
         "all": {"4": 0.92, "6": 0.92},
     },
     "green": {
-        "vs_pace": {"Out": 1.18, "0": 1.08},
-        "vs_spin": {"Out": 0.92},
+        "vs_pace": {"Out": 1.12, "0": 1.08},
+        "vs_spin": {"Out": 0.96},
         "all": {"4": 0.95},
     },
     "flat": {
@@ -24,7 +24,10 @@ PITCH_EFFECTS = {
     },
     "slow": {
         "vs_spin": {"Out": 1.08},
-        "all": {"4": 0.88, "6": 0.85, "0": 1.12, "1": 1.05},
+        # 4/6 cut hard; 1/2 bumped up more than 0 -- still genuinely
+        # low-scoring (no boundaries), but the ball stays in play for a
+        # single/double more often than it just dies as a dot.
+        "all": {"4": 0.88, "6": 0.85, "0": 1.06, "1": 1.12, "2": 1.12},
     },
 }
 
@@ -43,20 +46,25 @@ PHASE_EFFECTS = {
 PRESSURE_OUT_PER_DOT = 0.05
 PRESSURE_CAP = 6
 
-# Gambits: one-shot per-match cards, armed secretly with the over submission.
-# Each is a DIRECT transfer of weight out of '0' into the buffed stat(s) --
-# not a plain multiply left for the final renormalization to sort out, which
-# would have quietly shaved a bit off every other category too (including
-# the ones a gambit is explicitly supposed to leave alone, like Out on
-# Attack or 4/5/6 on Trap). See _apply_gambit_* below.
-GAMBIT_ATTACK_BOOST = 1.5   # '4' and '6' each get 50% more weight, paid for by '0'
+# Gambits: one-shot per-match cards, armed secretly with the over submission,
+# in effect for exactly the one over they're used on. Each applies two
+# EXACT, independent, percentage adjustments -- a boost to its side's stat
+# and a cut to the opposing side's -- then settles whatever's left over
+# against '0', the one flexible bucket every gambit draws from or returns to.
+# 1/2/3/5 (and, for Attack, nothing else on the bowling side; for Trap,
+# nothing else on the batting side) are never touched. See _apply_gambit_*.
+GAMBIT_ATTACK_BOOST = 1.5     # '4' and '6' each get 50% more weight
+GAMBIT_ATTACK_OUT_CUT = 0.25  # Out drops by 25% on top
 # Trap Set reads the striker's effective intent for the ball: punishes
 # aggression hard, mildly pressures neutral play, and is wasted on blockers
 # (intent<=40 actually GIVES weight back to '0' -- a trap sprung on a
-# blocker is a wasted card, not a bonus).
+# blocker is a wasted card, not a bonus). The boundary cut is flat regardless
+# of intent -- it's the bowler's field/plan containing the shot, not a read
+# on the batter.
 TRAP_VS_AGGRESSIVE = 1.6   # striker intent >= 60
 TRAP_VS_NEUTRAL = 1.2
 TRAP_VS_DEFENSIVE = 0.75   # striker intent <= 40
+GAMBIT_TRAP_BOUNDARY_CUT = 0.25   # '4' and '6' each drop by 25% on top
 
 
 def phase_for_over(over_num):
@@ -73,29 +81,26 @@ def _apply_mults(weights, mults):
             weights[k] *= m
 
 
-def _transfer(w, src, dst_delta):
-    """Move exactly sum(dst_delta.values()) of weight from w[src] into the
-    dst keys (each grown by its own delta) -- a true zero-sum swap between
-    two specific buckets, immune to whatever the final global renormalize
-    does to everything else. Caps at what `src` actually has (only matters
-    in extreme edge cases where an earlier stage already crushed it)."""
-    need = sum(dst_delta.values())
-    if need <= 0:
-        w[src] = w.get(src, 0) - need   # negative need = giving weight back to src
-        for k, d in dst_delta.items():
-            w[k] = w.get(k, 0) + d
-        return
-    take = min(w.get(src, 0), need)
-    scale = take / need if need else 0
-    for k, d in dst_delta.items():
-        w[k] = w.get(k, 0) + d * scale
-    w[src] = w.get(src, 0) - take
+def _settle_with_zero(w, net_change):
+    """Whatever a gambit's direct boost/cut doesn't already balance out gets
+    settled against '0' -- taken from it if the net change needs funding,
+    or returned to it if the cut alone overshoots. Keeps the total exactly
+    conserved without touching any key beyond the ones already adjusted."""
+    if net_change >= 0:
+        take = min(w.get("0", 0), net_change)
+        w["0"] = w.get("0", 0) - take
+    else:
+        w["0"] = w.get("0", 0) + (-net_change)
 
 
 def _apply_gambit_attack(w):
     add4 = w["4"] * (GAMBIT_ATTACK_BOOST - 1)
     add6 = w["6"] * (GAMBIT_ATTACK_BOOST - 1)
-    _transfer(w, "0", {"4": add4, "6": add6})
+    cut_out = w["Out"] * GAMBIT_ATTACK_OUT_CUT
+    w["4"] += add4
+    w["6"] += add6
+    w["Out"] -= cut_out
+    _settle_with_zero(w, (add4 + add6) - cut_out)
 
 
 def _apply_gambit_trap(w, intent):
@@ -106,7 +111,12 @@ def _apply_gambit_trap(w, intent):
     else:
         mult = TRAP_VS_NEUTRAL
     add_out = w["Out"] * (mult - 1)   # negative when mult < 1 (wasted on a blocker)
-    _transfer(w, "0", {"Out": add_out})
+    cut4 = w["4"] * GAMBIT_TRAP_BOUNDARY_CUT
+    cut6 = w["6"] * GAMBIT_TRAP_BOUNDARY_CUT
+    w["Out"] += add_out
+    w["4"] -= cut4
+    w["6"] -= cut6
+    _settle_with_zero(w, add_out - (cut4 + cut6))
 
 
 def apply_conditions(weights, ctx):
