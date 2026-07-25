@@ -30,6 +30,79 @@ baseline; better grid keeps the surplus) and a mismatch lets both land. The
 bucket negative is clamped to 0 and renormalised (the "dot floor" backstop).
 """
 
+# --- Stage 4: mode presets — the raw intent CHOICE, same for every player ---
+# Three fixed presets per side replacing the old 0-100 slider. They move ALL
+# probabilities including Out (risk scales with aggression), with dots
+# absorbing the imbalance. Skill plays no part here — that's Stage 5's job.
+#
+# Batting ("what am I trying to do this over"):
+#   attack: all runs up, boundaries most, Out up 25% — dots gutted.
+#   rotate: 1s/2s up, paid partly by boundaries (not going aerial), tiny Out up.
+#   defend: everything scoring down, Out down 20% — dots pile up.
+BAT_MODE_MULTS = {
+    "attack": {"1": 1.06, "2": 1.12, "4": 1.33, "6": 1.33, "Out": 1.25},
+    "rotate": {"1": 1.25, "2": 1.20, "4": 0.85, "6": 0.85, "Out": 1.08},
+    "defend": {"1": 1.06, "2": 1.00, "4": 0.65, "6": 0.60, "Out": 0.80},
+}
+# Bowling:
+#   attack : hunt the wicket (Out +30%) but leak runs doing it (4/6 up too).
+#   contain: field in the ring — 1s/2s choked, Out down (not attacking), but
+#            the aerial route over the ring opens slightly (4/6 up a touch).
+#   defend : guard the boundary — 4/6 cut hard, the freed weight is CONCEDED
+#            as 70% singles / 30% twos (not dots); Out down a touch -> dots.
+BOWL_MODE_MULTS = {
+    "attack": {"1": 1.05, "4": 1.18, "6": 1.17, "Out": 1.30},
+    "contain": {"1": 0.80, "2": 0.85, "4": 1.10, "6": 1.08, "Out": 0.90},
+}
+BOWL_DEFEND_CUT_4 = 0.30      # boundary weight removed
+BOWL_DEFEND_CUT_6 = 0.33
+BOWL_DEFEND_TO_ONES = 0.70    # where the freed boundary weight goes
+BOWL_DEFEND_TO_TWOS = 0.30
+BOWL_DEFEND_OUT_CUT = 0.06    # small Out cut -> dots
+
+
+def _apply_mode_mults(w, mults):
+    """Multiply the listed buckets; dots absorb the net change (clamped >= 0)."""
+    delta = 0.0
+    for k, m in mults.items():
+        add = w[k] * (m - 1.0)
+        w[k] += add
+        delta += add
+    w["0"] = max(0.0, w["0"] - delta)
+
+
+def _apply_bowl_defend_mode(w):
+    """Boundary cut routed into conceded singles/twos; Out cut -> dots."""
+    cut4 = w["4"] * BOWL_DEFEND_CUT_4
+    cut6 = w["6"] * BOWL_DEFEND_CUT_6
+    w["4"] -= cut4
+    w["6"] -= cut6
+    freed = cut4 + cut6
+    w["1"] += freed * BOWL_DEFEND_TO_ONES
+    w["2"] += freed * BOWL_DEFEND_TO_TWOS
+    cut_out = w["Out"] * BOWL_DEFEND_OUT_CUT
+    w["Out"] -= cut_out
+    w["0"] += cut_out
+
+
+def apply_modes(weights, bat_mode=None, bowl_mode=None):
+    """Stage 4 — apply the batting preset then the bowling preset (sequential,
+    like the old slider). Conserves the incoming sum; 3s/5s untouched."""
+    w = {k: float(v) for k, v in weights.items()}
+    total = sum(w.values())
+    if bat_mode in BAT_MODE_MULTS:
+        _apply_mode_mults(w, BAT_MODE_MULTS[bat_mode])
+    if bowl_mode == "defend":
+        _apply_bowl_defend_mode(w)
+    elif bowl_mode in BOWL_MODE_MULTS:
+        _apply_mode_mults(w, BOWL_MODE_MULTS[bowl_mode])
+    s = sum(w.values())
+    if s > 0 and abs(s - total) > 1e-9:
+        w = {k: v / s * total for k, v in w.items()}
+    return w
+
+
+# --- Stage 5: Playstyle-Grid bonus — pure upside for SPECIALISTS ------------
 # Per-role ceilings for the advantage formula. Attack/Defend reach 0.5 (a x1.5
 # boundary boost / a halved Out); Rotate is gentler at 0.25 (singles are the
 # biggest base, so x1.25 is already a large absolute move — see design note).

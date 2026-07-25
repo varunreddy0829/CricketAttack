@@ -11,7 +11,7 @@ from src.engine.stats_calculator import (
 )
 from src.engine.intent_handler import apply_intents
 from src.engine.conditions import apply_conditions
-from src.engine.roles import apply_roles
+from src.engine.roles import apply_modes, apply_roles
 
 # Independent extras master probability configuration
 EXTRAS_PROB = 0.04  # 4% chance of an extra (Wide or No Ball)
@@ -36,13 +36,21 @@ def calculate_single_ball(striker: Batter, bowler: Bowler, league_avg: dict, con
     # Stage 3.5: Match conditions (pitch, phase, gambits)
     weights_c = apply_conditions(weights_s3, context)
 
-    # Stage 4: roles (always last). If the caller supplies roles + phase grids
-    # in the context, the batter/bowler role transfers replace the old intent
-    # slider; otherwise we fall back to the intent meters so legacy callers
-    # (and the CLI) keep working unchanged.
+    # Stage 4 + 5: roles. Stage 4 (apply_modes) is the raw intent CHOICE —
+    # three fixed presets per side that move ALL probabilities including Out,
+    # identically for every player (the old slider, reduced to 3 options).
+    # Stage 5 (apply_roles) then adds the Playstyle-Grid bonus on top: pure
+    # upside for specialists (elite attacker's 4/6 x1.5 from dots, Out
+    # untouched; bowler mirror). Legacy callers without roles fall back to
+    # the intent meters unchanged.
     if context and context.get("bat_role"):
-        final_weights = apply_roles(
+        weights_m = apply_modes(
             weights_c,
+            bat_mode=context.get("bat_role"),
+            bowl_mode=context.get("bowl_role"),
+        )
+        final_weights = apply_roles(
+            weights_m,
             bat_role=context.get("bat_role"),
             bat_grid=context.get("bat_grid", 50),
             bowl_role=context.get("bowl_role"),

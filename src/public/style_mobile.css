@@ -786,6 +786,7 @@ button:disabled {
 /* compact cards inside the oval so they don't spill past the curve */
 .ground .pcard {
     width: 150px;
+    min-height: 108px;
 }
 
 .ground .pcard .pcard-body {
@@ -802,12 +803,13 @@ button:disabled {
 }
 
 .ground .pcard.is-empty {
-    min-height: 96px;
+    min-height: 104px;
 }
 
 /* Player card (placeholder) */
 .pcard {
     width: 170px;
+    min-height: 118px;
     background: linear-gradient(180deg, #fffdf6, var(--cream-2));
     color: var(--ink);
     border-radius: 8px;
@@ -1023,10 +1025,57 @@ button:disabled {
 }
 .role-btn .role-ico { font-size: 1.05rem; }
 .role-btn .role-lbl { font-size: 0.6rem; letter-spacing: .02em; text-transform: uppercase; opacity: .82; }
-.role-btn .role-grade { font-size: 0.72rem; font-weight: 700; color: #c9b98e; }
-.role-btn .role-grade.elite { color: #7CFC7C; }
-.role-btn .role-grade.good { color: #ddc985; }
-.role-btn .role-grade.weak { color: #c07a6b; }
+
+/* the little "?" role explainer — floats over the ground, takes no layout space */
+#role-help-btn {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    z-index: 30;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    background: rgba(0, 0, 0, 0.45);
+    color: #eae0c8;
+    font-weight: 700;
+    font-size: 0.85rem;
+    line-height: 1;
+    cursor: pointer;
+}
+#role-help-panel {
+    display: none;
+    position: absolute;
+    top: 38px;
+    right: 8px;
+    z-index: 29;
+    width: min(260px, 78vw);
+    background: rgba(12, 24, 16, 0.96);
+    border: 1px solid rgba(255, 212, 121, 0.45);
+    border-radius: var(--radius);
+    padding: 0.55rem 0.65rem;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+}
+#role-help-panel.open { display: block; }
+#role-help-panel .rh-title {
+    font-size: 0.62rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #ffd479;
+    margin-bottom: 0.35rem;
+}
+#role-help-panel .rh-row {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    margin-bottom: 0.4rem;
+    font-size: 0.72rem;
+    line-height: 1.3;
+    color: #eae0c8;
+}
+#role-help-panel .rh-row b { font-size: 0.74rem; }
+#role-help-panel .rh-row span { opacity: 0.85; }
+#role-help-panel .rh-row:last-child { margin-bottom: 0; }
 .role-btn.on {
     background: linear-gradient(180deg, #e0a53a, #c8801f);
     border-color: #ffd479;

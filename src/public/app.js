@@ -26,6 +26,7 @@ const ui = {
     expandedSquad: null,   // tournament auction: which "other squad" row is expanded, by team_id
     armGambit: false,      // one-shot gambit toggled on for the upcoming over submission
     impactPick: { in: null, out: null },   // Impact Player overlay: currently-selected in/out names
+    roleHelpOpen: false,   // the little "what do the roles do?" popover
 };
 
 function getBatterIntent(name) { return name in ui.batterIntents ? ui.batterIntents[name] : 50; }
@@ -970,21 +971,44 @@ function emptySlot(text, dropAttrs = '') {
     return `<div class="pcard is-empty" ${dropAttrs}>${text}</div>`;
 }
 
-// Role picker (replaces the intent slider). `fit` is the player's 3x3 grid
-// (style_fit for batters, bowl_fit for bowlers); `phKey` the current phase, so
-// each button shows the player's 0-99 grade for that role right now.
+// Role picker (replaces the intent slider). The player's 0-99 grid grade for
+// each role stays hidden — the engine uses it (Stage 5 bonus), the buttons
+// deliberately don't show it (players read skill off the card's flip side).
 function roleButtons(kind, selected, disabled, fit, phKey, defs, batterName) {
     const batterAttr = batterName ? ` data-rolebatter="${batterName}"` : '';
-    const cells = (fit && fit[phKey]) || {};
     const btns = defs.map(d => {
-        const g = cells[d.cell];
-        const grade = (g != null)
-            ? `<span class="role-grade ${g >= 85 ? 'elite' : g >= 65 ? 'good' : g < 45 ? 'weak' : ''}">${g}</span>` : '';
         const on = d.key === selected ? ' on' : '';
         return `<button type="button" class="role-btn${on}" data-role="${d.key}" data-rolekind="${kind}"${batterAttr} ${disabled ? 'disabled' : ''}>
-            <span class="role-ico">${d.icon}</span><span class="role-lbl">${d.label}</span>${grade}</button>`;
+            <span class="role-ico">${d.icon}</span><span class="role-lbl">${d.label}</span></button>`;
     }).join('');
     return `<div class="role-picker">${btns}</div>`;
+}
+
+// Small floating "?" popover explaining the roles in plain english. Absolutely
+// positioned inside #ground so it never takes layout space from the cards.
+function roleHelpHtml(iAmBatting) {
+    const rows = iAmBatting
+        ? [['💥 Attack', 'Swing hard — more 4s & 6s, but a bigger chance of getting out.'],
+           ['🏃 Rotate', 'Work the gaps — more 1s & 2s, giving up the big shots.'],
+           ['🧱 Defend', 'Block — much safer, but the scoring dries up.']]
+        : [['⚡ Attack', 'Hunt the wicket — best chance of a wicket, but you leak runs.'],
+           ['🔒 Contain', 'Bring the fielders in — 1s & 2s dry up, but batsmen may clear the ring for boundaries.'],
+           ['🛡️ Defend', 'Guard the boundary — 4s & 6s dry up, but easy singles are on offer.']];
+    const lis = rows.map(([t, d]) => `<div class="rh-row"><b>${t}</b><span>${d}</span></div>`).join('');
+    return `<button type="button" id="role-help-btn" title="What do the roles do?">?</button>
+        <div id="role-help-panel" class="${ui.roleHelpOpen ? 'open' : ''}">
+            <div class="rh-title">${iAmBatting ? 'Batting roles' : 'Bowling roles'}</div>${lis}</div>`;
+}
+
+function wireRoleHelp() {
+    const btn = document.getElementById('role-help-btn');
+    const panel = document.getElementById('role-help-panel');
+    if (!btn || !panel) return;
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        ui.roleHelpOpen = !ui.roleHelpOpen;
+        panel.classList.toggle('open', ui.roleHelpOpen);
+    });
 }
 
 function batRoleButtons(m, kind, batter, disabled) {
@@ -1069,8 +1093,10 @@ function renderGround(m) {
     }
 
     g.innerHTML = `<div class="ground-row batters-row">${strikerSlot}${nonStrikerSlot}</div>
-                   <div class="ground-row bowler-row">${bowlerSlot}</div>`;
+                   <div class="ground-row bowler-row">${bowlerSlot}</div>
+                   ${roleHelpHtml(m.i_am_batting)}`;
     wireRoleButtons();
+    wireRoleHelp();
     wireDropZone(m);
     wireRetireButtons();
 }
