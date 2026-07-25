@@ -17,6 +17,10 @@ const ui = {
     // standing there instead of following the batter it was set for.
     batterIntents: {},
     bowlIntent: 50,
+    // Role (Stage 4) replaces the intent slider. Batting role is per-batter (by
+    // name, same reasoning as batterIntents); bowling role is a single value.
+    batterRoles: {},
+    bowlRole: 'contain',
     selectedBowler: null,
     openerPicks: [],
     expandedSquad: null,   // tournament auction: which "other squad" row is expanded, by team_id
@@ -26,6 +30,21 @@ const ui = {
 
 function getBatterIntent(name) { return name in ui.batterIntents ? ui.batterIntents[name] : 50; }
 function setBatterIntent(name, v) { ui.batterIntents[name] = v; }
+function getBatterRole(name) { return name in ui.batterRoles ? ui.batterRoles[name] : 'rotate'; }
+function setBatterRole(name, r) { ui.batterRoles[name] = r; }
+
+// role definitions (label/icon + which grid cell holds the 0-99 grade)
+const BAT_ROLE_DEFS = [
+    { key: 'attack', label: 'Attack', icon: '💥', cell: 'attack' },
+    { key: 'rotate', label: 'Rotate', icon: '🏃', cell: 'rotate' },
+    { key: 'defend', label: 'Defend', icon: '🧱', cell: 'anchor' },
+];
+const BOWL_ROLE_DEFS = [
+    { key: 'attack', label: 'Attack', icon: '⚡', cell: 'attack' },
+    { key: 'contain', label: 'Contain', icon: '🔒', cell: 'contain' },
+    { key: 'defend', label: 'Defend', icon: '🛡️', cell: 'defend' },
+];
+function phaseKey(m) { return ({ powerplay: 'pp', middle: 'mid', death: 'death' })[m && m.phase_label] || 'mid'; }
 
 // tracks the ball-by-ball reveal of the current over
 const overAnim = { key: null, shown: 0, revealUntil: 0, timeouts: [] };
@@ -712,13 +731,13 @@ function renderGame(state) {
         const legal = m.my_bench.filter(b => !b.disabled).map(b => b.name);
         if (ui.selectedBowler && !legal.includes(ui.selectedBowler)) ui.selectedBowler = null;
     }
-    // adopt server-locked intents once submitted (so both sides agree post-reveal)
+    // adopt server-locked roles once submitted (so both sides agree post-reveal)
     if (m.pending.i_submitted) {
         const mine = m.pending.mine;
         if (m.i_am_batting) {
-            if (m.striker) setBatterIntent(m.striker.name, mine.striker_intent);
-            if (m.non_striker) setBatterIntent(m.non_striker.name, mine.non_striker_intent);
-        } else { ui.bowlIntent = mine.bowl_intent; ui.selectedBowler = mine.bowler_name; }
+            if (m.striker) setBatterRole(m.striker.name, mine.striker_role);
+            if (m.non_striker) setBatterRole(m.non_striker.name, mine.non_striker_role);
+        } else { ui.bowlRole = mine.bowl_role; ui.selectedBowler = mine.bowler_name; }
     }
 
     renderScoreboard(m);
@@ -866,37 +885,120 @@ function pcard(card, opts = {}) {
     if (opts.selected) cls.push('selected');
     const fig = opts.figure ? `<div class="pfig">${opts.figure}</div>` : '';
     const tag = opts.tag ? `<div class="ptag">${opts.tag}</div>` : '';
+    // flip-to-back (role + 3x3 phase stats). Flipped state is kept in a global
+    // set keyed by name so it survives the constant re-renders (see the
+    // capture-phase handler below); the button stops the click from also
+    // triggering the card's own select/drag action.
+    const canFlip = !!card.style_fit;
+    if (canFlip && flippedCards.has(card.name)) cls.push('flipped');
+    const flipBtn = canFlip ? `<button type="button" class="pcard-flip" title="Role &amp; phase stats">↻</button>` : '';
+    const back = canFlip ? pcardBack(card) : '';
+    // a player can hold several roles (every category they're >=70 in) --
+    // show each with its real number. Front shows up to 2 to stay compact;
+    // the back lists them all above the 3x3.
+    const roleBadge = (card.roles && card.roles.length)
+        ? `<div class="prole">${card.roles.slice(0, 2).map(r =>
+              `<span>${roleEmoji(r.label)} ${r.label} <b>${r.score}</b></span>`).join('')}${
+              card.roles.length > 2 ? `<span class="prole-more">+${card.roles.length - 2}</span>` : ''}</div>`
+        : '';
     return `
-    <div class="${cls.join(' ')}" ${opts.attrs || ''}>
+    <div class="${cls.join(' ')}" data-card-name="${card.name}" ${opts.attrs || ''}>
         ${opts.extraHtml || ''}
-        <div class="pcard-top">
-            <div class="ovr-chip"><b>${card.batting_ovr ?? '--'}</b><span>BAT</span></div>
-            <div class="ovr-chip"><b>${card.bowling_ovr ?? '--'}</b><span>BOWL</span></div>
+        ${flipBtn}
+        <div class="pcard-face pcard-front">
+            <div class="pcard-top">
+                <div class="ovr-chip"><b>${card.batting_ovr ?? '--'}</b><span>BAT</span></div>
+                <div class="ovr-chip"><b>${card.bowling_ovr ?? '--'}</b><span>BOWL</span></div>
+            </div>
+            <div class="pcard-body">
+                <div class="pname">${card.name}</div>
+                ${fig}${tag}${roleBadge}
+            </div>
         </div>
-        <div class="pcard-body">
-            <div class="pname">${card.name}</div>
-            ${fig}${tag}
-        </div>
+        ${back}
     </div>`;
 }
+
+function roleEmoji(role) {
+    if (!role) return '';
+    if (role.includes('Powerplay')) return '⚡';
+    if (role.includes('Finisher')) return '🔥';
+    if (role.includes('Middle')) return '💪';
+    if (role.includes('Anchor')) return '🧱';
+    if (role.includes('Accumulator')) return '🏃';
+    return '🏏';
+}
+
+const flippedCards = new Set();   // card names currently showing their back
+
+function pcardBack(card) {
+    const sf = card.style_fit;
+    const cell = (v) => {
+        const lvl = v >= 80 ? 'hi' : v >= 55 ? 'mid' : 'lo';
+        return `<td class="fit-${lvl}">${v}</td>`;
+    };
+    const row = (label, ph) => `<tr><th>${label}</th>${cell(sf[ph].attack)}${cell(sf[ph].anchor)}${cell(sf[ph].rotate)}</tr>`;
+    const roleList = (card.roles && card.roles.length)
+        ? card.roles.map(r => `${roleEmoji(r.label)} ${r.label} ${r.score}`).join('<br>')
+        : (card.role || '');
+    return `
+    <div class="pcard-face pcard-back">
+        <div class="pcard-role">${roleList}</div>
+        <table class="fit-grid">
+            <tr><th></th><th>ATK</th><th>ANC</th><th>ROT</th></tr>
+            ${row('PP', 'pp')}${row('MID', 'mid')}${row('DTH', 'death')}
+        </table>
+    </div>`;
+}
+
+// Capture phase so the flip toggles BEFORE (and cancels) the card's own
+// click handler -- otherwise tapping flip on a bench card would also try to
+// select that bowler/batsman.
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.pcard-flip');
+    if (!btn) return;
+    e.stopPropagation();
+    e.preventDefault();
+    const cardEl = btn.closest('.pcard');
+    const name = cardEl && cardEl.dataset.cardName;
+    if (!name) return;
+    if (flippedCards.has(name)) { flippedCards.delete(name); cardEl.classList.remove('flipped'); }
+    else { flippedCards.add(name); cardEl.classList.add('flipped'); }
+}, true);
 
 function emptySlot(text, dropAttrs = '') {
     return `<div class="pcard is-empty" ${dropAttrs}>${text}</div>`;
 }
 
-function intentSlider(kind, value, disabled, batterName) {
-    const batterAttr = batterName ? ` data-batter="${batterName}"` : '';
-    const extremeClass = value <= 10 ? ' intent-extreme-low' : value >= 90 ? ' intent-extreme-high' : '';
-    return `
-    <div class="intent">
-        <input type="range" min="0" max="100" step="5" value="${value}" data-intent="${kind}"${batterAttr} class="${extremeClass.trim()}" ${disabled ? 'disabled' : ''}>
-        <div class="intent-word" id="word-${kind}">${intentWord(value)}</div>
-    </div>`;
+// Role picker (replaces the intent slider). `fit` is the player's 3x3 grid
+// (style_fit for batters, bowl_fit for bowlers); `phKey` the current phase, so
+// each button shows the player's 0-99 grade for that role right now.
+function roleButtons(kind, selected, disabled, fit, phKey, defs, batterName) {
+    const batterAttr = batterName ? ` data-rolebatter="${batterName}"` : '';
+    const cells = (fit && fit[phKey]) || {};
+    const btns = defs.map(d => {
+        const g = cells[d.cell];
+        const grade = (g != null)
+            ? `<span class="role-grade ${g >= 85 ? 'elite' : g >= 65 ? 'good' : g < 45 ? 'weak' : ''}">${g}</span>` : '';
+        const on = d.key === selected ? ' on' : '';
+        return `<button type="button" class="role-btn${on}" data-role="${d.key}" data-rolekind="${kind}"${batterAttr} ${disabled ? 'disabled' : ''}>
+            <span class="role-ico">${d.icon}</span><span class="role-lbl">${d.label}</span>${grade}</button>`;
+    }).join('');
+    return `<div class="role-picker">${btns}</div>`;
+}
+
+function batRoleButtons(m, kind, batter, disabled) {
+    return roleButtons(kind, getBatterRole(batter.name), disabled, batter.style_fit,
+                       phaseKey(m), BAT_ROLE_DEFS, batter.name);
+}
+function bowlRoleButtons(m, fit, disabled) {
+    return roleButtons('bowl', ui.bowlRole, disabled, fit, phaseKey(m), BOWL_ROLE_DEFS);
 }
 
 // ---------- ground ----------
 function bowlerCard(cb) {
-    return pcard({ name: cb.name, batting_ovr: cb.batting_ovr ?? null, bowling_ovr: cb.bowling_ovr },
+    return pcard({ name: cb.name, batting_ovr: cb.batting_ovr ?? null, bowling_ovr: cb.bowling_ovr,
+                   role: cb.role, style_fit: cb.style_fit },
         { figure: `${cb.wickets}-${cb.runs}(${cb.overs})` });
 }
 
@@ -918,7 +1020,7 @@ function renderGround(m) {
         strikerSlot = `<div class="ground-slot">
             <div class="slot-label">On Strike ⭐</div>
             ${pcard(m.striker, { figure: `${m.striker.runs}(${m.striker.balls})` })}
-            ${m.i_am_batting ? intentSlider('striker', getBatterIntent(m.striker.name), slDisabled, m.striker.name) : ''}
+            ${m.i_am_batting ? batRoleButtons(m, 'striker', m.striker, slDisabled) : ''}
             ${retireBtn('striker')}
         </div>`;
     } else if (m.await_next_batter && m.i_am_batting) {
@@ -935,7 +1037,7 @@ function renderGround(m) {
         nonStrikerSlot = `<div class="ground-slot">
             <div class="slot-label">Non-Striker</div>
             ${pcard(m.non_striker, { figure: `${m.non_striker.runs}(${m.non_striker.balls})` })}
-            ${m.i_am_batting ? intentSlider('nonstriker', getBatterIntent(m.non_striker.name), slDisabled, m.non_striker.name) : ''}
+            ${m.i_am_batting ? batRoleButtons(m, 'nonstriker', m.non_striker, slDisabled) : ''}
             ${retireBtn('non_striker')}
         </div>`;
     } else {
@@ -956,19 +1058,19 @@ function renderGround(m) {
         bowlerSlot = `<div class="ground-slot"><div class="slot-label">Your Bowler This Over</div>` +
             (sel
                 ? pcard(sel, { tag: `${sel.overs_bowled}/${sel.max_overs} overs` }) +
-                intentSlider('bowl', ui.bowlIntent, slDisabled)
+                bowlRoleButtons(m, sel.bowl_fit, slDisabled)
                 : emptySlot('Pick a bowler from your bench ⬇')) +
             `</div>`;
     } else {
         bowlerSlot = `<div class="ground-slot"><div class="slot-label">Your Bowler</div>` +
             (m.current_bowler ? bowlerCard(m.current_bowler) : emptySlot('—')) +
-            (isFreeHit ? intentSlider('bowl', ui.bowlIntent, slDisabled) : '') +
+            (isFreeHit ? bowlRoleButtons(m, m.current_bowler && m.current_bowler.bowl_fit, slDisabled) : '') +
             `</div>`;
     }
 
     g.innerHTML = `<div class="ground-row batters-row">${strikerSlot}${nonStrikerSlot}</div>
                    <div class="ground-row bowler-row">${bowlerSlot}</div>`;
-    wireSliders();
+    wireRoleButtons();
     wireDropZone(m);
     wireRetireButtons();
 }
@@ -989,30 +1091,16 @@ async function retireBatsman(which) {
     } catch (e) { toast(e.message); }
 }
 
-function wireSliders() {
-    document.querySelectorAll('#ground input[data-intent]').forEach(inp => {
-        let wasExtreme = inp.classList.contains('intent-extreme-low') || inp.classList.contains('intent-extreme-high');
-        inp.addEventListener('input', () => {
-            const v = parseInt(inp.value);
-            const kind = inp.dataset.intent;
-            const word = $(`word-${kind}`);
-            if (word) word.textContent = intentWord(v);
-            if (kind === 'striker' || kind === 'nonstriker') {
-                if (inp.dataset.batter) setBatterIntent(inp.dataset.batter, v);
-            } else if (kind === 'bowl') {
-                ui.bowlIntent = v;
-            }
-            // Friction feedback: past +-10 of either end the wicket-factor swing is
-            // now much stronger (strength=2.0 drives dot-ball probability to exactly
-            // 0% at full aggression) -- escalate the thumb visually and give a short
-            // haptic tick on entry so pushing that far reads as a heavier, more
-            // consequential move rather than a free, weightless drag.
-            const isLow = v <= 10, isHigh = v >= 90;
-            inp.classList.toggle('intent-extreme-low', isLow);
-            inp.classList.toggle('intent-extreme-high', isHigh);
-            const isExtreme = isLow || isHigh;
-            if (isExtreme && !wasExtreme && navigator.vibrate) navigator.vibrate(15);
-            wasExtreme = isExtreme;
+function wireRoleButtons() {
+    document.querySelectorAll('#ground .role-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (btn.disabled) return;
+            const role = btn.dataset.role, kind = btn.dataset.rolekind, bn = btn.dataset.rolebatter;
+            if (kind === 'bowl') ui.bowlRole = role;
+            else if (bn) setBatterRole(bn, role);
+            // reflect the selection within this picker without a full re-render
+            btn.parentElement.querySelectorAll('.role-btn').forEach(b => b.classList.toggle('on', b === btn));
+            if (navigator.vibrate) navigator.vibrate(8);
         });
     });
 }
@@ -1041,13 +1129,13 @@ function renderReadyBar(m) {
         } else if (m.i_am_batting) {
             bar.innerHTML = `${impactButtonHtml(m)}
                 <button class="btn-go btn-lg" id="btn-resume">Ready to Resume Over ✔</button>
-                <span class="ready-status"><span class="off">New batsman is in — set intent, then resume.</span></span>${oppTxt}`;
+                <span class="ready-status"><span class="off">New batsman is in — pick a role, then resume.</span></span>${oppTxt}`;
             $('btn-resume').addEventListener('click', submitResume);
             wireImpactButton();
         } else {
             bar.innerHTML = `${impactButtonHtml(m)}
                 <button class="btn-go btn-lg" id="btn-resume">Ready to Resume Over ✔</button>
-                <span class="ready-status"><span class="off">New batsman is in — react with your bowling intent, then resume.</span></span>${oppTxt}`;
+                <span class="ready-status"><span class="off">New batsman is in — react with your bowling role, then resume.</span></span>${oppTxt}`;
             $('btn-resume').addEventListener('click', submitResume);
             wireImpactButton();
         }
@@ -1077,7 +1165,7 @@ function renderReadyBar(m) {
                 `${gambitToggleHtml(m, 'trap', '🪤 Set Trap')}
                  ${impactButtonHtml(m)}
                  <button class="btn-go btn-lg" id="btn-ready" ${disabled ? 'disabled' : ''}>Lock In Bowler ✔</button>
-                 <span class="ready-status"><span class="off">${disabled ? 'Pick a bowler first' : "Batsmen won't see your intent"}</span></span>`;
+                 <span class="ready-status"><span class="off">${disabled ? 'Pick a bowler first' : "Batsmen won't see your role"}</span></span>`;
             const btn = $('btn-ready');
             if (btn) btn.addEventListener('click', submitOver);
             wireGambitToggle();
@@ -1197,8 +1285,8 @@ async function submitOver() {
         if (m.i_am_batting) {
             await Net.post('/api/submit_over', {
                 token: Net.getToken(),
-                striker_intent: getBatterIntent(m.striker.name),
-                non_striker_intent: getBatterIntent(m.non_striker.name),
+                striker_role: getBatterRole(m.striker.name),
+                non_striker_role: getBatterRole(m.non_striker.name),
                 gambit: ui.armGambit,
             });
         } else {
@@ -1206,7 +1294,7 @@ async function submitOver() {
             await Net.post('/api/submit_over', {
                 token: Net.getToken(),
                 bowler_name: ui.selectedBowler,
-                bowl_intent: ui.bowlIntent,
+                bowl_role: ui.bowlRole,
                 gambit: ui.armGambit,
             });
         }
@@ -1218,8 +1306,8 @@ async function submitOver() {
 async function submitFreeHit() {
     const m = CURRENT.match;
     const body = m.i_am_batting
-        ? { token: Net.getToken(), striker_intent: getBatterIntent(m.striker.name), non_striker_intent: getBatterIntent(m.non_striker.name) }
-        : { token: Net.getToken(), bowl_intent: ui.bowlIntent };
+        ? { token: Net.getToken(), striker_role: getBatterRole(m.striker.name), non_striker_role: getBatterRole(m.non_striker.name) }
+        : { token: Net.getToken(), bowl_role: ui.bowlRole };
     try { await Net.post('/api/free_hit', body); Net.forceRefresh(); }
     catch (e) { toast(e.message); }
 }
@@ -1227,8 +1315,8 @@ async function submitFreeHit() {
 async function submitResume() {
     const m = CURRENT.match;
     const body = m.i_am_batting
-        ? { token: Net.getToken(), striker_intent: getBatterIntent(m.striker.name), non_striker_intent: getBatterIntent(m.non_striker.name) }
-        : { token: Net.getToken(), bowl_intent: ui.bowlIntent };
+        ? { token: Net.getToken(), striker_role: getBatterRole(m.striker.name), non_striker_role: getBatterRole(m.non_striker.name) }
+        : { token: Net.getToken(), bowl_role: ui.bowlRole };
     try { await Net.post('/api/ready_resume', body); Net.forceRefresh(); }
     catch (e) { toast(e.message); }
 }

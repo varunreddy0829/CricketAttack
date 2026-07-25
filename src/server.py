@@ -320,7 +320,9 @@ def _fresh_game(num_teams=2):
         "toss": {"winner": None, "decided": False, "choice": None},
         "next_ball_free_hit": False,
         "free_hit": {"active": False, "batting_ready": False, "bowling_ready": False,
-                     "striker_intent": 50, "non_striker_intent": 50, "bowl_intent": 50},
+                     "striker_intent": 50, "non_striker_intent": 50, "bowl_intent": 50,
+                     "striker_role": DEFAULT_BAT_ROLE, "non_striker_role": DEFAULT_BAT_ROLE,
+                     "bowl_role": DEFAULT_BOWL_ROLE},
         # auction / squad / XI selection (phase == "auction" / "grounds" / "xi")
         "start_votes": {t: False for t in team_ids},   # every team must agree to start the auction
         "auction": None,
@@ -379,6 +381,51 @@ def _make_bowler(record, intent=50):
     )
 
 
+# --- Roles (Stage 4) -------------------------------------------------------
+# The batting/bowling role replaces the old intent slider. Each ball, the
+# batter's role and the bowler's role are turned into a 0-99 grid lookup for
+# the current phase, then applied by the engine's apply_roles (see roles.py).
+BAT_ROLES = ("attack", "rotate", "defend")
+BOWL_ROLES = ("attack", "contain", "defend")
+DEFAULT_BAT_ROLE = "rotate"
+DEFAULT_BOWL_ROLE = "contain"
+# batting role -> which style_fit cell holds its grid (defend reads the anchor cell)
+_BAT_ROLE_CELL = {"attack": "attack", "rotate": "rotate", "defend": "anchor"}
+# role -> a pseudo-intent so the Trap gambit (which reads aggression) still works
+_ROLE_INTENT = {"attack": 70, "rotate": 50, "defend": 35}
+
+
+def _phase_key(over_num):
+    if over_num <= 5:
+        return "pp"
+    if over_num <= 14:
+        return "mid"
+    return "death"
+
+
+def _clean_bat_role(v):
+    return v if v in BAT_ROLES else DEFAULT_BAT_ROLE
+
+
+def _clean_bowl_role(v):
+    return v if v in BOWL_ROLES else DEFAULT_BOWL_ROLE
+
+
+def _bat_grid(name, over_num, role):
+    """The batter's 0-99 grid for this phase + role (50 if unknown)."""
+    rec = BY_NAME.get(name) or {}
+    sf = rec.get("style_fit") or {}
+    cell = _BAT_ROLE_CELL.get(role, "rotate")
+    return (sf.get(_phase_key(over_num)) or {}).get(cell, 50)
+
+
+def _bowl_grid(name, over_num, role):
+    """The bowler's 0-99 grid for this phase + role (50 if unknown)."""
+    rec = BY_NAME.get(name) or {}
+    bf = rec.get("bowl_fit") or {}
+    return (bf.get(_phase_key(over_num)) or {}).get(role, 50)
+
+
 def _card_fields(record):
     """Public, UI-facing fields for a player card."""
     return {
@@ -388,7 +435,21 @@ def _card_fields(record):
         "is_foreigner": record.get("is_foreigner", False),
         "is_keeper": record.get("is_keeper", False),
         "bowling_style": record.get("bowling_style", "Pace"),
+        "role": record.get("role"),
+        "roles": record.get("roles"),
+        "signature": record.get("signature"),
+        "style_fit": record.get("style_fit"),
+        "bowl_fit": record.get("bowl_fit"),
     }
+
+
+def _role_meta(name):
+    """The card-flip fields (roles, signature, 3x3 style_fit + bowl_fit) for a
+    player by name -- spread into card dicts built by hand, not via _card_fields."""
+    r = BY_NAME.get(name, {})
+    return {"role": r.get("role"), "roles": r.get("roles"),
+            "signature": r.get("signature"), "style_fit": r.get("style_fit"),
+            "bowl_fit": r.get("bowl_fit")}
 
 
 def _auto_two_xis():
@@ -485,7 +546,9 @@ def _prepare_innings(batting_side, target=None, keep_this_over=False):
     g["vacant_slot"] = "striker"   # which crease slot set_next_batter should fill
     g["next_ball_free_hit"] = False
     g["free_hit"] = {"active": False, "batting_ready": False, "bowling_ready": False,
-                     "striker_intent": 50, "non_striker_intent": 50, "bowl_intent": 50}
+                     "striker_intent": 50, "non_striker_intent": 50, "bowl_intent": 50,
+                     "striker_role": DEFAULT_BAT_ROLE, "non_striker_role": DEFAULT_BAT_ROLE,
+                     "bowl_role": DEFAULT_BOWL_ROLE}
     _reset_pending()
     g["stage"] = "openers"
 
@@ -501,8 +564,10 @@ def _do_toss():
 
 def _reset_pending():
     GAME["pending_over"] = {
-        "batting": {"submitted": False, "striker_intent": 50, "non_striker_intent": 50},
-        "bowling": {"submitted": False, "bowler_name": None, "bowl_intent": 50},
+        "batting": {"submitted": False, "striker_intent": 50, "non_striker_intent": 50,
+                    "striker_role": DEFAULT_BAT_ROLE, "non_striker_role": DEFAULT_BAT_ROLE},
+        "bowling": {"submitted": False, "bowler_name": None, "bowl_intent": 50,
+                    "bowl_role": DEFAULT_BOWL_ROLE},
     }
     for t in GAME["match_teams"]:
         GAME["teams"][t]["ready"] = False
@@ -633,6 +698,7 @@ def _simulate_until_pause():
     bowler = g["bowler"]
     ao = g["active_over"]
     by_name = ao.setdefault("intent_by_name", {})
+    by_role = ao.setdefault("role_by_name", {})
 
     # Intent follows the PERSON, not the crease slot — looked up by name so a
     # mid-over strike rotation (including one caused by a free-hit ball, or a
@@ -686,16 +752,34 @@ def _simulate_until_pause():
                 _ns.intent = fh["non_striker_intent"]
             bowler.intent = fh["bowl_intent"]
 
+        # roles for THIS ball. Roles follow the PERSON (looked up by name), with
+        # the free-hit window's choices overriding on a free-hit delivery — same
+        # discipline as the intent lookup above so a strike rotation never swaps
+        # two batters' roles.
+        over_num = state.balls // 6
+        if free_ball:
+            fh = g["free_hit"]
+            bat_role = _clean_bat_role(fh.get("striker_role"))
+            bowl_role = _clean_bowl_role(fh.get("bowl_role"))
+        else:
+            bat_role = _clean_bat_role(by_role.get(striker.name, ao.get("striker_role")))
+            bowl_role = _clean_bowl_role(ao.get("bowl_role"))
+
         # match conditions for THIS ball: home-ground pitch vs bowler style,
-        # innings phase, and any armed gambits
-        # (striker.intent is already the effective value, incl. free-hit override)
+        # innings phase, armed gambits, and the batting/bowling roles (Stage 4).
+        # striker_intent is derived from the batting role so the Trap gambit
+        # (which reads aggression) still responds to Attack vs Defend.
         ctx = {
             "pitch": (g.get("match_ground") or {}).get("pitch"),
             "bowler_style": bowler.style,
-            "over_num": state.balls // 6,
+            "over_num": over_num,
             "attack_gambit": ao.get("attack_gambit"),
             "trap_gambit": ao.get("trap_gambit"),
-            "striker_intent": striker.intent,
+            "striker_intent": _ROLE_INTENT.get(bat_role, 50),
+            "bat_role": bat_role,
+            "bat_grid": _bat_grid(striker.name, over_num, bat_role),
+            "bowl_role": bowl_role,
+            "bowl_grid": _bowl_grid(bowler.name, over_num, bowl_role),
         }
         outcome = calculate_single_ball(striker, bowler, LEAGUE_AVG, ctx)
         state.add_ball()
@@ -1005,14 +1089,21 @@ def _try_resolve_over():
     g["active_over"] = {
         "bowler_name": p["bowling"]["bowler_name"],
         "bowl_intent": p["bowling"]["bowl_intent"],
+        "bowl_role": p["bowling"].get("bowl_role", DEFAULT_BOWL_ROLE),
         "striker_intent": p["batting"]["striker_intent"],
         "non_striker_intent": p["batting"]["non_striker_intent"],
+        "striker_role": p["batting"].get("striker_role", DEFAULT_BAT_ROLE),
+        "non_striker_role": p["batting"].get("non_striker_role", DEFAULT_BAT_ROLE),
         # locked in BY NAME, not by crease slot, so a mid-over strike rotation
         # (or a free-hit ball that itself rotates strike) can never cause the
-        # two batters' intents to get swapped onto the wrong person.
+        # two batters' intents/roles to get swapped onto the wrong person.
         "intent_by_name": {
             **({striker.name: p["batting"]["striker_intent"]} if striker else {}),
             **({non_striker.name: p["batting"]["non_striker_intent"]} if non_striker else {}),
+        },
+        "role_by_name": {
+            **({striker.name: p["batting"].get("striker_role", DEFAULT_BAT_ROLE)} if striker else {}),
+            **({non_striker.name: p["batting"].get("non_striker_role", DEFAULT_BAT_ROLE)} if non_striker else {}),
         },
         # one-shot gambits, armed secretly with the submissions and consumed here
         "attack_gambit": bool(p["batting"].get("gambit")),
@@ -1054,6 +1145,9 @@ def _begin_free_hit():
         "striker_intent": ao["striker_intent"],
         "non_striker_intent": ao["non_striker_intent"],
         "bowl_intent": ao["bowl_intent"],
+        "striker_role": ao.get("striker_role", DEFAULT_BAT_ROLE),
+        "non_striker_role": ao.get("non_striker_role", DEFAULT_BAT_ROLE),
+        "bowl_role": ao.get("bowl_role", DEFAULT_BOWL_ROLE),
     }
     GAME["stage"] = "free_hit"
 
@@ -2183,7 +2277,8 @@ def _serialize(token):
         r = g["bat_card"].get(name, {})
         rec = BY_NAME[name]
         return {"name": name, "runs": r.get("runs", 0), "balls": r.get("balls", 0),
-                "batting_ovr": rec["batting_ovr"], "bowling_ovr": rec["bowling_ovr"]}
+                "batting_ovr": rec["batting_ovr"], "bowling_ovr": rec["bowling_ovr"],
+                **_role_meta(name)}
 
     striker = st.get_striker()
     non_striker = st.get_non_striker()
@@ -2194,7 +2289,8 @@ def _serialize(token):
         bc = g["bowl_card"].get(bn, {})
         cur_bowler = {"name": bn, "wickets": bc.get("wickets", 0),
                       "runs": bc.get("runs", 0), "overs": _overs_str(bc.get("balls", 0)),
-                      "bowling_ovr": BY_NAME[bn]["bowling_ovr"], "batting_ovr": BY_NAME[bn]["batting_ovr"]}
+                      "bowling_ovr": BY_NAME[bn]["bowling_ovr"], "batting_ovr": BY_NAME[bn]["batting_ovr"],
+                      **_role_meta(bn)}
 
     # my bench (role-specific)
     my_bench = []
@@ -2229,7 +2325,8 @@ def _serialize(token):
     # opponent list (public: just the other team's XI)
     opp_xi_side = bowling if i_bat else batting
     opponent_list = [
-        {"name": p["name"], "batting_ovr": p["batting_ovr"], "bowling_ovr": p["bowling_ovr"]}
+        {"name": p["name"], "batting_ovr": p["batting_ovr"], "bowling_ovr": p["bowling_ovr"],
+         **_role_meta(p["name"])}
         for p in g["teams"][opp_xi_side]["xi"]
     ]
 
@@ -2250,6 +2347,7 @@ def _serialize(token):
             "name": bn, "bowling_ovr": BY_NAME[bn]["bowling_ovr"], "batting_ovr": BY_NAME[bn]["batting_ovr"],
             "wickets": bc.get("wickets", 0), "runs": bc.get("runs", 0),
             "overs": _overs_str(bc.get("balls", 0)),
+            **_role_meta(bn),
         }
 
     # free-hit window (REDACTED like the over handshake)
@@ -2260,8 +2358,9 @@ def _serialize(token):
         "active": fh["active"],
         "i_ready": my_fh_ready,
         "opponent_ready": opp_fh_ready,
-        "mine": ({"striker_intent": fh["striker_intent"], "non_striker_intent": fh["non_striker_intent"]}
-                 if i_bat else {"bowl_intent": fh["bowl_intent"]}),
+        "mine": ({"striker_intent": fh["striker_intent"], "non_striker_intent": fh["non_striker_intent"],
+                  "striker_role": fh.get("striker_role"), "non_striker_role": fh.get("non_striker_role")}
+                 if i_bat else {"bowl_intent": fh["bowl_intent"], "bowl_role": fh.get("bowl_role")}),
     }
 
     # mid-over resume window after a new batter walks in (REDACTED the same way)
@@ -2372,7 +2471,8 @@ def _serialize_auction(role):
         c = a["current"]
         current = {"name": c["name"], "batting_ovr": c["batting_ovr"], "bowling_ovr": c["bowling_ovr"],
                    "is_foreigner": c.get("is_foreigner", False), "is_keeper": c.get("is_keeper", False),
-                   "tier": s["tier"] if s else "", "role": s["role"] if s else ""}
+                   "tier": s["tier"] if s else "", "set_role": s["role"] if s else "",
+                   **_role_meta(c["name"])}
 
     def summary_view(r):
         x = sq[r]
@@ -3168,19 +3268,25 @@ def ready_resume():
         if role == GAME["batting_side"]:
             ao["striker_intent"] = int(data.get("striker_intent", ao["striker_intent"]))
             ao["non_striker_intent"] = int(data.get("non_striker_intent", ao["non_striker_intent"]))
+            ao["striker_role"] = _clean_bat_role(data.get("striker_role", ao.get("striker_role")))
+            ao["non_striker_role"] = _clean_bat_role(data.get("non_striker_role", ao.get("non_striker_role")))
             # register whoever is now at the crease (the new batter, and the
             # survivor) by NAME, so the rest of the over stays identity-locked
-            # even through a further rotation or a second wicket later on
+            # (intent AND role) even through a further rotation or 2nd wicket
             st = GAME["state"]
             by_name = ao.setdefault("intent_by_name", {})
+            by_role = ao.setdefault("role_by_name", {})
             s, ns = st.get_striker(), st.get_non_striker()
             if s:
                 by_name[s.name] = ao["striker_intent"]
+                by_role[s.name] = ao["striker_role"]
             if ns:
                 by_name[ns.name] = ao["non_striker_intent"]
+                by_role[ns.name] = ao["non_striker_role"]
             ao["resume_batting_ready"] = True
         elif role == _bowling_side():
             ao["bowl_intent"] = int(data.get("bowl_intent", ao["bowl_intent"]))
+            ao["bowl_role"] = _clean_bowl_role(data.get("bowl_role", ao.get("bowl_role")))
             ao["resume_bowling_ready"] = True
         else:
             return jsonify({"status": "error", "message": "Unknown player."}), 403
@@ -3208,9 +3314,12 @@ def free_hit():
         if role == GAME["batting_side"]:
             fh["striker_intent"] = int(data.get("striker_intent", fh["striker_intent"]))
             fh["non_striker_intent"] = int(data.get("non_striker_intent", fh["non_striker_intent"]))
+            fh["striker_role"] = _clean_bat_role(data.get("striker_role", fh.get("striker_role")))
+            fh["non_striker_role"] = _clean_bat_role(data.get("non_striker_role", fh.get("non_striker_role")))
             fh["batting_ready"] = True
         else:
             fh["bowl_intent"] = int(data.get("bowl_intent", fh["bowl_intent"]))
+            fh["bowl_role"] = _clean_bowl_role(data.get("bowl_role", fh.get("bowl_role")))
             fh["bowling_ready"] = True
         if fh["batting_ready"] and fh["bowling_ready"]:
             fh["active"] = False
@@ -3318,6 +3427,8 @@ def submit_over():
                 "submitted": True,
                 "striker_intent": int(data.get("striker_intent", 50)),
                 "non_striker_intent": int(data.get("non_striker_intent", 50)),
+                "striker_role": _clean_bat_role(data.get("striker_role")),
+                "non_striker_role": _clean_bat_role(data.get("non_striker_role")),
                 "gambit": wants_gambit,
             }
         else:
@@ -3332,6 +3443,7 @@ def submit_over():
                 "submitted": True,
                 "bowler_name": bowler_name,
                 "bowl_intent": int(data.get("bowl_intent", 50)),
+                "bowl_role": _clean_bowl_role(data.get("bowl_role")),
                 "gambit": wants_gambit,
             }
         GAME["teams"][role]["ready"] = True

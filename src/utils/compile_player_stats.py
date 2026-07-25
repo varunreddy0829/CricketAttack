@@ -4,9 +4,216 @@ import os
 import json
 import glob
 import time
+import math
+import bisect
+import statistics
 
 MATCH_DATA_PATH = "data/All_Matches_Json/*.json"
 OUTPUT_FILE = "data/players_historical.json"
+
+# Innings phases by 0-indexed over number (T20): 0-5 powerplay, 6-14 middle,
+# 15-19 death. Drives the per-phase style-fit tables (see compute_style_fits).
+PHASES = ("pp", "mid", "death")
+
+def _phase_of(over_idx):
+    if over_idx <= 5:
+        return "pp"
+    if over_idx <= 14:
+        return "mid"
+    return "death"
+
+def _blank_phase():
+    return {"balls": 0, "runs": 0, "fours": 0, "sixes": 0,
+            "ones": 0, "twos": 0, "threes": 0, "dots": 0, "dismissals": 0}
+
+def _blank_bowl_phase():
+    # per-phase bowling ledger for the bowler style-fit grid:
+    #   balls = legal balls bowled, wkts = bowler-credited wickets,
+    #   br = boundary runs conceded (4s+6s off the bat),
+    #   rr = running runs conceded (1s+2s+3s off the bat)
+    return {"balls": 0, "wkts": 0, "br": 0, "rr": 0}
+
+STYLES = ("attack", "anchor", "rotate")          # batting grid cells (anchor == defend)
+BOWL_STYLES = ("attack", "contain", "defend")    # bowling grid cells
+FIT_PRIOR_BALLS = 40.0    # ghost-stat strength: every player pre-loaded with 40 league-average balls
+FIT_QUALIFY_BALLS = 300   # career balls (faced / bowled) to count as an established reference
+# The grid score is  volume^E * rate,  with E derived so longevity carries a
+# chosen SHARE of the ranking:  E = (w/(1-w)) / s,  where s is each cell's own
+# measured spread ratio SD(log volume)/SD(log rate). w = 0.70 => 70% longevity,
+# 30% rate (locked). See compute_style_fits / compute_bowler_fits.
+FIT_LONGEVITY_SHARE = 0.70
+
+# A player earns EVERY role whose fit clears this bar -- roles are not
+# mutually exclusive, so Gayle (elite in both powerplay and death attack) is
+# both a Powerplay Basher AND a Finisher. The fit CELLS themselves are the raw
+# 0-99 percentile-vs-all-players numbers and are never rescaled or removed.
+ROLE_THRESHOLD = 70
+
+# (label, style, phase) -> a player qualifies for `label` if fit[phase][style]
+# >= ROLE_THRESHOLD. Attack is phase-specific (3 labels); anchor/rotate use a
+# player's best phase (one label each).
+ROLE_DEFS = [
+    ("Powerplay Basher", "attack", "pp"),
+    ("Middle Enforcer", "attack", "mid"),
+    ("Finisher", "attack", "death"),
+    ("Anchor", "anchor", None),        # None -> best over all phases
+    ("Accumulator", "rotate", None),
+]
+
+def _exp_from_spread(vols, rates):
+    """Volume exponent E = (w/(1-w)) / s, where w = FIT_LONGEVITY_SHARE and
+    s = SD(log volume) / SD(log rate) is the cell's own measured spread ratio.
+    This makes longevity carry exactly a `w` share of the ranking. Falls back to
+    0.30 on a too-thin or degenerate sample."""
+    lv = [math.log(v) for v in vols if v > 0]
+    lr = [math.log(r) for r in rates if r > 0]
+    if len(lv) < 2 or len(lr) < 2:
+        return 0.30
+    spread_rate = statistics.pstdev(lr)
+    if spread_rate <= 0.0:
+        return 0.30
+    s = statistics.pstdev(lv) / spread_rate
+    if s <= 0.0:
+        return 0.30
+    w = FIT_LONGEVITY_SHARE
+    return (w / (1.0 - w)) / s
+
+def _percentiles(scores, ref_names):
+    """Percentile-rank every player's score (0-99, 50 = median) against the
+    reference pool `ref_names`."""
+    arr = sorted(scores[n] for n in ref_names)
+    def pct(v):
+        if not arr:
+            return 50
+        return max(1, min(99, round(bisect.bisect_right(arr, v) / len(arr) * 100)))
+    return {n: pct(scores[n]) for n in scores}
+
+def compute_style_fits(players):
+    """Attach a per-player 'style_fit' 3x3 table -- {attack, anchor, rotate} x
+    {pp, mid, death}, each 0-99 -- plus multi-role labels. Locked recipe, same
+    machine for every cell:
+        score = volume^E * ghost-smoothed rate   (E gives 70% longevity / 30% rate)
+        grid  = percentile of score vs established batsmen (>=300 career balls)
+      - attack: rate = boundary runs/ball (4s/6s), volume = total runs
+      - rotate: rate = running runs/ball (1s/2s/3s), volume = running runs only
+      - anchor: rate = balls per dismissal, volume = balls faced   (== the defend role)
+    Ghost stats = every player pre-loaded with FIT_PRIOR_BALLS league-average
+    balls, so tiny samples land near the median.
+    """
+    K = FIT_PRIOR_BALLS
+    league = {}
+    for ph in PHASES:
+        tb = tbr = trr = td = 0
+        for p in players.values():
+            d = p["bat_phase"][ph]
+            tb += d["balls"]
+            tbr += 4 * d["fours"] + 6 * d["sixes"]
+            trr += d["ones"] + 2 * d["twos"] + 3 * d["threes"]
+            td += d["dismissals"]
+        league[ph] = {
+            "attack": (tbr / tb) if tb else 0.0,
+            "rotate": (trr / tb) if tb else 0.0,
+            "bpd": (tb / td) if td else 25.0,
+        }
+
+    def rate_vol(d, ph, style):
+        b, dis = d["balls"], d["dismissals"]
+        br = 4 * d["fours"] + 6 * d["sixes"]
+        rr = d["ones"] + 2 * d["twos"] + 3 * d["threes"]
+        lg = league[ph]
+        if style == "attack":
+            return (br + K * lg["attack"]) / (b + K), float(d["runs"])
+        if style == "rotate":
+            return (rr + K * lg["rotate"]) / (b + K), float(rr)
+        # anchor / defend
+        return (b + K) / (dis + K / lg["bpd"]), float(b)
+
+    qual = [n for n, p in players.items() if p["batting"]["balls"] >= FIT_QUALIFY_BALLS]
+
+    fit = {n: {ph: {} for ph in PHASES} for n in players}
+    for ph in PHASES:
+        for s in STYLES:
+            rates, vols = {}, {}
+            for n, p in players.items():
+                r, v = rate_vol(p["bat_phase"][ph], ph, s)
+                rates[n], vols[n] = r, v
+            ref_names = [n for n in qual if players[n]["bat_phase"][ph]["balls"] > 0]
+            E = _exp_from_spread([vols[n] for n in ref_names], [rates[n] for n in ref_names])
+            scores = {n: (vols[n] ** E) * rates[n] if vols[n] > 0 else 0.0 for n in players}
+            grid = _percentiles(scores, ref_names)
+            for n in players:
+                fit[n][ph][s] = grid[n]
+
+    # attach fit + multi-role labels
+    for name, p in players.items():
+        f = fit[name]
+        p["style_fit"] = f
+        p["signature"] = {s: max(PHASES, key=lambda ph: f[ph][s]) for s in STYLES}
+        roles = []
+        for label, style, phase in ROLE_DEFS:
+            score = f[phase][style] if phase else max(f[ph][style] for ph in PHASES)
+            if score >= ROLE_THRESHOLD:
+                roles.append({"label": label, "score": score})
+        roles.sort(key=lambda r: -r["score"])
+        if not roles:
+            best = max(ROLE_DEFS, key=lambda d: (f[d[2]][d[1]] if d[2] else max(f[ph][d[1]] for ph in PHASES)))
+            lbl, style, phase = best
+            sc = f[phase][style] if phase else max(f[ph][style] for ph in PHASES)
+            roles = [{"label": lbl, "score": sc}]
+        p["roles"] = roles
+        p["role"] = roles[0]["label"]   # top role, for single-label contexts
+
+def compute_bowler_fits(players):
+    """Attach a per-player 'bowl_fit' 3x3 table -- {attack, contain, defend} x
+    {pp, mid, death}, each 0-99 -- the mirror of the batting grid read from the
+    bowling ledger. Same machine (score = volume^E * rate, 70% longevity,
+    percentile vs established bowlers >=300 career legal balls):
+      - attack : rate = wickets/ball,                    volume = wickets (higher = better)
+      - contain: rate = 1 / (running runs conceded/ball), volume = balls  (tighter = better)
+      - defend : rate = 1 / (boundary runs conceded/ball), volume = balls (stingier = better)
+    """
+    K = FIT_PRIOR_BALLS
+    league = {}
+    for ph in PHASES:
+        tb = tw = tbr = trr = 0
+        for p in players.values():
+            d = p["bowl_phase"][ph]
+            tb += d["balls"]; tw += d["wkts"]; tbr += d["br"]; trr += d["rr"]
+        league[ph] = {
+            "wr": (tw / tb) if tb else 0.0,     # wickets per ball
+            "rr": (trr / tb) if tb else 0.0,    # running runs conceded per ball
+            "br": (tbr / tb) if tb else 0.0,    # boundary runs conceded per ball
+        }
+
+    def rate_vol(d, ph, style):
+        b, lg = d["balls"], league[ph]
+        if style == "attack":
+            return (d["wkts"] + K * lg["wr"]) / (b + K), float(d["wkts"])
+        if style == "contain":
+            conceded = (d["rr"] + K * lg["rr"]) / (b + K)
+            return (1.0 / conceded if conceded > 0 else 0.0), float(b)
+        # defend
+        conceded = (d["br"] + K * lg["br"]) / (b + K)
+        return (1.0 / conceded if conceded > 0 else 0.0), float(b)
+
+    qual = [n for n, p in players.items() if p["bowling"]["legal_balls"] >= FIT_QUALIFY_BALLS]
+
+    fit = {n: {ph: {} for ph in PHASES} for n in players}
+    for ph in PHASES:
+        for s in BOWL_STYLES:
+            rates, vols = {}, {}
+            for n, p in players.items():
+                r, v = rate_vol(p["bowl_phase"][ph], ph, s)
+                rates[n], vols[n] = r, v
+            ref_names = [n for n in qual if players[n]["bowl_phase"][ph]["balls"] > 0]
+            E = _exp_from_spread([vols[n] for n in ref_names], [rates[n] for n in ref_names])
+            scores = {n: (vols[n] ** E) * rates[n] if vols[n] > 0 else 0.0 for n in players}
+            grid = _percentiles(scores, ref_names)
+            for n in players:
+                fit[n][ph][s] = grid[n]
+
+    for name, p in players.items():
+        p["bowl_fit"] = fit[name]
 
 BOWLER_CREDITED_DISMISSALS = {
     "bowled",
@@ -87,21 +294,26 @@ def compile_stats():
                         players[name] = {
                             "name": name,
                             "batting": {"runs": 0, "balls": 0, "fours": 0, "sixes": 0, "dismissals": 0},
-                            "bowling": {"runs_conceded": 0, "legal_balls": 0, "wickets": 0}
+                            "bowling": {"runs_conceded": 0, "legal_balls": 0, "wickets": 0},
+                            "bat_phase": {ph: _blank_phase() for ph in PHASES},
+                            "bowl_phase": {ph: _blank_bowl_phase() for ph in PHASES},
                         }
             
             for inning in match.get("innings", []):
                 for over_data in inning.get("overs", []):
+                    phase = _phase_of(over_data.get("over", 0))
                     for delivery in over_data.get("deliveries", []):
                         batter = delivery.get("batter")
                         bowler = delivery.get("bowler")
-                        
+
                         for p in [batter, bowler]:
                             if p and p not in players:
                                 players[p] = {
                                     "name": p,
                                     "batting": {"runs": 0, "balls": 0, "fours": 0, "sixes": 0, "dismissals": 0},
-                                    "bowling": {"runs_conceded": 0, "legal_balls": 0, "wickets": 0}
+                                    "bowling": {"runs_conceded": 0, "legal_balls": 0, "wickets": 0},
+                                    "bat_phase": {ph: _blank_phase() for ph in PHASES},
+                                    "bowl_phase": {ph: _blank_bowl_phase() for ph in PHASES},
                                 }
                                 
                         runs_data = delivery.get("runs", {})
@@ -111,9 +323,26 @@ def compile_stats():
                         wides = extras_data.get("wides", 0)
                         noballs = extras_data.get("noballs", 0)
                         
+                        bph = players[batter]["bat_phase"][phase]
                         if wides == 0:
                             players[batter]["batting"]["balls"] += 1
-                        
+                            # per-phase ball detail (only legal balls faced count
+                            # toward the style-fit rates, same as career balls)
+                            bph["balls"] += 1
+                            bph["runs"] += batter_runs
+                            if batter_runs == 0:
+                                bph["dots"] += 1
+                            elif batter_runs == 1:
+                                bph["ones"] += 1
+                            elif batter_runs == 2:
+                                bph["twos"] += 1
+                            elif batter_runs == 3:
+                                bph["threes"] += 1
+                            elif batter_runs == 4:
+                                bph["fours"] += 1
+                            elif batter_runs == 6:
+                                bph["sixes"] += 1
+
                         players[batter]["batting"]["runs"] += batter_runs
                         if batter_runs == 4:
                             players[batter]["batting"]["fours"] += 1
@@ -125,18 +354,30 @@ def compile_stats():
                         
                         if wides == 0 and noballs == 0:
                             players[bowler]["bowling"]["legal_balls"] += 1
-                            
+                            # per-phase bowling ledger for the bowl-fit grid
+                            bwph = players[bowler]["bowl_phase"][phase]
+                            bwph["balls"] += 1
+                            if batter_runs in (4, 6):
+                                bwph["br"] += batter_runs
+                            elif batter_runs in (1, 2, 3):
+                                bwph["rr"] += batter_runs
+
                         for wicket in delivery.get("wickets", []):
                             player_out = wicket.get("player_out")
                             dismissal_kind = wicket.get("kind", "")
                             
                             if player_out == batter:
                                 players[batter]["batting"]["dismissals"] += 1
+                                bph["dismissals"] += 1
                             elif player_out in players:
                                 players[player_out]["batting"]["dismissals"] += 1
+                                # runouts etc. can dismiss the non-striker; credit
+                                # it to the phase this ball was bowled in
+                                players[player_out]["bat_phase"][phase]["dismissals"] += 1
                                 
                             if dismissal_kind in BOWLER_CREDITED_DISMISSALS:
                                 players[bowler]["bowling"]["wickets"] += 1
+                                players[bowler]["bowl_phase"][phase]["wkts"] += 1
                                 
                             if dismissal_kind == "stumped":
                                 for fielder in wicket.get("fielders", []):
@@ -148,6 +389,10 @@ def compile_stats():
         processed_count += 1
         if processed_count % 200 == 0:
             print(f"Processed {processed_count}/{total_files} matches...")
+
+    # Phase 1.5: derive per-player style-fit tables from the phase splits
+    compute_style_fits(players)
+    compute_bowler_fits(players)
 
     # Phase 2: Compute stats and raw powers
     compiled_items = []
@@ -207,6 +452,11 @@ def compile_stats():
             "is_keeper": (name in KNOWN_KEEPERS) or (name in dynamic_keepers),
             "is_foreigner": name in KNOWN_FOREIGNERS,
             "bowling_style": "Spin" if name in KNOWN_SPINNERS else "Pace",
+            "role": data["role"],
+            "roles": data["roles"],
+            "signature": data["signature"],
+            "style_fit": data["style_fit"],
+            "bowl_fit": data["bowl_fit"],
             "batting": {
                 "runs": runs,
                 "balls": balls,

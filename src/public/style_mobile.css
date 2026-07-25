@@ -818,6 +818,63 @@ button:disabled {
     user-select: none;
 }
 
+/* ---------- card flip: front / back ---------- */
+.pcard-back { display: none; }
+.pcard.flipped .pcard-front { display: none; }
+.pcard.flipped .pcard-back { display: block; }
+
+.pcard-flip {
+    position: absolute;
+    top: 3px; right: 3px;
+    z-index: 6;
+    width: 18px; height: 18px;
+    padding: 0;
+    line-height: 16px;
+    font-size: 0.72rem;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 0, 0, 0.25);
+    background: rgba(255, 255, 255, 0.85);
+    color: var(--ink-soft);
+    cursor: pointer;
+}
+.pcard-flip:hover { background: #fff; color: var(--ink); }
+
+.pcard-back { padding: 0.35rem 0.4rem 0.45rem; }
+.pcard-role {
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.66rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    text-align: center;
+    color: var(--leather);
+    margin-bottom: 0.3rem;
+    padding-right: 16px;   /* clear the flip button */
+    line-height: 1.1;
+    min-height: 1.5em;
+}
+.fit-grid {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.62rem;
+}
+.fit-grid th {
+    color: var(--ink-soft);
+    font-weight: 600;
+    padding: 1px 2px;
+    text-align: center;
+}
+.fit-grid th:first-child { text-align: left; }
+.fit-grid td {
+    text-align: center;
+    padding: 2px 2px;
+    font-weight: 700;
+    border-radius: 3px;
+}
+.fit-grid .fit-hi { background: rgba(47, 158, 92, 0.85); color: #fff; }
+.fit-grid .fit-mid { background: rgba(224, 176, 0, 0.55); color: #3a2f00; }
+.fit-grid .fit-lo { background: rgba(0, 0, 0, 0.07); color: var(--ink-soft); }
+
 .pcard.tier-gold {
     border-color: var(--tier-gold);
 }
@@ -865,6 +922,21 @@ button:disabled {
     font-size: 1.05rem;
     line-height: 1.05;
 }
+
+.pcard .prole {
+    margin-top: 0.2rem;
+    font-size: 0.58rem;
+    line-height: 1.25;
+    color: var(--ink-soft);
+    letter-spacing: 0.01em;
+}
+.pcard .prole span { display: block; }
+.pcard .prole b {
+    font-family: 'Oswald', sans-serif;
+    color: var(--leather);
+    font-size: 0.7rem;
+}
+.pcard .prole .prole-more { color: var(--ink-soft); opacity: 0.7; font-style: italic; }
 
 .pcard .pfig {
     font-family: 'Oswald', sans-serif;
@@ -927,6 +999,45 @@ button:disabled {
 }
 
 /* Intent slider */
+/* ---------- role picker (Stage 4 — replaces the intent slider) ---------- */
+.role-picker {
+    display: flex;
+    gap: 4px;
+    width: 176px;
+}
+.role-btn {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 5px 2px 4px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: var(--radius);
+    background: rgba(0, 0, 0, 0.35);
+    color: #eae0c8;
+    cursor: pointer;
+    font: inherit;
+    line-height: 1;
+    transition: background .12s, border-color .12s, transform .08s;
+}
+.role-btn .role-ico { font-size: 1.05rem; }
+.role-btn .role-lbl { font-size: 0.6rem; letter-spacing: .02em; text-transform: uppercase; opacity: .82; }
+.role-btn .role-grade { font-size: 0.72rem; font-weight: 700; color: #c9b98e; }
+.role-btn .role-grade.elite { color: #7CFC7C; }
+.role-btn .role-grade.good { color: #ddc985; }
+.role-btn .role-grade.weak { color: #c07a6b; }
+.role-btn.on {
+    background: linear-gradient(180deg, #e0a53a, #c8801f);
+    border-color: #ffd479;
+    color: #201306;
+    box-shadow: 0 0 0 1px rgba(255, 212, 121, .35), 0 2px 8px rgba(0, 0, 0, .35);
+}
+.role-btn.on .role-lbl { opacity: 1; }
+.role-btn.on .role-grade { color: #201306 !important; }
+.role-btn:not(.on):active { transform: scale(0.95); }
+.role-btn:disabled { opacity: 0.5; cursor: default; }
+
 .intent {
     width: 158px;
     background: rgba(0, 0, 0, 0.35);

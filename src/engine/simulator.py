@@ -11,6 +11,7 @@ from src.engine.stats_calculator import (
 )
 from src.engine.intent_handler import apply_intents
 from src.engine.conditions import apply_conditions
+from src.engine.roles import apply_roles
 
 # Independent extras master probability configuration
 EXTRAS_PROB = 0.04  # 4% chance of an extra (Wide or No Ball)
@@ -35,8 +36,20 @@ def calculate_single_ball(striker: Batter, bowler: Bowler, league_avg: dict, con
     # Stage 3.5: Match conditions (pitch, phase, gambits)
     weights_c = apply_conditions(weights_s3, context)
 
-    # Stage 4: Intent Meter Adjustment (always last)
-    final_weights = apply_intents(weights_c, striker.intent, bowler.intent, league_avg)
+    # Stage 4: roles (always last). If the caller supplies roles + phase grids
+    # in the context, the batter/bowler role transfers replace the old intent
+    # slider; otherwise we fall back to the intent meters so legacy callers
+    # (and the CLI) keep working unchanged.
+    if context and context.get("bat_role"):
+        final_weights = apply_roles(
+            weights_c,
+            bat_role=context.get("bat_role"),
+            bat_grid=context.get("bat_grid", 50),
+            bowl_role=context.get("bowl_role"),
+            bowl_grid=context.get("bowl_grid", 50),
+        )
+    else:
+        final_weights = apply_intents(weights_c, striker.intent, bowler.intent, league_avg)
     
     outcomes = list(final_weights.keys())
     values = list(final_weights.values())
