@@ -891,6 +891,7 @@ function pcard(card, opts = {}) {
     // capture-phase handler below); the button stops the click from also
     // triggering the card's own select/drag action.
     const canFlip = !!card.style_fit;
+    if (canFlip) cardBackData.set(card.name, card);   // for the Bat/Bowl tab re-render
     if (canFlip && flippedCards.has(card.name)) cls.push('flipped');
     const flipBtn = canFlip ? `<button type="button" class="pcard-flip" title="Role &amp; phase stats">↻</button>` : '';
     const back = canFlip ? pcardBack(card) : '';
@@ -931,25 +932,69 @@ function roleEmoji(role) {
 }
 
 const flippedCards = new Set();   // card names currently showing their back
+const cardBackTab = new Map();    // card name -> 'bat' | 'bowl' (default 'bat')
 
 function pcardBack(card) {
-    const sf = card.style_fit;
     const cell = (v) => {
         const lvl = v >= 80 ? 'hi' : v >= 55 ? 'mid' : 'lo';
         return `<td class="fit-${lvl}">${v}</td>`;
     };
-    const row = (label, ph) => `<tr><th>${label}</th>${cell(sf[ph].attack)}${cell(sf[ph].anchor)}${cell(sf[ph].rotate)}</tr>`;
+    const grid = (fit, cols) => {
+        const row = (label, ph) => `<tr><th>${label}</th>${cols.map(c => cell(fit[ph][c.key])).join('')}</tr>`;
+        return `<table class="fit-grid">
+            <tr><th></th>${cols.map(c => `<th>${c.hdr}</th>`).join('')}</tr>
+            ${row('PP', 'pp')}${row('MID', 'mid')}${row('DTH', 'death')}
+        </table>`;
+    };
+    const hasBowl = !!card.bowl_fit;
+    const tab = hasBowl ? (cardBackTab.get(card.name) || 'bat') : 'bat';
+    // both phase grids: batting (attack/anchor/rotate) and bowling (attack/contain/defend)
+    const batGrid = grid(card.style_fit, [
+        { key: 'attack', hdr: 'ATK' }, { key: 'anchor', hdr: 'ANC' }, { key: 'rotate', hdr: 'ROT' }]);
+    const bowlGrid = hasBowl ? grid(card.bowl_fit, [
+        { key: 'attack', hdr: 'ATK' }, { key: 'contain', hdr: 'CON' }, { key: 'defend', hdr: 'DEF' }]) : '';
+    const tabs = hasBowl
+        ? `<div class="pcard-tabs">
+            <button type="button" class="pcard-tab${tab === 'bat' ? ' on' : ''}" data-backtab="bat">🏏 BAT</button>
+            <button type="button" class="pcard-tab${tab === 'bowl' ? ' on' : ''}" data-backtab="bowl">🎯 BOWL</button>
+        </div>` : '';
     const roleList = (card.roles && card.roles.length)
         ? card.roles.map(r => `${roleEmoji(r.label)} ${r.label} ${r.score}`).join('<br>')
         : (card.role || '');
     return `
     <div class="pcard-face pcard-back">
-        <div class="pcard-role">${roleList}</div>
-        <table class="fit-grid">
-            <tr><th></th><th>ATK</th><th>ANC</th><th>ROT</th></tr>
-            ${row('PP', 'pp')}${row('MID', 'mid')}${row('DTH', 'death')}
-        </table>
+        ${tabs}
+        ${tab === 'bowl'
+            ? `<div class="pcard-role pcard-role-bowl">Bowling phases</div>${bowlGrid}`
+            : `<div class="pcard-role">${roleList}</div>${batGrid}`}
     </div>`;
+}
+
+// Bat/Bowl tab switch on the card back — capture phase for the same reason as
+// the flip button (don't let the tap select/drag the card underneath).
+document.addEventListener('click', (e) => {
+    const tabBtn = e.target.closest('.pcard-tab');
+    if (!tabBtn) return;
+    e.stopPropagation();
+    e.preventDefault();
+    const cardEl = tabBtn.closest('.pcard');
+    const name = cardEl && cardEl.dataset.cardName;
+    if (!name) return;
+    cardBackTab.set(name, tabBtn.dataset.backtab);
+    // re-render just this card's back face in place
+    const backEl = cardEl.querySelector('.pcard-back');
+    if (backEl) {
+        const tmp = document.createElement('div');
+        tmp.innerHTML = pcardBack(cardForBack(cardEl, name));
+        backEl.replaceWith(tmp.firstElementChild);
+    }
+}, true);
+
+// The click handler above needs the card's fit data at tap time, but all we
+// have is the DOM node — so cards stash their data on the element when built.
+const cardBackData = new Map();   // name -> {style_fit, bowl_fit, roles, role}
+function cardForBack(cardEl, name) {
+    return cardBackData.get(name) || { name, style_fit: null, bowl_fit: null };
 }
 
 // Capture phase so the flip toggles BEFORE (and cancels) the card's own
@@ -1022,7 +1067,7 @@ function bowlRoleButtons(m, fit, disabled) {
 // ---------- ground ----------
 function bowlerCard(cb) {
     return pcard({ name: cb.name, batting_ovr: cb.batting_ovr ?? null, bowling_ovr: cb.bowling_ovr,
-                   role: cb.role, style_fit: cb.style_fit },
+                   role: cb.role, roles: cb.roles, style_fit: cb.style_fit, bowl_fit: cb.bowl_fit },
         { figure: `${cb.wickets}-${cb.runs}(${cb.overs})` });
 }
 

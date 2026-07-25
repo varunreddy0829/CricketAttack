@@ -842,6 +842,31 @@ button:disabled {
 .pcard-flip:hover { background: #fff; color: var(--ink); }
 
 .pcard-back { padding: 0.35rem 0.4rem 0.45rem; }
+.pcard-tabs {
+    display: flex;
+    gap: 3px;
+    margin-bottom: 0.3rem;
+    padding-right: 20px;   /* clear the flip button */
+}
+.pcard-tab {
+    flex: 1 1 0;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.06);
+    color: var(--ink-soft);
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.58rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 2px 0;
+    line-height: 1.2;
+    cursor: pointer;
+}
+.pcard-tab.on {
+    background: var(--leather);
+    border-color: var(--leather);
+    color: #fff;
+}
 .pcard-role {
     font-family: 'Oswald', sans-serif;
     font-size: 0.66rem;
