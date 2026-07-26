@@ -103,30 +103,10 @@ function buildColorPicker(pickerId, hiddenId) {
 }
 ['create', 'join', 't-create', 't-join'].forEach(p => buildColorPicker(`${p}-color-picker`, `${p}-color`));
 
-// Jersey style, picked alongside color -- purely cosmetic (see pcard's
-// data-jersey rendering): Home = solid card-top band, Away = the same band
-// hollow. Defaults to "home" (the hidden input already carries that default).
-function buildJerseyToggle(pickerId, hiddenId) {
-    const root = $(pickerId);
-    if (!root) return;
-    root.innerHTML = `
-        <button type="button" class="jersey-swatch picked" data-jersey-val="home">🏠 Home</button>
-        <button type="button" class="jersey-swatch" data-jersey-val="away">✈ Away</button>`;
-    root.querySelectorAll('.jersey-swatch').forEach(b => {
-        b.addEventListener('click', () => {
-            root.querySelectorAll('.jersey-swatch').forEach(s => s.classList.remove('picked'));
-            b.classList.add('picked');
-            $(hiddenId).value = b.dataset.jerseyVal;
-        });
-    });
-}
-['create', 'join', 't-create', 't-join'].forEach(p => buildJerseyToggle(`${p}-jersey-picker`, `${p}-jersey`));
-
 $('btn-create').addEventListener('click', async () => {
     try {
         const data = await Net.post('/api/create_game', {
             name: $('create-name').value.trim(), color: $('create-color').value || undefined,
-            jersey: $('create-jersey').value || undefined,
         });
         Net.setToken(data.token);
         Net.startPolling();
@@ -139,7 +119,6 @@ $('btn-join').addEventListener('click', async () => {
     try {
         const data = await Net.post('/api/join_game', {
             code, name: $('join-name').value.trim(), color: $('join-color').value || undefined,
-            jersey: $('join-jersey').value || undefined,
         });
         Net.setToken(data.token);
         Net.startPolling();
@@ -162,7 +141,6 @@ $('btn-create-tournament').addEventListener('click', async () => {
             name: $('t-create-name').value.trim(),
             size: parseInt($('t-size').value, 10),
             color: $('t-create-color').value || undefined,
-            jersey: $('t-create-jersey').value || undefined,
         });
         Net.setToken(data.token);
         Net.startPolling();
@@ -175,7 +153,6 @@ $('btn-join-tournament').addEventListener('click', async () => {
     try {
         const data = await Net.post('/api/join_tournament', {
             code, name: $('t-join-name').value.trim(), color: $('t-join-color').value || undefined,
-            jersey: $('t-join-jersey').value || undefined,
         });
         Net.setToken(data.token);
         Net.startPolling();

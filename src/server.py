@@ -268,10 +268,9 @@ def _sweep_stale_games():
 
 TEAM_COLOR_PALETTE = ["#e6483c", "#3b82c4", "#e0b400", "#2f9e5c",
                       "#9d5ce0", "#e07b2e", "#22a6a6", "#e05c9e"]
-# Jersey style picked alongside team color: "home" renders player cards with a
-# solid team-color band; "away" renders the same band hollow (outline only,
-# light fill) -- purely cosmetic, no gameplay effect.
-JERSEY_STYLES = ("home", "away")
+# Jersey STYLE ("home" = solid team-color card band, "away" = the same band
+# hollow) is NOT a per-team preference picked at signup -- like real cricket,
+# it's decided by who's actually hosting THIS match. See _set_match_venue.
 
 
 def _fresh_game(num_teams=2):
@@ -288,7 +287,7 @@ def _fresh_game(num_teams=2):
         "tokens": {},       # token -> team_id
         "team_ids": team_ids,          # ordered list of every team slot in this game
         "teams": {t: {"name": f"Team {i+1}", "joined": False, "xi": [], "ready": False,
-                      "color": TEAM_COLOR_PALETTE[i % len(TEAM_COLOR_PALETTE)], "jersey": "home"}
+                      "color": TEAM_COLOR_PALETTE[i % len(TEAM_COLOR_PALETTE)]}
                   for i, t in enumerate(team_ids)},
         "match_teams": team_ids[:2],   # the two teams contesting the CURRENT match
         # match state (populated when the match starts)
@@ -1043,8 +1042,8 @@ def _snapshot_innings():
         "bowling_team_name": g["teams"][_bowling_side()]["name"],
         "batting_team_color": g["teams"][g["batting_side"]].get("color"),
         "bowling_team_color": g["teams"][_bowling_side()].get("color"),
-        "batting_team_jersey": g["teams"][g["batting_side"]].get("jersey", "home"),
-        "bowling_team_jersey": g["teams"][_bowling_side()].get("jersey", "home"),
+        "batting_team_jersey": _jersey_style(g["batting_side"]),
+        "bowling_team_jersey": _jersey_style(_bowling_side()),
         "runs": st.runs, "wickets": st.wickets,
         "overs": _overs_str(st.balls), "extras": st.extras,
         "batting": list(g["bat_card"].values()),
@@ -1517,8 +1516,10 @@ def _to_xi():
     GAME["phase"] = "xi"
     GAME["xi_select"] = {t: {"xi": [], "locked": False} for t in GAME["team_ids"]}
     # Decide (and reveal) the venue before XI picks, not after, so squads can
-    # actually be built around the pitch conditions instead of blind.
-    GAME["match_ground"] = _ground_of(random.choice(GAME["team_ids"][:2]))
+    # actually be built around the pitch conditions instead of blind. One of
+    # the two teams' own claimed grounds is used, so that team is the host
+    # (home jersey) for this match, exactly like a real fixture.
+    _set_match_venue(random.choice(GAME["team_ids"][:2]))
 
 
 def _to_grounds():
@@ -1592,6 +1593,38 @@ def _ground_of(team_id):
     return STADIUM_BY_ID.get(gid) or random.choice(STADIUMS)
 
 
+def _set_match_venue(host_role, teams=None):
+    """Sets match_ground AND match_home_role together, so the stadium and the
+    home/away jersey styling always agree with each other.
+
+    host_role = the team whose claimed ground is actually being used (a real
+    round-robin fixture, or plain 1v1's random-team's-ground pick) -- that
+    team wears the HOME jersey for this match, the other wears AWAY, exactly
+    like a real host advantage.
+
+    host_role = None means a NEUTRAL venue -- no team's own ground is used
+    (playoffs, Quick Match, or any fallback path with nothing to go on).
+    There's no real host to anchor jerseys to, so home/away is just a random
+    pick between the two match teams purely so the sides render as visually
+    distinct kits -- it doesn't imply anything about home advantage."""
+    if host_role is not None:
+        GAME["match_ground"] = _ground_of(host_role)
+        GAME["match_home_role"] = host_role
+    else:
+        GAME["match_ground"] = random.choice(STADIUMS)
+        GAME["match_home_role"] = random.choice(teams or GAME["team_ids"][:2])
+
+
+def _jersey_style(role):
+    """'home'/'away' for `role` in the CURRENT match, derived from
+    match_home_role (see _set_match_venue) -- not a stored preference.
+    None before any match/fixture has decided a venue (lobby, auction)."""
+    home = GAME.get("match_home_role")
+    if home is None or role is None:
+        return None
+    return "home" if role == home else "away"
+
+
 def _ground_view():
     """Public serialization of the current match's stadium."""
     mg = GAME.get("match_ground")
@@ -1607,7 +1640,7 @@ def _start_single_match():
     GAME["live"] = []
     GAME["motm"] = None
     if not GAME.get("match_ground"):
-        GAME["match_ground"] = random.choice(STADIUMS)
+        _set_match_venue(None, GAME.get("match_teams"))
     # one-shot gambit cards, per match per team: All Out Attack is played
     # while batting, Trap Set while bowling (see conditions.py for effects)
     GAME["gambit_cards"] = {t: {"attack": True, "trap": True} for t in GAME["match_teams"]}
@@ -1807,7 +1840,7 @@ def _start_fixture(idx):
     # it here, or the venue shown pre-match wouldn't match the one actually
     # played on. Fallback covers paths that skip that step (e.g. tests).
     if not g.get("match_ground"):
-        g["match_ground"] = _ground_of(fx.get("host", fx["a"])) if fx["kind"] == "round_robin" else random.choice(STADIUMS)
+        _set_match_venue(fx.get("host", fx["a"]) if fx["kind"] == "round_robin" else None, [fx["a"], fx["b"]])
     _start_single_match()
 
 
@@ -2000,12 +2033,11 @@ def _set_awaiting_xi(idx):
     t["fixture_xi_idx"] = idx
     t["fixture_xi"] = {fx["a"]: {"xi": [], "locked": False}, fx["b"]: {"xi": [], "locked": False}}
     t["awaiting_xi"] = True
-    # reveal the venue now, before XI picks -- _start_fixture recomputes the
-    # identical value from the same (unchanged) inputs when the match starts.
-    if fx["kind"] == "round_robin":
-        GAME["match_ground"] = _ground_of(fx.get("host", fx["a"]))
-    else:
-        GAME["match_ground"] = random.choice(STADIUMS)
+    # reveal the venue (and jersey home/away) now, before XI picks --
+    # _start_fixture recomputes the identical value from the same (unchanged)
+    # inputs when the match starts. Round-robin has a real host (the fair-
+    # rotation winner, see _assign_fair_hosts); playoffs are neutral venues.
+    _set_match_venue(fx.get("host", fx["a"]) if fx["kind"] == "round_robin" else None, [fx["a"], fx["b"]])
 
 
 def _lock_fixture_xi(role):
@@ -2114,8 +2146,8 @@ def _serialize_spectator_view():
         "bowling_team_name": g["teams"][bowling]["name"],
         "batting_team_color": g["teams"][batting].get("color"),
         "bowling_team_color": g["teams"][bowling].get("color"),
-        "batting_team_jersey": g["teams"][batting].get("jersey", "home"),
-        "bowling_team_jersey": g["teams"][bowling].get("jersey", "home"),
+        "batting_team_jersey": _jersey_style(batting),
+        "bowling_team_jersey": _jersey_style(bowling),
         "innings": g.get("innings"),
         "score": st.runs, "wickets": st.wickets,
         "overs": f"{st.balls // 6}.{st.balls % 6}",
@@ -2194,19 +2226,16 @@ def _serialize(token):
         "is_tournament": is_tournament,
         "you": {"role": role, "joined": role is not None,
                 "name": g["teams"][role]["name"] if role else None,
-                "color": g["teams"][role].get("color") if role else None,
-                "jersey": g["teams"][role].get("jersey", "home") if role else None},
+                "color": g["teams"][role].get("color") if role else None},
         "opponent": {
             "joined": g["teams"][opp_role]["joined"] if opp_role else False,
             "name": g["teams"][opp_role]["name"] if opp_role else None,
             "color": g["teams"][opp_role].get("color") if opp_role else None,
-            "jersey": g["teams"][opp_role].get("jersey", "home") if opp_role else None,
         } if opp_role else {"joined": False, "name": None},
         "teams": {t: {"name": g["teams"][t]["name"], "joined": g["teams"][t]["joined"],
-                      "color": g["teams"][t].get("color"), "jersey": g["teams"][t].get("jersey", "home")}
+                      "color": g["teams"][t].get("color")}
                   for t in g["team_ids"]},
         "color_palette": TEAM_COLOR_PALETTE,
-        "jersey_styles": list(JERSEY_STYLES),
     }
     if is_tournament:
         out["tournament"] = _serialize_tournament_summary()
@@ -2255,7 +2284,7 @@ def _serialize(token):
             out["fixture_xi"] = {
                 "you_role": role, "team_name": g["teams"][role]["name"],
                 "team_color": g["teams"][role].get("color"),
-                "team_jersey": g["teams"][role].get("jersey", "home"),
+                "team_jersey": _jersey_style(role),
                 "opponent_name": g["teams"][other]["name"], "kind": fx["kind"],
                 "roster": roster, "xi": mine["xi"], "locked": mine["locked"],
                 "opponent_locked": t["fixture_xi"][other]["locked"],
@@ -2509,8 +2538,8 @@ def _serialize(token):
         "bowling_team_name": g["teams"][bowling]["name"],
         "batting_team_color": g["teams"][batting].get("color"),
         "bowling_team_color": g["teams"][bowling].get("color"),
-        "batting_team_jersey": g["teams"][batting].get("jersey", "home"),
-        "bowling_team_jersey": g["teams"][bowling].get("jersey", "home"),
+        "batting_team_jersey": _jersey_style(batting),
+        "bowling_team_jersey": _jersey_style(bowling),
         "i_am_batting": i_bat,
         "runs": st.runs, "wickets": st.wickets, "balls": st.balls,
         "overs": _overs_str(st.balls), "max_overs": OVERS_PER_INNINGS,
@@ -2552,8 +2581,9 @@ def _serialize_auction(role):
 
     def squad_view(r):
         x = sq[r]
+        # no jersey field here -- home/away isn't decided until a real match/
+        # fixture picks a venue (see _set_match_venue); the auction has none
         return {"name": GAME["teams"][r]["name"], "color": GAME["teams"][r].get("color"),
-                "jersey": GAME["teams"][r].get("jersey", "home"),
                 "budget": round(x["budget"], 1),
                 "count": len(x["roster"]), "os": x["os"], "wk": x["wk"],
                 "locked": x["locked"], "roster": x["roster"]}
@@ -2622,7 +2652,7 @@ def _serialize_xi(role):
     return {
         "you_role": role, "team_name": GAME["teams"][role]["name"],
         "team_color": GAME["teams"][role].get("color"),
-        "team_jersey": GAME["teams"][role].get("jersey", "home"),
+        "team_jersey": _jersey_style(role),
         "roster": roster, "xi": mine["xi"], "locked": mine["locked"],
         "opponent_locked": xs[others[0]]["locked"] if len(others) == 1 else None,
         "others_locked_count": locked_others, "others_total": len(others),
@@ -2665,9 +2695,8 @@ def _apply_color(role, data):
     c = data.get("color")
     if c in TEAM_COLOR_PALETTE:
         GAME["teams"][role]["color"] = c
-    j = data.get("jersey")
-    if j in JERSEY_STYLES:
-        GAME["teams"][role]["jersey"] = j
+    # jersey home/away is NOT set here anymore -- it's derived per-match from
+    # who's actually hosting (see _set_match_venue / _jersey_style)
 
 
 @app.route("/api/create_game", methods=["POST"])
@@ -2929,7 +2958,7 @@ def quick_match():
             for t, roster in (("team1", t1_roster), ("team2", t2_roster))
         }
         GAME["match_teams"] = GAME["team_ids"][:2]
-        GAME["match_ground"] = random.choice(STADIUMS)
+        _set_match_venue(None, GAME["match_teams"])   # Quick Match: neutral venue
         _start_single_match()
         _bump()
         return jsonify({"status": "success"})

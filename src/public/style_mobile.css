@@ -253,33 +253,6 @@ button:disabled {
     transform: scale(1.12);
 }
 
-/* jersey style toggle -- picked alongside team color, purely cosmetic */
-.jersey-picker {
-    display: flex;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
-}
-
-.jersey-swatch {
-    padding: 0.35rem 0.8rem;
-    border-radius: var(--radius);
-    border: 2px solid rgba(0, 0, 0, 0.2);
-    background: rgba(0, 0, 0, 0.04);
-    color: var(--ink-soft);
-    font-family: 'Oswald', sans-serif;
-    font-size: 0.8rem;
-    cursor: pointer;
-    transition: transform 0.15s ease, background 0.15s ease;
-}
-
-.jersey-swatch:hover { transform: scale(1.05); }
-
-.jersey-swatch.picked {
-    background: var(--gold);
-    color: var(--ink);
-    border-color: var(--ink);
-}
-
 .team-dot {
     display: inline-block;
     width: 10px;
