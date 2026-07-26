@@ -318,6 +318,9 @@ function updateRejoinLabel(state) {
     }
 }
 
+let lobbyPrevPhase = null;
+let lobbyDoorsPlayed = false;
+
 function render(state) {
     if (!state || state.status === 'no_game' || !state.you || !state.you.joined) {
         $('exit-btn').classList.add('hidden');
@@ -325,8 +328,20 @@ function render(state) {
         $('back-to-tournament-fixed-btn').classList.add('hidden');
         updateRejoinLabel(null);
         showScreen('landing');
+        lobbyPrevPhase = null;
+        lobbyDoorsPlayed = false;
         return;
     }
+    // Elevator doors: play once, exactly on the lobby -> auction phase switch --
+    // the join lobby (both plain and tournament) IS the elevator now; by the
+    // time phase is 'auction' you're already meant to be "in the room", so
+    // the auction screen itself never re-shows the lobby (see renderAuction).
+    if (lobbyPrevPhase === 'lobby' && state.phase !== 'lobby' && !lobbyDoorsPlayed) {
+        playLobbyDoorsTransition();
+        lobbyDoorsPlayed = true;
+    }
+    lobbyPrevPhase = state.phase;
+
     updateRejoinLabel(state);
     // opponent (or you) left -> show result, offer back to main
     if (state.abandoned) {
@@ -438,19 +453,50 @@ function render(state) {
     }
 }
 
-// ---------- lobby ----------
+// ---------- lobby: the elevator waiting room, shown from the moment you
+// join with a code until everyone presses ready and the doors open into the
+// auction. Shared between the plain 1v1 lobby and the tournament lobby --
+// only where the guest list/ready-state comes from differs. ----------
+function elevatorLobbyHtml(code, guests, statusText) {
+    const guestsHtml = guests.map(g => `
+        <div class="lob-guest ${g.state}">
+            <div class="lob-avatar">${g.state === 'empty' ? '?' : initials(g.name)}</div>
+            <div class="lob-guest-name">${g.name}</div>
+            <div class="lob-dot"></div>
+        </div>`).join('');
+    return `
+    <div class="lobby-mockup">
+        <div class="lob-code-badge">Share this code: <b>${code}</b></div>
+        <div class="lob-walls">
+            <div class="lob-indicator"><span class="lob-ind-label">Now Boarding</span><span class="lob-ind-value">Auction Floor</span></div>
+            <div class="lob-doors">
+                <div class="lob-beyond"><div class="lob-beyond-glow"></div><div class="lob-beyond-tables"><div></div><div></div><div></div></div></div>
+                <div class="lob-door lob-door-l"><div class="lob-door-emblem"></div></div>
+                <div class="lob-door lob-door-r"><div class="lob-door-emblem"></div></div>
+            </div>
+        </div>
+        <div class="lob-guests">${guestsHtml}</div>
+        <div class="lob-status">${statusText}</div>
+        <div class="lob-floor"></div>
+    </div>`;
+}
+
 function renderLobby(state) {
-    $('lobby-code').textContent = state.code;
-    $('lobby-t1').textContent = state.teams.team1.name;
-    $('lobby-t1').style.color = state.teams.team1.color || '';
-    $('lobby-t2').textContent = state.teams.team2.joined ? state.teams.team2.name : 'Waiting…';
-    $('lobby-t2').style.color = state.teams.team2.joined ? (state.teams.team2.color || '') : '';
-    $('dot-t1').classList.toggle('on', state.teams.team1.joined);
-    $('dot-t2').classList.toggle('on', state.teams.team2.joined);
-    const both = state.teams.team1.joined && state.teams.team2.joined;
+    const lob = state.lobby || {};
+    const guests = [
+        { name: state.you.name || 'You', state: lob.i_voted ? 'ready' : 'joined' },
+        state.opponent.joined
+            ? { name: state.opponent.name, state: lob.opponent_voted ? 'ready' : 'joined' }
+            : { name: 'Waiting to join…', state: 'empty' },
+    ];
+    const both = state.you.joined && state.opponent.joined;
+    const statusText = both
+        ? `${guests.filter(g => g.state === 'ready').length} of 2 ready`
+        : 'Waiting for opponent to join…';
+    $('lobby-elevator').innerHTML = elevatorLobbyHtml(state.code, guests, statusText);
+
     $('lobby-actions').classList.toggle('hidden', !both);
-    $('lobby-wait').classList.toggle('hidden', both);
-    const btn = $('btn-auction'), lob = state.lobby || {};
+    const btn = $('btn-auction');
     if (lob.i_voted) { btn.textContent = 'Waiting for opponent to accept…'; btn.disabled = true; }
     else if (lob.opponent_voted) { btn.textContent = 'Accept Auction (opponent ready)'; btn.disabled = false; }
     else { btn.textContent = 'Start Auction Draft'; btn.disabled = false; }
@@ -459,13 +505,15 @@ function renderLobby(state) {
 // ---------- tournament lobby ----------
 function renderTournamentLobby(state) {
     const tl = state.tournament_lobby;
-    $('t-lobby-code').textContent = state.code;
-    $('t-lobby-count').textContent = `${tl.joined_count}/${tl.size} teams joined`;
-    $('t-lobby-roster').innerHTML = tl.roster.map(r =>
-        `<div class="t-roster-slot ${r.joined ? 'joined' : 'empty'}">
-            <div class="tname">${r.joined ? r.name : '—'}</div>
-            <div class="tstatus">${r.joined ? 'Ready' : 'Waiting…'}</div>
-        </div>`).join('');
+    const guests = tl.roster.map(r => ({
+        name: r.joined ? r.name : 'Waiting to join…',
+        state: !r.joined ? 'empty' : (tl.start_votes[r.team_id] ? 'ready' : 'joined'),
+    }));
+    const statusText = tl.all_joined
+        ? `${guests.filter(g => g.state === 'ready').length} of ${tl.size} ready`
+        : `${tl.joined_count}/${tl.size} teams joined`;
+    $('t-lobby-elevator').innerHTML = elevatorLobbyHtml(state.code, guests, statusText);
+
     const btn = $('btn-t-start');
     btn.classList.toggle('hidden', !tl.all_joined);
     if (tl.all_joined) {
@@ -2104,9 +2152,6 @@ function withScrollPreserved(selectors, rebuildFn) {
     });
 }
 
-let aucPrevStage = null;
-let aucDoorsPlayed = false;
-
 function renderAuction(state) {
     const a = state.auction;
     const me = a.you_role;
@@ -2117,28 +2162,18 @@ function renderAuction(state) {
 
     // Every poll (bid, timer tick, opponent ready...) rebuilds this whole
     // panel, which yanks any scroll position back to the top -- most
-    // noticeable while scrolling My Squad's card list.
+    // noticeable while scrolling My Squad's card list. The elevator ride
+    // already happened in the join lobby (see renderLobby/renderTournamentLobby)
+    // -- once you're in phase 'auction' you're already "in the room", so
+    // every stage (including the pre-lot-1 'preview' ready-gate) renders as
+    // the normal floor, never the lobby again.
     withScrollPreserved(['#auc-floor-shell', '.mine-list', '.history-list'], () => {
         const shell = $('auc-floor-shell');
-        if (a.stage === 'preview') {
-            shell.innerHTML = lobbyScene(a, me);
-            wireLobbyScene();
-        } else {
-            shell.innerHTML = floorShell(a, me);
-            wireAuctionCenter(a, me);
-            animatePurseValues(shell);
-        }
+        shell.innerHTML = floorShell(a, me);
+        wireAuctionCenter(a, me);
+        animatePurseValues(shell);
         maybeFlashRivalBid(a, me);
     });
-
-    // Elevator doors: play once, exactly on the preview -> bidding transition
-    // (the very first lot only -- every later 'resolved' ready-gate keeps its
-    // normal look, not the lobby).
-    if (aucPrevStage === 'preview' && a.stage !== 'preview' && !aucDoorsPlayed) {
-        playLobbyDoorsTransition();
-        aucDoorsPlayed = true;
-    }
-    aucPrevStage = a.stage;
 
     // Always render full pool into its own tab -- every poll rebuilds this,
     // so explicitly preserve scroll position or browsing the list while an
@@ -2169,42 +2204,6 @@ function renderAuction(state) {
 
 function initials(name) {
     return (name || '').split(' ').map(w => w[0]).filter(Boolean).slice(0, 2).join('').toUpperCase() || '?';
-}
-
-function lobbyScene(a, me) {
-    const teams = [
-        { team_id: me, name: (a.my_squad && a.my_squad.name) || 'You', ready: !!a.ready[me], you: true },
-        ...(a.other_squads || []).map(s => ({ team_id: s.team_id, name: s.name, ready: !!a.ready[s.team_id], you: false })),
-    ];
-    const readyCount = teams.filter(t => t.ready).length;
-    const guests = teams.map(t => `
-        <div class="lob-guest ${t.ready ? 'ready' : ''}">
-            <div class="lob-avatar">${initials(t.name)}</div>
-            <div class="lob-guest-name">${t.name}${t.you ? ' (you)' : ''}</div>
-            <div class="lob-dot"></div>
-        </div>`).join('');
-    return `
-    <div class="lobby-mockup">
-        <div class="lob-walls">
-            <div class="lob-indicator"><span class="lob-ind-label">Now Boarding</span><span class="lob-ind-value">Auction Floor</span></div>
-            <div class="lob-doors">
-                <div class="lob-beyond"><div class="lob-beyond-glow"></div><div class="lob-beyond-tables"><div></div><div></div><div></div></div></div>
-                <div class="lob-door lob-door-l"><div class="lob-door-emblem"></div></div>
-                <div class="lob-door lob-door-r"><div class="lob-door-emblem"></div></div>
-            </div>
-        </div>
-        <div class="lob-guests">${guests}</div>
-        <div class="lob-status">${readyCount} of ${teams.length} teams ready</div>
-        <div class="lob-actions">
-            <button class="lob-ready-btn ${a.ready[me] ? 'on' : ''}" id="auc-ready" ${a.ready[me] ? 'disabled' : ''}>${a.ready[me] ? "You're Ready" : "I'm Ready"}</button>
-        </div>
-        <div class="lob-floor"></div>
-    </div>`;
-}
-
-function wireLobbyScene() {
-    const ready = $('auc-ready');
-    if (ready) ready.addEventListener('click', () => aucAction('/api/auction_ready'));
 }
 
 function playLobbyDoorsTransition() {
@@ -2576,6 +2575,9 @@ function auctioneerHtml() {
 }
 
 function spotlightHtml(a, me) {
+    if (a.stage === 'preview') {
+        return `<div class="spotlight"><div class="spot-kicker">Welcome To The Floor</div><div class="spot-msg">${a.message}</div></div>`;
+    }
     if (a.stage === 'bidding' && a.current) {
         const c = a.current;
         let holder = 'No bids yet — opening price.';
@@ -2623,6 +2625,13 @@ function consoleBox(a, me) {
             <span class="off-txt">Toggle on to auto-ready between lots — sit back and watch.</span>
             <span class="on-txt">Relaxing — auto-readying for you between lots.</span>
         </div>`;
+
+    if (a.stage === 'preview') {
+        return `<div class="panel-title">Auction Console</div>
+            ${instructionsHtml(a)}
+            ${readyBlock(a, me, "I'm Ready to Bid")}
+            ${eatSnacks}`;
+    }
 
     if (a.stage === 'bidding') {
         // Leading bidders can't fold -- otherwise, once every rival has

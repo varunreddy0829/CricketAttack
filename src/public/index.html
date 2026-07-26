@@ -9,9 +9,9 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style_mobile.css?v=4.16">
+    <link rel="stylesheet" href="style_mobile.css?v=4.17">
     <script src="net.js?v=3.9" defer></script>
-    <script src="app.js?v=3.20" defer></script>
+    <script src="app.js?v=3.21" defer></script>
 </head>
 
 <body>
@@ -99,13 +99,9 @@
         </div>
     </div>
 
-    <!-- ============ TOURNAMENT LOBBY ============ -->
+    <!-- ============ TOURNAMENT LOBBY (elevator theme) ============ -->
     <div id="t-lobby" class="screen">
-        <div class="brand" style="font-size:2.2rem;">TOURNAMENT LOBBY</div>
-        <div>Share this code with your friends:</div>
-        <div class="code-badge" id="t-lobby-code">----</div>
-        <div class="tagline" id="t-lobby-count">0/0 teams joined</div>
-        <div class="t-roster" id="t-lobby-roster"></div>
+        <div id="t-lobby-elevator"></div>
         <button class="btn-gold btn-lg hidden" id="btn-t-start">Start Auction Draft</button>
         <div class="tagline" style="max-width:440px; text-align:center; opacity:0.7;">
             Round robin (everyone plays everyone once) seeds the playoffs: top 2 go to Qualifier 1, the loser gets a
@@ -118,23 +114,9 @@
         <div class="t-bracket-wrap" id="t-bracket-wrap"></div>
     </div>
 
-    <!-- ============ LOBBY ============ -->
+    <!-- ============ LOBBY (elevator theme) ============ -->
     <div id="lobby" class="screen">
-        <div class="brand" style="font-size:2.2rem;">MATCH LOBBY</div>
-        <div>Share this code with your opponent:</div>
-        <div class="code-badge" id="lobby-code">----</div>
-
-        <div class="lobby-teams">
-            <div class="lobby-team">
-                <div><span class="dot" id="dot-t1"></span><strong id="lobby-t1">Team 1</strong></div>
-            </div>
-            <div style="font-family:'Oswald'; color:var(--gold); font-size:1.4rem;">VS</div>
-            <div class="lobby-team">
-                <div><span class="dot" id="dot-t2"></span><strong id="lobby-t2">Waiting…</strong></div>
-            </div>
-        </div>
-
-        <div id="lobby-wait" class="tagline">Waiting for opponent to join…</div>
+        <div id="lobby-elevator"></div>
         <div id="lobby-actions" class="hidden"
             style="display:flex; flex-direction:column; gap:0.8rem; align-items:center;">
             <button class="btn-gold btn-lg" id="btn-auction">Start Auction Draft</button>

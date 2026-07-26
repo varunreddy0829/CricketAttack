@@ -551,49 +551,13 @@ button:disabled {
     font-weight: 600;
 }
 
-/* ---------- Lobby ---------- */
-#lobby {
+/* ---------- Lobby (elevator theme; #t-lobby shares the same layout) ---------- */
+#lobby, #t-lobby {
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 1.5rem;
     padding: 2rem;
-}
-
-.code-badge {
-    background: var(--board-bg);
-    color: var(--board-amber);
-    font-family: 'Oswald', sans-serif;
-    font-size: 2.6rem;
-    letter-spacing: 0.35em;
-    padding: 0.6rem 1.4rem 0.6rem 1.7rem;
-    border-radius: 8px;
-    border: 2px solid #333;
-    box-shadow: inset 0 0 20px rgba(247, 179, 43, 0.15);
-}
-
-.lobby-teams {
-    display: flex;
-    gap: 2rem;
-    align-items: center;
-}
-
-.lobby-team {
-    text-align: center;
-}
-
-.lobby-team .dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    display: inline-block;
-    background: #555;
-    margin-right: 6px;
-}
-
-.lobby-team .dot.on {
-    background: var(--green-go);
-    box-shadow: 0 0 8px var(--green-go);
 }
 
 /* ============================================================
@@ -2142,12 +2106,22 @@ button:disabled {
 .lb-table tr:first-child td { color: var(--gold); font-weight: 700; }
 
 /* ---------- Waiting Lobby: a plainer, cooler "hotel corridor" so the
-   maroon-and-gold room reads as an arrival once the doors open ---------- */
+   maroon-and-gold room reads as an arrival once the doors open. This is now
+   the join lobby itself (both #lobby and #t-lobby) -- shown from the moment
+   you join with a code until everyone presses ready. ---------- */
 .lobby-mockup {
-    width: 100%; height: 100%; min-height: 480px; border-radius: 8px; overflow: hidden; position: relative;
+    width: min(640px, 92vw); min-height: 440px; border-radius: 10px; overflow: hidden; position: relative;
     background: linear-gradient(180deg, #1b1d24, #101116);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.4rem; padding: 2.4rem 1.5rem;
 }
+.lob-code-badge {
+    position: absolute; top: 1rem; left: 50%; transform: translateX(-50%);
+    font-family: 'Oswald', sans-serif; font-size: 0.72rem; color: #9aa0ab;
+    background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(201, 178, 138, 0.3); border-radius: 999px;
+    padding: 0.3rem 0.9rem; letter-spacing: 0.03em;
+}
+.lob-code-badge b { color: #f0e2c4; letter-spacing: 0.15em; }
 .lob-floor {
     position: absolute; left: 0; right: 0; bottom: 0; height: 30%;
     background: repeating-linear-gradient(90deg, rgba(201, 178, 138, 0.04) 0 2px, transparent 2px 60px), linear-gradient(180deg, #23252c, #16171b);
@@ -2181,11 +2155,11 @@ button:disabled {
 .lob-dot { width: 7px; height: 7px; border-radius: 50%; background: #565b64; transition: background 0.2s; }
 .lob-guest.ready .lob-avatar { border-color: #c9b28a; box-shadow: 0 0 0 3px rgba(201, 178, 138, 0.2); }
 .lob-guest.ready .lob-dot { background: var(--green-go); }
+.lob-guest.empty { opacity: 0.5; }
+.lob-guest.empty .lob-avatar { border-style: dashed; }
+.lob-guest.empty .lob-guest-name { font-style: italic; }
 
 .lob-status { font-family: 'Oswald', sans-serif; font-size: 0.8rem; color: #eef0f3; }
-.lob-actions { display: flex; gap: 0.7rem; }
-.lob-ready-btn { font-family: 'Oswald', sans-serif; font-weight: 600; letter-spacing: 0.04em; padding: 0.65rem 1.5rem; border-radius: 6px; border: 1px solid #c9b28a; background: #c9b28a; color: #1b1d24; text-transform: uppercase; }
-.lob-ready-btn.on, .lob-ready-btn:disabled { background: var(--green-go); border-color: var(--green-go); color: #fff; opacity: 1; }
 
 /* one-shot full-screen door transition on preview -> bidding */
 .lobby-doors-transition { position: fixed; inset: 0; z-index: 200; display: flex; pointer-events: none; }
