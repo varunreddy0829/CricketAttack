@@ -1823,7 +1823,7 @@ button:disabled {
 /* generous gap: transform:scale() on .auctioneer below grows it visually
    without changing its layout box, so it was painting over the bubble above
    it -- this gap is the real fix, not the scale itself */
-.auctioneer-wrap { display: flex; flex-direction: column; align-items: center; gap: 2.2rem; flex-shrink: 0; }
+.auctioneer-wrap { display: flex; flex-direction: column; align-items: center; gap: 3.6rem; flex-shrink: 0; }
 .a-bubble {
     position: relative;
     width: 170px;
