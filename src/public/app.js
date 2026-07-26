@@ -257,6 +257,51 @@ document.querySelectorAll('.tab').forEach(tab => {
     });
 });
 
+// ---------- auction floor: delegated listeners (registered once; the
+// tables/menu are rebuilt on every poll, so per-element listeners would be
+// lost -- these live on document/static containers instead) ----------
+document.addEventListener('mouseover', (e) => {
+    const t = e.target.closest && e.target.closest('.round-table');
+    if (t) showTableInteractFor(t);
+});
+document.addEventListener('mouseout', (e) => {
+    const t = e.target.closest && e.target.closest('.round-table');
+    const toEl = e.relatedTarget && e.relatedTarget.closest
+        && e.relatedTarget.closest('.round-table, #auc-table-interact');
+    if (t && !toEl) scheduleHideInteract();
+});
+document.addEventListener('click', (e) => {
+    const t = e.target.closest && e.target.closest('.round-table');
+    if (t) openSquadPopup(t.dataset.team);
+});
+if ($('auc-table-interact')) {
+    $('auc-table-interact').addEventListener('mouseenter', () => clearTimeout(interactHideTimer));
+    $('auc-table-interact').addEventListener('mouseleave', scheduleHideInteract);
+    $('auc-table-interact').addEventListener('click', (e) => {
+        const pokeBtn = e.target.closest('[data-poke]');
+        if (pokeBtn && !pokeBtn.disabled) { aucAction('/api/auction_poke', { target: pokeBtn.dataset.poke }); return; }
+        const toggleBtn = e.target.closest('[data-banter-toggle]');
+        if (toggleBtn) {
+            const pop = document.getElementById('banter-pop');
+            if (pop.classList.contains('open')) { pop.classList.remove('open'); return; }
+            pop.innerHTML = BANTER_LINES.map((l, i) => `<button data-banter-line="${i}">${l}</button>`).join('');
+            pop.classList.add('open');
+            return;
+        }
+        const lineBtn = e.target.closest('[data-banter-line]');
+        if (lineBtn) {
+            const target = $('auc-table-interact').dataset.team;
+            aucAction('/api/auction_banter', { target, line_index: parseInt(lineBtn.dataset.banterLine, 10) });
+            document.getElementById('banter-pop').classList.remove('open');
+        }
+    });
+}
+if ($('squad-popup-overlay')) {
+    $('squad-popup-overlay').addEventListener('click', (e) => {
+        if (e.target.id === 'squad-popup-overlay') closeSquadPopup();
+    });
+}
+
 // ---------- master render ----------
 window.addEventListener('gamestate', (e) => {
     CURRENT = e.detail;
@@ -1802,10 +1847,6 @@ function playGavel(strong) {
     og.gain.setValueAtTime(strong ? 0.5 : 0.28, t); og.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
     o.connect(og); og.connect(audioCtx.destination); o.start(t); o.stop(t + 0.22);
 }
-function swingGavel() {
-    const g = $('gavel'); if (!g) return;
-    g.classList.remove('swing'); void g.offsetWidth; g.classList.add('swing');
-}
 
 function playVictoryFanfare() {
     ensureAudio();
@@ -1944,14 +1985,21 @@ let aucFx = { strike: -1, stage: null };
 function maybeGavel(a) {
     const struck = a.stage === 'bidding' && a.strike > aucFx.strike && a.strike > 0;
     const resolved = a.stage === 'resolved' && aucFx.stage !== 'resolved';
-    if (struck || resolved) { swingGavel(); playGavel(resolved); }
+    if (struck || resolved) { playGavel(resolved); swingAuctioneerHammer(); }
     aucFx = { strike: a.stage === 'bidding' ? a.strike : 0, stage: a.stage };
+}
+
+function swingAuctioneerHammer() {
+    const arm = document.querySelector('.a-arm-r-pivot');
+    if (arm) { arm.classList.remove('swing'); void arm.offsetWidth; arm.classList.add('swing'); }
+    const podium = $('a-podium');
+    if (podium) { podium.classList.remove('hit'); void podium.offsetWidth; podium.classList.add('hit'); }
 }
 
 let lastBidder = null;
 function maybeFlashRivalBid(a, me) {
     if (a.stage === 'bidding' && a.active_bidder && a.active_bidder !== me && a.active_bidder !== lastBidder) {
-        const holder = document.querySelector('#auc-center .auc-holder');
+        const holder = document.querySelector('.spot-holder');
         if (holder) {
             holder.classList.remove('rival-bid-flash');
             void holder.offsetWidth;
@@ -1961,10 +2009,77 @@ function maybeFlashRivalBid(a, me) {
     lastBidder = a.stage === 'bidding' ? a.active_bidder : null;
 }
 
-function auctioneerScene() {
-    return `<div class="auctioneer-scene">
-        <div class="gavel-wrap"><span class="gavel" id="gavel">SOLD</span><span class="gavel-block"></span></div>
-    </div>`;
+// ---------- auctioneer commentary, bucketed by real event type ----------
+const AUC_LINES = {
+    sold: [
+        "SOLD! Please collect your player at gate number two.",
+        "Gone! And just like that, someone's purse got lighter.",
+        "That's a wrap on this one — moving right along.",
+    ],
+    unsold: [
+        "Unsold. Tough crowd today.",
+        "No takers — even I'm surprised.",
+        "Nobody wanted that one. Moving on.",
+    ],
+    marquee: [
+        "Ladies and gentlemen, THIS is what you came for.",
+        "Now THIS is a name that gets the room talking.",
+    ],
+    overseas: [
+        "Fresh off the plane and straight onto the block.",
+        "A little overseas flavor for the squad, anyone?",
+    ],
+    bigjump: [
+        "Whoa! Somebody really wants this one.",
+        "That's a serious jump — the purse is sweating.",
+    ],
+    out: [
+        "And there goes another one, folding under pressure.",
+        "Smart move, or cold feet? You decide.",
+    ],
+    once: ["Going once… my arm's getting tired, people!"],
+    twice: ["Going twice! Last chance, folks!"],
+};
+function auctioneerLine(bucket) {
+    const arr = AUC_LINES[bucket] || [];
+    return arr.length ? arr[Math.floor(Math.random() * arr.length)] : '';
+}
+
+let aucCommentaryState = { stage: null, strike: 0, current: null, bid: null, out: {} };
+function maybeAuctioneerLine(a) {
+    const bubble = $('a-bubble');
+    if (!bubble) return;
+    const prev = aucCommentaryState;
+    let bucket = null;
+
+    if (a.stage === 'bidding' && a.current && prev.current !== a.current.name) {
+        bucket = a.current.is_foreigner ? 'overseas' : (a.tier === 'Marquee' ? 'marquee' : null);
+    } else if (a.stage === 'bidding' && prev.bid !== null && a.current_bid - prev.bid >= 3) {
+        bucket = 'bigjump';
+    } else if (a.stage === 'bidding' && a.strike === 1 && prev.strike !== 1) {
+        bucket = 'once';
+    } else if (a.stage === 'bidding' && a.strike === 2 && prev.strike !== 2) {
+        bucket = 'twice';
+    } else if (a.stage === 'resolved' && prev.stage !== 'resolved') {
+        bucket = a.last_result === 'sold' ? 'sold' : 'unsold';
+    } else if (a.stage === 'bidding') {
+        const newlyOut = Object.keys(a.out).find(t => a.out[t] && !prev.out[t]);
+        if (newlyOut) bucket = 'out';
+    }
+
+    if (bucket) {
+        const line = auctioneerLine(bucket);
+        if (line) bubble.textContent = line;
+    } else if (!bubble.textContent) {
+        bubble.textContent = "Let's see some bids, folks!";
+    }
+
+    aucCommentaryState = {
+        stage: a.stage, strike: a.stage === 'bidding' ? a.strike : 0,
+        current: a.current ? a.current.name : null,
+        bid: a.stage === 'bidding' ? a.current_bid : null,
+        out: { ...a.out },
+    };
 }
 
 // Captures scrollTop for every selector that currently matches, runs
@@ -1989,41 +2104,48 @@ function withScrollPreserved(selectors, rebuildFn) {
     });
 }
 
+let aucPrevStage = null;
+let aucDoorsPlayed = false;
+
 function renderAuction(state) {
     const a = state.auction;
     const me = a.you_role;
     $('auc-role').textContent = 'You: ' + (a.my_squad ? a.my_squad.name : me);
     $('auc-role').className = 'role-pill batting';
-    if ($('auc-set')) {
-        $('auc-set').textContent = a.set_id ? `Set ${a.set_id}: ${a.tier} ${a.role_name}s` : 'Auction';
-    }
+    const pc = $('auc-poke-counter');
+    if (pc) { pc.classList.remove('hidden'); pc.innerHTML = `Pokes left: <b>${a.pokes_left}</b>`; }
 
     // Every poll (bid, timer tick, opponent ready...) rebuilds this whole
     // panel, which yanks any scroll position back to the top -- most
-    // noticeable while scrolling the pool list during the 'preview' stage.
-    withScrollPreserved(['#auc-center', '.auc-main', '#auc-center .pool-list'], () => {
-        $('auc-my').className = 'squad-panel me';
-        $('auc-opp').className = 'squad-panel opp';
-        $('auc-my').innerHTML = squadPanel(a.my_squad, true, a);
-        $('auc-opp').innerHTML = a.opp_squad
-            ? squadPanel(a.opp_squad, false, a)
-            : otherSquadsPanel(a.other_squads, a);
-        if (!a.opp_squad) wireOtherSquads();
-        animatePurseValues($('auc-my'));
-        animatePurseValues($('auc-opp'));
-        $('auc-center').innerHTML = auctionCenter(a, me);
-        wireAuctionCenter(a, me);
+    // noticeable while scrolling My Squad's card list.
+    withScrollPreserved(['#auc-floor-shell', '.mine-list', '.history-list'], () => {
+        const shell = $('auc-floor-shell');
+        if (a.stage === 'preview') {
+            shell.innerHTML = lobbyScene(a, me);
+            wireLobbyScene();
+        } else {
+            shell.innerHTML = floorShell(a, me);
+            wireAuctionCenter(a, me);
+            animatePurseValues(shell);
+        }
         maybeFlashRivalBid(a, me);
     });
 
-    // Always render full pool into the new tab -- every poll rebuilds this
-    // (bids, timer ticks, sales...), so explicitly preserve scroll position
-    // or browsing the list while an auction is live gets yanked back to the
-    // top on every single update.
+    // Elevator doors: play once, exactly on the preview -> bidding transition
+    // (the very first lot only -- every later 'resolved' ready-gate keeps its
+    // normal look, not the lobby).
+    if (aucPrevStage === 'preview' && a.stage !== 'preview' && !aucDoorsPlayed) {
+        playLobbyDoorsTransition();
+        aucDoorsPlayed = true;
+    }
+    aucPrevStage = a.stage;
+
+    // Always render full pool into its own tab -- every poll rebuilds this,
+    // so explicitly preserve scroll position or browsing the list while an
+    // auction is live gets yanked back to the top on every single update.
     if ($('auc-full-pool')) {
         const sold = [
             ...(a.my_squad ? a.my_squad.roster.map(p => p.name) : []),
-            ...(a.opp_squad ? a.opp_squad.roster.map(p => p.name) : []),
             ...(a.other_squads || []).flatMap(s => s.roster_names || []),
         ];
         withScrollPreserved(['#atab-pool', '#auc-full-pool .pool-list'], () => {
@@ -2031,33 +2153,106 @@ function renderAuction(state) {
         });
     }
 
+    if ($('auc-minigames')) {
+        $('auc-minigames').innerHTML = miniGamesPanel(a, me);
+        wireMiniGames();
+    }
+
     if (a.stage === 'bidding' || a.stage === 'done') setAucTimer(a.time_left_ms, a.total_wait_ms);
     else setAucTimer(0, 0);
 
     maybeGavel(a);
+    maybeAuctioneerLine(a);
+    maybeRollFloorBuzz(a);
+    maybeShowNewEvents(a, me);
 }
 
-function squadPanel(sq, isMe, a) {
+function initials(name) {
+    return (name || '').split(' ').map(w => w[0]).filter(Boolean).slice(0, 2).join('').toUpperCase() || '?';
+}
+
+function lobbyScene(a, me) {
+    const teams = [
+        { team_id: me, name: (a.my_squad && a.my_squad.name) || 'You', ready: !!a.ready[me], you: true },
+        ...(a.other_squads || []).map(s => ({ team_id: s.team_id, name: s.name, ready: !!a.ready[s.team_id], you: false })),
+    ];
+    const readyCount = teams.filter(t => t.ready).length;
+    const guests = teams.map(t => `
+        <div class="lob-guest ${t.ready ? 'ready' : ''}">
+            <div class="lob-avatar">${initials(t.name)}</div>
+            <div class="lob-guest-name">${t.name}${t.you ? ' (you)' : ''}</div>
+            <div class="lob-dot"></div>
+        </div>`).join('');
+    return `
+    <div class="lobby-mockup">
+        <div class="lob-walls">
+            <div class="lob-indicator"><span class="lob-ind-label">Now Boarding</span><span class="lob-ind-value">Auction Floor</span></div>
+            <div class="lob-doors">
+                <div class="lob-beyond"><div class="lob-beyond-glow"></div><div class="lob-beyond-tables"><div></div><div></div><div></div></div></div>
+                <div class="lob-door lob-door-l"><div class="lob-door-emblem"></div></div>
+                <div class="lob-door lob-door-r"><div class="lob-door-emblem"></div></div>
+            </div>
+        </div>
+        <div class="lob-guests">${guests}</div>
+        <div class="lob-status">${readyCount} of ${teams.length} teams ready</div>
+        <div class="lob-actions">
+            <button class="lob-ready-btn ${a.ready[me] ? 'on' : ''}" id="auc-ready" ${a.ready[me] ? 'disabled' : ''}>${a.ready[me] ? "You're Ready" : "I'm Ready"}</button>
+        </div>
+        <div class="lob-floor"></div>
+    </div>`;
+}
+
+function wireLobbyScene() {
+    const ready = $('auc-ready');
+    if (ready) ready.addEventListener('click', () => aucAction('/api/auction_ready'));
+}
+
+function playLobbyDoorsTransition() {
+    const overlay = document.createElement('div');
+    overlay.className = 'lobby-doors-transition';
+    overlay.innerHTML = `<div class="lobby-doors-transition-door left"></div><div class="lobby-doors-transition-door right"></div>`;
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => overlay.classList.add('open'));
+    setTimeout(() => overlay.remove(), 1300);
+}
+
+function floorShell(a, me) {
+    return `
+    <div class="auc-shell">
+        <div class="auc-left">
+            <div class="panel auc-mine-box">${mySquadCards(a.my_squad, a)}</div>
+            <div class="panel auc-console-box">${consoleBox(a, me)}</div>
+        </div>
+        <div class="auc-center">
+            ${stageBlock(a, me)}
+            <div class="auc-floor" id="auc-floor">
+                <div class="floor-kicker">The Floor</div>
+                ${floorTables(a.other_squads)}
+            </div>
+        </div>
+        <div class="auc-right">${rightRail(a)}</div>
+    </div>`;
+}
+
+function mySquadCards(sq, a) {
     const rows = sq.roster.map(p => {
         const isKeeper = p.is_keeper || p.assigned_role === 'Wicket Keeper';
         const price = typeof p.price === 'number' ? p.price.toFixed(1) : (p.price ?? 0);
         return pcard(p, {
             figure: `₹${price} Cr`,
             tag: `${p.is_foreigner ? 'OS · ' : ''}${isKeeper ? 'WK' : (p.assigned_role || '')}`,
-            jerseyColor: sq.color, jerseyStyle: sq.jersey,
         });
     }).join('');
     const rosterHtml = rows
-        ? `<div class="roster-cards">${rows}</div>`
+        ? `<div class="mine-list" id="mine-list">${rows}</div>`
         : '<div class="bench-empty">No buys yet.</div>';
     const pct = Math.min(100, Math.round((sq.count / a.squad_min) * 100));
     const need = Math.max(0, a.squad_min - sq.count);
     const progLabel = sq.count >= a.squad_min
         ? (sq.wk >= 1 ? 'Squad legal — can lock in' : 'Need a wicket-keeper')
         : `${need} more to reach the minimum ${a.squad_min}`;
-    const dot = sq.color ? `<span class="team-dot" style="background:${sq.color}"></span>` : '';
-    return `<h3>${dot}${sq.name}${isMe ? ' (You)' : ''} ${sq.locked ? '<span class="badge-tier">LOCKED</span>' : ''}</h3>
-        <div class="purse" data-purse="${sq.budget}" data-purse-key="${sq.name}">₹${sq.budget.toFixed(1)} Cr</div>
+    return `
+        <div class="panel-title">My Squad — <span class="purse" data-purse="${sq.budget}" data-purse-key="my">₹${sq.budget.toFixed(1)} Cr</span> left ${sq.locked ? '<span class="badge-tier">LOCKED</span>' : ''}</div>
         <div class="squad-stats">
             <span>Squad <b>${sq.count}</b>/${a.squad_max}</span>
             <span>Overseas <b>${sq.os}</b></span>
@@ -2105,32 +2300,206 @@ function teamColor(a, role) {
     return found ? found.color : null;
 }
 
-function otherSquadsPanel(others, a) {
-    if (!others || !others.length) return '<h3>Other Squads</h3><div class="bench-empty">—</div>';
-    const rows = others.map(sq => {
-        const open = ui.expandedSquad === sq.team_id;
-        const names = sq.roster_names || [];
-        const detail = names.length
-            ? names.map(n => `<div class="other-squad-player">${n}</div>`).join('')
-            : '<div class="bench-empty">No buys yet.</div>';
-        const dot = sq.color ? `<span class="team-dot" style="background:${sq.color}"></span>` : '';
-        return `
-        <div class="roster-item other-squad-row" data-expand-squad="${sq.team_id}" style="align-items:center; cursor:pointer;">
-            <span>${open ? '[-]' : '[+]'} ${dot}${sq.name} ${sq.locked ? '<span class="badge-tier">LOCKED</span>' : ''}</span>
-            <span class="price">₹${sq.budget.toFixed(1)} Cr &middot; ${sq.count}/${a.squad_max} &middot; WK ${sq.wk}</span>
-        </div>
-        <div class="other-squad-detail${open ? '' : ' hidden'}">${detail}</div>`;
+// ---------- the floor: round tables for every other squad ----------
+const FLOOR_POSITIONS = [
+    { top: '10%', left: '3%' }, { top: '4%', left: '55%' },
+    { top: '50%', left: '24%' }, { top: '54%', left: '64%' },
+    { top: '8%', left: '30%' }, { top: '58%', left: '4%' },
+    { top: '30%', left: '75%' }, { top: '34%', left: '48%' },
+];
+
+function floorTables(others) {
+    if (!others || !others.length) return '<div class="bench-empty">No other squads yet.</div>';
+    return others.map((sq, i) => {
+        const pos = FLOOR_POSITIONS[i % FLOOR_POSITIONS.length];
+        const sorted = [...sq.roster].sort((x, y) => (y.price || 0) - (x.price || 0));
+        const top3 = sorted.slice(0, 3);
+        const extra = sq.roster.length - top3.length;
+        const cardsHtml = top3.map(p => pcard(p, { figure: `₹${(p.price || 0).toFixed(1)} Cr` })).join('');
+        return `<div class="round-table" data-team="${sq.team_id}" style="top:${pos.top}; left:${pos.left}">
+            <div class="table-shadow"></div>
+            <div class="table-cloth">
+                <div class="table-nameplate">${sq.name}${sq.locked ? ' <span class="badge-tier">LOCKED</span>' : ''}</div>
+                ${extra > 0 ? `<div class="table-more">+${extra}</div>` : ''}
+                <div class="table-cards">${cardsHtml || ''}</div>
+            </div>
+            <div class="table-stats">${sq.count} players · ₹${sq.budget.toFixed(1)} Cr left</div>
+        </div>`;
     }).join('');
-    return `<h3>Other Squads</h3>${rows}`;
 }
 
-function wireOtherSquads() {
-    document.querySelectorAll('#auc-opp [data-expand-squad]').forEach(el =>
-        el.addEventListener('click', () => {
-            const id = el.dataset.expandSquad;
-            ui.expandedSquad = ui.expandedSquad === id ? null : id;
-            if (CURRENT) renderAuction(CURRENT);
-        }));
+function openSquadPopup(teamId) {
+    if (!CURRENT || !CURRENT.auction) return;
+    const sq = (CURRENT.auction.other_squads || []).find(s => s.team_id === teamId);
+    if (!sq) return;
+    const rows = sq.roster.map(p => pcard(p, { figure: `₹${(p.price || 0).toFixed(1)} Cr` })).join('');
+    $('squad-popup-card').innerHTML = `
+        <h2>${sq.name}</h2>
+        <p class="sub">${sq.count} players · ₹${sq.budget.toFixed(1)} Cr left</p>
+        <div class="modal-grid">${rows || '<div class="bench-empty">No buys yet.</div>'}</div>
+        <button class="btn-ghost btn-lg" id="squad-popup-close" style="margin-top:1rem;">Close</button>`;
+    $('squad-popup-overlay').classList.remove('hidden');
+    $('squad-popup-close').addEventListener('click', closeSquadPopup);
+}
+function closeSquadPopup() { $('squad-popup-overlay').classList.add('hidden'); }
+
+// ---------- recent buys + floor buzz ----------
+function rightRail(a) {
+    const rows = (a.sold_log || []).slice(0, 12).map(s =>
+        `<div class="hrow"><span class="p">${s.name}</span><span class="t">${s.team}</span><span class="amt">₹${s.price.toFixed(1)}</span></div>`
+    ).join('');
+    return `
+        <div class="panel auc-history-box">
+            <div class="panel-title">Recent Buys</div>
+            <div class="history-list">${rows || '<div class="bench-empty">No sales yet.</div>'}</div>
+        </div>
+        <div class="panel auc-news-box" id="auc-news-box">${floorBuzzHtml()}</div>`;
+}
+
+const FLOOR_BUZZ_LINES = [
+    'Sources say Yuvraj Singh spent the break perfecting his "not bothered" face.',
+    'A franchise owner was seen bidding by raising the wrong hand. Twice.',
+    'A team’s scout was overheard calling a No. 11 "a future all-rounder, probably."',
+    'Rumor mill: one owner is bidding purely to annoy a rival. It’s working.',
+    'A support staffer was seen googling the player mid-auction.',
+    'Someone just asked if the purse is refundable. It is not.',
+    'A team’s group chat has apparently gone silent. That’s never good.',
+    'Reports suggest snacks were a bigger topic than strategy this set.',
+];
+let floorBuzzShown = [];
+function floorBuzzHtml() {
+    if (!floorBuzzShown.length) rollFloorBuzz();
+    return `<div class="panel-title">Floor Buzz</div>` +
+        floorBuzzShown.map(l => `<div class="news-item">${l}</div>`).join('') +
+        `<div class="news-note">rotates through dozens of one-liners — not every lot gets one</div>`;
+}
+function rollFloorBuzz() {
+    const pool = FLOOR_BUZZ_LINES.filter(l => !floorBuzzShown.includes(l));
+    const src = pool.length ? pool : FLOOR_BUZZ_LINES;
+    floorBuzzShown = [src[Math.floor(Math.random() * src.length)], ...floorBuzzShown].slice(0, 3);
+}
+let lastBuzzSoldCount = null;
+function maybeRollFloorBuzz(a) {
+    const n = (a.sold_log || []).length;
+    // deliberately NOT tied to every lot -- only a ~20% chance per sale, so
+    // it reads as background gossip rather than a per-event commentary track
+    if (lastBuzzSoldCount !== null && n > lastBuzzSoldCount && Math.random() < 0.2) {
+        rollFloorBuzz();
+        const box = $('auc-news-box');
+        if (box) box.innerHTML = floorBuzzHtml();
+    }
+    lastBuzzSoldCount = n;
+}
+
+// ---------- poke / banter: a floating menu that escapes .auc-floor's
+// overflow:hidden by living outside it, positioned via getBoundingClientRect
+// and clamped to the viewport so it can never be clipped, however close the
+// hovered table is to the top/right/bottom edge of the floor. ----------
+const BANTER_LINES = [
+    'Purse looking thin.', "That's a robbery.", 'Bold. Very bold.',
+    'Overpaid, legend.', 'Marquee price, bench player?', 'Yikes. Just yikes.',
+];
+let interactHideTimer = null;
+function showTableInteractFor(tableEl) {
+    clearTimeout(interactHideTimer);
+    const team = tableEl.dataset.team;
+    const pokesLeft = (CURRENT && CURRENT.auction) ? CURRENT.auction.pokes_left : 0;
+    const menu = $('auc-table-interact');
+    menu.dataset.team = team;
+    menu.innerHTML = `
+        <button class="interact-btn poke" ${pokesLeft <= 0 ? 'disabled' : ''} data-poke="${team}">Poke</button>
+        <button class="interact-btn" data-banter-toggle="${team}">Banter</button>
+        <div class="banter-pop" id="banter-pop"></div>`;
+    positionInteractMenu(tableEl, menu);
+    menu.classList.remove('hidden');
+}
+function positionInteractMenu(tableEl, menu) {
+    const rect = tableEl.getBoundingClientRect();
+    const w = 190;
+    let left = rect.left + rect.width / 2 - w / 2;
+    left = Math.max(8, Math.min(window.innerWidth - w - 8, left));
+    let top = rect.top - 44;
+    if (top < 8) top = rect.bottom + 8;   // flip below when too close to the top edge
+    menu.style.left = left + 'px';
+    menu.style.top = top + 'px';
+}
+function scheduleHideInteract() {
+    clearTimeout(interactHideTimer);
+    interactHideTimer = setTimeout(() => $('auc-table-interact').classList.add('hidden'), 300);
+}
+
+function spawnCrowdReaction(anchorEl) {
+    const react = document.createElement('div');
+    react.className = 'poke-reaction';
+    react.innerHTML = '<span>HA</span><span>HA</span><span>HA</span>';
+    const crowd = document.createElement('div');
+    crowd.className = 'poke-crowd';
+    crowd.innerHTML = '<div class="face"></div><div class="face"></div><div class="face"></div>';
+    anchorEl.appendChild(react);
+    anchorEl.appendChild(crowd);
+    setTimeout(() => { react.remove(); crowd.remove(); }, 1600);
+}
+
+const pokeAudio = new Audio('audio/laughs.mp3');
+function playPokeSound() {
+    try { pokeAudio.currentTime = 0; pokeAudio.play().catch(() => {}); } catch (e) { /* audio unavailable -- ignore */ }
+}
+
+let seenAucEventIds = new Set();
+function maybeShowNewEvents(a, me) {
+    (a.events || []).forEach(ev => {
+        if (seenAucEventIds.has(ev.id)) return;
+        seenAucEventIds.add(ev.id);
+        if (ev.kind === 'poke') {
+            if (ev.to === me) {
+                // being poked: audio only, no HA-HA/crowd on your own bench --
+                // the mockery plays out on the floor, not on your screen
+                playPokeSound();
+            } else {
+                const tableEl = document.querySelector(`.round-table[data-team="${ev.to}"]`);
+                if (tableEl) {
+                    const cards = tableEl.querySelector('.table-cards');
+                    if (cards) { cards.classList.remove('poked'); void cards.offsetWidth; cards.classList.add('poked'); }
+                    spawnCrowdReaction(tableEl);
+                }
+                playPokeSound();
+            }
+        } else if (ev.kind === 'banter') {
+            if (ev.to === me) toast(`${teamName(a, ev.from)}: "${ev.line}"`);
+            else if (ev.from === me) toast(`You told ${teamName(a, ev.to)}: "${ev.line}"`);
+        }
+    });
+}
+
+// ---------- Guess the Price (Mini Games tab) ----------
+function miniGamesPanel(a) {
+    const lb = (a.guess.leaderboard || []).map(row =>
+        `<tr><td>${row.name}</td><td>${row.points}</td></tr>`).join('');
+    const canGuess = a.stage === 'bidding' && !a.guess.locked;
+    const lockedHtml = a.guess.locked
+        ? `<div class="guess-locked">Your guess: <b>₹${a.guess.my_guess.toFixed(1)} Cr</b> — locked in, waiting for the hammer…</div>`
+        : '';
+    return `
+    <div class="mg-card">
+        <div class="mg-title">Guess the Price</div>
+        <div class="mg-sub">${a.stage === 'bidding' && a.current ? `Current lot: ${a.current.name} — purely for fun, doesn't touch your purse` : 'No lot up right now — check back once the next one starts.'}</div>
+        ${canGuess ? `
+        <div class="guess-input-row">
+            <input type="number" id="guess-input" placeholder="₹ Cr" step="0.1" min="0">
+            <button id="guess-lock-btn">Lock In</button>
+        </div>` : ''}
+        ${lockedHtml}
+        <div class="panel-title" style="margin-top:1.1rem;">Leaderboard (running total)</div>
+        <table class="lb-table"><tr><th>Team</th><th>Points</th></tr>${lb || '<tr><td colspan="2">No guesses yet.</td></tr>'}</table>
+    </div>`;
+}
+function wireMiniGames() {
+    const btn = $('guess-lock-btn');
+    if (btn) btn.addEventListener('click', () => {
+        const v = parseFloat($('guess-input').value);
+        if (isNaN(v) || v <= 0) return;
+        aucAction('/api/guess_price', { amount: v });
+    });
 }
 
 function instructionsHtml(a) {
@@ -2184,31 +2553,82 @@ function skipSetBlock(a) {
     return `<button class="btn-ghost" id="auc-skip-set">Vote to skip this set (${sv.count}/${sv.total})</button>`;
 }
 
-function auctionCenter(a, me) {
-    const instr = instructionsHtml(a);
+// ---------- stage: the auctioneer + the spotlighted current/just-resolved lot ----------
+function stageBlock(a, me) {
+    return `<div class="auc-stage">${auctioneerHtml()}${spotlightHtml(a, me)}</div>`;
+}
 
-    if (a.stage === 'preview') {
-        const sold1 = a.my_squad ? a.my_squad.roster.map(p => p.name) : [];
-        const sold2 = a.opp_squad ? a.opp_squad.roster.map(p => p.name) : [];
-        return instr + `<div class="auc-msg">${a.message}</div>`
-            + readyBlock(a, me, "I'm Ready to Bid") + poolList(a.pool, [...sold1, ...sold2]);
-    }
+function auctioneerHtml() {
+    return `<div class="auctioneer-wrap">
+        <div class="a-bubble" id="a-bubble"></div>
+        <div class="auctioneer">
+            <div class="a-turban"><div class="a-turban-jewel"></div></div>
+            <div class="a-head"></div>
+            <div class="a-eye l"></div><div class="a-eye r"></div>
+            <div class="a-mustache"></div>
+            <div class="a-body"></div>
+            <div class="a-sash"></div>
+            <div class="a-arm-l"></div>
+            <div class="a-arm-r-pivot"><div class="a-arm-r"><div class="a-hammer"></div></div></div>
+        </div>
+        <div class="a-podium" id="a-podium"><div class="a-impact" id="a-impact"></div></div>
+    </div>`;
+}
 
-    if (a.stage === 'bidding') {
+function spotlightHtml(a, me) {
+    if (a.stage === 'bidding' && a.current) {
         const c = a.current;
-        const tier = c.is_foreigner ? '<span class="badge-tier badge-os">OVERSEAS</span>' : '';
-        const card = pcard(c, { ovr: Math.max(c.batting_ovr, c.bowling_ovr), tag: `${a.tier} ${a.role_name}` });
         let holder = 'No bids yet — opening price.';
         if (a.active_bidder) {
             const bc = teamColor(a, a.active_bidder);
             holder = a.active_bidder === me ? 'You hold the top bid'
                 : `<span style="${bc ? `color:${bc}` : ''}">${teamName(a, a.active_bidder)}</span> holds the bid`;
         }
-        const strikeTxt = a.strike === 1 ? 'GOING ONCE…' : a.strike === 2 ? 'GOING TWICE…' : '';
-        const iAmLeading = a.active_bidder === me;
+        const strikeTxt = a.strike === 1 ? 'Going once…' : a.strike === 2 ? 'Going twice!' : '';
+        return `<div class="spotlight">
+            <div class="spot-kicker">On The Block</div>
+            <div class="spot-tags">
+                <span class="spot-tag">${a.tier} Set</span>
+                <span class="spot-tag">${a.role_name}</span>
+                ${c.is_foreigner ? '<span class="spot-tag os">Overseas</span>' : ''}
+            </div>
+            <div class="spot-card">${pcard(c, {})}</div>
+            <div class="auc-timer"><div class="auc-timer-fill" id="auc-timer-fill"></div></div>
+            <div class="spot-bid-row"><div class="spot-bid">₹${a.current_bid.toFixed(1)} Cr</div><div class="spot-holder">${holder}</div></div>
+            <div class="spot-strike">${strikeTxt}</div>
+        </div>`;
+    }
+    if (a.stage === 'resolved' && a.current) {
+        const c = a.current;
+        const sold = a.last_result === 'sold';
+        return `<div class="spotlight resolved-spot">
+            <div class="spot-stamp ${sold ? 'stamp-sold' : 'stamp-unsold'}">${sold ? 'SOLD' : 'UNSOLD'}</div>
+            <div class="spot-kicker">${a.tier} Set · ${a.role_name}</div>
+            <div class="spot-card">${pcard(c, {})}</div>
+            <div class="spot-msg" style="color:${sold ? 'var(--green-go)' : 'var(--leather)'}">${a.message}</div>
+        </div>`;
+    }
+    // done
+    return `<div class="spotlight"><div class="spot-kicker">Auction Complete</div><div class="spot-msg">${a.message}</div></div>`;
+}
+
+// ---------- console: bid controls (mechanics unchanged), lock/skip-set, Eat Snacks ----------
+function consoleBox(a, me) {
+    const eatSnacks = `
+        <div class="snack-row ${a.auto_ready ? 'on' : ''}" id="auc-snack-toggle">
+            <span class="snack-label">Eat Snacks</span>
+            <div class="switch"></div>
+        </div>
+        <div class="snack-hint">
+            <span class="off-txt">Toggle on to auto-ready between lots — sit back and watch.</span>
+            <span class="on-txt">Relaxing — auto-readying for you between lots.</span>
+        </div>`;
+
+    if (a.stage === 'bidding') {
         // Leading bidders can't fold -- otherwise, once every rival has
         // pulled out, the leader could pull out too and force the lot
         // unsold for free instead of paying the bid they'd otherwise win.
+        const iAmLeading = a.active_bidder === me;
         const pullOutBtn = iAmLeading ? '' : '<button class="btn-red" id="bid-out">I\'m Out</button>';
         // Marquee lots open big (₹2 Cr) and usually move in big jumps early on --
         // +0.1 only clutters that. It shows up once the bid actually gets
@@ -2229,39 +2649,21 @@ function auctionCenter(a, me) {
                </div>`;
         const controls = (a.out[me] || a.my_locked)
             ? `<div class="auc-holder">${a.my_locked ? 'Your squad is locked — sitting out.' : 'You pulled out of this lot.'}</div>`
-            : `<div class="bid-controls">
-                 ${bidControls}
-                 <div class="bid-row">${pullOutBtn}</div>
-               </div>`;
-        const strikeCls = a.strike === 1 ? 'strike-once' : a.strike === 2 ? 'strike-twice' : '';
-        return auctioneerScene() + `<div class="auc-msg">${a.message}</div>
-            <div class="auc-timer"><div class="auc-timer-fill" id="auc-timer-fill"></div></div>
-            <div style="text-align:center">${tier}</div>
-            <div class="auc-player big-card ${strikeCls}">${card}</div>
-            <div class="auc-bid">₹${a.current_bid.toFixed(1)} Cr</div>
-            <div class="auc-holder">${holder}</div>
-            <div class="auc-msg" style="color:var(--leather); min-height:1rem">${strikeTxt}</div>
+            : `<div class="bid-controls">${bidControls}<div class="bid-row">${pullOutBtn}</div></div>`;
+        return `<div class="panel-title">Auction Console</div>
             ${controls}
             ${lockBlock(a)}
-            ${skipSetBlock(a)}`;
+            ${skipSetBlock(a)}
+            ${eatSnacks}`;
     }
 
     if (a.stage === 'resolved') {
-        const sold = a.last_result === 'sold';
-        const col = sold ? 'var(--green-go)' : 'var(--leather)';
-        const c = a.current;
-        const stampCard = c
-            ? `<div class="auc-player big-card resolved-card">
-                 <div class="auc-stamp ${sold ? 'stamp-sold' : 'stamp-unsold'}">${sold ? 'SOLD' : 'UNSOLD'}</div>
-                 ${pcard(c, { ovr: Math.max(c.batting_ovr, c.bowling_ovr), tag: `${a.tier} ${a.role_name}` })}
-               </div>`
-            : '';
-        return instr + auctioneerScene()
-            + stampCard
-            + `<div class="auc-msg" style="font-size:1.5rem; color:${col}">${a.message}</div>`
-            + lockBlock(a)
-            + readyBlock(a, me, 'Ready for Next Lot')
-            + skipSetBlock(a);
+        return `<div class="panel-title">Auction Console</div>
+            ${instructionsHtml(a)}
+            ${readyBlock(a, me, 'Ready for Next Lot')}
+            ${lockBlock(a)}
+            ${skipSetBlock(a)}
+            ${eatSnacks}`;
     }
 
     // done
@@ -2279,7 +2681,8 @@ function auctionCenter(a, me) {
     const othersStatus = a.opp_squad
         ? `Opponent: ${a.opp_locked ? 'locked' : 'still building…'}`
         : `Others locked: ${(a.other_squads || []).filter(s => s.locked).length}/${(a.other_squads || []).length}`;
-    return instr + `<div class="auc-msg">${a.message}</div>
+    return `<div class="panel-title">Auction Console</div>
+        ${instructionsHtml(a)}
         ${countdown}
         <div class="auc-holder">Your squad: ${sq.count}/${a.squad_max} · keepers ${sq.wk} · overseas ${sq.os}</div>
         ${lockBlock(a)}
@@ -2289,7 +2692,7 @@ function auctionCenter(a, me) {
 
 function wireAuctionCenter(a, me) {
     const ready = $('auc-ready'); if (ready) ready.addEventListener('click', () => aucAction('/api/auction_ready'));
-    document.querySelectorAll('#auc-center [data-bid]').forEach(b =>
+    document.querySelectorAll('#auc-floor-shell [data-bid]').forEach(b =>
         b.addEventListener('click', () => aucAction('/api/bid', { amount: parseFloat(b.dataset.bid) })));
     // claims the lot's untaken opening price -- only shown while nobody's bid yet
     const claim = $('bid-claim');
@@ -2297,6 +2700,7 @@ function wireAuctionCenter(a, me) {
     const out = $('bid-out'); if (out) out.addEventListener('click', () => aucAction('/api/pull_out'));
     const lk = $('auc-lock'); if (lk) lk.addEventListener('click', () => aucAction('/api/lock_squad'));
     const skip = $('auc-skip-set'); if (skip) skip.addEventListener('click', () => aucAction('/api/vote_skip_set'));
+    const snack = $('auc-snack-toggle'); if (snack) snack.addEventListener('click', () => aucAction('/api/toggle_auto_ready'));
 }
 
 async function aucAction(path, body = {}) {

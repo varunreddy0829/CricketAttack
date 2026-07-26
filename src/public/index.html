@@ -9,9 +9,9 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="style_mobile.css?v=4.15">
+    <link rel="stylesheet" href="style_mobile.css?v=4.16">
     <script src="net.js?v=3.9" defer></script>
-    <script src="app.js?v=3.19" defer></script>
+    <script src="app.js?v=3.20" defer></script>
 </head>
 
 <body>
@@ -150,21 +150,19 @@
     <div id="auction" class="screen">
         <div class="topbar">
             <div class="tabs">
-                <button class="tab auc-tab active" data-atab="bidding">Bidding Board</button>
+                <button class="tab auc-tab active" data-atab="bidding">Bidding Zone</button>
                 <button class="tab auc-tab" data-atab="pool">Available Players</button>
+                <button class="tab auc-tab" data-atab="minigames">Mini Games</button>
             </div>
+            <div class="poke-counter hidden" id="auc-poke-counter"></div>
             <button class="btn-ghost btn-rules" id="btn-auction-rules">Rules</button>
             <div class="role-pill" id="auc-role">—</div>
         </div>
 
         <div class="tab-body" style="flex: 1; display: flex; flex-direction: column; min-height: 0; width: 100%;">
-            <!-- BIDDING TAB -->
-            <div class="tab-panel active" id="atab-bidding" style="flex: 1; width: 100%;">
-                <div class="auc-main" style="width: 100%; min-height: 0;">
-                    <div class="squad-panel" id="auc-my"></div>
-                    <div class="auc-center" id="auc-center"></div>
-                    <div class="squad-panel" id="auc-opp"></div>
-                </div>
+            <!-- BIDDING TAB: lobby (pre-lot-1) or the floor, fully JS-rendered -->
+            <div class="tab-panel active" id="atab-bidding" style="flex: 1; width: 100%; min-height: 0;">
+                <div id="auc-floor-shell" style="width: 100%; height: 100%; min-height: 0;"></div>
             </div>
 
             <!-- POOL TAB -->
@@ -173,6 +171,22 @@
                     Pool Status</h2>
                 <div id="auc-full-pool" style="max-width: 900px; margin: 0 auto;"></div>
             </div>
+
+            <!-- MINI GAMES TAB -->
+            <div class="tab-panel" id="atab-minigames" style="flex: 1; width: 100%; padding: 2rem; overflow-y: auto;">
+                <div id="auc-minigames"></div>
+            </div>
+        </div>
+
+        <!-- Floating poke/banter menu for a hovered table -- positioned via JS
+             (getBoundingClientRect, clamped to viewport) so it can never be
+             clipped by .auc-floor's overflow:hidden, regardless of which
+             table on the floor it's anchored to. -->
+        <div class="table-interact hidden" id="auc-table-interact"></div>
+
+        <!-- A hovered/clicked team's full squad -->
+        <div class="overlay hidden" id="squad-popup-overlay">
+            <div class="overlay-card" id="squad-popup-card"></div>
         </div>
     </div>
 

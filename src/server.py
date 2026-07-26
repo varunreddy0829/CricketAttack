@@ -1209,6 +1209,13 @@ def _start_auction():
         "skip_votes": {t: False for t in GAME["team_ids"]},  # want to skip the rest of THIS set
         "message": "Review the full player pool. All teams press Ready to begin.",
         "unsold": [],
+        # ---- auction-floor extras (purely additive; none of the above changes) ----
+        "pokes_left": {t: 3 for t in GAME["team_ids"]},
+        "auto_ready": {t: False for t in GAME["team_ids"]},   # "Eat Snacks" -- auto-Ready, doesn't touch bidding
+        "events": [],           # poke/banter feed: {id, kind, from, to, line, ts}
+        "event_seq": 0,
+        "sold_log": [],         # {name, team, price} -- most recent last, capped at 20
+        "guess": {"open": {}, "leaderboard": {t: 0 for t in GAME["team_ids"]}},  # Guess the Price
     }
     GAME["phase"] = "auction"
 
@@ -1228,6 +1235,7 @@ def _present_player():
     # locked squads auto-pass every remaining lot
     a["out"] = {t: GAME["squads"][t]["locked"] for t in GAME["team_ids"]}
     a["ready"] = {t: False for t in GAME["team_ids"]}
+    a["guess"]["open"] = {}   # Guess the Price only ever tracks the CURRENT lot
     a["stage"] = "bidding"
     a["message"] = f"{a['current']['name']} is up — {s['tier']} {s['role']}. Opening at ₹{a['current_bid']:.1f} Cr."
     _set_deadline(s["tier"])
@@ -1322,6 +1330,39 @@ def _resolve(stage_msg, sold=False):
     a["ready"] = {t: False for t in GAME["team_ids"]}
     a["message"] = stage_msg
     a["last_result"] = "sold" if sold else "unsold"
+    _apply_auto_ready_and_advance()
+
+
+def _apply_auto_ready_and_advance():
+    """'Eat Snacks': a team with auto_ready on is treated as having pressed
+    Ready without pressing it -- it does NOT touch bidding/out/lock state,
+    only the ready-gate. Mirrors exactly what POST /api/auction_ready does
+    per stage. Called from the two (and only two) moments a ready-gate can
+    open: the end of _resolve() (every between-lot gate) and from the
+    toggle_auto_ready route (turning it on mid-gate, including before lot 1)."""
+    a = GAME["auction"]
+    if a["stage"] not in ("preview", "resolved"):
+        return
+    for t in GAME["team_ids"]:
+        if a["auto_ready"].get(t):
+            a["ready"][t] = True
+    if a["stage"] == "preview":
+        if all(a["ready"][t] for t in GAME["team_ids"]):
+            a["set_index"] = 0
+            a["player_index"] = 0
+            _present_player()
+    elif a["stage"] == "resolved":
+        _resolved_advance()
+
+
+def _score_guesses(actual_price):
+    """Guess the Price: rank this lot's submitted guesses by closeness to the
+    real sale price, top 3 score 5/3/1 into the running leaderboard. Purely
+    cosmetic -- never touches a squad's budget or roster."""
+    a = GAME["auction"]
+    ranked = sorted(a["guess"]["open"].items(), key=lambda kv: abs(kv[1] - actual_price))
+    for (team, _amt), pts in zip(ranked, (5, 3, 1)):
+        a["guess"]["leaderboard"][team] = a["guess"]["leaderboard"].get(team, 0) + pts
 
 
 def _execute_sale():
@@ -1338,6 +1379,9 @@ def _execute_sale():
         sq["os"] += 1
     if p.get("is_keeper") or role == "Wicket Keeper":
         sq["wk"] += 1
+    a["sold_log"].append({"name": p["name"], "team": GAME["teams"][w]["name"], "price": a["current_bid"]})
+    a["sold_log"] = a["sold_log"][-20:]
+    _score_guesses(a["current_bid"])
     _resolve(f"SOLD! {p['name']} to {GAME['teams'][w]['name']} for ₹{a['current_bid']:.1f} Cr!", sold=True)
 
 
@@ -2598,20 +2642,32 @@ def _serialize(token):
     return out
 
 
+def _redact_roster(roster):
+    """Strips the flip-revealing 3x3 grids (same fields _role_meta(reveal_grid=
+    False) strips at match time) from a BOUGHT roster's cards -- once a card
+    is sold to an opponent it's no longer flippable. The public front-face
+    role/roles badge is untouched. The current lot (not yet owned by anyone)
+    is unaffected -- it still goes through _role_meta(reveal_grid=True), same
+    as before, since you need to see a player's grid to decide how to bid."""
+    strip = ("style_fit", "bowl_fit", "signature")
+    return [{k: v for k, v in p.items() if k not in strip} for p in roster]
+
+
 def _serialize_auction(role):
     a = GAME["auction"]
     sq = GAME["squads"]
     s = _cur_set()
     time_left = max(0.0, a["deadline"] - time.time()) if a["deadline"] else 0.0
 
-    def squad_view(r):
+    def squad_view(r, redact=False):
         x = sq[r]
         # no jersey field here -- home/away isn't decided until a real match/
         # fixture picks a venue (see _set_match_venue); the auction has none
         return {"name": GAME["teams"][r]["name"], "color": GAME["teams"][r].get("color"),
                 "budget": round(x["budget"], 1),
                 "count": len(x["roster"]), "os": x["os"], "wk": x["wk"],
-                "locked": x["locked"], "roster": x["roster"]}
+                "locked": x["locked"],
+                "roster": _redact_roster(x["roster"]) if redact else x["roster"]}
 
     current = None
     if a["current"]:
@@ -2626,7 +2682,10 @@ def _serialize_auction(role):
         return {"team_id": r, "name": GAME["teams"][r]["name"], "color": GAME["teams"][r].get("color"),
                 "budget": round(x["budget"], 1),
                 "count": len(x["roster"]), "os": x["os"], "wk": x["wk"], "locked": x["locked"],
-                "roster_names": [p["name"] for p in x["roster"]]}
+                "roster_names": [p["name"] for p in x["roster"]],
+                # per-player cards (redacted) for the floor's round tables --
+                # tournament mode (3+ teams) never had card-level detail here before
+                "roster": _redact_roster(x["roster"])}
 
     team_ids = GAME["team_ids"]
     others = [t for t in team_ids if t != role]
@@ -2635,6 +2694,7 @@ def _serialize_auction(role):
 
     active_teams = [t for t in team_ids if not sq[t]["locked"]]
     skip_votes = a.get("skip_votes", {})
+    guess = a["guess"]
 
     return {
         "you_role": role, "stage": a["stage"], "message": a["message"],
@@ -2646,7 +2706,7 @@ def _serialize_auction(role):
         "time_left_ms": int(time_left * 1000), "total_wait_ms": int(a["total_wait"] * 1000),
         "out": a["out"], "ready": a["ready"], "unsold_count": len(a["unsold"]),
         "my_squad": squad_view(role) if role else None,
-        "opp_squad": squad_view(opp) if opp else None,
+        "opp_squad": squad_view(opp, redact=True) if opp else None,
         "my_locked": sq[role]["locked"] if role else False,
         "opp_locked": sq[opp]["locked"] if opp else False,
         "other_squads": [summary_view(t) for t in others] if role else [],
@@ -2658,6 +2718,19 @@ def _serialize_auction(role):
             "count": sum(1 for t in active_teams if skip_votes.get(t)),
             "total": len(active_teams),
             "blocked": _skip_would_strand_squads(),
+        },
+        # ---- auction-floor extras ----
+        "pokes_left": a["pokes_left"].get(role, 0) if role else 0,
+        "auto_ready": bool(a["auto_ready"].get(role)) if role else False,
+        "events": a["events"][-30:],
+        "sold_log": list(reversed(a["sold_log"])),
+        "guess": {
+            "my_guess": guess["open"].get(role) if role else None,
+            "locked": bool(role and role in guess["open"]),
+            "leaderboard": sorted(
+                [{"team_id": t, "name": GAME["teams"][t]["name"], "points": pts}
+                 for t, pts in guess["leaderboard"].items()],
+                key=lambda row: -row["points"]),
         },
     }
 
@@ -3138,6 +3211,131 @@ def lock_squad():
             _resolved_advance()      # locked side counts as ready
         elif a["stage"] == "bidding":
             a["out"][role] = True    # drop out of the live lot
+        _bump()
+        return jsonify({"status": "success"})
+
+
+BANTER_LINES = [
+    "Purse looking thin.",
+    "That's a robbery.",
+    "Bold. Very bold.",
+    "Overpaid, legend.",
+    "Marquee price, bench player?",
+    "Yikes. Just yikes.",
+]
+
+
+def _push_auction_event(kind, from_role, to_role, line=None):
+    a = GAME["auction"]
+    a["event_seq"] += 1
+    a["events"].append({
+        "id": a["event_seq"], "kind": kind, "from": from_role, "to": to_role,
+        "line": line, "ts": time.time(),
+    })
+    a["events"] = a["events"][-30:]
+
+
+@app.route("/api/auction_poke", methods=["POST"])
+def auction_poke():
+    """Purely cosmetic: knocks the target's cards off their table for a
+    second, for a laugh. Doesn't touch bids, budgets, or the ready-gate.
+    Capped at 3 total per team for the whole auction (not per-target)."""
+    global GAME
+    with LOCK:
+        data = request.get_json(silent=True) or {}
+        GAME = _game_by_token(data.get("token", ""))
+        if GAME is None:
+            return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
+        role = _role_of(data.get("token", ""))
+        target = data.get("target")
+        if not role or GAME.get("phase") != "auction":
+            return jsonify({"status": "error", "message": "Not in an auction."}), 400
+        a = GAME["auction"]
+        if target not in GAME["team_ids"] or target == role:
+            return jsonify({"status": "error", "message": "Invalid poke target."}), 400
+        if a["pokes_left"].get(role, 0) <= 0:
+            return jsonify({"status": "error", "message": "No pokes left for this auction."}), 400
+        a["pokes_left"][role] -= 1
+        _push_auction_event("poke", role, target)
+        _bump()
+        return jsonify({"status": "success"})
+
+
+@app.route("/api/auction_banter", methods=["POST"])
+def auction_banter():
+    """Send one of a fixed set of preset one-liners to a team -- no free text,
+    purely cosmetic, no cooldown/budget."""
+    global GAME
+    with LOCK:
+        data = request.get_json(silent=True) or {}
+        GAME = _game_by_token(data.get("token", ""))
+        if GAME is None:
+            return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
+        role = _role_of(data.get("token", ""))
+        target = data.get("target")
+        if not role or GAME.get("phase") != "auction":
+            return jsonify({"status": "error", "message": "Not in an auction."}), 400
+        if target not in GAME["team_ids"] or target == role:
+            return jsonify({"status": "error", "message": "Invalid banter target."}), 400
+        try:
+            idx = int(data.get("line_index"))
+        except (TypeError, ValueError):
+            return jsonify({"status": "error", "message": "Invalid line."}), 400
+        if not (0 <= idx < len(BANTER_LINES)):
+            return jsonify({"status": "error", "message": "Invalid line."}), 400
+        _push_auction_event("banter", role, target, line=BANTER_LINES[idx])
+        _bump()
+        return jsonify({"status": "success"})
+
+
+@app.route("/api/toggle_auto_ready", methods=["POST"])
+def toggle_auto_ready():
+    """'Eat Snacks': auto-presses Ready for you between lots until toggled
+    off. Never touches an active bid -- a live lot when this is switched on
+    is left exactly as-is, only future ready-gates are skipped."""
+    global GAME
+    with LOCK:
+        token = (request.get_json(silent=True) or {}).get("token", "")
+        GAME = _game_by_token(token)
+        if GAME is None:
+            return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
+        role = _role_of(token)
+        if not role or GAME.get("phase") != "auction":
+            return jsonify({"status": "error", "message": "Not in an auction."}), 400
+        a = GAME["auction"]
+        a["auto_ready"][role] = not a["auto_ready"].get(role, False)
+        if a["auto_ready"][role]:
+            _apply_auto_ready_and_advance()
+        _bump()
+        return jsonify({"status": "success"})
+
+
+@app.route("/api/guess_price", methods=["POST"])
+def guess_price():
+    """Guess the Price mini-game: one guess per team per lot, locked in the
+    moment it's submitted. Purely cosmetic -- scored in _execute_sale, never
+    touches a squad's budget or the real bid."""
+    global GAME
+    with LOCK:
+        data = request.get_json(silent=True) or {}
+        GAME = _game_by_token(data.get("token", ""))
+        if GAME is None:
+            return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
+        role = _role_of(data.get("token", ""))
+        if not role or GAME.get("phase") != "auction":
+            return jsonify({"status": "error", "message": "Not in an auction."}), 400
+        a = GAME["auction"]
+        if a["stage"] != "bidding":
+            return jsonify({"status": "error", "message": "No lot is open to guess on."}), 400
+        if role in a["guess"]["open"]:
+            return jsonify({"status": "error", "message": "You've already locked in a guess for this lot."}), 400
+        try:
+            amount = float(data.get("amount"))
+        except (TypeError, ValueError):
+            return jsonify({"status": "error", "message": "Invalid amount."}), 400
+        if amount <= 0:
+            return jsonify({"status": "error", "message": "Invalid amount."}), 400
+        a["guess"]["open"][role] = round(amount, 1)
         _bump()
         return jsonify({"status": "success"})
 
