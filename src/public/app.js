@@ -1024,10 +1024,15 @@ function cardForBack(cardEl, name) {
     return cardBackData.get(name) || { name, style_fit: null, bowl_fit: null };
 }
 
-// Capture phase so the flip toggles BEFORE (and cancels) the card's own
-// click handler -- otherwise tapping flip on a bench card would also try to
-// select that bowler/batsman.
-document.addEventListener('click', (e) => {
+// Toggling on pointerdown (not click) makes the flip register on the very
+// first tap instead of needing 2-3 tries: a "click" only fires once the
+// browser can match a mouseup/touchend to the SAME element the mousedown/
+// touchstart started on, and the ~700ms state-poll re-renders the whole
+// card grid on every version bump -- if that re-render happens to land
+// between press and release (entirely plausible with a slower or hesitant
+// tap), the original button is gone and no click ever fires. pointerdown
+// needs only the single initial press, so it can't be interrupted that way.
+function handleFlipToggle(e) {
     const btn = e.target.closest('.pcard-flip');
     if (!btn) return;
     e.stopPropagation();
@@ -1037,6 +1042,14 @@ document.addEventListener('click', (e) => {
     if (!name) return;
     if (flippedCards.has(name)) { flippedCards.delete(name); cardEl.classList.remove('flipped'); }
     else { flippedCards.add(name); cardEl.classList.add('flipped'); }
+}
+document.addEventListener('pointerdown', handleFlipToggle, true);
+// pointerdown's stopPropagation() doesn't cancel the click that still
+// follows it -- swallow that separately so it never reaches the card's own
+// select/drag click handler (tapping flip on a bench card shouldn't also
+// try to select that bowler/batsman).
+document.addEventListener('click', (e) => {
+    if (e.target.closest('.pcard-flip')) { e.stopPropagation(); e.preventDefault(); }
 }, true);
 
 function emptySlot(text, dropAttrs = '') {

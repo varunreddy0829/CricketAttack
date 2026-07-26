@@ -1098,10 +1098,19 @@ button:disabled {
     z-index: 30;
     width: 24px;
     height: 24px;
+    padding: 0;                 /* the global button rule's 0.7rem/1.2rem padding was
+                                    squashing this into an ellipse and pushing the "?"
+                                    glyph out of the circle */
+    display: flex;
+    align-items: center;
+    justify-content: center;
     border-radius: 50%;
     border: 1px solid var(--board-amber);
     background: rgba(0, 0, 0, 0.6);
     color: var(--board-amber);
+    font-family: inherit;
+    text-transform: none;
+    letter-spacing: normal;
     font-weight: 700;
     font-size: 0.85rem;
     line-height: 1;

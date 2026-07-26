@@ -273,6 +273,7 @@ KNOWN_SPINNERS = {
     "Swapnil Singh", "T Shamsi", "YS Chahal", "Zeeshan Ansari", "CV Varun", "M Siddharth", "Harsh Dubey",
     "Suyash Sharma", "HR Shokeen", "K Kartikeya", "KP Appanna", "Mayank Dagar", "MB Parmar",
     "R Ashwin", "RA Jadeja", "Washington Sundar", "Harbhajan Singh", "YK Pathan",
+    "RD Chahar",
 }
 
 def compile_stats():
