@@ -678,6 +678,7 @@ button:disabled {
 
 /* Scoreboard */
 .scoreboard {
+    position: relative;
     background: var(--board-bg);
     border: 2px solid #2a2a26;
     border-radius: 8px;
@@ -1086,18 +1087,21 @@ button:disabled {
    button) instead: a colored top edge plus a lightly tinted label */
 .role-btn .role-lbl { font-size: 0.6rem; letter-spacing: .02em; text-transform: uppercase; opacity: .9; color: var(--racc); }
 
-/* the little "?" role explainer — floats over the ground, takes no layout space */
+/* the little "?" role explainer — anchored to the scoreboard bar (a small,
+   stable rectangle always near the top of the screen) rather than the
+   organic elliptical ground shape, which could put it in a low-contrast
+   dead corner or an unpredictable spot depending on ground size/content. */
 #role-help-btn {
     position: absolute;
-    top: 8px;
-    right: 10px;
+    top: 6px;
+    right: 8px;
     z-index: 30;
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    background: rgba(0, 0, 0, 0.45);
-    color: #eae0c8;
+    border: 1px solid var(--board-amber);
+    background: rgba(0, 0, 0, 0.6);
+    color: var(--board-amber);
     font-weight: 700;
     font-size: 0.85rem;
     line-height: 1;
@@ -1106,7 +1110,7 @@ button:disabled {
 #role-help-panel {
     display: none;
     position: absolute;
-    top: 38px;
+    top: 36px;
     right: 8px;
     z-index: 29;
     width: min(260px, 78vw);

@@ -878,7 +878,9 @@ function renderScoreboard(m) {
             ${m.ground ? `<div class="sb-meta sb-ground">🏟 ${m.ground.name} &middot; <span class="pitch-chip ${m.ground.pitch}">${m.ground.pitch} pitch</span></div>` : ''}
         </div>
         <div class="sb-meta">bowling: <span style="${m.bowling_team_color ? `color:${m.bowling_team_color}` : ''}">${m.bowling_team_name}</span> ${phaseChip}</div>
-        ${target}`;
+        ${target}
+        ${roleHelpHtml(m.i_am_batting)}`;
+    wireRoleHelp();
 }
 
 // Jersey styling (team color + home/away) for a pcard -- the collar band
@@ -1175,10 +1177,8 @@ function renderGround(m) {
     }
 
     g.innerHTML = `<div class="ground-row batters-row">${strikerSlot}${nonStrikerSlot}</div>
-                   <div class="ground-row bowler-row">${bowlerSlot}</div>
-                   ${roleHelpHtml(m.i_am_batting)}`;
+                   <div class="ground-row bowler-row">${bowlerSlot}</div>`;
     wireRoleButtons();
-    wireRoleHelp();
     wireDropZone(m);
     wireRetireButtons();
 }
