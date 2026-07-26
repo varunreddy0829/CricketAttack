@@ -2140,7 +2140,16 @@ button:disabled {
     background: var(--auc-panel-bg); border: 1.5px solid var(--gold); border-radius: 12px; padding: 1.3rem 1.5rem;
 }
 .mg-title { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 1.1rem; text-align: center; text-transform: uppercase; color: var(--cream); }
-.mg-sub { font-size: 0.75rem; color: rgba(243, 234, 211, 0.7); text-align: center; margin-top: 0.3rem; }
+.mg-rules {
+    font-size: 0.76rem;
+    color: rgba(243, 234, 211, 0.8);
+    text-align: center;
+    line-height: 1.5;
+    margin-top: 0.6rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px dashed var(--auc-panel-border);
+}
+.mg-sub { font-size: 0.75rem; color: rgba(243, 234, 211, 0.7); text-align: center; margin-top: 0.6rem; }
 .guess-input-row { display: flex; gap: 0.6rem; margin-top: 1rem; }
 .guess-input-row input { flex: 1; padding: 0.5rem 0.65rem; border-radius: 6px; border: 1px solid var(--auc-panel-border); background: rgba(255, 255, 255, 0.05); color: var(--cream); font-family: 'Oswald', sans-serif; font-size: 0.9rem; }
 .guess-input-row button { font-family: 'Oswald', sans-serif; font-weight: 600; letter-spacing: 0.03em; padding: 0.5rem 1rem; border-radius: 6px; border: 1px solid var(--gold); background: var(--gold); color: #241205; text-transform: uppercase; }

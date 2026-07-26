@@ -2074,30 +2074,118 @@ const AUC_LINES = {
         "SOLD! Please collect your player at gate number two.",
         "Gone! And just like that, someone's purse got lighter.",
         "That's a wrap on this one — moving right along.",
+        "SOLD! Someone's going home very happy tonight.",
+        "And down goes the hammer — that's how it's done.",
+        "Sold to the team with the itchiest bidding finger.",
+        "That's one squad slot filled, several more panic attacks to go.",
+        "SOLD! The purse took a hit, but the smile's bigger.",
+        "Deal done. Somebody's spreadsheet just got a new row.",
+        "And that's a wrap — no refunds, no regrets, hopefully.",
+        "SOLD! Front row seat to somebody's next big signing.",
+        "Gone in a flash — didn't even see the bid coming.",
+        "That's the hammer down — pack it up, next one's coming.",
+        "SOLD! One happy owner, one slightly lighter wallet.",
     ],
     unsold: [
         "Unsold. Tough crowd today.",
         "No takers — even I'm surprised.",
         "Nobody wanted that one. Moving on.",
+        "Unsold! Sometimes the room just isn't feeling it.",
+        "Not a single hand. Brutal, honestly.",
+        "That one's going back in the pool. No hard feelings.",
+        "Silence. Total silence. Moving swiftly along.",
+        "Unsold — even a discount wouldn't have helped there.",
+        "Nobody blinked. Nobody bid. Next!",
+        "That's a tumbleweed moment if I've ever seen one.",
+        "Unsold! The purse strings stayed shut on this one.",
+        "Zero interest. Not even a polite nibble.",
+        "Well, that happened. Onward we go.",
+        "Unsold — tough break, better luck in the next set.",
     ],
     marquee: [
         "Ladies and gentlemen, THIS is what you came for.",
         "Now THIS is a name that gets the room talking.",
+        "Marquee lot, folks — this is where the real money moves.",
+        "Everybody sit up straight, this one's a big deal.",
+        "This is the moment the whole set's been building to.",
+        "Marquee alert! Purses everywhere just got nervous.",
+        "This is the name that ends careers. Bidding careers, that is.",
+        "Big name, bigger bidding war incoming. Watch this.",
+        "Marquee lot — the kind that makes owners sweat on camera.",
+        "This is the headline act. Try to keep up.",
+        "Now we're talking. This is the real show.",
+        "Marquee set, marquee price. Buckle in.",
     ],
     overseas: [
         "Fresh off the plane and straight onto the block.",
         "A little overseas flavor for the squad, anyone?",
+        "Passport stamped, bags barely unpacked, already up for bidding.",
+        "Imported talent, folks — premium shipping included.",
+        "This one's got frequent flyer miles AND a bat.",
+        "Overseas slot up for grabs — choose wisely, only five allowed.",
+        "Straight off international duty and into this auction.",
+        "A visa, a kit bag, and a whole lot of expectation.",
+        "This one's travelled further to get here than most of you have all year.",
+        "Overseas quota's filling up fast — speak now.",
+        "Jet-lagged or not, this one's ready to be bid on.",
+        "Imported goods, folks. No customs duty, just crores.",
     ],
     bigjump: [
         "Whoa! Somebody really wants this one.",
         "That's a serious jump — the purse is sweating.",
+        "Okay, that escalated quickly.",
+        "Somebody just threw caution straight out the window.",
+        "That jump just made every rival owner sit up.",
+        "The gloves are off now, folks.",
+        "That's not a bid, that's a statement.",
+        "Purse strings just got real loose, real fast.",
+        "Somebody means business all of a sudden.",
+        "That jump just changed the whole mood in here.",
+        "Bold. Reckless. Possibly both. Let's see where this goes.",
+        "That's the sound of a strategy going out the window.",
     ],
     out: [
         "And there goes another one, folding under pressure.",
         "Smart move, or cold feet? You decide.",
+        "Out! The purse lives to fight another lot.",
+        "Folded like a lawn chair. Respect the restraint, I suppose.",
+        "And just like that, one less competitor in the room.",
+        "Out — sometimes the smartest bid is no bid at all.",
+        "There's the exit. Dignity mostly intact.",
+        "Pulled out — the wallet says thank you.",
+        "And they're gone. Didn't even blink twice.",
+        "Out! Living to bid another day, apparently.",
+        "That's one fewer hand in the air. Noted.",
+        "Folded quietly. No drama, just arithmetic.",
     ],
-    once: ["Going once… my arm's getting tired, people!"],
-    twice: ["Going twice! Last chance, folks!"],
+    once: [
+        "Going once… my arm's getting tired, people!",
+        "Going once — anyone? Anyone at all?",
+        "Once! Last call before this one's someone's problem.",
+        "Going once, and the room's gone very quiet.",
+        "Once! Speak now, or hold your purse forever.",
+        "Going once — the hammer's getting twitchy.",
+        "Once! This is your moment, don't waste it.",
+        "Going once, and I mean it this time. Probably.",
+        "That's once. Tick tock, folks.",
+        "Once! The suspense is doing wonders for my heart rate.",
+        "Going once — somebody, anybody, blink.",
+        "Once! This lot's about to become history.",
+    ],
+    twice: [
+        "Going twice! Last chance, folks!",
+        "Twice! Now or never, quite literally.",
+        "Going twice — the hammer's loading up.",
+        "Twice! This is genuinely your last shot.",
+        "Going twice, and the tension is delicious.",
+        "Twice! Somebody's about to be very happy or very relieved.",
+        "Going twice — blink and it's gone.",
+        "Twice! I can already feel the hammer coming down.",
+        "Going twice, last call before the gavel falls.",
+        "Twice! Speak up or forever hold your bid.",
+        "Going twice — this is it, folks.",
+        "Twice! The countdown's basically over.",
+    ],
 };
 function auctioneerLine(bucket) {
     const arr = AUC_LINES[bucket] || [];
@@ -2579,19 +2667,23 @@ function miniGamesPanel(a) {
         `<tr><td>${row.name}</td><td>${row.points}</td></tr>`).join('');
     const canGuess = a.stage === 'bidding' && !a.guess.locked;
     const lockedHtml = a.guess.locked
-        ? `<div class="guess-locked">Your guess: <b>₹${a.guess.my_guess.toFixed(1)} Cr</b> — locked in, waiting for the hammer…</div>`
+        ? `<div class="guess-locked">Your guess is ₹${a.guess.my_guess.toFixed(1)} Cr. Locked in, waiting for the hammer.</div>`
         : '';
+    const lotLine = a.stage === 'bidding' && a.current
+        ? `Current player: ${a.current.name}.`
+        : 'No player is up for auction right now. Check back once the next one starts.';
     return `
     <div class="mg-card">
         <div class="mg-title">Guess the Price</div>
-        <div class="mg-sub">${a.stage === 'bidding' && a.current ? `Current lot: ${a.current.name} — purely for fun, doesn't touch your purse` : 'No lot up right now — check back once the next one starts.'}</div>
+        <div class="mg-rules">Guess what the current player will sell for. You can only place a guess while that player's auction is live, one guess per player, locked in before it sells. Once it sells, the three closest guesses earn points: five for closest, three for second, one for third. Points add up across the whole auction. Purely for fun, it never touches your purse or your bids.</div>
+        <div class="mg-sub">${lotLine}</div>
         ${canGuess ? `
         <div class="guess-input-row">
             <input type="number" id="guess-input" placeholder="₹ Cr" step="0.1" min="0">
             <button id="guess-lock-btn">Lock In</button>
         </div>` : ''}
         ${lockedHtml}
-        <div class="panel-title" style="margin-top:1.1rem;">Leaderboard (running total)</div>
+        <div class="panel-title" style="margin-top:1.1rem;">Leaderboard, running total</div>
         <table class="lb-table"><tr><th>Team</th><th>Points</th></tr>${lb || '<tr><td colspan="2">No guesses yet.</td></tr>'}</table>
     </div>`;
 }
