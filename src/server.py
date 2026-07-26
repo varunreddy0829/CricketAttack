@@ -268,6 +268,10 @@ def _sweep_stale_games():
 
 TEAM_COLOR_PALETTE = ["#e6483c", "#3b82c4", "#e0b400", "#2f9e5c",
                       "#9d5ce0", "#e07b2e", "#22a6a6", "#e05c9e"]
+# Jersey style picked alongside team color: "home" renders player cards with a
+# solid team-color band; "away" renders the same band hollow (outline only,
+# light fill) -- purely cosmetic, no gameplay effect.
+JERSEY_STYLES = ("home", "away")
 
 
 def _fresh_game(num_teams=2):
@@ -284,7 +288,7 @@ def _fresh_game(num_teams=2):
         "tokens": {},       # token -> team_id
         "team_ids": team_ids,          # ordered list of every team slot in this game
         "teams": {t: {"name": f"Team {i+1}", "joined": False, "xi": [], "ready": False,
-                      "color": TEAM_COLOR_PALETTE[i % len(TEAM_COLOR_PALETTE)]}
+                      "color": TEAM_COLOR_PALETTE[i % len(TEAM_COLOR_PALETTE)], "jersey": "home"}
                   for i, t in enumerate(team_ids)},
         "match_teams": team_ids[:2],   # the two teams contesting the CURRENT match
         # match state (populated when the match starts)
@@ -1028,6 +1032,8 @@ def _snapshot_innings():
         "bowling_team_name": g["teams"][_bowling_side()]["name"],
         "batting_team_color": g["teams"][g["batting_side"]].get("color"),
         "bowling_team_color": g["teams"][_bowling_side()].get("color"),
+        "batting_team_jersey": g["teams"][g["batting_side"]].get("jersey", "home"),
+        "bowling_team_jersey": g["teams"][_bowling_side()].get("jersey", "home"),
         "runs": st.runs, "wickets": st.wickets,
         "overs": _overs_str(st.balls), "extras": st.extras,
         "batting": list(g["bat_card"].values()),
@@ -1439,9 +1445,19 @@ def _place_bid(role, amount):
     if a["out"][role]:
         raise ValueError("You have pulled out of this lot.")
     add = float(amount or 0)
-    nxt = round(a["current_bid"] + (add if add > 0 else BASE_BID), 1)
     if role == a["active_bidder"] and add <= 0:
         raise ValueError("You already hold the top bid.")
+    if add > 0:
+        nxt = round(a["current_bid"] + add, 1)
+    elif a["active_bidder"] is None:
+        # A zero/empty amount only works to claim the LOT'S OPENING PRICE while
+        # nobody has bid yet -- take current_bid as-is, no increment added.
+        nxt = round(a["current_bid"], 1)
+    else:
+        # Someone is already ahead of the base price -- a bare "Bid" with no
+        # amount must NOT silently add money on their behalf. Only an explicit
+        # "+" raise can move the price from here.
+        raise ValueError("Someone's already bidding — use one of the + buttons to raise it.")
     if GAME["squads"][role]["budget"] < nxt:
         raise ValueError("Not enough purse for that bid.")
     a["active_bidder"] = role
@@ -2038,6 +2054,8 @@ def _serialize_spectator_view():
         "bowling_team_name": g["teams"][bowling]["name"],
         "batting_team_color": g["teams"][batting].get("color"),
         "bowling_team_color": g["teams"][bowling].get("color"),
+        "batting_team_jersey": g["teams"][batting].get("jersey", "home"),
+        "bowling_team_jersey": g["teams"][bowling].get("jersey", "home"),
         "innings": g.get("innings"),
         "score": st.runs, "wickets": st.wickets,
         "overs": f"{st.balls // 6}.{st.balls % 6}",
@@ -2114,16 +2132,19 @@ def _serialize(token):
         "is_tournament": is_tournament,
         "you": {"role": role, "joined": role is not None,
                 "name": g["teams"][role]["name"] if role else None,
-                "color": g["teams"][role].get("color") if role else None},
+                "color": g["teams"][role].get("color") if role else None,
+                "jersey": g["teams"][role].get("jersey", "home") if role else None},
         "opponent": {
             "joined": g["teams"][opp_role]["joined"] if opp_role else False,
             "name": g["teams"][opp_role]["name"] if opp_role else None,
             "color": g["teams"][opp_role].get("color") if opp_role else None,
+            "jersey": g["teams"][opp_role].get("jersey", "home") if opp_role else None,
         } if opp_role else {"joined": False, "name": None},
         "teams": {t: {"name": g["teams"][t]["name"], "joined": g["teams"][t]["joined"],
-                      "color": g["teams"][t].get("color")}
+                      "color": g["teams"][t].get("color"), "jersey": g["teams"][t].get("jersey", "home")}
                   for t in g["team_ids"]},
         "color_palette": TEAM_COLOR_PALETTE,
+        "jersey_styles": list(JERSEY_STYLES),
     }
     if is_tournament:
         out["tournament"] = _serialize_tournament_summary()
@@ -2171,6 +2192,8 @@ def _serialize(token):
             # tournament) so the frontend can reuse renderXI/xiCard unchanged.
             out["fixture_xi"] = {
                 "you_role": role, "team_name": g["teams"][role]["name"],
+                "team_color": g["teams"][role].get("color"),
+                "team_jersey": g["teams"][role].get("jersey", "home"),
                 "opponent_name": g["teams"][other]["name"], "kind": fx["kind"],
                 "roster": roster, "xi": mine["xi"], "locked": mine["locked"],
                 "opponent_locked": t["fixture_xi"][other]["locked"],
@@ -2420,6 +2443,8 @@ def _serialize(token):
         "bowling_team_name": g["teams"][bowling]["name"],
         "batting_team_color": g["teams"][batting].get("color"),
         "bowling_team_color": g["teams"][bowling].get("color"),
+        "batting_team_jersey": g["teams"][batting].get("jersey", "home"),
+        "bowling_team_jersey": g["teams"][bowling].get("jersey", "home"),
         "i_am_batting": i_bat,
         "runs": st.runs, "wickets": st.wickets, "balls": st.balls,
         "overs": _overs_str(st.balls), "max_overs": OVERS_PER_INNINGS,
@@ -2462,6 +2487,7 @@ def _serialize_auction(role):
     def squad_view(r):
         x = sq[r]
         return {"name": GAME["teams"][r]["name"], "color": GAME["teams"][r].get("color"),
+                "jersey": GAME["teams"][r].get("jersey", "home"),
                 "budget": round(x["budget"], 1),
                 "count": len(x["roster"]), "os": x["os"], "wk": x["wk"],
                 "locked": x["locked"], "roster": x["roster"]}
@@ -2529,6 +2555,8 @@ def _serialize_xi(role):
     locked_others = sum(1 for t in others if xs[t]["locked"])
     return {
         "you_role": role, "team_name": GAME["teams"][role]["name"],
+        "team_color": GAME["teams"][role].get("color"),
+        "team_jersey": GAME["teams"][role].get("jersey", "home"),
         "roster": roster, "xi": mine["xi"], "locked": mine["locked"],
         "opponent_locked": xs[others[0]]["locked"] if len(others) == 1 else None,
         "others_locked_count": locked_others, "others_total": len(others),
@@ -2571,6 +2599,9 @@ def _apply_color(role, data):
     c = data.get("color")
     if c in TEAM_COLOR_PALETTE:
         GAME["teams"][role]["color"] = c
+    j = data.get("jersey")
+    if j in JERSEY_STYLES:
+        GAME["teams"][role]["jersey"] = j
 
 
 @app.route("/api/create_game", methods=["POST"])

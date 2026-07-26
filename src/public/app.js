@@ -34,16 +34,19 @@ function setBatterIntent(name, v) { ui.batterIntents[name] = v; }
 function getBatterRole(name) { return name in ui.batterRoles ? ui.batterRoles[name] : 'rotate'; }
 function setBatterRole(name, r) { ui.batterRoles[name] = r; }
 
-// role definitions (label/icon + which grid cell holds the 0-99 grade)
+// role definitions (label + which grid cell holds the 0-99 grade + a subtle
+// accent color, reusing the site's existing palette -- no emoji, just a
+// consistent color language: Attack = leather red, the "busy middle" role
+// (Rotate/Contain) = gold, Defend = green, in both batting and bowling).
 const BAT_ROLE_DEFS = [
-    { key: 'attack', label: 'Attack', icon: '💥', cell: 'attack' },
-    { key: 'rotate', label: 'Rotate', icon: '🏃', cell: 'rotate' },
-    { key: 'defend', label: 'Defend', icon: '🧱', cell: 'anchor' },
+    { key: 'attack', label: 'Attack', color: 'var(--leather)', cell: 'attack' },
+    { key: 'rotate', label: 'Rotate', color: 'var(--gold)', cell: 'rotate' },
+    { key: 'defend', label: 'Defend', color: 'var(--green-go)', cell: 'anchor' },
 ];
 const BOWL_ROLE_DEFS = [
-    { key: 'attack', label: 'Attack', icon: '⚡', cell: 'attack' },
-    { key: 'contain', label: 'Contain', icon: '🔒', cell: 'contain' },
-    { key: 'defend', label: 'Defend', icon: '🛡️', cell: 'defend' },
+    { key: 'attack', label: 'Attack', color: 'var(--leather)', cell: 'attack' },
+    { key: 'contain', label: 'Contain', color: 'var(--gold)', cell: 'contain' },
+    { key: 'defend', label: 'Defend', color: 'var(--green-go)', cell: 'defend' },
 ];
 function phaseKey(m) { return ({ powerplay: 'pp', middle: 'mid', death: 'death' })[m && m.phase_label] || 'mid'; }
 
@@ -100,10 +103,31 @@ function buildColorPicker(pickerId, hiddenId) {
 }
 ['create', 'join', 't-create', 't-join'].forEach(p => buildColorPicker(`${p}-color-picker`, `${p}-color`));
 
+// Jersey style, picked alongside color -- purely cosmetic (see pcard's
+// data-jersey rendering): Home = solid card-top band, Away = the same band
+// hollow. Defaults to "home" (the hidden input already carries that default).
+function buildJerseyToggle(pickerId, hiddenId) {
+    const root = $(pickerId);
+    if (!root) return;
+    root.innerHTML = `
+        <button type="button" class="jersey-swatch picked" data-jersey-val="home">🏠 Home</button>
+        <button type="button" class="jersey-swatch" data-jersey-val="away">✈ Away</button>`;
+    root.querySelectorAll('.jersey-swatch').forEach(b => {
+        b.addEventListener('click', () => {
+            root.querySelectorAll('.jersey-swatch').forEach(s => s.classList.remove('picked'));
+            b.classList.add('picked');
+            $(hiddenId).value = b.dataset.jerseyVal;
+        });
+    });
+}
+['create', 'join', 't-create', 't-join'].forEach(p => buildJerseyToggle(`${p}-jersey-picker`, `${p}-jersey`));
+
 $('btn-create').addEventListener('click', async () => {
     try {
-        const data = await Net.post('/api/create_game',
-            { name: $('create-name').value.trim(), color: $('create-color').value || undefined });
+        const data = await Net.post('/api/create_game', {
+            name: $('create-name').value.trim(), color: $('create-color').value || undefined,
+            jersey: $('create-jersey').value || undefined,
+        });
         Net.setToken(data.token);
         Net.startPolling();
     } catch (e) { $('landing-err').textContent = e.message; }
@@ -113,8 +137,10 @@ $('btn-join').addEventListener('click', async () => {
     const code = $('join-code').value.trim().toUpperCase();
     if (code.length !== 4) { $('landing-err').textContent = 'Enter the 4-character code.'; return; }
     try {
-        const data = await Net.post('/api/join_game',
-            { code, name: $('join-name').value.trim(), color: $('join-color').value || undefined });
+        const data = await Net.post('/api/join_game', {
+            code, name: $('join-name').value.trim(), color: $('join-color').value || undefined,
+            jersey: $('join-jersey').value || undefined,
+        });
         Net.setToken(data.token);
         Net.startPolling();
     } catch (e) { $('landing-err').textContent = e.message; }
@@ -136,6 +162,7 @@ $('btn-create-tournament').addEventListener('click', async () => {
             name: $('t-create-name').value.trim(),
             size: parseInt($('t-size').value, 10),
             color: $('t-create-color').value || undefined,
+            jersey: $('t-create-jersey').value || undefined,
         });
         Net.setToken(data.token);
         Net.startPolling();
@@ -146,8 +173,10 @@ $('btn-join-tournament').addEventListener('click', async () => {
     const code = $('t-join-code').value.trim().toUpperCase();
     if (code.length !== 4) { $('t-landing-err').textContent = 'Enter the 4-character code.'; return; }
     try {
-        const data = await Net.post('/api/join_tournament',
-            { code, name: $('t-join-name').value.trim(), color: $('t-join-color').value || undefined });
+        const data = await Net.post('/api/join_tournament', {
+            code, name: $('t-join-name').value.trim(), color: $('t-join-color').value || undefined,
+            jersey: $('t-join-jersey').value || undefined,
+        });
         Net.setToken(data.token);
         Net.startPolling();
     } catch (e) {
@@ -813,7 +842,8 @@ function renderOpeners(m) {
             : picked === 1 ? '<div class="pick-badge">NON-STR</div>' : '';
         return pcard(b, {
             ovr: b.batting_ovr, selectable: true, selected: picked >= 0,
-            attrs: `data-opener="${b.name}"`, extraHtml: badge
+            attrs: `data-opener="${b.name}"`, extraHtml: badge,
+            jerseyColor: m.batting_team_color, jerseyStyle: m.batting_team_jersey,
         });
     }).join('');
     const ready = ui.openerPicks.length === 2;
@@ -874,6 +904,20 @@ function renderScoreboard(m) {
         ${target}`;
 }
 
+// Jersey styling (team color + home/away) for a pcard -- the collar band
+// across the top (solid for home, hollow for away) plus a faint team-color
+// wash over the whole card body. Purely cosmetic, no gameplay meaning.
+function jerseyAttrs(color, style) {
+    if (!color) return { attr: '', style: '' };
+    const s = style === 'away' ? 'away' : 'home';
+    const washTop = s === 'home' ? color + '40' : color + '22';
+    const washBot = s === 'home' ? color + '1a' : color + '0d';
+    return {
+        attr: ` data-jersey data-jersey-style="${s}"`,
+        style: `--jc:${color}; --jc-tint:${color}26; --jc-wash-top:${washTop}; --jc-wash-bot:${washBot};`,
+    };
+}
+
 // ---------- player card ----------
 function pcard(card, opts = {}) {
     // Card colour is ALWAYS the higher of the two OVRs, so the same player is
@@ -886,6 +930,7 @@ function pcard(card, opts = {}) {
     if (opts.selected) cls.push('selected');
     const fig = opts.figure ? `<div class="pfig">${opts.figure}</div>` : '';
     const tag = opts.tag ? `<div class="ptag">${opts.tag}</div>` : '';
+    const jersey = jerseyAttrs(opts.jerseyColor, opts.jerseyStyle);
     // flip-to-back (role + 3x3 phase stats). Flipped state is kept in a global
     // set keyed by name so it survives the constant re-renders (see the
     // capture-phase handler below); the button stops the click from also
@@ -895,16 +940,14 @@ function pcard(card, opts = {}) {
     if (canFlip && flippedCards.has(card.name)) cls.push('flipped');
     const flipBtn = canFlip ? `<button type="button" class="pcard-flip" title="Role &amp; phase stats">↻</button>` : '';
     const back = canFlip ? pcardBack(card) : '';
-    // a player can hold several roles (every category they're >=70 in) --
-    // show each with its real number. Front shows up to 2 to stay compact;
-    // the back lists them all above the 3x3.
+    // at most one role badge (the single best cell >=70, see
+    // compile_player_stats.py) -- nothing shown if the player didn't clear
+    // the threshold anywhere, which is the common/correct case for bowlers.
     const roleBadge = (card.roles && card.roles.length)
-        ? `<div class="prole">${card.roles.slice(0, 2).map(r =>
-              `<span>${roleEmoji(r.label)} ${r.label} <b>${r.score}</b></span>`).join('')}${
-              card.roles.length > 2 ? `<span class="prole-more">+${card.roles.length - 2}</span>` : ''}</div>`
+        ? `<div class="prole"><span>${roleEmoji(card.roles[0].label)} ${card.roles[0].label} <b>${card.roles[0].score}</b></span></div>`
         : '';
     return `
-    <div class="${cls.join(' ')}" data-card-name="${card.name}" ${opts.attrs || ''}>
+    <div class="${cls.join(' ')}" data-card-name="${card.name}" ${opts.attrs || ''}${jersey.attr} style="${jersey.style}">
         ${opts.extraHtml || ''}
         ${flipBtn}
         <div class="pcard-face pcard-front">
@@ -948,9 +991,11 @@ function pcardBack(card) {
     };
     const hasBowl = !!card.bowl_fit;
     const tab = hasBowl ? (cardBackTab.get(card.name) || 'bat') : 'bat';
-    // both phase grids: batting (attack/anchor/rotate) and bowling (attack/contain/defend)
+    // both phase grids: batting (attack/defence/rotate) and bowling (attack/contain/defend) --
+    // "defence" reads the same underlying `anchor` data field (survival/balls-per-dismissal);
+    // the label is renamed to match the Defend role button, the data key is unchanged.
     const batGrid = grid(card.style_fit, [
-        { key: 'attack', hdr: 'ATK' }, { key: 'anchor', hdr: 'ANC' }, { key: 'rotate', hdr: 'ROT' }]);
+        { key: 'attack', hdr: 'ATK' }, { key: 'anchor', hdr: 'DEF' }, { key: 'rotate', hdr: 'ROT' }]);
     const bowlGrid = hasBowl ? grid(card.bowl_fit, [
         { key: 'attack', hdr: 'ATK' }, { key: 'contain', hdr: 'CON' }, { key: 'defend', hdr: 'DEF' }]) : '';
     const tabs = hasBowl
@@ -958,11 +1003,14 @@ function pcardBack(card) {
             <button type="button" class="pcard-tab${tab === 'bat' ? ' on' : ''}" data-backtab="bat">🏏 BAT</button>
             <button type="button" class="pcard-tab${tab === 'bowl' ? ' on' : ''}" data-backtab="bowl">🎯 BOWL</button>
         </div>` : '';
+    // at most one role label now (see compile_player_stats.py) -- nothing shown
+    // at all if the player didn't clear the 70 threshold in any cell
     const roleList = (card.roles && card.roles.length)
-        ? card.roles.map(r => `${roleEmoji(r.label)} ${r.label} ${r.score}`).join('<br>')
-        : (card.role || '');
+        ? `${roleEmoji(card.roles[0].label)} ${card.roles[0].label} ${card.roles[0].score}`
+        : '';
     return `
     <div class="pcard-face pcard-back">
+        <div class="pcard-back-name">${card.name}</div>
         ${tabs}
         ${tab === 'bowl'
             ? `<div class="pcard-role pcard-role-bowl">Bowling phases</div>${bowlGrid}`
@@ -1023,26 +1071,35 @@ function roleButtons(kind, selected, disabled, fit, phKey, defs, batterName) {
     const batterAttr = batterName ? ` data-rolebatter="${batterName}"` : '';
     const btns = defs.map(d => {
         const on = d.key === selected ? ' on' : '';
-        return `<button type="button" class="role-btn${on}" data-role="${d.key}" data-rolekind="${kind}"${batterAttr} ${disabled ? 'disabled' : ''}>
-            <span class="role-ico">${d.icon}</span><span class="role-lbl">${d.label}</span></button>`;
+        return `<button type="button" class="role-btn${on}" data-role="${d.key}" data-rolekind="${kind}"${batterAttr}
+            style="--racc:${d.color}" ${disabled ? 'disabled' : ''}>
+            <span class="role-lbl">${d.label}</span></button>`;
     }).join('');
     return `<div class="role-picker">${btns}</div>`;
 }
 
 // Small floating "?" popover explaining the roles in plain english. Absolutely
 // positioned inside #ground so it never takes layout space from the cards.
+// Built from the same defs (label + color) the buttons use, so the popover
+// and the buttons always agree.
+const ROLE_HELP_TEXT = {
+    attack_bat: 'Swing hard — more 4s & 6s, but a bigger chance of getting out.',
+    rotate: 'Work the gaps — more 1s & 2s, giving up the big shots.',
+    defend_bat: 'Block — much safer, but the scoring dries up.',
+    attack_bowl: 'Hunt the wicket — best chance of a wicket, but you leak runs.',
+    contain: 'Bring the fielders in — 1s & 2s dry up, but batsmen may clear the ring for boundaries.',
+    defend_bowl: 'Guard the boundary — 4s & 6s dry up, but easy singles are on offer.',
+};
 function roleHelpHtml(iAmBatting) {
-    const rows = iAmBatting
-        ? [['💥 Attack', 'Swing hard — more 4s & 6s, but a bigger chance of getting out.'],
-           ['🏃 Rotate', 'Work the gaps — more 1s & 2s, giving up the big shots.'],
-           ['🧱 Defend', 'Block — much safer, but the scoring dries up.']]
-        : [['⚡ Attack', 'Hunt the wicket — best chance of a wicket, but you leak runs.'],
-           ['🔒 Contain', 'Bring the fielders in — 1s & 2s dry up, but batsmen may clear the ring for boundaries.'],
-           ['🛡️ Defend', 'Guard the boundary — 4s & 6s dry up, but easy singles are on offer.']];
-    const lis = rows.map(([t, d]) => `<div class="rh-row"><b>${t}</b><span>${d}</span></div>`).join('');
+    const defs = iAmBatting ? BAT_ROLE_DEFS : BOWL_ROLE_DEFS;
+    const suffix = iAmBatting ? '_bat' : '_bowl';
+    const rows = defs.map(d => {
+        const text = ROLE_HELP_TEXT[d.key] || ROLE_HELP_TEXT[d.key + suffix];
+        return `<div class="rh-row"><b style="--racc:${d.color}">${d.label}</b><span>${text}</span></div>`;
+    }).join('');
     return `<button type="button" id="role-help-btn" title="What do the roles do?">?</button>
         <div id="role-help-panel" class="${ui.roleHelpOpen ? 'open' : ''}">
-            <div class="rh-title">${iAmBatting ? 'Batting roles' : 'Bowling roles'}</div>${lis}</div>`;
+            <div class="rh-title">${iAmBatting ? 'Batting roles' : 'Bowling roles'}</div>${rows}</div>`;
 }
 
 function wireRoleHelp() {
@@ -1065,10 +1122,10 @@ function bowlRoleButtons(m, fit, disabled) {
 }
 
 // ---------- ground ----------
-function bowlerCard(cb) {
+function bowlerCard(cb, jerseyColor, jerseyStyle) {
     return pcard({ name: cb.name, batting_ovr: cb.batting_ovr ?? null, bowling_ovr: cb.bowling_ovr,
                    role: cb.role, roles: cb.roles, style_fit: cb.style_fit, bowl_fit: cb.bowl_fit },
-        { figure: `${cb.wickets}-${cb.runs}(${cb.overs})` });
+        { figure: `${cb.wickets}-${cb.runs}(${cb.overs})`, jerseyColor, jerseyStyle });
 }
 
 function renderGround(m) {
@@ -1088,7 +1145,8 @@ function renderGround(m) {
     if (m.striker) {
         strikerSlot = `<div class="ground-slot">
             <div class="slot-label">On Strike ⭐</div>
-            ${pcard(m.striker, { figure: `${m.striker.runs}(${m.striker.balls})` })}
+            ${pcard(m.striker, { figure: `${m.striker.runs}(${m.striker.balls})`,
+                                  jerseyColor: m.batting_team_color, jerseyStyle: m.batting_team_jersey })}
             ${m.i_am_batting ? batRoleButtons(m, 'striker', m.striker, slDisabled) : ''}
             ${retireBtn('striker')}
         </div>`;
@@ -1105,7 +1163,8 @@ function renderGround(m) {
     if (m.non_striker) {
         nonStrikerSlot = `<div class="ground-slot">
             <div class="slot-label">Non-Striker</div>
-            ${pcard(m.non_striker, { figure: `${m.non_striker.runs}(${m.non_striker.balls})` })}
+            ${pcard(m.non_striker, { figure: `${m.non_striker.runs}(${m.non_striker.balls})`,
+                                      jerseyColor: m.batting_team_color, jerseyStyle: m.batting_team_jersey })}
             ${m.i_am_batting ? batRoleButtons(m, 'nonstriker', m.non_striker, slDisabled) : ''}
             ${retireBtn('non_striker')}
         </div>`;
@@ -1118,21 +1177,22 @@ function renderGround(m) {
     if (m.i_am_batting) {
         const ob = m.pending && m.pending.opponent_bowler;   // revealed once bowler locks
         let label, cardHtml;
-        if (ob) { label = 'Bowler This Over'; cardHtml = bowlerCard(ob); }
-        else if (m.current_bowler) { label = "Last Over's Bowler"; cardHtml = bowlerCard(m.current_bowler); }
+        if (ob) { label = 'Bowler This Over'; cardHtml = bowlerCard(ob, m.bowling_team_color, m.bowling_team_jersey); }
+        else if (m.current_bowler) { label = "Last Over's Bowler"; cardHtml = bowlerCard(m.current_bowler, m.bowling_team_color, m.bowling_team_jersey); }
         else { label = 'Bowler'; cardHtml = emptySlot('Awaiting bowler…'); }
         bowlerSlot = `<div class="ground-slot"><div class="slot-label">${label}</div>${cardHtml}</div>`;
     } else if (m.stage === 'play') {
         const sel = ui.selectedBowler ? m.my_bench.find(b => b.name === ui.selectedBowler) : null;
         bowlerSlot = `<div class="ground-slot"><div class="slot-label">Your Bowler This Over</div>` +
             (sel
-                ? pcard(sel, { tag: `${sel.overs_bowled}/${sel.max_overs} overs` }) +
+                ? pcard(sel, { tag: `${sel.overs_bowled}/${sel.max_overs} overs`,
+                               jerseyColor: m.bowling_team_color, jerseyStyle: m.bowling_team_jersey }) +
                 bowlRoleButtons(m, sel.bowl_fit, slDisabled)
                 : emptySlot('Pick a bowler from your bench ⬇')) +
             `</div>`;
     } else {
         bowlerSlot = `<div class="ground-slot"><div class="slot-label">Your Bowler</div>` +
-            (m.current_bowler ? bowlerCard(m.current_bowler) : emptySlot('—')) +
+            (m.current_bowler ? bowlerCard(m.current_bowler, m.bowling_team_color, m.bowling_team_jersey) : emptySlot('—')) +
             (isFreeHit ? bowlRoleButtons(m, m.current_bowler && m.current_bowler.bowl_fit, slDisabled) : '') +
             `</div>`;
     }
@@ -1310,13 +1370,17 @@ function closeImpactOverlay() {
 
 function renderImpactOverlay(m) {
     const imp = m.impact || { pool: [], out_options: [] };
+    const myColor = m.i_am_batting ? m.batting_team_color : m.bowling_team_color;
+    const myJersey = m.i_am_batting ? m.batting_team_jersey : m.bowling_team_jersey;
     const inCards = imp.pool.map(p => pcard(p, {
         ovr: Math.max(p.batting_ovr, p.bowling_ovr), selectable: true,
         selected: ui.impactPick.in === p.name, attrs: `data-impact-in="${p.name}"`,
+        jerseyColor: myColor, jerseyStyle: myJersey,
     })).join('') || '<div class="bench-empty">No bench players available.</div>';
     const outCards = imp.out_options.map(p => pcard(p, {
         ovr: Math.max(p.batting_ovr, p.bowling_ovr), selectable: true, out: p.dismissed,
         selected: ui.impactPick.out === p.name, attrs: `data-impact-out="${p.name}"`,
+        jerseyColor: myColor, jerseyStyle: myJersey,
     })).join('') || '<div class="bench-empty">No one eligible to replace right now.</div>';
     const ready = ui.impactPick.in && ui.impactPick.out;
     $('impact-card').innerHTML = `
@@ -1411,6 +1475,7 @@ function renderBench(m) {
                 selectable: canPick,
                 attrs: canPick ? `draggable="true" data-batter="${b.name}"` : '',
                 tag: out ? 'OUT' : (b.status === 'available' ? 'Ready' : ''),
+                jerseyColor: m.batting_team_color, jerseyStyle: m.batting_team_jersey,
             });
         });
     } else {
@@ -1424,6 +1489,7 @@ function renderBench(m) {
                 selected,
                 attrs: !b.disabled ? `data-bowler="${b.name}"` : '',
                 tag: `${b.overs_bowled}/${b.max_overs} overs${b.disabled ? ' • rest' : ''}`,
+                jerseyColor: m.bowling_team_color, jerseyStyle: m.bowling_team_jersey,
             });
         });
     }
@@ -1974,10 +2040,18 @@ function renderAuction(state) {
 }
 
 function squadPanel(sq, isMe, a) {
-    const rows = sq.roster.map(p =>
-        `<div class="roster-item"><span>${p.name} ${p.is_foreigner ? '<span class="os">OS</span>' : ''}</span>
-         <span class="price">₹${(typeof p.price === 'number' ? p.price.toFixed(1) : (p.price ?? 0))}</span></div>`).join('')
-        || '<div class="bench-empty">No buys yet.</div>';
+    const rows = sq.roster.map(p => {
+        const isKeeper = p.is_keeper || p.assigned_role === 'Wicket Keeper';
+        const price = typeof p.price === 'number' ? p.price.toFixed(1) : (p.price ?? 0);
+        return pcard(p, {
+            figure: `₹${price} Cr`,
+            tag: `${p.is_foreigner ? 'OS · ' : ''}${isKeeper ? 'WK' : (p.assigned_role || '')}`,
+            jerseyColor: sq.color, jerseyStyle: sq.jersey,
+        });
+    }).join('');
+    const rosterHtml = rows
+        ? `<div class="roster-cards">${rows}</div>`
+        : '<div class="bench-empty">No buys yet.</div>';
     const pct = Math.min(100, Math.round((sq.count / a.squad_min) * 100));
     const need = Math.max(0, a.squad_min - sq.count);
     const progLabel = sq.count >= a.squad_min
@@ -1993,7 +2067,7 @@ function squadPanel(sq, isMe, a) {
         </div>
         <div class="squad-progress"><div class="squad-progress-fill" style="width:${pct}%"></div></div>
         <div class="squad-progress-label">${progLabel}</div>
-        ${rows}`;
+        ${rosterHtml}`;
 }
 
 // ---------- auction theater: animated purse ticks ----------
@@ -2143,20 +2217,23 @@ function auctionCenter(a, me) {
         // expensive (>₹10 Cr), where fine control starts to matter. Every
         // other tier keeps +0.1 available from the start.
         const showTenth = a.tier !== 'Marquee' || a.current_bid > 10;
+        // No free-text custom amount, and no plain "Bid" once someone's ahead --
+        // the ONLY ways to move the price are: claim the untaken opening price
+        // (nobody's bid yet), or a fixed "+" raise (matches the server, which
+        // rejects a zero-amount bid once active_bidder is set).
+        const bidControls = !a.active_bidder
+            ? `<button class="btn-go" id="bid-claim">Bid ₹${a.current_bid.toFixed(1)} Cr</button>`
+            : `<div class="quick-adds">
+                 ${showTenth ? '<button data-bid="0.1">+0.1</button>' : ''}<button data-bid="0.2">+0.2</button>
+                 <button data-bid="0.5">+0.5</button><button data-bid="1">+1</button>
+                 <button data-bid="2">+2</button><button data-bid="5">+5</button>
+                 <button data-bid="10">+10</button>
+               </div>`;
         const controls = (a.out[me] || a.my_locked)
             ? `<div class="auc-holder">${a.my_locked ? 'Your squad is locked — sitting out.' : 'You pulled out of this lot.'}</div>`
             : `<div class="bid-controls">
-                 <div class="quick-adds">
-                   ${showTenth ? '<button data-bid="0.1">+0.1</button>' : ''}<button data-bid="0.2">+0.2</button>
-                   <button data-bid="0.5">+0.5</button><button data-bid="1">+1</button>
-                   <button data-bid="2">+2</button><button data-bid="5">+5</button>
-                   <button data-bid="10">+10</button>
-                 </div>
-                 <div class="bid-row">
-                   <input type="number" id="bid-custom" step="0.1" min="0" placeholder="custom +" style="width:110px;">
-                   <button class="btn-go" id="bid-send">Bid</button>
-                   ${pullOutBtn}
-                 </div>
+                 ${bidControls}
+                 <div class="bid-row">${pullOutBtn}</div>
                </div>`;
         const strikeCls = a.strike === 1 ? 'strike-once' : a.strike === 2 ? 'strike-twice' : '';
         return auctioneerScene() + `<div class="auc-msg">${a.message}</div>
@@ -2216,11 +2293,9 @@ function wireAuctionCenter(a, me) {
     const ready = $('auc-ready'); if (ready) ready.addEventListener('click', () => aucAction('/api/auction_ready'));
     document.querySelectorAll('#auc-center [data-bid]').forEach(b =>
         b.addEventListener('click', () => aucAction('/api/bid', { amount: parseFloat(b.dataset.bid) })));
-    const send = $('bid-send');
-    if (send) send.addEventListener('click', () => {
-        const v = parseFloat(($('bid-custom') || {}).value) || 0;
-        aucAction('/api/bid', { amount: v });
-    });
+    // claims the lot's untaken opening price -- only shown while nobody's bid yet
+    const claim = $('bid-claim');
+    if (claim) claim.addEventListener('click', () => aucAction('/api/bid', { amount: 0 }));
     const out = $('bid-out'); if (out) out.addEventListener('click', () => aucAction('/api/pull_out'));
     const lk = $('auc-lock'); if (lk) lk.addEventListener('click', () => aucAction('/api/lock_squad'));
     const skip = $('auc-skip-set'); if (skip) skip.addEventListener('click', () => aucAction('/api/vote_skip_set'));
@@ -2343,6 +2418,7 @@ function xiCard(p, x, draggable) {
         attrs: `${!x.locked ? `data-xi="${p.name}"` : ''}${dragAttrs}`,
         tag: `${p.is_foreigner ? 'OS · ' : ''}${isKeeper ? 'WK' : (p.assigned_role || '')}`,
         extraHtml: energyHtml,
+        jerseyColor: x.team_color, jerseyStyle: x.team_jersey,
     });
 }
 

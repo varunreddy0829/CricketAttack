@@ -253,6 +253,33 @@ button:disabled {
     transform: scale(1.12);
 }
 
+/* jersey style toggle -- picked alongside team color, purely cosmetic */
+.jersey-picker {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.jersey-swatch {
+    padding: 0.35rem 0.8rem;
+    border-radius: var(--radius);
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    background: rgba(0, 0, 0, 0.04);
+    color: var(--ink-soft);
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.jersey-swatch:hover { transform: scale(1.05); }
+
+.jersey-swatch.picked {
+    background: var(--gold);
+    color: var(--ink);
+    border-color: var(--ink);
+}
+
 .team-dot {
     display: inline-block;
     width: 10px;
@@ -827,7 +854,8 @@ button:disabled {
 
 .pcard-flip {
     position: absolute;
-    top: 3px; right: 3px;
+    top: 3px; left: 50%;
+    transform: translateX(-50%);
     z-index: 6;
     width: 18px; height: 18px;
     padding: 0;
@@ -841,12 +869,22 @@ button:disabled {
 }
 .pcard-flip:hover { background: #fff; color: var(--ink); }
 
-.pcard-back { padding: 0.35rem 0.4rem 0.45rem; }
+.pcard-back { padding: 20px 0.4rem 0.45rem; }
+.pcard-back-name {
+    text-align: center;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 500;
+    font-size: 0.62rem;
+    color: var(--ink);
+    margin-bottom: 0.3rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 .pcard-tabs {
     display: flex;
     gap: 3px;
     margin-bottom: 0.3rem;
-    padding-right: 20px;   /* clear the flip button */
 }
 .pcard-tab {
     flex: 1 1 0;
@@ -914,6 +952,29 @@ button:disabled {
     border-color: var(--tier-bronze);
 }
 
+/* Jersey styling -- purely cosmetic, no gameplay meaning. Two parts, both
+   driven by --jc/--jc-tint/--jc-wash-* custom properties set inline per card
+   (see pcard()'s jerseyAttrs in app.js):
+     1. a collar band across the very top -- solid team color for Home,
+        the same band hollow (light fill + solid trim) for Away.
+     2. a faint team-color wash over the whole card body, layered under the
+        usual cream gradient so the OVR-tier border stays the rarity signal. */
+.pcard[data-jersey] {
+    padding-top: 9px;
+    background:
+        linear-gradient(180deg, var(--jc-wash-top), var(--jc-wash-bot)),
+        linear-gradient(180deg, #fffdf6, var(--cream-2));
+}
+.pcard[data-jersey]::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 9px;
+    z-index: 1;
+}
+.pcard[data-jersey-style="home"]::before { background: var(--jc); }
+.pcard[data-jersey-style="away"]::before { background: var(--jc-tint); border-bottom: 2px solid var(--jc); }
+
 .pcard .pcard-top {
     display: flex;
     justify-content: space-between;
@@ -963,8 +1024,6 @@ button:disabled {
     color: var(--leather);
     font-size: 0.7rem;
 }
-.pcard .prole .prole-more { color: var(--ink-soft); opacity: 0.7; font-style: italic; }
-
 .pcard .pfig {
     font-family: 'Oswald', sans-serif;
     font-size: 1.4rem;
@@ -1040,6 +1099,7 @@ button:disabled {
     gap: 2px;
     padding: 5px 2px 4px;
     border: 1px solid rgba(255, 255, 255, 0.18);
+    border-top: 3px solid var(--racc);
     border-radius: var(--radius);
     background: rgba(0, 0, 0, 0.35);
     color: #eae0c8;
@@ -1048,8 +1108,9 @@ button:disabled {
     line-height: 1;
     transition: background .12s, border-color .12s, transform .08s;
 }
-.role-btn .role-ico { font-size: 1.05rem; }
-.role-btn .role-lbl { font-size: 0.6rem; letter-spacing: .02em; text-transform: uppercase; opacity: .82; }
+/* no emoji -- each role reads by its accent color (--racc, set inline per
+   button) instead: a colored top edge plus a lightly tinted label */
+.role-btn .role-lbl { font-size: 0.6rem; letter-spacing: .02em; text-transform: uppercase; opacity: .9; color: var(--racc); }
 
 /* the little "?" role explainer — floats over the ground, takes no layout space */
 #role-help-btn {
@@ -1098,7 +1159,7 @@ button:disabled {
     line-height: 1.3;
     color: #eae0c8;
 }
-#role-help-panel .rh-row b { font-size: 0.74rem; }
+#role-help-panel .rh-row b { font-size: 0.74rem; color: var(--racc); }
 #role-help-panel .rh-row span { opacity: 0.85; }
 #role-help-panel .rh-row:last-child { margin-bottom: 0; }
 .role-btn.on {
@@ -1107,7 +1168,7 @@ button:disabled {
     color: #201306;
     box-shadow: 0 0 0 1px rgba(255, 212, 121, .35), 0 2px 8px rgba(0, 0, 0, .35);
 }
-.role-btn.on .role-lbl { opacity: 1; }
+.role-btn.on .role-lbl { opacity: 1; color: #201306; }
 .role-btn.on .role-grade { color: #201306 !important; }
 .role-btn:not(.on):active { transform: scale(0.95); }
 .role-btn:disabled { opacity: 0.5; cursor: default; }
@@ -1641,6 +1702,22 @@ button:disabled {
     color: var(--cream);
 }
 
+/* squad roster after purchase -- full player cards, 2-up, instead of a plain
+   name+price list, so bat/bowl grids stay reachable (flip) right in the panel */
+.roster-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    justify-content: flex-start;
+}
+.roster-cards .pcard { width: 108px; min-height: 84px; }
+.roster-cards .pcard .pcard-body { padding: 0.3rem; }
+.roster-cards .pcard .pname { font-size: 0.72rem; line-height: 1.1; }
+.roster-cards .pcard .pfig { font-size: 0.82rem; margin-top: 0.05rem; }
+.roster-cards .pcard .ptag { font-size: 0.5rem; }
+.roster-cards .pcard .ovr-chip { font-size: 0.6rem; }
+.roster-cards .pcard .prole { display: none; }   /* role badge too tall for this compact size */
+
 .roster-item {
     display: flex;
     justify-content: space-between;
@@ -2140,6 +2217,16 @@ button:disabled {
     animation: ovrGlow 1.7s ease-in-out infinite;
 }
 .pcard.tier-glow .pcard-top { background: rgba(168, 85, 247, 0.14); }
+/* A 95+ card also wearing a jersey: layer the team wash ON TOP of the
+   lavender glow interior (same two-layer trick as the plain jersey rule)
+   instead of losing the tint outright -- .tier-glow's own `background`
+   above is equal specificity and later in source order, so without this
+   compound override it would silently win and erase the team color. */
+.pcard.tier-glow[data-jersey] {
+    background:
+        linear-gradient(180deg, var(--jc-wash-top), var(--jc-wash-bot)),
+        linear-gradient(180deg, #fbf3ff, #ecdcff);
+}
 @keyframes ovrGlow {
     0%, 100% { box-shadow: 0 0 9px 1px rgba(168, 85, 247, 0.5), inset 0 0 12px rgba(168, 85, 247, 0.22), var(--shadow); }
     50% { box-shadow: 0 0 22px 6px rgba(168, 85, 247, 0.92), inset 0 0 22px rgba(168, 85, 247, 0.42), var(--shadow); }

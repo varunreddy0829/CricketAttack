@@ -43,10 +43,13 @@ FIT_QUALIFY_BALLS = 300   # career balls (faced / bowled) to count as an establi
 # 30% rate (locked). See compute_style_fits / compute_bowler_fits.
 FIT_LONGEVITY_SHARE = 0.70
 
-# A player earns EVERY role whose fit clears this bar -- roles are not
-# mutually exclusive, so Gayle (elite in both powerplay and death attack) is
-# both a Powerplay Basher AND a Finisher. The fit CELLS themselves are the raw
-# 0-99 percentile-vs-all-players numbers and are never rescaled or removed.
+# A player only earns a role label if some fit cell clears this bar -- no
+# fallback label for someone who clears nothing (a pure bowler should show
+# no batting flavor badge at all, not a nonsense one from a near-zero cell).
+# If multiple cells clear it, only the single best-scoring one is kept as the
+# displayed label (see compute_style_fits) -- these are flavor badges for
+# viewers, not a stat. The fit CELLS themselves are the raw 0-99
+# percentile-vs-all-players numbers and are never rescaled or removed.
 ROLE_THRESHOLD = 70
 
 # (label, style, phase) -> a player qualifies for `label` if fit[phase][style]
@@ -144,7 +147,14 @@ def compute_style_fits(players):
             for n in players:
                 fit[n][ph][s] = grid[n]
 
-    # attach fit + multi-role labels
+    # attach fit + a single flavor-badge label. A player only gets a label at
+    # all if some cell genuinely clears ROLE_THRESHOLD -- there is NO
+    # fallback-to-best-available-cell anymore. That fallback used to force a
+    # label onto everyone (e.g. a pure bowler's near-zero powerplay-attack
+    # score of 1 still "won" as the least-bad cell and got labelled Powerplay
+    # Basher), which was actively misleading. If several cells clear 70, only
+    # the single highest-scoring one is kept -- these are flavor badges for
+    # viewers, not a stat, so one clean label beats a pile of qualifiers.
     for name, p in players.items():
         f = fit[name]
         p["style_fit"] = f
@@ -155,13 +165,9 @@ def compute_style_fits(players):
             if score >= ROLE_THRESHOLD:
                 roles.append({"label": label, "score": score})
         roles.sort(key=lambda r: -r["score"])
-        if not roles:
-            best = max(ROLE_DEFS, key=lambda d: (f[d[2]][d[1]] if d[2] else max(f[ph][d[1]] for ph in PHASES)))
-            lbl, style, phase = best
-            sc = f[phase][style] if phase else max(f[ph][style] for ph in PHASES)
-            roles = [{"label": lbl, "score": sc}]
+        roles = roles[:1]
         p["roles"] = roles
-        p["role"] = roles[0]["label"]   # top role, for single-label contexts
+        p["role"] = roles[0]["label"] if roles else None
 
 def compute_bowler_fits(players):
     """Attach a per-player 'bowl_fit' 3x3 table -- {attack, contain, defend} x
