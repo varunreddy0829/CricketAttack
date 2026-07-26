@@ -817,7 +817,7 @@ def _simulate_until_pause():
             bc["consec_wkts"] = bc.get("consec_wkts", 0) + 1 if bc.get("last_ball_wicket") else 1
             bc["last_ball_wicket"] = True
             if bc["consec_wkts"] == 3:
-                _emit(ball_no, "milestone", f"🎩 HAT-TRICK! {bowler.name} takes three wickets in a row!", outcome="HT")
+                _emit(ball_no, "milestone", f"HAT-TRICK! {bowler.name} takes three wickets in a row!", outcome="HT")
             state.handle_wicket()
             g["vacant_slot"] = "striker"   # the batter facing the ball is always the striker
             if state.is_all_out():
@@ -838,9 +838,9 @@ def _simulate_until_pause():
             # re-fires it on a later ball, and the two are mutually exclusive
             # (a single ball can cross at most one, since max runs/ball = 6)
             if prev_runs < 50 <= row["runs"] < 100:
-                _emit(ball_no, "milestone", f"🎉 FIFTY! {striker.name} brings up his half-century!", outcome="50")
+                _emit(ball_no, "milestone", f"FIFTY! {striker.name} brings up his half-century!", outcome="50")
             elif prev_runs < 100 <= row["runs"]:
-                _emit(ball_no, "milestone", f"💯 CENTURY! {striker.name} reaches three figures!", outcome="100")
+                _emit(ball_no, "milestone", f"CENTURY! {striker.name} reaches three figures!", outcome="100")
             label = "boundary" if runs in (4, 6) else "run"
             if free_ball and runs == 0:
                 text = _say("free_dot", striker.name, bowler.name)   # swing-and-miss, not a block
@@ -1011,7 +1011,7 @@ def _apply_impact_sub(role, out_name, in_name):
     ip["in_name"] = in_name
     ip["out_name"] = out_name
     _emit("", "milestone",
-          f"🔄 IMPACT PLAYER — {g['teams'][role]['name']} bring on {in_name} for {out_name}!")
+          f"IMPACT PLAYER — {g['teams'][role]['name']} bring on {in_name} for {out_name}!")
 
 
 def _finish_over():
@@ -1136,10 +1136,10 @@ def _try_resolve_over():
     cards = g.get("gambit_cards") or {}
     if g["active_over"]["attack_gambit"]:
         cards.get(g["batting_side"], {})["attack"] = False
-        _emit("", "milestone", f"⚡ GAMBIT — {g['teams'][g['batting_side']]['name']} go ALL OUT ATTACK this over!")
+        _emit("", "milestone", f"GAMBIT — {g['teams'][g['batting_side']]['name']} go ALL OUT ATTACK this over!")
     if g["active_over"]["trap_gambit"]:
         cards.get(_bowling_side(), {})["trap"] = False
-        _emit("", "milestone", f"⚡ GAMBIT — {g['teams'][_bowling_side()]['name']} set a TRAP this over!")
+        _emit("", "milestone", f"GAMBIT — {g['teams'][_bowling_side()]['name']} set a TRAP this over!")
 
     _run_and_route()
 
@@ -2129,9 +2129,12 @@ def _eliminate_from_tournament(role):
 def _serialize_spectator_view():
     """Read-only public view of the fixture currently in progress, for
     tournament teams not playing it. Deliberately excludes hidden-intent
-    data (pending submissions, bowler pick before reveal) -- only what a
-    neutral broadcast viewer would see: score, overs, wickets, ball-by-ball
-    commentary for the current over."""
+    data (pending role/bowler submissions before both sides reveal) -- a
+    spectator isn't a competitor in this match, so unlike the redaction
+    between the two ACTUAL playing sides (see _role_meta's reveal_grid),
+    there's no fairness reason to hide anything else: full striker/
+    non-striker/bowler figures (with their Stage-5 grids, same as a playing
+    team would see of their own players) and the complete scorecard."""
     g = GAME
     if g.get("phase") != "match" or g.get("state") is None or not g.get("batting_side"):
         return None
@@ -2141,6 +2144,26 @@ def _serialize_spectator_view():
     striker = st.get_striker()
     non_striker = st.get_non_striker()
     bowler = g.get("bowler")
+
+    def bat_card_view(name):
+        if not name:
+            return None
+        r = g["bat_card"].get(name, {})
+        rec = BY_NAME[name]
+        return {"name": name, "runs": r.get("runs", 0), "balls": r.get("balls", 0),
+                "batting_ovr": rec["batting_ovr"], "bowling_ovr": rec["bowling_ovr"],
+                **_role_meta(name)}
+
+    def bowl_card_view(name):
+        if not name:
+            return None
+        bc = g["bowl_card"].get(name, {})
+        rec = BY_NAME[name]
+        return {"name": name, "wickets": bc.get("wickets", 0), "runs": bc.get("runs", 0),
+                "overs": _overs_str(bc.get("balls", 0)),
+                "bowling_ovr": rec["bowling_ovr"], "batting_ovr": rec["batting_ovr"],
+                **_role_meta(name)}
+
     return {
         "batting_team_name": g["teams"][batting]["name"],
         "bowling_team_name": g["teams"][bowling]["name"],
@@ -2151,13 +2174,15 @@ def _serialize_spectator_view():
         "innings": g.get("innings"),
         "score": st.runs, "wickets": st.wickets,
         "overs": f"{st.balls // 6}.{st.balls % 6}",
+        "extras": st.extras,
         "target": g.get("target"),
-        "striker_name": striker.name if striker else None,
-        "non_striker_name": non_striker.name if non_striker else None,
-        "bowler_name": bowler.name if bowler else None,
+        "striker": bat_card_view(striker.name if striker else None),
+        "non_striker": bat_card_view(non_striker.name if non_striker else None),
+        "bowler": bowl_card_view(bowler.name if bowler else None),
         "this_over": g.get("this_over", []),
         "stage": g.get("stage"),
         "ground": _ground_view(),
+        "scorecard": _serialize_scorecard(),
     }
 
 

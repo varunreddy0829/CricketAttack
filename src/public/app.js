@@ -289,7 +289,7 @@ function render(state) {
         $('cancel-tournament-btn').classList.add('hidden');
         $('back-to-tournament-fixed-btn').classList.add('hidden');
         $('result-text').textContent = state.you_won
-            ? '🏆 You win! Your opponent left the match.'
+            ? 'You win! Your opponent left the match.'
             : (state.ended_result || 'Match abandoned.');
         $('result-motm').classList.add('hidden');
         $('result-banner').classList.remove('hidden');
@@ -378,7 +378,7 @@ function render(state) {
     if (finished && !viewingScorecard && revealDone) {
         $('result-text').textContent = (state.match && state.match.result) || 'Match complete';
         const motm = state.match && state.match.motm;
-        $('result-motm').textContent = motm ? `🏅 Player of the Match: ${motm}` : '';
+        $('result-motm').textContent = motm ? `Player of the Match: ${motm}` : '';
         $('result-motm').classList.toggle('hidden', !motm);
         $('result-banner').classList.remove('hidden');
         const isChampionDone = state.is_tournament && state.tournament && state.tournament.stage === 'champion';
@@ -407,8 +407,8 @@ function renderLobby(state) {
     $('lobby-wait').classList.toggle('hidden', both);
     const btn = $('btn-auction'), lob = state.lobby || {};
     if (lob.i_voted) { btn.textContent = 'Waiting for opponent to accept…'; btn.disabled = true; }
-    else if (lob.opponent_voted) { btn.textContent = '✅ Accept Auction (opponent ready)'; btn.disabled = false; }
-    else { btn.textContent = '🏏 Start Auction Draft'; btn.disabled = false; }
+    else if (lob.opponent_voted) { btn.textContent = 'Accept Auction (opponent ready)'; btn.disabled = false; }
+    else { btn.textContent = 'Start Auction Draft'; btn.disabled = false; }
 }
 
 // ---------- tournament lobby ----------
@@ -425,7 +425,7 @@ function renderTournamentLobby(state) {
     btn.classList.toggle('hidden', !tl.all_joined);
     if (tl.all_joined) {
         if (tl.i_voted) { btn.textContent = 'Waiting for everyone to accept…'; btn.disabled = true; }
-        else { btn.textContent = '🏏 Start Auction Draft'; btn.disabled = false; }
+        else { btn.textContent = 'Start Auction Draft'; btn.disabled = false; }
     }
 }
 
@@ -449,9 +449,9 @@ function fixturesList(fixtures) {
     const rows = fixtures.map(f => `
         <div class="t-fixture-row ${f.played ? '' : 'pending'}${f.has_scorecard ? ' clickable' : ''}"
              ${f.has_scorecard ? `data-fixture-idx="${f.idx}"` : ''}>
-            <span><span class="kind">${f.kind.replace('_', ' ')}</span> ${f.a_name} vs ${f.b_name}${f.host_name ? ` <span class="host-tag" title="Home ground">🏠 ${f.host_name}</span>` : ''}</span>
+            <span><span class="kind">${f.kind.replace('_', ' ')}</span> ${f.a_name} vs ${f.b_name}${f.host_name ? ` <span class="host-tag" title="Home ground">Host: ${f.host_name}</span>` : ''}</span>
             <span>${f.played ? (f.result_text || '') : 'upcoming'}${f.motm_name ? ` &middot; MOTM: ${f.motm_name}` : ''}
-                ${f.has_scorecard ? ' &middot; 📋' : ''}</span>
+                ${f.has_scorecard ? ' &middot; Scorecard' : ''}</span>
         </div>`).join('');
     return `<div class="t-fixtures">${rows}</div>`;
 }
@@ -491,7 +491,7 @@ function renderBracket(state) {
         html += `<div class="t-current-fixture">
             <div class="tagline">Now Playing</div>
             <div>${t.current_fixture.a_name} <span class="vs">VS</span> ${t.current_fixture.b_name}</div>
-            <div class="tagline" style="margin-top:0.3rem;">${t.current_fixture.kind.replace('_', ' ')}${t.current_fixture.host_name ? ` &middot; 🏠 ${t.current_fixture.host_name}` : ''}</div>
+            <div class="tagline" style="margin-top:0.3rem;">${t.current_fixture.kind.replace('_', ' ')}${t.current_fixture.host_name ? ` &middot; Host: ${t.current_fixture.host_name}` : ''}</div>
             ${spectateBlock(state.spectate)}
         </div>`;
     }
@@ -504,6 +504,11 @@ function renderBracket(state) {
     wireFixtureScorecards();
     wireAwardsExpand();
     wireRosterEnergyExpand();
+    // spectateBlock only left a placeholder div for the scorecard table (it
+    // returns an HTML string, it can't run the table-building DOM code itself)
+    if (state.spectate && state.spectate.scorecard) {
+        renderScorecardInto('spectate-scorecard', state.spectate.scorecard);
+    }
 }
 
 // ---------- squad energy tab (tournament home screen) ----------
@@ -516,14 +521,14 @@ function myRosterEnergy(roster) {
         .map(p => {
             const level = p.energy >= 99 ? 'fresh' : p.energy >= 97 ? 'tired' : 'worn';
             return `<div class="roster-energy-row ${level}">
-                <span class="re-name">${p.name} ${p.is_foreigner ? '<span class="os">OS</span>' : ''}${p.is_keeper ? ' 🧤' : ''}</span>
+                <span class="re-name">${p.name} ${p.is_foreigner ? '<span class="os">OS</span>' : ''}${p.is_keeper ? ' <span class="os">WK</span>' : ''}</span>
                 <span class="re-bar"><span class="re-bar-fill" style="width:${p.energy}%"></span></span>
                 <span class="re-value">${p.energy}%</span>
             </div>`;
         }).join('');
     return `<div class="t-roster-energy">
         <div class="tagline t-roster-energy-toggle" id="roster-energy-toggle" style="text-align:center; cursor:pointer;">
-            🎽 ${roster.team_name} — Squad Energy ${rosterEnergyExpanded ? '▾' : '▸'}
+            ${roster.team_name} — Squad Energy ${rosterEnergyExpanded ? '[-]' : '[+]'}
         </div>
         <div class="t-roster-energy-body${rosterEnergyExpanded ? '' : ' hidden'}">
             <div class="tagline" style="text-align:center; opacity:0.7; margin-bottom:0.4rem;">
@@ -558,7 +563,7 @@ function awardsLeaderboardList(key, entries, unit) {
         </div>`).join('');
     const hidden = entries.length - AWARDS_COLLAPSED_COUNT;
     const hint = hidden > 0
-        ? `<div class="t-award-expand" data-award-key="${key}">${expanded ? '▾ show less' : `▸ show ${hidden} more`}</div>`
+        ? `<div class="t-award-expand" data-award-key="${key}">${expanded ? 'show less' : `show ${hidden} more`}</div>`
         : '';
     return rows + hint;
 }
@@ -568,11 +573,11 @@ function awardsLeaderboard(awards) {
     return `<div class="t-awards">
         <div class="tagline" style="text-align:center;">Running Leaderboard</div>
         <div class="t-awards-row">
-            <div class="t-award-card"><div class="t-award-cap">🧡 Orange Cap</div>
+            <div class="t-award-card"><div class="t-award-cap">Orange Cap</div>
                 ${awardsLeaderboardList('orange_cap', awards.orange_cap, 'runs')}</div>
-            <div class="t-award-card"><div class="t-award-cap">💜 Purple Cap</div>
+            <div class="t-award-card"><div class="t-award-cap">Purple Cap</div>
                 ${awardsLeaderboardList('purple_cap', awards.purple_cap, 'wkts')}</div>
-            <div class="t-award-card"><div class="t-award-cap">⭐ MVP</div>
+            <div class="t-award-card"><div class="t-award-cap">MVP</div>
                 ${awardsLeaderboardList('mvp', awards.mvp, '')}</div>
         </div>
     </div>`;
@@ -591,9 +596,9 @@ function lastResultBlock(m, fixtureIdx) {
     return `<div class="t-last-result">
         <div class="tagline">Your Match</div>
         <div class="t-last-result-text">${m.result}</div>
-        ${m.motm ? `<div class="t-last-result-motm">🏅 Player of the Match: ${m.motm}</div>` : ''}
+        ${m.motm ? `<div class="t-last-result-motm">Player of the Match: ${m.motm}</div>` : ''}
         ${fixtureIdx !== null && fixtureIdx !== undefined
-            ? `<button class="btn-ghost" id="btn-last-result-scorecard" data-fixture-idx="${fixtureIdx}">📋 View Scorecard</button>`
+            ? `<button class="btn-ghost" id="btn-last-result-scorecard" data-fixture-idx="${fixtureIdx}">View Scorecard</button>`
             : ''}
     </div>`;
 }
@@ -601,7 +606,7 @@ function lastResultBlock(m, fixtureIdx) {
 function nextFixtureBlock(nf) {
     if (nf.i_ready) {
         return `<div class="t-next-fixture">
-            <div class="tagline">Your Match Is Next — Ready ✔</div>
+            <div class="tagline">Your Match Is Next — Ready</div>
             <div>${nf.a_name} <span class="vs">VS</span> ${nf.b_name}</div>
             <div class="tagline" style="margin-top:0.3rem; opacity:0.75;">
                 Waiting for ${nf.opponent_ready ? 'the match to start…' : 'the other team to ready up…'}</div>
@@ -611,21 +616,36 @@ function nextFixtureBlock(nf) {
         <div class="tagline">Your Match Is Next</div>
         <div>${nf.a_name} <span class="vs">VS</span> ${nf.b_name}</div>
         <div class="tagline" style="margin-top:0.3rem;">${nf.kind.replace('_', ' ')}</div>
-        <button class="btn-go btn-lg" id="btn-fixture-ready" style="margin-top:0.8rem;">I'm Ready ✔</button>
+        <button class="btn-go btn-lg" id="btn-fixture-ready" style="margin-top:0.8rem;">I'm Ready</button>
     </div>`;
 }
 
+// Non-playing tournament teams get the full match, not just a score line:
+// live player cards for whoever's at the crease/bowling, extras/target, the
+// ball-by-ball over, and the complete scorecard below (spectateBlock only
+// returns the HTML string -- the scorecard table itself is a DOM-building
+// function, wired in separately right after this gets inserted; see
+// renderBracket).
 function spectateBlock(sp) {
     if (!sp) return '';
     const overLines = (sp.this_over || []).map(commLine).join('') || '<div class="comm-empty">Over about to start…</div>';
-    const withNames = [sp.striker_name, sp.non_striker_name].filter(Boolean).join(' & ');
+    const cards = [
+        sp.striker ? pcard(sp.striker, { figure: `${sp.striker.runs}(${sp.striker.balls})`,
+            jerseyColor: sp.batting_team_color, jerseyStyle: sp.batting_team_jersey }) : '',
+        sp.non_striker ? pcard(sp.non_striker, { figure: `${sp.non_striker.runs}(${sp.non_striker.balls})`,
+            jerseyColor: sp.batting_team_color, jerseyStyle: sp.batting_team_jersey }) : '',
+        sp.bowler ? pcard(sp.bowler, { figure: `${sp.bowler.wickets}-${sp.bowler.runs}(${sp.bowler.overs})`,
+            jerseyColor: sp.bowling_team_color, jerseyStyle: sp.bowling_team_jersey }) : '',
+    ].filter(Boolean).join('');
     return `<div class="t-spectate">
         <div class="t-spectate-score">${sp.batting_team_name} ${sp.score}/${sp.wickets}
             <span class="t-spectate-overs">(${sp.overs} ov)</span></div>
-        ${sp.ground ? `<div class="t-spectate-sub">🏟 ${sp.ground.name} &middot; <span class="pitch-chip ${sp.ground.pitch}">${sp.ground.pitch}</span></div>` : ''}
-        <div class="t-spectate-sub">${withNames}${sp.bowler_name ? ' &middot; bowled by ' + sp.bowler_name : ''}</div>
-        ${sp.target ? `<div class="t-spectate-sub">Target: ${sp.target}</div>` : ''}
+        ${sp.ground ? `<div class="t-spectate-sub">${sp.ground.name} &middot; <span class="pitch-chip ${sp.ground.pitch}">${sp.ground.pitch}</span></div>` : ''}
+        <div class="t-spectate-sub">Extras ${sp.extras}${sp.target ? ` &middot; Target ${sp.target}` : ''}</div>
+        <div class="t-spectate-cards">${cards}</div>
         <div class="comm-list t-spectate-comm">${overLines}</div>
+        <div class="t-spectate-sub" style="margin-top:0.6rem;">Full Scorecard</div>
+        <div id="spectate-scorecard"></div>
     </div>`;
 }
 
@@ -661,11 +681,11 @@ function showPresentationSequence(state) {
         `<div class="t-presentation-rank">${i + 1}. ${e.name} <span>(${e.team_name} · ${e.value}${unit ? ' ' + unit : ''})</span></div>`
     ).join('');
     if (t.awards) {
-        steps.push({ emoji: '🧡', label: 'Orange Cap — Most Runs', listHtml: top3(t.awards.orange_cap, 'runs') });
-        steps.push({ emoji: '💜', label: 'Purple Cap — Most Wickets', listHtml: top3(t.awards.purple_cap, 'wkts') });
-        steps.push({ emoji: '⭐', label: 'Tournament MVP', listHtml: top3(t.awards.mvp, '') });
+        steps.push({ label: 'Orange Cap — Most Runs', listHtml: top3(t.awards.orange_cap, 'runs') });
+        steps.push({ label: 'Purple Cap — Most Wickets', listHtml: top3(t.awards.purple_cap, 'wkts') });
+        steps.push({ label: 'Tournament MVP', listHtml: top3(t.awards.mvp, '') });
     }
-    steps.push({ emoji: '🏆', label: 'Tournament Champions', name: t.champion_name, sub: 'Congratulations!', big: true });
+    steps.push({ label: 'Tournament Champions', name: t.champion_name, sub: 'Congratulations!', big: true });
 
     let i = 0;
     const showStep = () => {
@@ -677,8 +697,7 @@ function showPresentationSequence(state) {
         const s = steps[i];
         $('t-bracket-wrap').innerHTML = `
             <div class="t-presentation${s.big ? ' big' : ''}">
-                <div class="t-presentation-emoji">${s.emoji}</div>
-                <div class="tagline">${s.label}</div>
+                <div class="t-presentation-title">${s.label}</div>
                 ${s.big ? `<h1>${s.name}</h1><div class="tagline">${s.sub}</div>` : `<div class="t-presentation-list">${s.listHtml}</div>`}
             </div>`;
         i++;
@@ -694,7 +713,6 @@ function renderChampionScreen(state) {
     const canViewScorecard = !!state.match;
     $('t-bracket-wrap').innerHTML = `
         <div class="t-champion-banner">
-            <div class="trophy">🏆</div>
             <h1>${t.champion_name}</h1>
             <div class="tagline">TOURNAMENT CHAMPIONS</div>
         </div>
@@ -702,7 +720,7 @@ function renderChampionScreen(state) {
         ${standingsTable(t.standings, 3)}
         ${fixturesList(t.fixtures)}
         <div style="display:flex; gap:0.8rem; margin-top:1rem;">
-            ${canViewScorecard ? '<button class="btn-ghost btn-lg" id="btn-t-view-final">📋 View Final Scorecard</button>' : ''}
+            ${canViewScorecard ? '<button class="btn-ghost btn-lg" id="btn-t-view-final">View Final Scorecard</button>' : ''}
             <button class="btn-gold btn-lg" onclick="localStorage.removeItem('ca_token'); location.reload();">New Tournament</button>
         </div>`;
     const vb = document.getElementById('btn-t-view-final');
@@ -723,14 +741,14 @@ function renderGame(state) {
 
     // TOSS — happens before any innings state exists
     if (m.stage === 'toss') {
-        $('role-pill').textContent = '🪙 Toss';
+        $('role-pill').textContent = 'Toss';
         $('role-pill').className = 'role-pill';
         renderToss(m);
         return;
     }
     hideOverlay('toss-overlay');
 
-    $('role-pill').textContent = m.i_am_batting ? '🏏 Batting' : '🎯 Bowling';
+    $('role-pill').textContent = m.i_am_batting ? 'Batting' : 'Bowling';
     $('role-pill').className = 'role-pill ' + (m.i_am_batting ? 'batting' : 'bowling');
 
     // reset stale bowler selection if it's no longer valid on the bench
@@ -773,12 +791,12 @@ function hideOverlay(id) { $(id).classList.add('hidden'); }
 function renderToss(m) {
     const card = $('toss-card');
     const groundLine = m.ground
-        ? `<div class="sub toss-ground">🏟 ${m.ground.name}, ${m.ground.city}<br>
+        ? `<div class="sub toss-ground">${m.ground.name}, ${m.ground.city}<br>
              <span class="pitch-chip ${m.ground.pitch}">${m.ground.pitch} pitch</span> — ${m.ground.pitch_desc}</div>`
         : '';
     if (m.toss.i_won) {
         card.innerHTML = `
-            <div class="toss-coin">🪙</div>
+            <div class="toss-coin">TOSS</div>
             <h2>You won the toss!</h2>
             ${groundLine}
             <div class="sub">${m.toss.winner_name}, what will you do?</div>
@@ -790,7 +808,7 @@ function renderToss(m) {
             b.addEventListener('click', () => tossChoice(b.dataset.toss)));
     } else {
         card.innerHTML = `
-            <div class="toss-coin">🪙</div>
+            <div class="toss-coin">TOSS</div>
             <h2>Coin is in the air…</h2>
             ${groundLine}
             <div class="sub wait-note">${m.toss.winner_name} won the toss and is deciding to bat or bowl.</div>`;
@@ -829,7 +847,7 @@ function renderOpeners(m) {
         <div class="sub">Tap two batsmen — first pick takes strike.</div>
         <div class="openers-grid">${grid}</div>
         <button class="btn-go btn-lg" id="confirm-openers" ${ready ? '' : 'disabled'}>
-            ${ready ? 'Send Them Out ✔' : `Pick ${2 - ui.openerPicks.length} more`}</button>`;
+            ${ready ? 'Send Them Out' : `Pick ${2 - ui.openerPicks.length} more`}</button>`;
     card.querySelectorAll('[data-opener]').forEach(el =>
         el.addEventListener('click', () => toggleOpener(el.dataset.opener)));
     const cbtn = $('confirm-openers');
@@ -869,13 +887,13 @@ function renderScoreboard(m) {
         target = `<div class="sb-target"><div class="sb-meta">1st Innings</div></div>`;
     }
     const phaseChip = m.phase_label && m.phase_label !== 'middle'
-        ? `<span class="phase-chip ${m.phase_label}">${m.phase_label === 'powerplay' ? '⚡ POWERPLAY' : '🔥 DEATH OVERS'}</span>` : '';
+        ? `<span class="phase-chip ${m.phase_label}">${m.phase_label === 'powerplay' ? 'POWERPLAY' : 'DEATH OVERS'}</span>` : '';
     $('scoreboard').innerHTML = `
         <div>
             <div class="sb-team" style="${m.batting_team_color ? `color:${m.batting_team_color}` : ''}">${m.batting_team_name}</div>
             <div class="sb-score">${m.runs}/${m.wickets}</div>
             <div class="sb-meta">Overs ${m.overs} / ${m.max_overs} &middot; Extras ${m.extras}</div>
-            ${m.ground ? `<div class="sb-meta sb-ground">🏟 ${m.ground.name} &middot; <span class="pitch-chip ${m.ground.pitch}">${m.ground.pitch} pitch</span></div>` : ''}
+            ${m.ground ? `<div class="sb-meta sb-ground">${m.ground.name} &middot; <span class="pitch-chip ${m.ground.pitch}">${m.ground.pitch} pitch</span></div>` : ''}
         </div>
         <div class="sb-meta">bowling: <span style="${m.bowling_team_color ? `color:${m.bowling_team_color}` : ''}">${m.bowling_team_name}</span> ${phaseChip}</div>
         ${target}
@@ -917,13 +935,13 @@ function pcard(card, opts = {}) {
     const canFlip = !!card.style_fit;
     if (canFlip) cardBackData.set(card.name, card);   // for the Bat/Bowl tab re-render
     if (canFlip && flippedCards.has(card.name)) cls.push('flipped');
-    const flipBtn = canFlip ? `<button type="button" class="pcard-flip" title="Role &amp; phase stats">↻</button>` : '';
+    const flipBtn = canFlip ? `<button type="button" class="pcard-flip" title="Role &amp; phase stats">i</button>` : '';
     const back = canFlip ? pcardBack(card) : '';
     // at most one role badge (the single best cell >=70, see
     // compile_player_stats.py) -- nothing shown if the player didn't clear
     // the threshold anywhere, which is the common/correct case for bowlers.
     const roleBadge = (card.roles && card.roles.length)
-        ? `<div class="prole"><span>${roleEmoji(card.roles[0].label)} ${card.roles[0].label} <b>${card.roles[0].score}</b></span></div>`
+        ? `<div class="prole"><span>${card.roles[0].label} <b>${card.roles[0].score}</b></span></div>`
         : '';
     return `
     <div class="${cls.join(' ')}" data-card-name="${card.name}" ${opts.attrs || ''}${jersey.attr} style="${jersey.style}">
@@ -943,15 +961,6 @@ function pcard(card, opts = {}) {
     </div>`;
 }
 
-function roleEmoji(role) {
-    if (!role) return '';
-    if (role.includes('Powerplay')) return '⚡';
-    if (role.includes('Finisher')) return '🔥';
-    if (role.includes('Middle')) return '💪';
-    if (role.includes('Anchor')) return '🧱';
-    if (role.includes('Accumulator')) return '🏃';
-    return '🏏';
-}
 
 const flippedCards = new Set();   // card names currently showing their back
 const cardBackTab = new Map();    // card name -> 'bat' | 'bowl' (default 'bat')
@@ -979,13 +988,13 @@ function pcardBack(card) {
         { key: 'attack', hdr: 'ATK' }, { key: 'contain', hdr: 'CON' }, { key: 'defend', hdr: 'DEF' }]) : '';
     const tabs = hasBowl
         ? `<div class="pcard-tabs">
-            <button type="button" class="pcard-tab${tab === 'bat' ? ' on' : ''}" data-backtab="bat">🏏 BAT</button>
-            <button type="button" class="pcard-tab${tab === 'bowl' ? ' on' : ''}" data-backtab="bowl">🎯 BOWL</button>
+            <button type="button" class="pcard-tab${tab === 'bat' ? ' on' : ''}" data-backtab="bat">BAT</button>
+            <button type="button" class="pcard-tab${tab === 'bowl' ? ' on' : ''}" data-backtab="bowl">BOWL</button>
         </div>` : '';
     // at most one role label now (see compile_player_stats.py) -- nothing shown
     // at all if the player didn't clear the 70 threshold in any cell
     const roleList = (card.roles && card.roles.length)
-        ? `${roleEmoji(card.roles[0].label)} ${card.roles[0].label} ${card.roles[0].score}`
+        ? `${card.roles[0].label} ${card.roles[0].score}`
         : '';
     return `
     <div class="pcard-face pcard-back">
@@ -1136,7 +1145,7 @@ function renderGround(m) {
     let strikerSlot;
     if (m.striker) {
         strikerSlot = `<div class="ground-slot">
-            <div class="slot-label">On Strike ⭐</div>
+            <div class="slot-label">On Strike</div>
             ${pcard(m.striker, { figure: `${m.striker.runs}(${m.striker.balls})`,
                                   jerseyColor: m.batting_team_color, jerseyStyle: m.batting_team_jersey })}
             ${m.i_am_batting ? batRoleButtons(m, 'striker', m.striker, slDisabled) : ''}
@@ -1144,7 +1153,7 @@ function renderGround(m) {
         </div>`;
     } else if (m.await_next_batter && m.i_am_batting) {
         strikerSlot = `<div class="ground-slot">
-            <div class="slot-label">New Batsman ⬇</div>
+            <div class="slot-label">New Batsman (below)</div>
             ${emptySlot('Drop a batsman here', 'id="drop-striker" data-drop="1"')}
         </div>`;
     } else {
@@ -1180,7 +1189,7 @@ function renderGround(m) {
                 ? pcard(sel, { tag: `${sel.overs_bowled}/${sel.max_overs} overs`,
                                jerseyColor: m.bowling_team_color, jerseyStyle: m.bowling_team_jersey }) +
                 bowlRoleButtons(m, sel.bowl_fit, slDisabled)
-                : emptySlot('Pick a bowler from your bench ⬇')) +
+                : emptySlot('Pick a bowler from your bench (below)')) +
             `</div>`;
     } else {
         bowlerSlot = `<div class="ground-slot"><div class="slot-label">Your Bowler</div>` +
@@ -1229,7 +1238,7 @@ function wireRoleButtons() {
 // ---------- ready bar ----------
 function oppReadyTxt(ready) {
     return `<span class="ready-status">Opponent: ${ready
-        ? '<span class="on">READY ✔</span>' : '<span class="off">setting up…</span>'}</span>`;
+        ? '<span class="on">READY</span>' : '<span class="off">setting up…</span>'}</span>`;
 }
 
 function renderReadyBar(m) {
@@ -1246,16 +1255,16 @@ function renderReadyBar(m) {
     if (m.stage === 'await_resume') {
         const oppTxt = oppReadyTxt(m.resume && m.resume.opponent_ready);
         if (m.resume && m.resume.i_ready) {
-            bar.innerHTML = `<button class="btn-ghost" disabled>Ready ✔ — waiting…</button>${oppTxt}`;
+            bar.innerHTML = `<button class="btn-ghost" disabled>Ready — waiting…</button>${oppTxt}`;
         } else if (m.i_am_batting) {
             bar.innerHTML = `${impactButtonHtml(m)}
-                <button class="btn-go btn-lg" id="btn-resume">Ready to Resume Over ✔</button>
+                <button class="btn-go btn-lg" id="btn-resume">Ready to Resume Over</button>
                 <span class="ready-status"><span class="off">New batsman is in — pick a role, then resume.</span></span>${oppTxt}`;
             $('btn-resume').addEventListener('click', submitResume);
             wireImpactButton();
         } else {
             bar.innerHTML = `${impactButtonHtml(m)}
-                <button class="btn-go btn-lg" id="btn-resume">Ready to Resume Over ✔</button>
+                <button class="btn-go btn-lg" id="btn-resume">Ready to Resume Over</button>
                 <span class="ready-status"><span class="off">New batsman is in — react with your bowling role, then resume.</span></span>${oppTxt}`;
             $('btn-resume').addEventListener('click', submitResume);
             wireImpactButton();
@@ -1268,8 +1277,8 @@ function renderReadyBar(m) {
         if (m.free_hit.i_ready) {
             bar.innerHTML = `<button class="btn-ghost" disabled>Free hit locked — waiting…</button>${oppTxt}`;
         } else {
-            bar.innerHTML = `<span class="ready-status" style="color:var(--gold)">⚡ FREE HIT!</span>
-                <button class="btn-gold btn-lg" id="btn-fh">Confirm Intent ✔</button>${oppTxt}`;
+            bar.innerHTML = `<span class="ready-status" style="color:var(--gold)">FREE HIT!</span>
+                <button class="btn-gold btn-lg" id="btn-fh">Confirm Intent</button>${oppTxt}`;
             $('btn-fh').addEventListener('click', submitFreeHit);
         }
         return;
@@ -1279,13 +1288,13 @@ function renderReadyBar(m) {
     // then the batting side sees who's bowling and sets its strategy.
     if (!m.i_am_batting) {
         if (m.pending.i_submitted) {
-            bar.innerHTML = `<button class="btn-ghost" disabled>Bowler locked ✔ — waiting for the batsmen…</button>`;
+            bar.innerHTML = `<button class="btn-ghost" disabled>Bowler locked — waiting for the batsmen…</button>`;
         } else {
             const disabled = !ui.selectedBowler;
             bar.innerHTML =
-                `${gambitToggleHtml(m, 'trap', '🪤 Set Trap')}
+                `${gambitToggleHtml(m, 'trap', 'Set Trap')}
                  ${impactButtonHtml(m)}
-                 <button class="btn-go btn-lg" id="btn-ready" ${disabled ? 'disabled' : ''}>Lock In Bowler ✔</button>
+                 <button class="btn-go btn-lg" id="btn-ready" ${disabled ? 'disabled' : ''}>Lock In Bowler</button>
                  <span class="ready-status"><span class="off">${disabled ? 'Pick a bowler first' : "Batsmen won't see your role"}</span></span>`;
             const btn = $('btn-ready');
             if (btn) btn.addEventListener('click', submitOver);
@@ -1307,9 +1316,9 @@ function renderReadyBar(m) {
     const bn = m.pending.opponent_bowler ? m.pending.opponent_bowler.name : 'the bowler';
     bar.innerHTML =
         `<span class="ready-status" style="color:var(--gold)">Bowling: ${bn}</span>
-         ${gambitToggleHtml(m, 'attack', '⚡ All Out Attack')}
+         ${gambitToggleHtml(m, 'attack', 'All Out Attack')}
          ${impactButtonHtml(m)}
-         <button class="btn-go btn-lg" id="btn-ready">Set Strategy &amp; Ready ✔</button>`;
+         <button class="btn-go btn-lg" id="btn-ready">Set Strategy &amp; Ready</button>`;
     $('btn-ready').addEventListener('click', submitOver);
     wireGambitToggle();
     wireImpactButton();
@@ -1324,7 +1333,7 @@ function gambitToggleHtml(m, kind, label) {
     const avail = m.gambits && m.gambits.available && m.gambits.available[kind];
     const hint = `<div class="gambit-hint">${GAMBIT_EXPLAIN[kind]}</div>`;
     if (!avail) return `<span class="gambit-btn used" title="${GAMBIT_EXPLAIN[kind]}">${label} — used</span>${hint}`;
-    return `<button class="gambit-btn${ui.armGambit ? ' armed' : ''}" id="btn-gambit" title="${GAMBIT_EXPLAIN[kind]}">${label}${ui.armGambit ? ' ✔ ARMED' : ''}</button>${hint}`;
+    return `<button class="gambit-btn${ui.armGambit ? ' armed' : ''}" id="btn-gambit" title="${GAMBIT_EXPLAIN[kind]}">${label}${ui.armGambit ? ' — ARMED' : ''}</button>${hint}`;
 }
 
 function wireGambitToggle() {
@@ -1338,9 +1347,9 @@ function wireGambitToggle() {
 // ---------- Impact Player: one bench-for-XI swap per team, once per match ----------
 function impactButtonHtml(m) {
     if (!m.impact) return '';
-    if (m.impact.used) return `<span class="gambit-btn used" title="${m.impact.swap_text || 'Already used this match'}">🔄 Impact Player — used</span>`;
+    if (m.impact.used) return `<span class="gambit-btn used" title="${m.impact.swap_text || 'Already used this match'}">Impact Player — used</span>`;
     if (!m.impact.can_use) return '';
-    return `<button class="gambit-btn" id="btn-impact">🔄 Impact Player</button>`;
+    return `<button class="gambit-btn" id="btn-impact">Impact Player</button>`;
 }
 
 function wireImpactButton() {
@@ -1374,7 +1383,7 @@ function renderImpactOverlay(m) {
     })).join('') || '<div class="bench-empty">No one eligible to replace right now.</div>';
     const ready = ui.impactPick.in && ui.impactPick.out;
     $('impact-card').innerHTML = `
-        <h2>🔄 Bring On Your Impact Player</h2>
+        <h2>Bring On Your Impact Player</h2>
         <div class="sub">One-shot for the whole match — pick who comes IN, then who they replace.</div>
         <h4 style="margin-top:1rem;">Bring In</h4>
         <div class="xi-list">${inCards}</div>
@@ -1616,7 +1625,7 @@ function isBigMilestone(entry) {
 function showMilestoneToast(entry) {
     const root = $('milestone-toast-root');
     if (!root) return;
-    const title = entry.outcome === 'HT' ? '🎩 HAT-TRICK!' : entry.outcome === '100' ? '💯 CENTURY!' : '🎉 FIFTY!';
+    const title = entry.outcome === 'HT' ? 'HAT-TRICK!' : entry.outcome === '100' ? 'CENTURY!' : 'FIFTY!';
     const el = document.createElement('div');
     el.className = 'milestone-toast';
     el.innerHTML = `<div class="mt-title">${title}</div><div class="mt-sub">${entry.text.replace(/^[^\s]+\s/, '')}</div>`;
@@ -1954,8 +1963,7 @@ function maybeFlashRivalBid(a, me) {
 
 function auctioneerScene() {
     return `<div class="auctioneer-scene">
-        <div class="auctioneer" title="Auctioneer">🧑‍⚖️</div>
-        <div class="gavel-wrap"><span class="gavel" id="gavel">🔨</span><span class="gavel-block"></span></div>
+        <div class="gavel-wrap"><span class="gavel" id="gavel">SOLD</span><span class="gavel-block"></span></div>
     </div>`;
 }
 
@@ -2045,7 +2053,7 @@ function squadPanel(sq, isMe, a) {
     const pct = Math.min(100, Math.round((sq.count / a.squad_min) * 100));
     const need = Math.max(0, a.squad_min - sq.count);
     const progLabel = sq.count >= a.squad_min
-        ? (sq.wk >= 1 ? 'Squad legal — can lock in ✔' : 'Need a wicket-keeper')
+        ? (sq.wk >= 1 ? 'Squad legal — can lock in' : 'Need a wicket-keeper')
         : `${need} more to reach the minimum ${a.squad_min}`;
     const dot = sq.color ? `<span class="team-dot" style="background:${sq.color}"></span>` : '';
     return `<h3>${dot}${sq.name}${isMe ? ' (You)' : ''} ${sq.locked ? '<span class="badge-tier">LOCKED</span>' : ''}</h3>
@@ -2108,8 +2116,8 @@ function otherSquadsPanel(others, a) {
         const dot = sq.color ? `<span class="team-dot" style="background:${sq.color}"></span>` : '';
         return `
         <div class="roster-item other-squad-row" data-expand-squad="${sq.team_id}" style="align-items:center; cursor:pointer;">
-            <span>${open ? '▾' : '▸'} ${dot}${sq.name} ${sq.locked ? '<span class="badge-tier">LOCKED</span>' : ''}</span>
-            <span class="price">₹${sq.budget.toFixed(1)} Cr &middot; ${sq.count}/${a.squad_max} &middot; 🧤${sq.wk}</span>
+            <span>${open ? '[-]' : '[+]'} ${dot}${sq.name} ${sq.locked ? '<span class="badge-tier">LOCKED</span>' : ''}</span>
+            <span class="price">₹${sq.budget.toFixed(1)} Cr &middot; ${sq.count}/${a.squad_max} &middot; WK ${sq.wk}</span>
         </div>
         <div class="other-squad-detail${open ? '' : ' hidden'}">${detail}</div>`;
     }).join('');
@@ -2139,7 +2147,7 @@ function poolList(pool, soldNames = []) {
         const s = bySet[id];
         const items = s.players.map(p => {
             const isSold = soldNames.includes(p.name);
-            return `<div class="pool-item ${isSold ? 'sold' : ''}" style="${isSold ? 'opacity:0.4; text-decoration:line-through; font-style:italic;' : ''}">${p.name} ${p.is_foreigner ? '✈' : ''} ${p.is_keeper ? '🧤' : ''}
+            return `<div class="pool-item ${isSold ? 'sold' : ''}" style="${isSold ? 'opacity:0.4; text-decoration:line-through; font-style:italic;' : ''}">${p.name} ${p.is_foreigner ? '<span class="os">OS</span>' : ''} ${p.is_keeper ? '<span class="os">WK</span>' : ''}
              <span class="ovrs">${p.batting_ovr}/${p.bowling_ovr}</span></div>`;
         }).join('');
         return `<div class="pool-set"><h5>Set ${id}: ${s.tier} ${s.role}s</h5>${items}</div>`;
@@ -2151,29 +2159,29 @@ function readyBlock(a, me, label) {
     let statusHtml;
     if (a.opp_squad) {
         const oppReady = a.ready[a.opp_squad.team_id] || a.opp_locked;
-        statusHtml = `Opponent: ${oppReady ? 'ready ✔' : 'not ready yet'}`;
+        statusHtml = `Opponent: ${oppReady ? 'ready' : 'not ready yet'}`;
     } else {
         const others = a.other_squads || [];
         const readyCount = others.filter(s => a.ready[s.team_id] || s.locked).length;
         statusHtml = `Other teams ready: ${readyCount}/${others.length}`;
     }
     return `<button class="btn-go btn-lg" id="auc-ready" ${a.ready[me] ? 'disabled' : ''}>
-                ${a.ready[me] ? 'Ready ✔' : label}</button>
+                ${a.ready[me] ? 'Ready' : label}</button>
             <div class="auc-holder">${statusHtml}</div>`;
 }
 
 function lockBlock(a) {
-    if (a.my_locked) return `<div class="auc-holder">🔒 Your squad is LOCKED — waiting for the others.</div>`;
-    if (a.can_lock) return `<button class="btn-gold btn-lg" id="auc-lock">🔒 Lock In Squad (${a.my_squad.count} players)</button>`;
+    if (a.my_locked) return `<div class="auc-holder">Your squad is LOCKED — waiting for the others.</div>`;
+    if (a.can_lock) return `<button class="btn-gold btn-lg" id="auc-lock">Lock In Squad (${a.my_squad.count} players)</button>`;
     return '';
 }
 
 function skipSetBlock(a) {
     if (a.my_locked || !a.skip_set) return '';
     const sv = a.skip_set;
-    if (sv.blocked) return `<div class="auc-holder" title="Not enough players would be left for everyone to build a full squad.">⏭ Can't skip this set — too few players would be left</div>`;
-    if (sv.i_voted) return `<div class="auc-holder">⏭ Voted to skip this set (${sv.count}/${sv.total})</div>`;
-    return `<button class="btn-ghost" id="auc-skip-set">⏭ Vote to skip this set (${sv.count}/${sv.total})</button>`;
+    if (sv.blocked) return `<div class="auc-holder" title="Not enough players would be left for everyone to build a full squad.">Can't skip this set — too few players would be left</div>`;
+    if (sv.i_voted) return `<div class="auc-holder">Voted to skip this set (${sv.count}/${sv.total})</div>`;
+    return `<button class="btn-ghost" id="auc-skip-set">Vote to skip this set (${sv.count}/${sv.total})</button>`;
 }
 
 function auctionCenter(a, me) {
@@ -2193,7 +2201,7 @@ function auctionCenter(a, me) {
         let holder = 'No bids yet — opening price.';
         if (a.active_bidder) {
             const bc = teamColor(a, a.active_bidder);
-            holder = a.active_bidder === me ? '⭐ You hold the top bid'
+            holder = a.active_bidder === me ? 'You hold the top bid'
                 : `<span style="${bc ? `color:${bc}` : ''}">${teamName(a, a.active_bidder)}</span> holds the bid`;
         }
         const strikeTxt = a.strike === 1 ? 'GOING ONCE…' : a.strike === 2 ? 'GOING TWICE…' : '';
@@ -2265,11 +2273,11 @@ function auctionCenter(a, me) {
     const forfeitWarning = a.opp_squad ? 'or you auto-forfeit!' : 'or you are kicked out!';
     const countdown = !a.my_locked
         ? `<div class="auc-holder" style="color:${secsLeft <= 15 ? 'var(--leather)' : 'var(--gold)'}">
-             ⏱ ${secsLeft}s to lock a valid squad ${forfeitWarning}</div>
+             ${secsLeft}s to lock a valid squad ${forfeitWarning}</div>
            <div class="auc-timer"><div class="auc-timer-fill" id="auc-timer-fill"></div></div>`
         : '';
     const othersStatus = a.opp_squad
-        ? `Opponent: ${a.opp_locked ? 'locked ✔' : 'still building…'}`
+        ? `Opponent: ${a.opp_locked ? 'locked' : 'still building…'}`
         : `Others locked: ${(a.other_squads || []).filter(s => s.locked).length}/${(a.other_squads || []).length}`;
     return instr + `<div class="auc-msg">${a.message}</div>
         ${countdown}
@@ -2311,20 +2319,20 @@ function renderGrounds(state) {
         if (s.claimed_by_me) cls.push('mine');
         if (takenByOther) cls.push('taken');
         return `<div class="${cls.join(' ')}" ${(!takenByOther && !gr.my_locked) ? `data-ground="${s.id}"` : ''}>
-            <div class="ground-name">🏟 ${s.name}</div>
+            <div class="ground-name">${s.name}</div>
             <div class="ground-city">${s.city}</div>
             <div class="pitch-chip ${s.pitch}">${s.pitch} pitch</div>
             <div class="ground-desc">${s.pitch_desc}</div>
-            ${s.claimed_by ? `<div class="ground-claim">${s.claimed_by_me ? '✔ Your home ground' : `Claimed by ${s.claimed_by}`}</div>` : ''}
+            ${s.claimed_by ? `<div class="ground-claim">${s.claimed_by_me ? 'Your home ground' : `Claimed by ${s.claimed_by}`}</div>` : ''}
         </div>`;
     }).join('');
     $('grounds-main').innerHTML = `
-        <div class="grounds-hint">Every team claims a different home ground — its pitch shapes your matches
-            (round-robin fixtures are played at the FIRST-listed team's home). Coordinate below, then lock in.
-            ${gr.locked_count}/${gr.total_teams} locked.</div>
+        <div class="grounds-hint">Every team claims a different home ground — its pitch shapes your matches.
+            Round-robin fixtures are hosted fairly, rotating between each pair's two grounds over the tournament.
+            Coordinate below, then lock in. ${gr.locked_count}/${gr.total_teams} locked.</div>
         <div class="grounds-grid">${cards}</div>
         <button class="btn-go btn-lg" id="btn-lock-ground" ${(gr.my_ground && !gr.my_locked) ? '' : 'disabled'}>
-            ${gr.my_locked ? 'Locked ✔ — waiting for the others…' : 'Lock In Home Ground'}</button>`;
+            ${gr.my_locked ? 'Locked — waiting for the others…' : 'Lock In Home Ground'}</button>`;
     if (!gr.my_locked) {
         document.querySelectorAll('#grounds-main [data-ground]').forEach(el =>
             el.addEventListener('click', () => aucAction('/api/claim_ground', { ground_id: el.dataset.ground })));
@@ -2356,11 +2364,11 @@ function renderXI(state) {
     const byName = {}; x.roster.forEach(p => { byName[p.name] = p; });
     const chosen = x.xi.map(n => byName[n]).filter(Boolean);
     const othersStatus = x.opponent_locked !== null
-        ? `Opponent: ${x.opponent_locked ? 'locked ✔' : 'selecting…'}`
+        ? `Opponent: ${x.opponent_locked ? 'locked' : 'selecting…'}`
         : `Others locked: ${x.others_locked_count}/${x.others_total}`;
 
     const groundBanner = x.ground
-        ? `<div class="xi-ground-banner">🏟 <b>${x.ground.name}</b>, ${x.ground.city} &middot;
+        ? `<div class="xi-ground-banner"><b>${x.ground.name}</b>, ${x.ground.city} &middot;
              <span class="pitch-chip ${x.ground.pitch}">${x.ground.pitch} pitch</span> — ${x.ground.pitch_desc}</div>`
         : '';
     $('xi-main').innerHTML = `
@@ -2369,7 +2377,7 @@ function renderXI(state) {
             <span class="${cntOk ? 'good' : ''}">Selected ${x.count}/${x.size}</span>
             <span class="${osBad ? 'bad' : ''}">Overseas ${x.os}/${x.max_os}</span>
             <span class="${wkBad ? 'bad' : 'good'}">Keepers ${x.wk}</span>
-            ${x.locked ? '<span class="good">LOCKED ✔</span>' : ''}
+            ${x.locked ? '<span class="good">LOCKED</span>' : ''}
             <span style="margin-left:auto">${othersStatus}</span>
         </div>
         <div class="xi-cols">

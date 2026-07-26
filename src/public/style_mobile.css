@@ -292,6 +292,12 @@ button:disabled {
 .t-spectate-score { font-family: 'Oswald', sans-serif; font-size: 1.15rem; color: var(--board-white); }
 .t-spectate-overs { font-size: 0.8rem; opacity: 0.75; }
 .t-spectate-sub { font-size: 0.8rem; opacity: 0.8; margin-top: 0.2rem; }
+.t-spectate-cards { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
+.t-spectate-cards .pcard { width: 118px; }
+.t-spectate-cards .pcard .pcard-body { padding: 0.35rem; }
+.t-spectate-cards .pcard .pname { font-size: 0.78rem; }
+.t-spectate-cards .pcard .ovr-chip b { font-size: 0.9rem; }
+.t-spectate-cards .pcard .ovr-chip span { font-size: 0.52rem; }
 .t-spectate-comm { max-height: 140px; overflow-y: auto; margin-top: 0.5rem; }
 .t-standings { width: 100%; background: var(--cream); color: var(--ink); border-radius: 8px; overflow: hidden; box-shadow: var(--shadow); }
 .t-standings table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
@@ -307,7 +313,6 @@ button:disabled {
 .t-fixture-row.clickable { cursor: pointer; }
 .t-fixture-row.clickable:hover { background: rgba(255,255,255,0.1); }
 .t-champion-banner { text-align: center; }
-.t-champion-banner .trophy { font-size: 4rem; }
 .t-champion-banner h1 { color: var(--gold); font-size: 2.4rem; }
 
 .t-awards { width: 100%; }
@@ -496,9 +501,16 @@ button:disabled {
 .energy-bar.gassed .energy-fill { background: var(--leather); }
 
 .t-presentation { text-align: center; animation: presentFadeIn 0.5s ease; }
-.t-presentation-emoji { font-size: 3.5rem; line-height: 1; }
+.t-presentation-title {
+    font-family: 'Oswald', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gold);
+    font-size: 1.5rem;
+    line-height: 1.2;
+}
 .t-presentation h1 { color: var(--gold); font-size: 2rem; margin: 0.3rem 0; }
-.t-presentation.big .t-presentation-emoji { font-size: 5rem; }
+.t-presentation.big .t-presentation-title { font-size: 2.1rem; }
 .t-presentation.big h1 { font-size: 3rem; }
 .t-presentation-list { margin-top: 0.8rem; }
 .t-presentation-rank { font-family: 'Oswald', sans-serif; font-size: 1.15rem; color: var(--board-white); margin: 0.3rem 0; }
@@ -1593,8 +1605,21 @@ button:disabled {
 }
 
 .toss-coin {
-    font-size: 3rem;
-    margin: 0.5rem 0;
+    width: 64px;
+    height: 64px;
+    margin: 0.5rem auto;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #f7dd8f, var(--gold));
+    border: 3px solid #8a6a12;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4), inset 0 1px 3px rgba(255, 255, 255, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    color: #4a3405;
 }
 
 .toss-choices {
@@ -1953,9 +1978,16 @@ button:disabled {
 
 /* ---------- Auctioneer + gavel ---------- */
 .auctioneer-scene { display: flex; align-items: flex-end; justify-content: center; gap: 0.4rem; margin-bottom: 0.3rem; height: 60px; }
-.auctioneer { font-size: 2.5rem; line-height: 1; filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.45)); }
 .gavel-wrap { position: relative; display: flex; flex-direction: column; align-items: center; }
-.gavel { font-size: 2rem; transform-origin: 70% 90%; display: inline-block; }
+.gavel {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    font-size: 1.3rem;
+    color: var(--gold);
+    transform-origin: 70% 90%;
+    display: inline-block;
+}
 .gavel.swing { animation: gavel-swing 0.42s cubic-bezier(.3, .7, .4, 1); }
 .gavel-block { width: 34px; height: 8px; background: var(--gold); border-radius: 3px; margin-top: -2px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4); }
 @keyframes gavel-swing {
@@ -2167,8 +2199,7 @@ button:disabled {
 .auc-center { justify-content: safe center; gap: 1rem; }
 
 .auctioneer-scene { height: 78px; }
-.auctioneer { font-size: 3.1rem; }
-.gavel { font-size: 2.5rem; }
+.gavel { font-size: 1.6rem; }
 
 /* spotlighted stage behind the current player card */
 .auc-player.big-card { position: relative; padding: 0.6rem 1.6rem; }
