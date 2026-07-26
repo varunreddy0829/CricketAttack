@@ -794,6 +794,9 @@ def _simulate_until_pause():
             "bat_grid": _bat_grid(striker.name, over_num, bat_role),
             "bowl_role": bowl_role,
             "bowl_grid": _bowl_grid(bowler.name, over_num, bowl_role),
+            # wicket cascade (engine Stage 6): stored on active_over so it
+            # survives the mid-over await_batter pause and dies with the over
+            "wickets_this_over": ao.get("wkts_this_over", 0),
         }
         outcome = calculate_single_ball(striker, bowler, LEAGUE_AVG, ctx)
         state.add_ball()
@@ -808,6 +811,7 @@ def _simulate_until_pause():
         elif outcome == "Out":
             row["out"] = True
             row["how_out"] = f"b {bowler.name}"
+            ao["wkts_this_over"] = ao.get("wkts_this_over", 0) + 1
             bc = g["bowl_card"][bowler.name]
             bc["wickets"] += 1
             _emit(ball_no, "wicket", _say("wicket", striker.name, bowler.name), outcome="W")
@@ -1271,10 +1275,11 @@ def _reset_skip_votes():
 
 def _skip_would_strand_squads():
     """Would skipping the rest of THIS set make it mathematically impossible
-    for every still-active team to reach a legal squad? There's no auto-fill
-    safety net, so once the numbers don't add up, someone is guaranteed to
-    get kicked out at the grace period with no way to prevent it -- players
-    should see that coming, not discover it after the fact.
+    for every still-active team to reach a legal squad, even counting
+    _auto_fill_squad's free top-up at the end? Once the numbers don't add
+    up, someone is guaranteed to get kicked out at the grace period with no
+    way to prevent it -- players should see that coming, not discover it
+    after the fact.
 
     Two ways a skip can strand a team:
     1. Not enough total players left afterward for everyone's outstanding
@@ -1393,21 +1398,57 @@ def _execute_unsold():
 
 AUCTION_GRACE_SECONDS = 60.0
 
+def _auto_fill_squad(team_id):
+    """Emergency top-up once the auction is over: a squad still short of
+    SQUAD_MIN, or missing a keeper, is filled for free from the lowest
+    ('Group 3') tier's still-unsold players first -- falling back to any
+    other unsold player only if Group 3 alone doesn't have enough bodies
+    left. This is what makes the post-auction grace period a genuine safety
+    net instead of a ticking elimination: a squad now only still gets
+    kicked out if the whole pool truly can't cover everyone."""
+    a = GAME["auction"]
+    sq = GAME["squads"][team_id]
+    bought_names = {p["name"] for t in GAME["team_ids"] for p in GAME["squads"][t]["roster"]}
+    available = [p for p in a["pool"] if p["name"] not in bought_names]
+    available.sort(key=lambda p: 0 if p.get("tier") == "Group 3" else 1)
+
+    def assign(p):
+        sq["roster"].append({**_card_fields(p), "assigned_role": p.get("role", "Batsman"), "price": 0.0})
+        if p.get("is_foreigner"):
+            sq["os"] += 1
+        if p.get("is_keeper"):
+            sq["wk"] += 1
+        available.remove(p)
+
+    if sq["wk"] < 1:
+        keeper = next((p for p in available if p.get("is_keeper")), None)
+        if keeper:
+            assign(keeper)
+
+    while len(sq["roster"]) < SQUAD_MIN and available:
+        assign(available[0])
+
+
 def _auction_done():
     a = GAME["auction"]
     a["stage"] = "done"
     a["current"] = None
-    # grace-period deadline: any squad still short of SQUAD_MIN when this
-    # expires auto-forfeits (see _check_auction_grace_expiry).
+    for t in GAME["team_ids"]:
+        if not GAME["squads"][t]["locked"]:
+            _auto_fill_squad(t)
+    # grace-period deadline: still here as a last-resort safety net -- see
+    # _auto_fill_squad's docstring for why this should now rarely matter.
     a["deadline"] = time.time() + AUCTION_GRACE_SECONDS
     a["total_wait"] = AUCTION_GRACE_SECONDS
-    a["message"] = f"All lots done! Fill up and lock in your squad within {int(AUCTION_GRACE_SECONDS)}s."
+    a["message"] = f"All lots done! Short squads were topped up for free. Lock in within {int(AUCTION_GRACE_SECONDS)}s."
 
 
 def _check_auction_grace_expiry():
     """Fired by the ticker once the post-auction grace deadline passes. Any
-    squad still under SQUAD_MIN (or without a keeper) is kicked out — no
-    auto-fill safety net.
+    squad still under SQUAD_MIN (or without a keeper) is kicked out --
+    _auto_fill_squad already ran for everyone when the auction ended, so in
+    practice this only fires if the whole pool genuinely didn't have enough
+    unsold players left to cover every short squad.
 
     Plain 1v1 games: reuses the same 'abandoned' result path as a manual
     /api/exit_game forfeit, so _serialize's redaction/finished-banner handling
