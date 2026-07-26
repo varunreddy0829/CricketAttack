@@ -497,9 +497,9 @@ function renderLobby(state) {
 
     $('lobby-actions').classList.toggle('hidden', !both);
     const btn = $('btn-auction');
-    if (lob.i_voted) { btn.textContent = 'Waiting for opponent to accept…'; btn.disabled = true; }
-    else if (lob.opponent_voted) { btn.textContent = 'Accept Auction (opponent ready)'; btn.disabled = false; }
-    else { btn.textContent = 'Start Auction Draft'; btn.disabled = false; }
+    if (lob.i_voted) { btn.textContent = 'Waiting for opponent…'; btn.disabled = true; }
+    else if (lob.opponent_voted) { btn.textContent = "Ready for Auction (opponent's in)"; btn.disabled = false; }
+    else { btn.textContent = 'Ready for Auction'; btn.disabled = false; }
 }
 
 // ---------- tournament lobby ----------
@@ -517,8 +517,8 @@ function renderTournamentLobby(state) {
     const btn = $('btn-t-start');
     btn.classList.toggle('hidden', !tl.all_joined);
     if (tl.all_joined) {
-        if (tl.i_voted) { btn.textContent = 'Waiting for everyone to accept…'; btn.disabled = true; }
-        else { btn.textContent = 'Start Auction Draft'; btn.disabled = false; }
+        if (tl.i_voted) { btn.textContent = 'Waiting for everyone…'; btn.disabled = true; }
+        else { btn.textContent = 'Ready for Auction'; btn.disabled = false; }
     }
 }
 
@@ -2031,6 +2031,17 @@ function playOutcomeSound(outcome) {
 
 let aucFx = { strike: -1, stage: null };
 function maybeGavel(a) {
+    // 'preview' (before lot 1) and the very first observation after that
+    // (aucFx.stage === null, e.g. right after the lobby's ready press drops
+    // you onto the auction screen) only ever establish a fresh baseline --
+    // never fire from them. Without this, landing on the auction screen for
+    // the first time while the real stage already happened to be 'resolved'
+    // (or strike already >0) read as a brand-new transition and fired the
+    // gavel immediately, before any bid/sale had actually just happened.
+    if (a.stage === 'preview' || aucFx.stage === null) {
+        aucFx = { strike: a.stage === 'bidding' ? a.strike : 0, stage: a.stage };
+        return;
+    }
     const struck = a.stage === 'bidding' && a.strike > aucFx.strike && a.strike > 0;
     const resolved = a.stage === 'resolved' && aucFx.stage !== 'resolved';
     if (struck || resolved) { playGavel(resolved); swingAuctioneerHammer(); }
@@ -2189,8 +2200,22 @@ function renderAuction(state) {
     }
 
     if ($('auc-minigames')) {
+        // Every poll (a bid, a strike tick, anything) was wiping out whatever
+        // you'd half-typed into the guess box, since this rebuilds the whole
+        // panel unconditionally -- same class of bug withScrollPreserved
+        // exists for, just for an input's value/focus instead of scroll.
+        const prevInput = $('guess-input');
+        const prevVal = prevInput ? prevInput.value : null;
+        const hadFocus = prevInput === document.activeElement;
         $('auc-minigames').innerHTML = miniGamesPanel(a, me);
         wireMiniGames();
+        if (prevVal) {
+            const newInput = $('guess-input');
+            if (newInput) {
+                newInput.value = prevVal;
+                if (hadFocus) newInput.focus();
+            }
+        }
     }
 
     if (a.stage === 'bidding' || a.stage === 'done') setAucTimer(a.time_left_ms, a.total_wait_ms);
@@ -2220,14 +2245,14 @@ function floorShell(a, me) {
     <div class="auc-shell">
         <div class="auc-left">
             <div class="panel auc-mine-box">${mySquadCards(a.my_squad, a)}</div>
-            <div class="panel auc-console-box">${consoleBox(a, me)}</div>
         </div>
         <div class="auc-center">
             ${stageBlock(a, me)}
             <div class="auc-floor" id="auc-floor">
                 <div class="floor-kicker">The Floor</div>
-                ${floorTables(a.other_squads)}
+                <div class="floor-tables">${floorTables(a.other_squads)}</div>
             </div>
+            <div class="panel auc-console-box">${consoleBox(a, me)}</div>
         </div>
         <div class="auc-right">${rightRail(a)}</div>
     </div>`;
@@ -2240,6 +2265,9 @@ function mySquadCards(sq, a) {
         return pcard(p, {
             figure: `₹${price} Cr`,
             tag: `${p.is_foreigner ? 'OS · ' : ''}${isKeeper ? 'WK' : (p.assigned_role || '')}`,
+            // home/away isn't decided until a real match -- 'home' just reads
+            // as "this is your squad's colour" here, not a real jersey side
+            jerseyColor: sq.color, jerseyStyle: 'home',
         });
     }).join('');
     const rosterHtml = rows
@@ -2300,22 +2328,19 @@ function teamColor(a, role) {
 }
 
 // ---------- the floor: round tables for every other squad ----------
-const FLOOR_POSITIONS = [
-    { top: '10%', left: '3%' }, { top: '4%', left: '55%' },
-    { top: '50%', left: '24%' }, { top: '54%', left: '64%' },
-    { top: '8%', left: '30%' }, { top: '58%', left: '4%' },
-    { top: '30%', left: '75%' }, { top: '34%', left: '48%' },
-];
-
 function floorTables(others) {
     if (!others || !others.length) return '<div class="bench-empty">No other squads yet.</div>';
-    return others.map((sq, i) => {
-        const pos = FLOOR_POSITIONS[i % FLOOR_POSITIONS.length];
+    // No more hand-placed coordinates -- .floor-tables is a real CSS grid
+    // (auto-fit/minmax), so tables get bigger with fewer opponents and wrap
+    // into more rows/columns with more, instead of clustering in one corner.
+    return others.map((sq) => {
         const sorted = [...sq.roster].sort((x, y) => (y.price || 0) - (x.price || 0));
         const top3 = sorted.slice(0, 3);
         const extra = sq.roster.length - top3.length;
-        const cardsHtml = top3.map(p => pcard(p, { figure: `₹${(p.price || 0).toFixed(1)} Cr` })).join('');
-        return `<div class="round-table" data-team="${sq.team_id}" style="top:${pos.top}; left:${pos.left}">
+        const cardsHtml = top3.map(p => pcard(p, {
+            figure: `₹${(p.price || 0).toFixed(1)} Cr`, jerseyColor: sq.color, jerseyStyle: 'home',
+        })).join('');
+        return `<div class="round-table" data-team="${sq.team_id}">
             <div class="table-shadow"></div>
             <div class="table-cloth">
                 <div class="table-nameplate">${sq.name}${sq.locked ? ' <span class="badge-tier">LOCKED</span>' : ''}</div>
@@ -2331,7 +2356,9 @@ function openSquadPopup(teamId) {
     if (!CURRENT || !CURRENT.auction) return;
     const sq = (CURRENT.auction.other_squads || []).find(s => s.team_id === teamId);
     if (!sq) return;
-    const rows = sq.roster.map(p => pcard(p, { figure: `₹${(p.price || 0).toFixed(1)} Cr` })).join('');
+    const rows = sq.roster.map(p => pcard(p, {
+        figure: `₹${(p.price || 0).toFixed(1)} Cr`, jerseyColor: sq.color, jerseyStyle: 'home',
+    })).join('');
     $('squad-popup-card').innerHTML = `
         <h2>${sq.name}</h2>
         <p class="sub">${sq.count} players · ₹${sq.budget.toFixed(1)} Cr left</p>
@@ -2364,13 +2391,64 @@ const FLOOR_BUZZ_LINES = [
     'Someone just asked if the purse is refundable. It is not.',
     'A team’s group chat has apparently gone silent. That’s never good.',
     'Reports suggest snacks were a bigger topic than strategy this set.',
+    'A franchise’s analytics team was seen arguing with its owner’s gut feeling. Gut feeling is winning.',
+    'Someone bid on a player they already own. Awkward silence followed.',
+    'A team’s mascot has reportedly started a betting pool on unsold lots.',
+    'Word is one owner brought a lucky pen. It hasn’t worked yet.',
+    'A rival scout was caught taking notes on a napkin. Bold strategy.',
+    'Someone’s phone rang mid-bid. It was their mother. The bid stood.',
+    'A team’s social media intern is already drafting the "we got robbed" post.',
+    'Reports of a secret handshake between two rival owners. Suspicious.',
+    'One franchise’s spreadsheet reportedly has more tabs than players.',
+    'A support staffer was seen crossing fingers, toes, and possibly eyes.',
+    'Someone just realized they’ve been bidding against their own teammate.',
+    'A team’s owner asked if snacks could be traded for a discount. The answer was no.',
+    'Rumor has it one franchise’s mascot costume is now for sale too.',
+    'A scout’s "sure thing" pick has gone unsold twice. The napkin is under review.',
+    'Someone’s laptop battery died mid-auction. Panic ensued, briefly.',
+    'A team’s owner reportedly Googled "how much is a crore, actually."',
+    'One franchise is rumored to be bidding by vibes alone. It’s oddly effective.',
+    'A rival team’s intern was seen practicing their "we’re not worried" face.',
+    'Someone asked if unsold players get a consolation prize. They do not.',
+    'A team’s owner has started referring to the purse as "our life savings."',
+    'Reports suggest one franchise is one bad bid away from a group therapy session.',
+    'Someone’s coffee order was mistaken for a bid. Chaos, briefly.',
+    'A scout was overheard saying "trust me" for the fourth time this hour.',
+    'One owner’s lucky charm is reportedly a slightly bent coin.',
+    'A team’s status message just changed to "it’s fine, everything’s fine."',
+    'Someone bid in their sleep, allegedly. The bid still counted.',
+    'A rival franchise is said to be tracking bids in a color-coded notebook.',
+    'One owner keeps asking "are we the villains in this story?" No answer yet.',
+    'A support staffer was seen doing math on their fingers. It checked out.',
+    'Reports of a team naming their next purchase before actually buying them.',
+    'Someone’s "final offer" was immediately followed by a higher one. Awkward.',
+    'A franchise owner reportedly high-fived the wrong person after a win.',
+    'One scout keeps a "do not buy" list that’s suspiciously long.',
+    'A team’s intern was overheard asking what a wicketkeeper actually does.',
+    'Someone’s bidding strategy is reportedly "just outlast everyone." Bold.',
+    'A rival owner was seen consulting a fortune cookie before bidding.',
+    'One franchise’s group chat just sent 47 messages in a row. All caps.',
+    'A scout’s confidence dropped the instant the bidding actually started.',
+    'Someone asked if they could pay in installments. They could not.',
+    'A team’s owner is reportedly keeping a "regrets" list for later.',
+    'One franchise has apparently nicknamed a rival "The Wallet Slayer."',
+    'A support staffer’s "just one more bid" has been said six times already.',
+    'Reports suggest a team’s mascot has stronger opinions than the coach.',
+    'Someone’s "I’m out" was said with visible relief. Very visible.',
+    'A rival scout was seen double-checking a player’s stats. Twice. Same stats.',
+    'One owner’s strategy is reportedly "bid high, ask questions later."',
+    'A team’s spreadsheet formula broke. Somehow the purse still balanced.',
+    'Someone just found out you can’t un-bid. Learning experience.',
+    'A franchise owner was overheard practicing their post-win speech early.',
+    'One scout’s "sleeper pick" has now been called out three sets running.',
+    'A team’s intern accidentally liked a rival’s social media post. Tension.',
+    'Reports of an owner negotiating with themselves out loud. It got heated.',
 ];
 let floorBuzzShown = [];
 function floorBuzzHtml() {
     if (!floorBuzzShown.length) rollFloorBuzz();
     return `<div class="panel-title">Floor Buzz</div>` +
-        floorBuzzShown.map(l => `<div class="news-item">${l}</div>`).join('') +
-        `<div class="news-note">rotates through dozens of one-liners — not every lot gets one</div>`;
+        floorBuzzShown.map(l => `<div class="news-item">${l}</div>`).join('');
 }
 function rollFloorBuzz() {
     const pool = FLOOR_BUZZ_LINES.filter(l => !floorBuzzShown.includes(l));
@@ -2395,8 +2473,9 @@ function maybeRollFloorBuzz(a) {
 // and clamped to the viewport so it can never be clipped, however close the
 // hovered table is to the top/right/bottom edge of the floor. ----------
 const BANTER_LINES = [
-    'Purse looking thin.', "That's a robbery.", 'Bold. Very bold.',
+    'Purse looking thin?', "That's a robbery.", 'Bold. Very bold.',
     'Overpaid, legend.', 'Marquee price, bench player?', 'Yikes. Just yikes.',
+    'Can I borrow 5cr?',
 ];
 let interactHideTimer = null;
 function showTableInteractFor(tableEl) {
@@ -2439,33 +2518,57 @@ function spawnCrowdReaction(anchorEl) {
     setTimeout(() => { react.remove(); crowd.remove(); }, 1600);
 }
 
-const pokeAudio = new Audio('audio/laughs.mp3');
-function playPokeSound() {
-    try { pokeAudio.currentTime = 0; pokeAudio.play().catch(() => {}); } catch (e) { /* audio unavailable -- ignore */ }
+// Poke/banter notifications are playful, not errors -- toast() is the site's
+// red "something went wrong" banner (see its .toast CSS: var(--leather),
+// bottom-center). Reusing it for these made a poke read as a warning.
+function floorToast(msg) {
+    const t = document.createElement('div');
+    t.className = 'floor-toast';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3200);
 }
 
 let seenAucEventIds = new Set();
 function maybeShowNewEvents(a, me) {
+    const now = Date.now() / 1000;
     (a.events || []).forEach(ev => {
         if (seenAucEventIds.has(ev.id)) return;
         seenAucEventIds.add(ev.id);
+        // #auc-floor-shell gets torn down and rebuilt on every poll regardless
+        // of which inner tab is showing, so switching to Mini Games/Available
+        // Players and back was replaying the fall animation for an event that
+        // actually happened while you were away -- gate the dramatic visuals
+        // (not the toast, that's still useful late) to genuinely fresh events,
+        // and explicitly clear the class afterward so it can never linger.
+        const isFresh = (now - ev.ts) < 6;
         if (ev.kind === 'poke') {
             if (ev.to === me) {
-                // being poked: audio only, no HA-HA/crowd on your own bench --
-                // the mockery plays out on the floor, not on your screen
-                playPokeSound();
-            } else {
+                // being poked: your own bench cards fall and shake, plus a
+                // quiet toast -- no HA-HA/crowd here, that mockery plays out
+                // on the floor (everyone else's view of you), not your own
+                floorToast(`${teamName(a, ev.from)} poked you!`);
+                if (isFresh) {
+                    const mine = document.getElementById('mine-list');
+                    if (mine) {
+                        mine.classList.remove('poked'); void mine.offsetWidth; mine.classList.add('poked');
+                        setTimeout(() => mine.classList.remove('poked'), 1700);
+                    }
+                }
+            } else if (isFresh) {
                 const tableEl = document.querySelector(`.round-table[data-team="${ev.to}"]`);
                 if (tableEl) {
                     const cards = tableEl.querySelector('.table-cards');
-                    if (cards) { cards.classList.remove('poked'); void cards.offsetWidth; cards.classList.add('poked'); }
+                    if (cards) {
+                        cards.classList.remove('poked'); void cards.offsetWidth; cards.classList.add('poked');
+                        setTimeout(() => cards.classList.remove('poked'), 1800);
+                    }
                     spawnCrowdReaction(tableEl);
                 }
-                playPokeSound();
             }
         } else if (ev.kind === 'banter') {
-            if (ev.to === me) toast(`${teamName(a, ev.from)}: "${ev.line}"`);
-            else if (ev.from === me) toast(`You told ${teamName(a, ev.to)}: "${ev.line}"`);
+            if (ev.to === me) floorToast(`${teamName(a, ev.from)}: "${ev.line}"`);
+            else if (ev.from === me) floorToast(`You told ${teamName(a, ev.to)}: "${ev.line}"`);
         }
     });
 }
@@ -2501,11 +2604,6 @@ function wireMiniGames() {
     });
 }
 
-function instructionsHtml(a) {
-    return `<div class="auc-instructions">
-        <b>Squad rules:</b> ${a.squad_min}–${a.squad_max} players &middot; at least 1 wicket-keeper.
-        <span class="note">Note: you can't keep more than ${a.xi_max_os} overseas players in your Playing XI.</span></div>`;
-}
 
 function poolList(pool, soldNames = []) {
     if (!pool) return '';
@@ -2628,7 +2726,6 @@ function consoleBox(a, me) {
 
     if (a.stage === 'preview') {
         return `<div class="panel-title">Auction Console</div>
-            ${instructionsHtml(a)}
             ${readyBlock(a, me, "I'm Ready to Bid")}
             ${eatSnacks}`;
     }
@@ -2668,7 +2765,6 @@ function consoleBox(a, me) {
 
     if (a.stage === 'resolved') {
         return `<div class="panel-title">Auction Console</div>
-            ${instructionsHtml(a)}
             ${readyBlock(a, me, 'Ready for Next Lot')}
             ${lockBlock(a)}
             ${skipSetBlock(a)}
@@ -2691,7 +2787,6 @@ function consoleBox(a, me) {
         ? `Opponent: ${a.opp_locked ? 'locked' : 'still building…'}`
         : `Others locked: ${(a.other_squads || []).filter(s => s.locked).length}/${(a.other_squads || []).length}`;
     return `<div class="panel-title">Auction Console</div>
-        ${instructionsHtml(a)}
         ${countdown}
         <div class="auc-holder">Your squad: ${sq.count}/${a.squad_max} · keepers ${sq.wk} · overseas ${sq.os}</div>
         ${lockBlock(a)}

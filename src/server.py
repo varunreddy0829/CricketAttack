@@ -3216,12 +3216,13 @@ def lock_squad():
 
 
 BANTER_LINES = [
-    "Purse looking thin.",
+    "Purse looking thin?",
     "That's a robbery.",
     "Bold. Very bold.",
     "Overpaid, legend.",
     "Marquee price, bench player?",
     "Yikes. Just yikes.",
+    "Can I borrow 5cr?",
 ]
 
 
