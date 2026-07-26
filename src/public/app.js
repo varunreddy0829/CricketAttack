@@ -472,7 +472,7 @@ function fixturesList(fixtures) {
     const rows = fixtures.map(f => `
         <div class="t-fixture-row ${f.played ? '' : 'pending'}${f.has_scorecard ? ' clickable' : ''}"
              ${f.has_scorecard ? `data-fixture-idx="${f.idx}"` : ''}>
-            <span><span class="kind">${f.kind.replace('_', ' ')}</span> ${f.a_name} vs ${f.b_name}</span>
+            <span><span class="kind">${f.kind.replace('_', ' ')}</span> ${f.a_name} vs ${f.b_name}${f.host_name ? ` <span class="host-tag" title="Home ground">🏠 ${f.host_name}</span>` : ''}</span>
             <span>${f.played ? (f.result_text || '') : 'upcoming'}${f.motm_name ? ` &middot; MOTM: ${f.motm_name}` : ''}
                 ${f.has_scorecard ? ' &middot; 📋' : ''}</span>
         </div>`).join('');
@@ -514,7 +514,7 @@ function renderBracket(state) {
         html += `<div class="t-current-fixture">
             <div class="tagline">Now Playing</div>
             <div>${t.current_fixture.a_name} <span class="vs">VS</span> ${t.current_fixture.b_name}</div>
-            <div class="tagline" style="margin-top:0.3rem;">${t.current_fixture.kind.replace('_', ' ')}</div>
+            <div class="tagline" style="margin-top:0.3rem;">${t.current_fixture.kind.replace('_', ' ')}${t.current_fixture.host_name ? ` &middot; 🏠 ${t.current_fixture.host_name}` : ''}</div>
             ${spectateBlock(state.spectate)}
         </div>`;
     }

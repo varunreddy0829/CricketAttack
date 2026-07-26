@@ -447,13 +447,24 @@ def _card_fields(record):
     }
 
 
-def _role_meta(name):
+def _role_meta(name, reveal_grid=True):
     """The card-flip fields (roles, signature, 3x3 style_fit + bowl_fit) for a
-    player by name -- spread into card dicts built by hand, not via _card_fields."""
+    player by name -- spread into card dicts built by hand, not via _card_fields.
+
+    reveal_grid=False keeps the public front-face role badge (role/roles,
+    already shown unflipped everywhere, including the opponent's public
+    auction roster) but STRIPS the flip-revealing 3x3 grids entirely from the
+    payload -- not just hidden client-side, genuinely never sent. Used for any
+    match-time player the viewer doesn't own (the opponent's batter/bowler),
+    since Stage 4/5's hidden-role guessing game only works if you can't read
+    the other side's exact grid numbers to counter-pick with certainty."""
     r = BY_NAME.get(name, {})
-    return {"role": r.get("role"), "roles": r.get("roles"),
-            "signature": r.get("signature"), "style_fit": r.get("style_fit"),
-            "bowl_fit": r.get("bowl_fit")}
+    out = {"role": r.get("role"), "roles": r.get("roles")}
+    if reveal_grid:
+        out["signature"] = r.get("signature")
+        out["style_fit"] = r.get("style_fit")
+        out["bowl_fit"] = r.get("bowl_fit")
+    return out
 
 
 def _auto_two_xis():
@@ -1632,9 +1643,57 @@ def _ranked_teams():
                   key=lambda x: (-t["standings"][x]["points"], -t["standings"][x]["nrr"]))
 
 
-def _new_fixture(a, b, kind):
+def _new_fixture(a, b, kind, host=None):
     return {"a": a, "b": b, "kind": kind, "played": False, "winner": None,
-            "result_text": None, "motm": None}
+            "result_text": None, "motm": None, "host": host if host is not None else a}
+
+
+def _assign_fair_hosts(pairs, team_ids=None):
+    """Assigns a HOME team to each round-robin pair so hosting is spread as
+    evenly as possible. The circle-method schedule from _round_robin_pairs
+    always lists the anchor team (team_ids[0] -- whoever created the
+    tournament) first in every one of ITS pairs, so naively hosting "whoever
+    is listed first" gave that one team 100% home matches while everyone
+    else got roughly 1-in-3 (verified: 4 teams -> anchor hosts all 3 of its
+    games, the other three teams host only 1 of their 3 each).
+
+    Every team plays (n-1) games, so the fairest possible split is exactly
+    (n-1)/2 home games each when n is odd, or a floor/ceil (n-1)/2 split
+    when n is even (someone has to host one more than everyone else) --
+    that's the theoretical best for ANY schedule. A single greedy pass
+    (give the home slot to whichever of the two teams has hosted fewer so
+    far, ties broken arbitrarily) usually lands close but can occasionally
+    miss it by one extra game on some team, purely from unlucky tie-break
+    ordering. Since this only runs once per tournament (a handful of
+    fixtures), just retry the cheap greedy pass with different random
+    tie-breaks and keep the most balanced result -- effectively free, and
+    reliably finds the exact optimum for realistic tournament sizes."""
+    def one_pass(rng):
+        hosted = {}
+        assigned = []
+        for a, b in pairs:
+            ca, cb = hosted.get(a, 0), hosted.get(b, 0)
+            if ca < cb:
+                host = a
+            elif cb < ca:
+                host = b
+            else:
+                host = rng.choice([a, b])
+            hosted[host] = hosted.get(host, 0) + 1
+            assigned.append((a, b, host))
+        return assigned, hosted
+
+    ids = team_ids if team_ids is not None else sorted({t for pair in pairs for t in pair})
+    best, best_spread = None, None
+    for _ in range(200):
+        assigned, hosted = one_pass(random)
+        counts = [hosted.get(t, 0) for t in ids]
+        spread = max(counts) - min(counts) if counts else 0
+        if best_spread is None or spread < best_spread:
+            best, best_spread = assigned, spread
+            if spread <= 1:   # can't do better than a 1-game spread when n is even
+                break
+    return best
 
 
 def _fixture_impact_scores(inn1, inn2):
@@ -1722,7 +1781,8 @@ def _start_tournament_matches():
     uses (_set_awaiting_xi) -- there's no separate one-off XI pick right after
     the auction that just gets asked again before the real first match."""
     team_ids = GAME["team_ids"]
-    fixtures = [_new_fixture(a, b, "round_robin") for a, b in _round_robin_pairs(team_ids)]
+    fixtures = [_new_fixture(a, b, "round_robin", host=host)
+                for a, b, host in _assign_fair_hosts(_round_robin_pairs(team_ids), team_ids)]
     GAME["tournament"].update({
         "fixtures": fixtures, "current_fixture": 0, "stage": "round_robin",
         "standings": {t: _blank_standing() for t in team_ids},
@@ -1747,7 +1807,7 @@ def _start_fixture(idx):
     # it here, or the venue shown pre-match wouldn't match the one actually
     # played on. Fallback covers paths that skip that step (e.g. tests).
     if not g.get("match_ground"):
-        g["match_ground"] = _ground_of(fx["a"]) if fx["kind"] == "round_robin" else random.choice(STADIUMS)
+        g["match_ground"] = _ground_of(fx.get("host", fx["a"])) if fx["kind"] == "round_robin" else random.choice(STADIUMS)
     _start_single_match()
 
 
@@ -1943,7 +2003,7 @@ def _set_awaiting_xi(idx):
     # reveal the venue now, before XI picks -- _start_fixture recomputes the
     # identical value from the same (unchanged) inputs when the match starts.
     if fx["kind"] == "round_robin":
-        GAME["match_ground"] = _ground_of(fx["a"])
+        GAME["match_ground"] = _ground_of(fx.get("host", fx["a"]))
     else:
         GAME["match_ground"] = random.choice(STADIUMS)
 
@@ -2085,7 +2145,8 @@ def _serialize_tournament_summary():
          "kind": f["kind"], "played": f["played"],
          "winner_name": GAME["teams"][f["winner"]]["name"] if f["winner"] else None,
          "result_text": f["result_text"], "motm_name": f.get("motm"),
-         "has_scorecard": i in scorecards}
+         "has_scorecard": i in scorecards,
+         "host_name": GAME["teams"][f["host"]]["name"] if f.get("host") and f["kind"] == "round_robin" else None}
         for i, f in enumerate(t.get("fixtures", []))
     ]
     current = None
@@ -2093,7 +2154,8 @@ def _serialize_tournament_summary():
     fixtures = t.get("fixtures", [])
     if GAME["phase"] == "match" and ci is not None and 0 <= ci < len(fixtures):
         fx = fixtures[ci]
-        current = {"a_name": GAME["teams"][fx["a"]]["name"], "b_name": GAME["teams"][fx["b"]]["name"], "kind": fx["kind"]}
+        current = {"a_name": GAME["teams"][fx["a"]]["name"], "b_name": GAME["teams"][fx["b"]]["name"], "kind": fx["kind"],
+                    "host_name": GAME["teams"][fx["host"]]["name"] if fx.get("host") and fx["kind"] == "round_robin" else None}
     awards = _tournament_awards(t)
     if awards:
         for key in ("orange_cap", "purple_cap", "mvp"):
@@ -2299,9 +2361,11 @@ def _serialize(token):
             return None
         r = g["bat_card"].get(name, {})
         rec = BY_NAME[name]
+        # the batter belongs to the batting side -- only THAT side's viewer
+        # gets the flip-revealing grid; the bowling side sees the public stats
         return {"name": name, "runs": r.get("runs", 0), "balls": r.get("balls", 0),
                 "batting_ovr": rec["batting_ovr"], "bowling_ovr": rec["bowling_ovr"],
-                **_role_meta(name)}
+                **_role_meta(name, reveal_grid=i_bat)}
 
     striker = st.get_striker()
     non_striker = st.get_non_striker()
@@ -2310,10 +2374,11 @@ def _serialize(token):
     if g["bowler"] is not None:
         bn = g["bowler"].name
         bc = g["bowl_card"].get(bn, {})
+        # the bowler belongs to the bowling side -- same reveal-only-to-owner rule
         cur_bowler = {"name": bn, "wickets": bc.get("wickets", 0),
                       "runs": bc.get("runs", 0), "overs": _overs_str(bc.get("balls", 0)),
                       "bowling_ovr": BY_NAME[bn]["bowling_ovr"], "batting_ovr": BY_NAME[bn]["batting_ovr"],
-                      **_role_meta(bn)}
+                      **_role_meta(bn, reveal_grid=not i_bat)}
 
     # my bench (role-specific)
     my_bench = []
@@ -2345,11 +2410,12 @@ def _serialize(token):
             card["disabled"] = disabled
             my_bench.append(card)
 
-    # opponent list (public: just the other team's XI)
+    # opponent list (names/OVRs public; grids are NOT -- this is the other
+    # team's players, so never reveal their flip-able 3x3 stats)
     opp_xi_side = bowling if i_bat else batting
     opponent_list = [
         {"name": p["name"], "batting_ovr": p["batting_ovr"], "bowling_ovr": p["bowling_ovr"],
-         **_role_meta(p["name"])}
+         **_role_meta(p["name"], reveal_grid=False)}
         for p in g["teams"][opp_xi_side]["xi"]
     ]
 
@@ -2370,7 +2436,7 @@ def _serialize(token):
             "name": bn, "bowling_ovr": BY_NAME[bn]["bowling_ovr"], "batting_ovr": BY_NAME[bn]["batting_ovr"],
             "wickets": bc.get("wickets", 0), "runs": bc.get("runs", 0),
             "overs": _overs_str(bc.get("balls", 0)),
-            **_role_meta(bn),
+            **_role_meta(bn, reveal_grid=False),
         }
 
     # free-hit window (REDACTED like the over handshake)
