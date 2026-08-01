@@ -1659,11 +1659,21 @@ button:disabled {
 }
 .poke-counter b { color: var(--gold); }
 
-.panel {
+/* Scoped to #auction on purpose. Unscoped, this redefined the SHARED .panel
+   used by the landing/lobby forms (giving them auction styling), and -- worse
+   -- it inherited `max-width: 380px` from that base rule, which silently
+   clamped every auction panel. That cap is why the console kept rendering as
+   a narrow box in the bottom-left however its grid placement was written:
+   the placement was right all along, the box was just capped. */
+#auction .panel {
     background: var(--auc-panel-bg);
     border: 1px solid var(--auc-panel-border);
     border-radius: 8px;
     padding: 0.7rem;
+    width: auto;
+    max-width: none;
+    box-shadow: none;
+    color: inherit;
 }
 .panel-title {
     font-family: 'Oswald', sans-serif;
@@ -1684,13 +1694,25 @@ button:disabled {
     min-height: 0;
     display: grid;
     grid-template-columns: 260px 1fr 240px;
-    grid-template-rows: 1fr;
+    /* console is a full-width bar pinned to the bottom of the room -- it's the
+       primary control, so it gets the centre-bottom anchor rather than being
+       tucked in a side rail */
+    grid-template-rows: 1fr auto;
     gap: 0.7rem;
     padding: 0.7rem;
     /* no background of its own -- #auction IS the maroon room now, full
        screen, so there's no green edge showing wherever this grid falls
        short of exactly filling the viewport */
 }
+/* Explicit line numbers rather than named grid-template-areas: named areas
+   silently stop resolving the moment any media query redefines
+   grid-template-columns without restating the areas, which is exactly what
+   left the console stranded at one column wide. 1 / -1 spans whatever
+   columns exist, so it stays a full-width bar at every breakpoint. */
+.auc-left { grid-column: 1; grid-row: 1; }
+.auc-center { grid-column: 2; grid-row: 1; }
+.auc-right { grid-column: 3; grid-row: 1; }
+.auc-console-box { grid-column: 1 / -1; grid-row: 2; }
 
 .auc-left {
     display: flex;
@@ -1720,12 +1742,9 @@ button:disabled {
 }
 .squad-stats b { color: var(--cream); }
 
-/* the console moved out of the left rail -- it's now a wide bar under the
-   floor, laid out horizontally instead of stacked, so it isn't cramped into
-   a narrow column anymore */
+/* the console is a full-width bar across the bottom of the room, laid out
+   horizontally instead of stacked, so it isn't cramped into a narrow column */
 .auc-console-box {
-    flex-shrink: 0;
-    margin-top: 0.6rem;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -1734,17 +1753,49 @@ button:disabled {
     padding: 0.7rem 1.4rem;
 }
 .auc-console-box .panel-title { flex-basis: 100%; text-align: center; margin-bottom: 0; }
-.auc-console-box .bid-controls { flex-direction: row; }
+.auc-console-box .bid-controls { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+.auc-console-box .is-out { opacity: 0.55; }
+.auc-console-box .is-out .auc-holder { flex-basis: 100%; opacity: 1; }
+
+/* ---------- bid buttons: FIXED positions for the whole lot ----------
+   Nothing here may appear, disappear, or reflow mid-lot. Two players racing
+   for the opening bid used to mean the loser's already-travelling tap landed
+   on whatever slid into that spot (+5/+10 = an accidental multi-crore raise),
+   because the claim button was swapped out for the raise row the instant
+   someone bid. Now every control keeps its slot and only changes state. */
+.bid-claim-btn {
+    min-width: 190px;
+    transition: background 0.15s, color 0.15s;
+}
+.bid-claim-btn.spent,
+.bid-claim-btn:disabled {
+    background: rgba(255, 255, 255, 0.09);
+    color: rgba(243, 234, 211, 0.45);
+    border-color: rgba(255, 255, 255, 0.15);
+    cursor: not-allowed;
+}
+.quick-adds button {
+    min-width: 58px;
+    transition: opacity 0.15s;
+}
+.quick-adds button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+/* keeps the +0.1 slot reserved when the tier hides it, so the rest never shifts */
+.quick-adds .slot-hidden { visibility: hidden; }
+.bid-row button:disabled { opacity: 0.35; cursor: not-allowed; }
 
 /* ---------- the stage: auctioneer + spotlighted lot ---------- */
 .auc-center { display: flex; flex-direction: column; min-height: 0; }
 .auc-stage {
-    flex-shrink: 0;
+    flex: 0 1 auto;
+    min-height: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 1.2rem;
-    padding: 0.6rem 0.6rem 0.4rem;
+    padding: 0.5rem 0.6rem 0.3rem;
     flex-wrap: wrap;
     background: radial-gradient(ellipse at 50% -30%, rgba(201, 162, 39, 0.16), transparent 70%);
 }
@@ -1823,7 +1874,7 @@ button:disabled {
 /* generous gap: transform:scale() on .auctioneer below grows it visually
    without changing its layout box, so it was painting over the bubble above
    it -- this gap is the real fix, not the scale itself */
-.auctioneer-wrap { display: flex; flex-direction: column; align-items: center; gap: 3.6rem; flex-shrink: 0; }
+.auctioneer-wrap { display: flex; flex-direction: column; align-items: center; gap: 2.2rem; flex-shrink: 0; }
 .a-bubble {
     position: relative;
     width: 170px;
@@ -1849,7 +1900,7 @@ button:disabled {
 }
 /* scale() (not resized children) so every hand-placed absolute child stays
    perfectly aligned -- only the layout box grows to make room */
-.auctioneer { position: relative; width: 108px; height: 136px; transform: scale(1.35); }
+.auctioneer { position: relative; width: 108px; height: 136px; transform: scale(1.15); }
 .a-turban {
     position: absolute; top: 0; left: 50%; transform: translateX(-50%);
     width: 60px; height: 30px; background: linear-gradient(160deg, #5c1c3a, #3a1226);
@@ -1914,22 +1965,52 @@ button:disabled {
 /* dynamically fills the available floor space: fewer opponents mean bigger
    tables, more opponents wrap into more rows/columns -- no more hand-placed
    coordinates clustering everything into one corner */
+/* Table size is driven by how many opponents are on the floor: a 2-player
+   game gets big tables, an 8-team tournament (7 tables) packs them down and
+   fits more per row. Everything downstream reads these custom properties, so
+   there's one place to tune. */
 .floor-tables {
+    --cloth-w: 210px;
+    --cloth-h: 130px;
+    --card-w: 62px;
+    --col-min: 240px;
     flex: 1;
     min-height: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-    grid-auto-rows: 1fr;
-    align-items: center;
+    grid-template-columns: repeat(auto-fit, minmax(var(--col-min), 1fr));
+    /* auto, not 1fr: equal-fraction rows get crushed below the cloth height
+       once there are several rows, which clipped tables inside the floor's
+       overflow. Natural rows + scrolling never loses a table. */
+    grid-auto-rows: auto;
+    align-content: center;
     justify-items: center;
-    gap: 1rem;
-    padding: 1.4rem 1.6rem;
+    gap: 0.9rem;
+    padding: 1.3rem 1.2rem;
+    overflow-y: auto;
+}
+/* Sized so the tables always land in at most TWO rows, which is what keeps
+   every opponent visible without scrolling on a normal laptop window:
+     3 opponents  -> 3 across, 1 row
+     4 opponents  -> 4 across, 1 row
+     5-7 (up to an 8-team tournament) -> 4 across, 2 rows */
+.floor-tables[data-teams="3"] {
+    --cloth-w: 182px; --cloth-h: 112px; --card-w: 54px; --col-min: 194px;
+}
+.floor-tables[data-teams="4"],
+.floor-tables[data-teams="5"],
+.floor-tables[data-teams="6"],
+.floor-tables[data-teams="7"] {
+    --cloth-w: 142px; --cloth-h: 88px; --card-w: 42px; --col-min: 150px;
+    /* tighter gutters: the 5-7 cases need two rows, and this is the margin
+       that keeps both rows on screen without scrolling */
+    gap: 0.7rem;
+    padding: 0.8rem 1rem;
 }
 
 .round-table { position: relative; cursor: pointer; transition: transform 0.15s; }
 .round-table:hover { transform: translateY(-4px); }
 .table-cloth {
-    width: 190px; height: 114px; border-radius: 50%;
+    width: var(--cloth-w); height: var(--cloth-h); border-radius: 50%;
     background: radial-gradient(ellipse at 50% 38%, #fffaf0, #f3e6c8 78%);
     box-shadow: 0 14px 22px rgba(0, 0, 0, 0.4), inset 0 0 0 3px rgba(201, 162, 39, 0.7), inset 0 0 0 6px rgba(201, 162, 39, 0.15);
     position: relative;
@@ -1940,25 +2021,62 @@ button:disabled {
     background: #3a1226; color: var(--cream); font-family: 'Oswald', sans-serif; font-weight: 500; font-size: 0.64rem;
     padding: 0.24rem 0.6rem; border-radius: 3px; white-space: nowrap; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
     border-bottom: 2px solid var(--gold); text-transform: uppercase; letter-spacing: 0.02em;
+    display: flex; align-items: center; gap: 0.35rem; z-index: 3;
 }
+
+/* ready-light: who the next lot is still waiting on, readable off the table */
+.table-light {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    background: #5a5a5a; box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.6);
+}
+.table-light.on {
+    background: var(--green-go);
+    box-shadow: 0 0 6px var(--green-go), 0 0 2px #fff inset;
+}
+.table-light.off { animation: tableLightPulse 1.6s ease-in-out infinite; }
+@keyframes tableLightPulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.9; } }
+
+/* folded on the CURRENT lot -- visible to everyone, on the table itself */
+.table-out-badge {
+    /* stamped across the middle of the cloth, over the cards */
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-11deg);
+    z-index: 6; pointer-events: none;
+    font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 0.7rem; letter-spacing: 0.14em;
+    color: var(--leather); border: 2px solid var(--leather); border-radius: 3px;
+    background: rgba(255, 245, 245, 0.9); padding: 0.05rem 0.4rem;
+}
+
+/* Folded on the current lot: the whole table dims and desaturates so it's
+   obvious at a glance who's still bidding. Clears itself on the next player
+   (the server resets `out` in _present_player). */
+.round-table.folded .table-cloth,
+.round-table.folded .table-cards,
+.round-table.folded .table-nameplate,
+.round-table.folded .table-more { filter: grayscale(0.75) brightness(0.62); }
+.round-table.folded .table-stats { opacity: 0.45; }
+.round-table.folded { transition: filter 0.25s ease; }
+.round-table.folded .table-out-badge { filter: none; }   /* the OUT stamp stays legible */
 .table-more {
     position: absolute; top: -7px; right: 4px; width: 22px; height: 22px; border-radius: 50%;
     background: var(--gold); color: #241d00; font-family: 'Oswald', sans-serif; font-weight: 700; font-size: 0.58rem;
     display: flex; align-items: center; justify-content: center; box-shadow: 0 3px 8px rgba(0, 0, 0, 0.4);
 }
-.table-cards { position: absolute; left: 50%; bottom: 6px; transform: translateX(-50%); display: flex; }
-.table-cards .pcard { width: 68px; margin-left: -20px; transform: var(--t0); }
-.table-cards .pcard .pcard-top { padding: 0.14rem 0.26rem; }
-.table-cards .pcard .ovr-chip b { font-size: 0.6rem; }
-.table-cards .pcard .ovr-chip span { font-size: 0.36rem; }
-.table-cards .pcard .pcard-body { padding: 0.2rem 0.26rem; }
-.table-cards .pcard .pname { font-size: 0.5rem; }
-.table-cards .pcard .pfig { font-size: 0.56rem; }
-.table-cards .pcard .ptag { display: none; }
+/* glance-level "who's at this table" -- the popup carries the full detail */
+.table-cards { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -46%); display: flex; }
+.table-cards .pcard { width: var(--card-w); min-height: 0; margin-left: calc(var(--card-w) * -0.26); transform: var(--t0); }
+.table-cards .pcard .pcard-top { padding: 0.12rem 0.24rem; }
+.table-cards .pcard .ovr-chip b { font-size: 0.56rem; }
+.table-cards .pcard .ovr-chip span { font-size: 0.34rem; }
+.table-cards .pcard .pcard-body { padding: 0.16rem 0.24rem; }
+.table-cards .pcard .pname { font-size: 0.46rem; }
+.table-cards .pcard .pfig { font-size: 0.5rem; margin-top: 0; }
+.table-cards .pcard .ptag,
+.table-cards .pcard .prole,
+.table-cards .pcard .pcard-flip { display: none; }
 .table-cards .pcard:first-child { margin-left: 0; }
-.table-cards .pcard:nth-child(1) { --t0: rotate(-9deg) translateY(3px); --t1: translateY(105px) rotate(50deg); z-index: 0; }
-.table-cards .pcard:nth-child(2) { --t0: rotate(0deg) translateY(-3px); --t1: translateY(118px) rotate(-40deg); z-index: 1; }
-.table-cards .pcard:nth-child(3) { --t0: rotate(9deg) translateY(3px); --t1: translateY(100px) rotate(75deg); z-index: 0; }
+.table-cards .pcard:nth-child(1) { --t0: rotate(-8deg) translateY(2px); --t1: translateY(105px) rotate(50deg); z-index: 0; }
+.table-cards .pcard:nth-child(2) { --t0: rotate(8deg) translateY(2px); --t1: translateY(118px) rotate(-40deg); z-index: 1; }
+.table-cards .pcard:nth-child(3) { --t0: rotate(0deg) translateY(-3px); --t1: translateY(100px) rotate(75deg); z-index: 0; }
 .table-cards.poked .pcard { animation: cardFall 1.7s ease-in-out; }
 .table-cards.poked .pcard:nth-child(1) { animation-delay: 0s; }
 .table-cards.poked .pcard:nth-child(2) { animation-delay: 0.08s; }
@@ -1985,7 +2103,7 @@ button:disabled {
     80% { transform: translateY(54px) rotate(4deg); opacity: 0.55; }
     100% { transform: none; opacity: 1; }
 }
-.table-stats { width: 190px; text-align: center; margin-top: 0.4rem; font-family: 'Oswald', sans-serif; font-size: 0.6rem; color: rgba(243, 234, 211, 0.65); }
+.table-stats { width: var(--cloth-w); text-align: center; margin-top: 0.4rem; font-family: 'Oswald', sans-serif; font-size: 0.6rem; color: rgba(243, 234, 211, 0.65); }
 
 /* mocking crowd reaction -- only ever shown on the FLOOR (someone else's
    table); the poked team's own bench only ever gets the sound, no visuals
@@ -2245,9 +2363,15 @@ button:disabled {
 .lobby-doors-transition.open .lobby-doors-transition-door.right { transform: translateX(100%); }
 
 @media (max-width: 900px) {
-    .auc-shell { grid-template-columns: 1fr; grid-template-rows: auto auto 1fr; }
-    .auc-left { flex-direction: row; flex-wrap: wrap; }
-    .auc-mine-box, .auc-console-box { flex: 1 1 260px; }
+    /* single column: stack squad / floor / rail, console still last and
+       full width. Placement is restated here because collapsing the columns
+       invalidates the 3-column line numbers above. */
+    .auc-shell { grid-template-columns: 1fr; grid-template-rows: auto 1fr auto auto; }
+    .auc-left { grid-column: 1; grid-row: 1; flex-direction: row; flex-wrap: wrap; }
+    .auc-center { grid-column: 1; grid-row: 2; }
+    .auc-right { grid-column: 1; grid-row: 3; }
+    .auc-console-box { grid-column: 1 / -1; grid-row: 4; }
+    .auc-mine-box { flex: 1 1 260px; }
 }
 
 /* ---------- XI selection ---------- */

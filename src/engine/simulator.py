@@ -17,14 +17,18 @@ from src.engine.roles import apply_modes, apply_roles
 EXTRAS_PROB = 0.04  # 4% chance of an extra (Wide or No Ball)
 
 # Wicket cascade: each wicket already fallen in the CURRENT over multiplies the
-# remaining balls' Out weight by this factor (stacking: 2 wickets -> x0.36),
+# remaining balls' Out weight by this factor (stacking: 2 wickets -> x0.20),
 # with the freed weight moved to dots -- the new batter blocks, the field
-# resets. Calibrated over 1500-innings sweeps so a 3-wicket over goes from a
-# once-every-3.5-innings event to once-every-13, 4-in-an-over becomes a
-# once-per-~230-innings freak, and 5-in-an-over never occurred in 30k
-# simulated overs -- while ordinary 2-wicket overs stay common. Resets every
-# over (the count is per-over, owned by the caller).
-WICKET_CASCADE_MULT = 0.6
+# resets. Resets every over (the count is per-over, owned by the caller).
+#
+# Tuned over 1500-innings sweeps. Was 0.6; tightened to 0.45 because 3-wicket
+# overs still turned up about once every 13 innings, which reads as a collapse
+# far too regularly. At 0.45 that halves to once every ~27 innings and
+# 4-in-an-over is ~1 per 9000 overs, while the innings shape is essentially
+# untouched (avg 149 -> 151 runs, all-out 38.5% -> 37.5%) and ordinary
+# 2-wicket overs stay common. Going further (0.4 and below) starts visibly
+# suppressing all-out finishes, which flattens run chases.
+WICKET_CASCADE_MULT = 0.45
 
 def calculate_single_ball(striker: Batter, bowler: Bowler, league_avg: dict, context: dict = None) -> str:
     """

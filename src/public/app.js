@@ -2338,11 +2338,11 @@ function floorShell(a, me) {
             ${stageBlock(a, me)}
             <div class="auc-floor" id="auc-floor">
                 <div class="floor-kicker">The Floor</div>
-                <div class="floor-tables">${floorTables(a.other_squads)}</div>
+                <div class="floor-tables" data-teams="${(a.other_squads || []).length}">${floorTables(a.other_squads, a)}</div>
             </div>
-            <div class="panel auc-console-box">${consoleBox(a, me)}</div>
         </div>
         <div class="auc-right">${rightRail(a)}</div>
+        <div class="panel auc-console-box">${consoleBox(a, me)}</div>
     </div>`;
 }
 
@@ -2416,22 +2416,47 @@ function teamColor(a, role) {
 }
 
 // ---------- the floor: round tables for every other squad ----------
-function floorTables(others) {
+function floorTables(others, a) {
     if (!others || !others.length) return '<div class="bench-empty">No other squads yet.</div>';
     // No more hand-placed coordinates -- .floor-tables is a real CSS grid
     // (auto-fit/minmax), so tables get bigger with fewer opponents and wrap
     // into more rows/columns with more, instead of clustering in one corner.
+    const stage = a ? a.stage : null;
+    const readyMap = (a && a.ready) || {};
+    const outMap = (a && a.out) || {};
     return others.map((sq) => {
         const sorted = [...sq.roster].sort((x, y) => (y.price || 0) - (x.price || 0));
-        const top3 = sorted.slice(0, 3);
-        const extra = sq.roster.length - top3.length;
-        const cardsHtml = top3.map(p => pcard(p, {
+        const top2 = sorted.slice(0, 2);
+        const extra = sq.roster.length - top2.length;
+        const cardsHtml = top2.map(p => pcard(p, {
             figure: `₹${(p.price || 0).toFixed(1)} Cr`, jerseyColor: sq.color, jerseyStyle: 'home',
         })).join('');
-        return `<div class="round-table" data-team="${sq.team_id}">
+
+        // Who's holding up the next lot, and who's already folded on this one --
+        // both readable straight off the table instead of only in the popup.
+        // A ready-light only means anything during a ready-gate; "OUT" only
+        // during live bidding.
+        const inGate = stage === 'preview' || stage === 'resolved';
+        const isReady = !!readyMap[sq.team_id] || sq.locked;
+        const light = inGate
+            ? `<span class="table-light ${isReady ? 'on' : 'off'}"
+                     title="${isReady ? 'Ready' : 'Not ready yet'}"></span>`
+            : '';
+        const outBadge = (stage === 'bidding' && outMap[sq.team_id])
+            ? '<div class="table-out-badge">OUT</div>' : '';
+        // (a fold lasts only the current lot -- the server resets `out` in
+        // _present_player, so the table lights back up on the next player)
+
+        // Player names live in the squad popup, not on the cloth -- the table
+        // is a glance-level "who's here / are they still in", the popup is the
+        // detail view.
+        const folded = stage === 'bidding' && !!outMap[sq.team_id];
+
+        return `<div class="round-table${folded ? ' folded' : ''}" data-team="${sq.team_id}">
             <div class="table-shadow"></div>
             <div class="table-cloth">
-                <div class="table-nameplate">${sq.name}${sq.locked ? ' <span class="badge-tier">LOCKED</span>' : ''}</div>
+                <div class="table-nameplate">${light}${sq.name}${sq.locked ? ' <span class="badge-tier">LOCKED</span>' : ''}</div>
+                ${outBadge}
                 ${extra > 0 ? `<div class="table-more">+${extra}</div>` : ''}
                 <div class="table-cards">${cardsHtml || ''}</div>
             </div>
@@ -2827,7 +2852,10 @@ function consoleBox(a, me) {
         // pulled out, the leader could pull out too and force the lot
         // unsold for free instead of paying the bid they'd otherwise win.
         const iAmLeading = a.active_bidder === me;
-        const pullOutBtn = iAmLeading ? '' : '<button class="btn-red" id="bid-out">I\'m Out</button>';
+        // Also fixed-position: a leader can't fold, but the button keeps its
+        // slot (disabled) rather than vanishing and dragging the row around.
+        const pullOutBtn = `<button class="btn-red" id="bid-out" ${iAmLeading ? 'disabled' : ''}
+            title="${iAmLeading ? "You hold the top bid — you can't pull out" : 'Fold on this lot'}">I'm Out</button>`;
         // Marquee lots open big (₹2 Cr) and usually move in big jumps early on --
         // +0.1 only clutters that. It shows up once the bid actually gets
         // expensive (>₹10 Cr), where fine control starts to matter. Every
@@ -2837,16 +2865,39 @@ function consoleBox(a, me) {
         // the ONLY ways to move the price are: claim the untaken opening price
         // (nobody's bid yet), or a fixed "+" raise (matches the server, which
         // rejects a zero-amount bid once active_bidder is set).
-        const bidControls = !a.active_bidder
-            ? `<button class="btn-go" id="bid-claim">Bid ₹${a.current_bid.toFixed(1)} Cr</button>`
-            : `<div class="quick-adds">
-                 ${showTenth ? '<button data-bid="0.1">+0.1</button>' : ''}<button data-bid="0.2">+0.2</button>
-                 <button data-bid="0.5">+0.5</button><button data-bid="1">+1</button>
-                 <button data-bid="2">+2</button><button data-bid="5">+5</button>
-                 <button data-bid="10">+10</button>
+        //
+        // EVERY control keeps a FIXED position for the whole lot. The claim
+        // button used to be swapped OUT for the +N row the instant someone
+        // bid, which shifted every button under a finger already travelling
+        // to the screen: two people going for the opening bid together meant
+        // the loser's tap landed on whatever slid into that spot -- +5 or
+        // +10, an accidental multi-crore raise. Now the claim button stays
+        // put and just goes dead, and the +N row is always rendered (greyed
+        // until it's actually legal to raise).
+        const claimTaken = !!a.active_bidder;
+        const claimBtn = `<button class="btn-go bid-claim-btn${claimTaken ? ' spent' : ''}"
+                 id="bid-claim" ${claimTaken ? 'disabled' : ''}>
+                 ${claimTaken ? `Opening bid taken — ₹${a.current_bid.toFixed(1)} Cr` : `Bid ₹${a.current_bid.toFixed(1)} Cr`}
+               </button>`;
+        const raise = (amt, label) =>
+            `<button data-bid="${amt}" ${claimTaken ? '' : 'disabled'}>${label}</button>`;
+        // +0.1 keeps its slot reserved even when hidden, so nothing else moves
+        const bidControls = `${claimBtn}
+               <div class="quick-adds">
+                 ${showTenth ? raise('0.1', '+0.1') : '<button class="slot-hidden" disabled>+0.1</button>'}
+                 ${raise('0.2', '+0.2')}${raise('0.5', '+0.5')}${raise('1', '+1')}
+                 ${raise('2', '+2')}${raise('5', '+5')}${raise('10', '+10')}
                </div>`;
-        const controls = (a.out[me] || a.my_locked)
-            ? `<div class="auc-holder">${a.my_locked ? 'Your squad is locked — sitting out.' : 'You pulled out of this lot.'}</div>`
+        // Sitting this lot out still renders the SAME skeleton (everything
+        // disabled) rather than collapsing to a one-line message, so the
+        // console never changes shape mid-lot.
+        const sittingOut = a.out[me] || a.my_locked;
+        const controls = sittingOut
+            ? `<div class="bid-controls is-out">
+                 <div class="auc-holder">${a.my_locked ? 'Your squad is locked — sitting out.' : 'You pulled out of this lot.'}</div>
+                 ${bidControls.replace(/<button /g, '<button disabled ')}
+                 <div class="bid-row"><button class="btn-red" disabled>I'm Out</button></div>
+               </div>`
             : `<div class="bid-controls">${bidControls}<div class="bid-row">${pullOutBtn}</div></div>`;
         return `<div class="panel-title">Auction Console</div>
             ${controls}
