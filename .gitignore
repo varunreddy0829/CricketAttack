@@ -12,6 +12,12 @@ venv/
 # Stale local debug logs
 *.log
 
+# Live-game crash/restart snapshot (per-machine runtime state, see
+# _save_snapshot in src/server.py). Must never be committed or a deploy's
+# `git pull` would clobber the VPS's in-flight games.
+data/live_games.pkl
+data/live_games.pkl.tmp
+
 # Claude Code session/plan files (local tooling, not part of the app)
 .claude/
 

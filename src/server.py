@@ -17,7 +17,10 @@ import os
 import sys
 import json
 import time
+import atexit
+import pickle
 import random
+import signal
 import string
 import secrets
 import threading
@@ -221,6 +224,128 @@ GAME_TTL_SECONDS = 4 * 3600
 _last_sweep_at = 0.0
 
 
+# --- Crash/restart persistence -----------------------------------------------
+# Live games exist only in this process's memory, so ANY restart used to wipe
+# every match in progress and dump all players back to the landing screen.
+# That isn't rare: besides deploys, Ubuntu's unattended-upgrades + needrestart
+# restarts the service on its own whenever a security update touches a library
+# it links (this bit real players mid-match). So the whole registry is
+# snapshotted to disk on mutation and restored on boot -- a restart becomes a
+# ~2s blip that clients ride out on their normal polling.
+SNAPSHOT_PATH = os.environ.get(
+    "CRICKET_SNAPSHOT",
+    os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "live_games.pkl"),
+)
+SNAPSHOT_MIN_INTERVAL = 1.0    # at most one write/sec; ball-by-ball bursts coalesce
+_last_snapshot_at = 0.0
+_snapshot_dirty = False
+
+
+def _mark_dirty():
+    """Record that the registry changed. The actual write is deferred to
+    _flush_snapshot so a burst of mutations (a whole over resolving ball by
+    ball) coalesces into one disk write."""
+    global _snapshot_dirty
+    _snapshot_dirty = True
+
+
+def _flush_snapshot(force=False):
+    """Write the pending snapshot if there is one. Callers already hold LOCK.
+
+    Throttled to one write per SNAPSHOT_MIN_INTERVAL; force=True (shutdown)
+    bypasses the throttle. A no-op when nothing has changed, which is what
+    lets the heartbeat thread call it freely.
+
+    The write is atomic -- temp file + os.replace -- so a process killed
+    mid-write can never leave a half-written snapshot that fails to load on
+    the way back up.
+    """
+    global _last_snapshot_at, _snapshot_dirty
+    if not _snapshot_dirty:
+        return
+    now = time.time()
+    if not force and (now - _last_snapshot_at) < SNAPSHOT_MIN_INTERVAL:
+        return
+    tmp = SNAPSHOT_PATH + ".tmp"
+    try:
+        os.makedirs(os.path.dirname(SNAPSHOT_PATH), exist_ok=True)
+        with open(tmp, "wb") as f:
+            pickle.dump({"games": GAMES, "tokens": TOKEN_TO_CODE, "saved_at": now}, f,
+                        protocol=pickle.HIGHEST_PROTOCOL)
+        os.replace(tmp, SNAPSHOT_PATH)
+        _last_snapshot_at = now
+        _snapshot_dirty = False
+    except Exception as e:
+        # Never let a persistence failure break a live game -- a disk problem
+        # should degrade us to the old in-memory-only behaviour, not 500 a bid.
+        print(f"[snapshot] save failed: {e}", file=sys.stderr)
+        try:
+            if os.path.exists(tmp):
+                os.remove(tmp)
+        except OSError:
+            pass
+
+
+def _load_snapshot():
+    """Restore the registry at startup. Any problem (missing file, corrupt
+    data, or a pickle written by an older/incompatible version of the game
+    classes after a deploy) is swallowed and we simply boot empty -- i.e. the
+    old behaviour, never worse."""
+    global GAMES, TOKEN_TO_CODE
+    if not os.path.exists(SNAPSHOT_PATH):
+        return 0
+    try:
+        with open(SNAPSHOT_PATH, "rb") as f:
+            data = pickle.load(f)
+        games = data.get("games") or {}
+        tokens = data.get("tokens") or {}
+        now = time.time()
+        # Drop anything that already aged out while we were down, and re-arm
+        # live auction timers: deadlines are absolute timestamps, so after a
+        # restart every one of them is in the past and _auction_tick would
+        # instantly slam through going-once/twice/SOLD on the first pass.
+        fresh = {}
+        for code, g in games.items():
+            if now - g.get("last_seen", now) > GAME_TTL_SECONDS:
+                continue
+            a = g.get("auction")
+            if a and a.get("deadline") is not None:
+                a["deadline"] = now + max(0.0, float(a.get("total_wait") or 0.0))
+            fresh[code] = g
+        GAMES = fresh
+        TOKEN_TO_CODE = {tok: code for tok, code in tokens.items() if code in fresh}
+        return len(GAMES)
+    except Exception as e:
+        print(f"[snapshot] restore skipped ({e}); starting with no live games.", file=sys.stderr)
+        return 0
+
+
+def _install_shutdown_hooks():
+    """systemd sends SIGTERM and waits (default 90s) before SIGKILL, so there's
+    ample time to flush a final snapshot on deploys and on the automatic
+    post-upgrade restarts that caused this problem in the first place."""
+    def _flush_and_exit(signum, _frame):
+        with LOCK:
+            _flush_snapshot(force=True)
+        # Re-raise with the default handler so systemd sees a normal exit.
+        signal.signal(signum, signal.SIG_DFL)
+        os.kill(os.getpid(), signum)
+
+    sigs = [signal.SIGTERM, signal.SIGINT]
+    if hasattr(signal, "SIGBREAK"):    # Windows' graceful console shutdown
+        sigs.append(signal.SIGBREAK)
+    for sig in sigs:
+        try:
+            signal.signal(sig, _flush_and_exit)
+        except (ValueError, OSError):
+            pass   # not on the main thread (e.g. under a WSGI worker) -- atexit still covers us
+
+    def _flush_at_exit():
+        with LOCK:
+            _flush_snapshot(force=True)
+    atexit.register(_flush_at_exit)
+
+
 def _new_code():
     return "".join(random.choices(string.ascii_uppercase + string.digits, k=4))
 
@@ -264,6 +389,7 @@ def _sweep_stale_games():
         dead_tokens = [tok for tok, code in TOKEN_TO_CODE.items() if code in stale_codes]
         for tok in dead_tokens:
             del TOKEN_TO_CODE[tok]
+        _mark_dirty()   # don't resurrect swept games on the next restart
 
 
 TEAM_COLOR_PALETTE = ["#e6483c", "#3b82c4", "#e0b400", "#2f9e5c",
@@ -341,6 +467,10 @@ def _fresh_game(num_teams=2):
 def _bump():
     GAME["version"] += 1
     GAME["last_seen"] = time.time()
+    # Every state mutation funnels through here, so this is the one place that
+    # needs to flag persistence. The write itself is coalesced and performed
+    # by the heartbeat thread (see _flush_snapshot / _auction_tick).
+    _mark_dirty()
 
 
 # --- Roster helpers ----------------------------------------------------------
@@ -1529,6 +1659,11 @@ def _auction_tick():
                             _process_strike()
                         _bump()
             _sweep_stale_games()
+            # Persist pending mutations promptly. Self-throttled and a no-op
+            # when nothing changed, so this costs nothing on an idle server --
+            # but it bounds data loss to ~1s even on an abrupt kill (SIGKILL,
+            # power cut), instead of relying on the graceful-shutdown flush.
+            _flush_snapshot()
 
 
 def _place_bid(role, amount):
@@ -3918,6 +4053,12 @@ def serve_static(path):
     return send_from_directory(app.static_folder, path)
 
 
+# Restore any games that were live when this process last stopped, and arm the
+# flush-on-shutdown hooks. Done at import (not under __main__) so it also
+# applies when run behind a WSGI server rather than app.run().
+_RESTORED_GAMES = _load_snapshot()
+_install_shutdown_hooks()
+
 # Auction heartbeat: advances going-once/twice/sold timers server-side so both
 # devices stay in sync. Daemon thread — dies with the process.
 threading.Thread(target=_auction_tick, daemon=True).start()
@@ -3930,6 +4071,8 @@ if __name__ == "__main__":
     print("=" * 45)
     print("CRICKET ATTACK - MULTIPLAYER SERVER")
     print(f"Listening on http://0.0.0.0:{port}")
+    if _RESTORED_GAMES:
+        print(f"Restored {_RESTORED_GAMES} live game(s) from the last run.")
     print(f"Loaded {len(ALL_PLAYERS)} players | Stage-3 threat_base "
           f"{LEAGUE_AVG['threat_base']:.3f}, patience_base {LEAGUE_AVG['patience_base']:.1f} | "
           f"Stage-2 bat_power_base {LEAGUE_AVG['bat_power_base']:.1f}, "
