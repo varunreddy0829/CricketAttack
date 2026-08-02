@@ -311,6 +311,9 @@ window.addEventListener('gamestate', (e) => {
 
 function updateRejoinLabel(state) {
     const el = $('rejoin-code-label');
+    // cleared on every render; re-applied below only while "Back to Tournament"
+    // is actually up, so it can't get stuck lifted after that button goes away
+    el.classList.remove('stacked');
     if (state && state.code) {
         $('rejoin-code-value').textContent = state.code;
         el.classList.remove('hidden');
@@ -383,7 +386,10 @@ function render(state) {
     // elsewhere used to leave you stranded there with no way back (the
     // automatic "waiting_for_fixture" redirect only kicks in once the other
     // fixture actually starts, which can lag well behind your own finishing)
-    $('back-to-tournament-fixed-btn').classList.toggle('hidden', !(state.is_tournament && viewingScorecard));
+    const backBtnUp = state.is_tournament && viewingScorecard;
+    $('back-to-tournament-fixed-btn').classList.toggle('hidden', !backBtnUp);
+    // both are pinned to the bottom-right corner -- lift the code pill clear
+    $('rejoin-code-label').classList.toggle('stacked', !!backBtnUp);
 
     // manualBracketView only makes sense while our own last fixture is still
     // the "finished" one sitting behind it (including if a next-fixture

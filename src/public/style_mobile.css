@@ -1786,8 +1786,15 @@ button:disabled {
     align-items: center;
     justify-content: center;
     gap: 0.6rem 1.6rem;
-    padding: 0.7rem 1.4rem;
 }
+/* Specificity note: the console carries class="panel auc-console-box", and
+   `#auction .panel` (0,1,1,0) outranks a bare `.auc-console-box` (0,0,1,0) --
+   so padding set on the plain class is silently dropped. Must be id-qualified.
+   Both bottom corners hold fixed overlays that float ON TOP of this bar:
+   Cancel Tournament bottom-left, the rejoin code pill bottom-right. Reserve a
+   matching gutter each side so the centred bid row stays centred and can never
+   slide underneath either of them. */
+#auction .auc-console-box { padding: 0.7rem 10rem; }
 .auc-console-box .panel-title { flex-basis: 100%; text-align: center; margin-bottom: 0; }
 .auc-console-box .bid-controls { flex-direction: row; flex-wrap: wrap; justify-content: center; }
 .auc-console-box .is-out { opacity: 0.55; }
@@ -2568,6 +2575,12 @@ button:disabled {
         overflow-y: auto;
     }
 
+    /* Narrow screens can't spare a 10rem gutter on each side of the console --
+       drop the corner clearance back to normal padding and push the bid row up
+       above the two fixed corner overlays instead. Id-qualified for the same
+       `#auction .panel` specificity reason as the base rule. */
+    #auction .auc-console-box { padding: 0.7rem 1rem 2.9rem; }
+
     .squad-panel {
         width: 100%;
         min-height: fit-content;
@@ -2721,13 +2734,19 @@ button:disabled {
 }
 .back-to-tournament-fixed-btn:hover { background: var(--green-go); }
 
+/* Bottom-RIGHT corner, not bottom-centre: the auction console is a full-width
+   bar pinned to the bottom of the floor, so a centred pill landed straight on
+   top of the bid buttons. Bottom-left is already taken by Cancel Tournament. */
 .rejoin-code-label {
-    position: fixed; bottom: 9px; left: 50%; transform: translateX(-50%); z-index: 200;
+    position: fixed; bottom: 9px; right: 12px; left: auto; transform: none; z-index: 200;
     background: rgba(0, 0, 0, 0.45); color: rgba(243, 234, 211, 0.85);
     border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 20px;
     padding: 0.3rem 0.7rem; font-size: 0.68rem; letter-spacing: 0.03em;
-    pointer-events: none;
+    pointer-events: none; white-space: nowrap;
 }
+/* "Back to Tournament" also lives in the bottom-right corner (scorecard view
+   during a tournament). When it's up, sit above it instead of underneath. */
+.rejoin-code-label.stacked { bottom: 45px; }
 .rejoin-code-label span { font-family: 'Oswald', sans-serif; color: var(--gold); font-weight: 600; }
 
 /* Ghost buttons (e.g. "Close") sit on light cream overlay cards, where their
