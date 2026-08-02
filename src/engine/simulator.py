@@ -13,8 +13,11 @@ from src.engine.intent_handler import apply_intents
 from src.engine.conditions import apply_conditions
 from src.engine.roles import apply_modes, apply_roles
 
-# Independent extras master probability configuration
-EXTRAS_PROB = 0.04  # 4% chance of an extra (Wide or No Ball)
+# Independent extras master probability configuration. Measured from 290,611 real
+# IPL deliveries (2008-2026): extras run 3.75% of balls, and wides make up 89% of
+# those extras (not a 70/30 split -- no-balls are genuinely rare in comparison).
+EXTRAS_PROB = 0.0375  # was 0.04
+WIDE_SHARE_OF_EXTRAS = 0.89  # was 0.7; single source of truth -- see server.py
 
 # Wicket cascade: each wicket already fallen in the CURRENT over multiplies the
 # remaining balls' Out weight by this factor (stacking: 2 wickets -> x0.20),
@@ -119,7 +122,7 @@ def simulate_over(state: MatchState, bowler: Bowler, league_avg: dict) -> list:
         
         # 1. Check for independent extras (Wide or No Ball)
         if random.random() < EXTRAS_PROB:
-            extra_type = "Wide" if random.random() < 0.7 else "No Ball"
+            extra_type = "Wide" if random.random() < WIDE_SHARE_OF_EXTRAS else "No Ball"
             state.add_extra()
             over_commentary.append(f"[{ball_num_str}] {extra_type}! {striker.name} watches it go. 1 Run.")
             if state.target is not None and state.runs >= state.target:

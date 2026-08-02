@@ -31,7 +31,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.models.player import Batter, Bowler
 from src.models.match_state import MatchState
-from src.engine.simulator import calculate_single_ball, EXTRAS_PROB
+from src.engine.simulator import calculate_single_ball, EXTRAS_PROB, WIDE_SHARE_OF_EXTRAS
 from src.engine.conditions import phase_for_over
 from src.engine.draft_generator import generate_draft_pool, auction_set_sizes
 
@@ -968,7 +968,7 @@ def _simulate_until_pause():
         # Extras (outside the weighted engine, re-bowled) — skipped on a free hit,
         # which is always a clean legal delivery.
         if not free_ball and random.random() < EXTRAS_PROB:
-            is_wide = random.random() < 0.7
+            is_wide = random.random() < WIDE_SHARE_OF_EXTRAS
             state.add_extra()
             g["bowl_card"][bowler.name]["runs"] += 1
             kind = "wide" if is_wide else "noball"
