@@ -1,0 +1,88 @@
+{
+  "_league_fallback": {
+    "runs_per_ball": 1.5227,
+    "wkts_per_ball": 0.05164
+  },
+  "_season_min": 2023,
+  "chepauk": {
+    "balls": 7138,
+    "name_variants": [
+      "MA Chidambaram Stadium, Chepauk, Chennai"
+    ],
+    "runs_per_ball": 1.3794,
+    "wkts_per_ball": 0.05282
+  },
+  "eden_gardens": {
+    "balls": 6132,
+    "name_variants": [
+      "Eden Gardens, Kolkata"
+    ],
+    "runs_per_ball": 1.566,
+    "wkts_per_ball": 0.05284
+  },
+  "pca_mohali": {
+    "balls": 941,
+    "name_variants": [
+      "Punjab Cricket Association IS Bindra Stadium, Mohali, Chandigarh"
+    ],
+    "runs_per_ball": 1.5227,
+    "wkts_per_ball": 0.05164,
+    "note": "only 941 real balls -- league average used instead"
+  },
+  "narendra_modi": {
+    "balls": 7581,
+    "name_variants": [
+      "Narendra Modi Stadium, Ahmedabad"
+    ],
+    "runs_per_ball": 1.5144,
+    "wkts_per_ball": 0.05474
+  },
+  "wankhede": {
+    "balls": 6180,
+    "name_variants": [
+      "Wankhede Stadium, Mumbai"
+    ],
+    "runs_per_ball": 1.5866,
+    "wkts_per_ball": 0.05113
+  },
+  "chinnaswamy": {
+    "balls": 5487,
+    "name_variants": [
+      "M Chinnaswamy Stadium, Bengaluru"
+    ],
+    "runs_per_ball": 1.5688,
+    "wkts_per_ball": 0.05212
+  },
+  "sawai_mansingh": {
+    "balls": 4805,
+    "name_variants": [
+      "Sawai Mansingh Stadium, Jaipur"
+    ],
+    "runs_per_ball": 1.5715,
+    "wkts_per_ball": 0.04266
+  },
+  "arun_jaitley": {
+    "balls": 5978,
+    "name_variants": [
+      "Arun Jaitley Stadium, Delhi"
+    ],
+    "runs_per_ball": 1.5616,
+    "wkts_per_ball": 0.04968
+  },
+  "rajiv_gandhi": {
+    "balls": 5915,
+    "name_variants": [
+      "Rajiv Gandhi International Stadium, Uppal, Hyderabad"
+    ],
+    "runs_per_ball": 1.5599,
+    "wkts_per_ball": 0.04886
+  },
+  "ekana": {
+    "balls": 6371,
+    "name_variants": [
+      "Bharat Ratna Shri Atal Bihari Vajpayee Ekana Cricket Stadium, Lucknow"
+    ],
+    "runs_per_ball": 1.4029,
+    "wkts_per_ball": 0.05086
+  }
+}

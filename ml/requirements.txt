@@ -1,0 +1,25 @@
+# Isolated from the app's requirements.txt (flask only). Install into ml/.venv:
+#
+#   py -m venv ml/.venv
+#   ml/.venv/Scripts/python -m pip install -r ml/requirements.txt
+#
+# CUDA build for the RTX 4070 (driver 581.95 supports CUDA 13).
+#
+# The `+cu130` local-version tag is load-bearing: with a bare `torch>=2.9` pip
+# resolves the CPU wheel from PyPI even with the extra index present, because
+# PyPI's Windows `torch` IS the CPU build and it wins the match. Pinning a local
+# version PyPI cannot satisfy forces resolution to the PyTorch index.
+#
+# For a CPU-only machine, drop the extra-index-url line and use plain `torch>=2.9`.
+# Nothing here requires the GPU -- it only speeds up the Phase 2b residual head
+# and hyperparameter sweeps; the Phase 2a backbone is numpy.
+--extra-index-url https://download.pytorch.org/whl/cu130
+
+numpy>=2.0
+torch==2.13.0+cu130
+matplotlib>=3.9
+
+# The app's own dependency. Needed here because ml/run_server_with_model.py
+# launches src.server, and because ml/runtime/players.py reads LEAGUE_AVG from it
+# rather than re-deriving config/baseline_weights.json and risking drift.
+flask>=3.1

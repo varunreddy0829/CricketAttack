@@ -1,0 +1,14 @@
+/.venv/
+__pycache__/
+*.pyc
+
+# Generated artifacts are ignored by default -- they're all rebuildable, and
+# ball_table.npz alone is 5.5MB of regenerable training data.
+/artifacts/*
+
+# ...EXCEPT the two the running game actually needs. The server loads these at
+# startup; without them in the repo a fresh clone can't serve a ball. They're
+# 52KB total, and regenerating them requires the 104MB raw match dataset plus a
+# training run, so they're committed deliberately.
+!/artifacts/backbone.npz
+!/artifacts/model_calibration.json
