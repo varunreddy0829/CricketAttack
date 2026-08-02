@@ -19,9 +19,27 @@ def determine_role(player):
         return "Batsman"
     return "Spinner" if player.get('bowling_style') == "Spin" else "Pacer"
 
-def determine_tier(max_ovr):
-    if max_ovr >= 75: return "Marquee"
-    if max_ovr >= 65: return "Mid-Level"
+# Marquee starts at a different OVR depending on the role. Bowling OVRs run
+# lower than batting OVRs right across the databank, so a flat 85 cut leaves only
+# 5 pacers and 3 spinners in the whole top tier -- those sets would then be
+# literally identical in every auction. At 80 the buckets are 15 and 7, which is
+# deep enough to vary. Anything from MID_FLOOR up to the cut is Mid-Level;
+# everything below MID_FLOOR is Group 3.
+MARQUEE_CUT = {
+    "Batsman": 85, "Wicket Keeper": 85, "All-Rounder": 85,
+    "Pacer": 80, "Spinner": 80,
+}
+MID_FLOOR = 70
+
+def determine_tier(ovr, role="Batsman"):
+    """Tier for a player of `role` rated `ovr` on that role's own OVR key.
+
+    Judged per role rather than on one global line: `Pacer`/`Spinner` are rated
+    on bowling_ovr (see `_role_ovr_key`), which sits ~5 points below batting_ovr
+    for equivalent quality, so they get a correspondingly lower Marquee cut.
+    """
+    if ovr >= MARQUEE_CUT.get(role, 85): return "Marquee"
+    if ovr >= MID_FLOOR: return "Mid-Level"
     return "Group 3"
 
 def _role_ovr_key(role):
@@ -56,20 +74,43 @@ def _balanced_order(players, key_fn, num_bands):
 
 def auction_pool_size_per_set(num_teams, players_per_team=25, num_sets=15):
     """At least `players_per_team` players available per team in the game,
-    spread evenly across the 15 sets (3 tiers x 5 roles)."""
+    spread evenly across the 15 sets (3 tiers x 5 roles).
+
+    Superseded by `auction_set_sizes` for live auctions -- kept because it is a
+    reasonable uniform default and the module's __main__ demo still uses it.
+    """
     target_total = players_per_team * max(1, num_teams)
     per_set = (target_total + num_sets - 1) // num_sets
     return max(5, per_set)
 
-def generate_draft_pool(all_players, players_per_set=5):
+def auction_set_sizes(num_teams):
+    """Players per set, sized *per tier* so the top tier is the scarcest.
+
+    Sizing every set the same gives each tier a third of the lots, which handed
+    out 8-12 Marquee lots per team against an XI of 11 -- at two teams there were
+    25 stars for 22 XI slots, so they were never contested and the money never
+    reached the Mid-Level sets. These ratios instead hold Marquee at ~5 lots per
+    team at every table size, comfortably under the 11 an XI needs, which forces
+    the other ~6 places to be bought from Mid-Level.
+    """
+    n = max(1, num_teams)
+    return {
+        "Marquee": max(2, n),
+        "Mid-Level": max(4, -(-9 * n // 5)),   # ceil(1.8 x n)
+        "Group 3": max(3, -(-7 * n // 5)),     # ceil(1.4 x n)
+    }
+
+def generate_draft_pool(all_players, players_per_set=5, set_sizes=None):
     """
     Generates 15 sets (3 Tiers x 5 Roles: Batsman, Pacer, Spinner, All-Rounder,
     Wicket Keeper).
-    Pulls up to `players_per_set` players per set (default 5, scaled up by
-    callers for larger tournaments so there's always at least ~25 players
-    per team). Selection is quality-balanced (drawn from bat/bowl-OVR bands,
-    not pure random), and the *presentation order* within a set is shuffled
-    independently from whatever order the pool ends up listed in.
+    Pulls up to `players_per_set` players per set, or -- when `set_sizes` is
+    given as a {tier: count} dict from `auction_set_sizes` -- a different count
+    per tier, so the Marquee sets can be deliberately smaller than the rest.
+    A set is still capped by however many players its bucket actually holds.
+    Selection is quality-balanced (drawn from bat/bowl-OVR bands, not pure
+    random), and the *presentation order* within a set is shuffled independently
+    from whatever order the pool ends up listed in.
     Max 40% foreigners per set (ensuring conservative overseas ratio globally).
     """
     buckets = {
@@ -80,8 +121,9 @@ def generate_draft_pool(all_players, players_per_set=5):
 
     for p in all_players:
         role = determine_role(p)
-        max_ovr = max(p.get('batting_ovr', 55), p.get('bowling_ovr', 55))
-        tier = determine_tier(max_ovr)
+        # Rated on the role's own OVR key, so a pacer is tiered on his bowling
+        # and a batsman on his batting -- not on whichever of the two is higher.
+        tier = determine_tier(_role_ovr_key(role)(p), role)
         buckets[tier][role].append(p)
 
     draft_sets = []
@@ -91,17 +133,19 @@ def generate_draft_pool(all_players, players_per_set=5):
 
     tiers = ["Marquee", "Mid-Level", "Group 3"]
     roles = ["Batsman", "Pacer", "Wicket Keeper", "Spinner", "All-Rounder"]
-    max_foreigners_per_set = max(2, round(players_per_set * 0.4))
+    sizes = set_sizes or {t: players_per_set for t in tiers}
 
     for tier in tiers:
+        size = max(1, int(sizes.get(tier, players_per_set)))
+        max_foreigners_per_set = max(2, round(size * 0.4))
         for role in roles:
-            candidates = _balanced_order(buckets[tier][role], _role_ovr_key(role), players_per_set)
+            candidates = _balanced_order(buckets[tier][role], _role_ovr_key(role), size)
 
             selected_for_set = []
             foreigner_count_in_set = 0
 
             for p in candidates:
-                if len(selected_for_set) >= players_per_set:
+                if len(selected_for_set) >= size:
                     break
 
                 is_for = p.get('is_foreigner', False)

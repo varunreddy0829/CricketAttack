@@ -33,7 +33,7 @@ from src.models.player import Batter, Bowler
 from src.models.match_state import MatchState
 from src.engine.simulator import calculate_single_ball, EXTRAS_PROB
 from src.engine.conditions import phase_for_over
-from src.engine.draft_generator import generate_draft_pool, auction_pool_size_per_set
+from src.engine.draft_generator import generate_draft_pool, auction_set_sizes
 
 app = Flask(__name__, static_folder="public")
 
@@ -1439,8 +1439,8 @@ def _new_squad():
 
 
 def _start_auction():
-    per_set = auction_pool_size_per_set(len(GAME["team_ids"]))
-    sets, _total, _os = generate_draft_pool(ALL_PLAYERS, players_per_set=per_set)
+    set_sizes = auction_set_sizes(len(GAME["team_ids"]))
+    sets, _total, _os = generate_draft_pool(ALL_PLAYERS, set_sizes=set_sizes)
     pool = []
     for s in sets:
         for p in s["players"]:
