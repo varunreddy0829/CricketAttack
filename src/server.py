@@ -822,11 +822,108 @@ COMMENTARY = {
         "FREE HIT! Beaten by pace — the free hit goes begging.",
         "FREE HIT! Wild swing from {b}, no contact. No run.",
     ],
+    # --- strike farming (see _strike_farm) ---
+    "farm_decline_single": [
+        "{b} turns down the single — he's keeping the strike.",
+        "There was one there, but {b} sends him back. Strike retained.",
+        "{b} refuses the run — he wants this bowling himself.",
+        "Waved away! {b} isn't giving up the strike.",
+    ],
+    "farm_take_one": [
+        "Only a single taken — {b} wants to be back on strike next over.",
+        "They could have come back for two, but {b} stops at one to keep the strike.",
+        "{b} settles for one — that puts him on strike for the next over.",
+    ],
+    "farm_hand_over": [
+        "Just the one taken — {b} is happy to hand the strike over.",
+        "{b} stops at a single, getting his partner back on strike.",
+        "Only one run — {b} would much rather the other man faced this.",
+    ],
+    "farm_refuse_strike": [
+        "{b} turns it down — he won't take the strike into the next over.",
+        "There was a single on offer, but {b} declines it.",
+        "{b} refuses the run — better his partner starts the next over.",
+    ],
 }
 _RUNS_KIND = {0: "dot", 1: "one", 2: "two", 3: "three", 4: "four", 5: "five", 6: "six"}
 
 def _say(kind, b="", bl=""):
     return random.choice(COMMENTARY[kind]).format(b=b, bl=bl)
+
+
+# --- Strike farming ----------------------------------------------------------
+# Batting OVR difference at which the pair counts as "mismatched" and farming
+# is OFFERED. Measured against real drafted XIs: two specialist batsmen are
+# typically ~6 apart (p95 = 17), a batsman with a tail-ender ~24 (p10 = 15),
+# so the two populations overlap and no threshold separates them cleanly.
+#
+# Deliberately set BELOW the point where farming starts paying for itself
+# (simulation puts break-even near a gap of 12-15: the run cost of declining
+# singles is actually HIGHEST at small gaps, because you're protecting someone
+# who would have scored nearly as well anyway). At 10 the toggle is therefore
+# offered in some situations where using it is a mild net loss -- an
+# intentional trade, since it is opt-in and a missing tool is worse than an
+# unhelpful one. Raise toward 13-15 if it starts feeling like a trap.
+FARM_MIN_GAP = 10
+
+
+def _strike_farm(outcome, striker, non_striker, ball_idx, is_final_over):
+    """Post-roll strike management for a mismatched pair, applied only when the
+    batting side has the per-over toggle on.
+
+    Ends swap at the over break, so for the good batsman to be ON STRIKE next
+    over he must FINISH this over at the non-striker's end. Everything here
+    follows from that:
+
+        good batsman    balls 1-4:  1 -> 0   (decline; keep himself on strike)
+                        balls 5-6:  2 -> 1   (take one, reach the far end)
+        tailender       balls 1-4:  2 -> 1   (take one, hand the strike back)
+                        balls 5-6:  1 -> 0   (decline; leave the good batsman
+                                              at the far end for the next over)
+
+    Two invariants hold by construction, and are asserted in the tests:
+      * no run is ever invented -- a converted ball always scores LESS than the
+        rolled ball, so farming can only ever cost runs, never inflate a score.
+        In particular a tailender's dot is never turned into a single.
+      * every conversion is deterministic. Each one is simply a decision not to
+        run (or not to come back for the second), which is entirely within the
+        batsmen's control -- there is no luck in it.
+
+    In the innings' FINAL over the 5-6 behaviour is pointless (no next over to
+    set up), so balls 1-5 keep the early behaviour and the last ball of the
+    innings is left completely alone -- at that point runs are all that matter.
+
+    Returns (outcome, commentary_kind_or_None); `outcome` is unchanged when no
+    conversion applies.
+    """
+    if striker is None or non_striker is None:
+        return outcome, None
+    if outcome not in ("1", "2"):          # dots, boundaries and wickets untouched
+        return outcome, None
+
+    gap = striker.ovr - non_striker.ovr
+    if abs(gap) < FARM_MIN_GAP:
+        return outcome, None
+    better_on_strike = gap > 0
+
+    if is_final_over:
+        if ball_idx >= 5:                  # last ball of the innings: take everything
+            return outcome, None
+        late = False                       # no next over to protect
+    else:
+        late = ball_idx >= 4               # balls 5 and 6
+
+    if better_on_strike:
+        if not late and outcome == "1":
+            return "0", "farm_decline_single"
+        if late and outcome == "2":
+            return "1", "farm_take_one"
+    else:
+        if not late and outcome == "2":
+            return "1", "farm_hand_over"
+        if late and outcome == "1":
+            return "0", "farm_refuse_strike"
+    return outcome, None
 
 
 # --- The over simulation (reuses engine math, adds full bookkeeping) ---------
@@ -929,6 +1026,20 @@ def _simulate_until_pause():
             "wickets_this_over": ao.get("wkts_this_over", 0),
         }
         outcome = calculate_single_ball(striker, bowler, LEAGUE_AVG, ctx)
+
+        # Strike farming: a post-roll decision by the batsmen, not a change to
+        # the odds -- they simply decline a run that was there (see
+        # _strike_farm). Applied before any bookkeeping so runs, the scorecard,
+        # the bowler's figures and the strike rotation below all see the real,
+        # taken outcome. Captured here rather than re-derived later because the
+        # rotation at the end of this loop depends on it.
+        farm_kind = None
+        if ao.get("farm_strike") and not free_ball:
+            outcome, farm_kind = _strike_farm(
+                outcome, striker, state.get_non_striker(),
+                state.balls % 6, over_num == OVERS_PER_INNINGS - 1,
+            )
+
         state.add_ball()
         g["bowl_card"][bowler.name]["balls"] += 1
         row = g["bat_card"][striker.name]
@@ -976,7 +1087,11 @@ def _simulate_until_pause():
             elif prev_runs < 100 <= row["runs"]:
                 _emit(ball_no, "milestone", f"CENTURY! {striker.name} reaches three figures!", outcome="100")
             label = "boundary" if runs in (4, 6) else "run"
-            if free_ball and runs == 0:
+            if farm_kind:
+                # name the tactic -- otherwise a declined single just looks like
+                # a dot and the player can't tell smart batting from bad luck
+                text = _say(farm_kind, striker.name, bowler.name)
+            elif free_ball and runs == 0:
                 text = _say("free_dot", striker.name, bowler.name)   # swing-and-miss, not a block
             else:
                 text = fh_prefix + _say(_RUNS_KIND[runs], striker.name, bowler.name)
@@ -1258,6 +1373,8 @@ def _try_resolve_over():
         # one-shot gambits, armed secretly with the submissions and consumed here
         "attack_gambit": bool(p["batting"].get("gambit")),
         "trap_gambit": bool(p["bowling"].get("gambit")),
+        # strike farming for this over (see _strike_farm)
+        "farm_strike": bool(p["batting"].get("farm_strike")),
     }
     g["bowler"] = _make_bowler(BY_NAME[p["bowling"]["bowler_name"]], p["bowling"]["bowl_intent"])
     g["this_over"] = []
@@ -2811,6 +2928,18 @@ def _serialize(token):
             "i_armed": bool(my_pending.get("gambit")),
         },
         "impact": impact,
+        # strike farming: only offered to the batting side, and only when the
+        # pair at the crease is actually mismatched enough for it to mean
+        # something (see _strike_farm / FARM_MIN_GAP)
+        "can_farm": bool(
+            i_bat and striker and non_striker
+            and abs(striker.ovr - non_striker.ovr) >= FARM_MIN_GAP
+        ),
+        "farm_strike": bool(
+            my_pending.get("farm_strike")
+            if my_pending.get("submitted")
+            else (g.get("active_over") or {}).get("farm_strike")
+        ),
     }
 
     out["live"] = g["live"]
@@ -3796,6 +3925,10 @@ def ready_resume():
             ao["non_striker_intent"] = int(data.get("non_striker_intent", ao["non_striker_intent"]))
             ao["striker_role"] = _clean_bat_role(data.get("striker_role", ao.get("striker_role")))
             ao["non_striker_role"] = _clean_bat_role(data.get("non_striker_role", ao.get("non_striker_role")))
+            # the wicket changed the partnership, so the batting side may want a
+            # different answer on farming than it gave before the ball
+            if "farm_strike" in data:
+                ao["farm_strike"] = bool(data.get("farm_strike"))
             # register whoever is now at the crease (the new batter, and the
             # survivor) by NAME, so the rest of the over stays identity-locked
             # (intent AND role) even through a further rotation or 2nd wicket
@@ -3956,6 +4089,7 @@ def submit_over():
                 "striker_role": _clean_bat_role(data.get("striker_role")),
                 "non_striker_role": _clean_bat_role(data.get("non_striker_role")),
                 "gambit": wants_gambit,
+                "farm_strike": bool(data.get("farm_strike")),
             }
         else:
             bowler_name = data.get("bowler_name")

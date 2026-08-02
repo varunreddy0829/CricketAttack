@@ -742,6 +742,42 @@ button:disabled {
     z-index: 1;
 }
 
+/* Strike farming toggle -- sits between the two batters and the bowler,
+   because it's a decision about the PAIR rather than either batter alone.
+   Reuses the .switch control built for the auction's Eat Snacks toggle. */
+.farm-row {
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.9rem;
+    max-width: 420px;
+    margin: 0.2rem auto;
+    padding: 0.5rem 0.8rem;
+    border: 1px solid rgba(201, 162, 39, 0.35);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.28);
+    cursor: pointer;
+    user-select: none;
+    transition: border-color 0.2s, background 0.2s;
+}
+.farm-row.on { border-color: var(--gold); background: rgba(201, 162, 39, 0.14); }
+.farm-row.is-disabled { opacity: 0.5; cursor: not-allowed; }
+.farm-label { min-width: 0; }
+.farm-title {
+    display: block;
+    font-family: 'Oswald', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--cream);
+}
+.farm-row.on .farm-title { color: var(--gold); }
+.farm-hint { display: block; font-size: 0.66rem; line-height: 1.35; color: rgba(243, 234, 211, 0.7); margin-top: 0.15rem; }
+.farm-row .switch { margin-right: 0.1rem; }
+.farm-row.on .switch { background: var(--gold); border-color: var(--gold); }
+.farm-row.on .switch::after { transform: translateX(17px); background: #241605; }
+
 .ground::before {
     content: "";
     position: absolute;

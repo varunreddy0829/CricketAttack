@@ -27,6 +27,7 @@ const ui = {
     armGambit: false,      // one-shot gambit toggled on for the upcoming over submission
     impactPick: { in: null, out: null },   // Impact Player overlay: currently-selected in/out names
     roleHelpOpen: false,   // the little "what do the roles do?" popover
+    farmStrike: false,     // "farm the strike" for the upcoming over (batting side)
 };
 
 function getBatterIntent(name) { return name in ui.batterIntents ? ui.batterIntents[name] : 50; }
@@ -855,6 +856,7 @@ function renderGame(state) {
         if (m.i_am_batting) {
             if (m.striker) setBatterRole(m.striker.name, mine.striker_role);
             if (m.non_striker) setBatterRole(m.non_striker.name, mine.non_striker_role);
+            ui.farmStrike = !!m.farm_strike;   // server is the source of truth once locked
         } else { ui.bowlRole = mine.bowl_role; ui.selectedBowler = mine.bowler_name; }
     }
 
@@ -1292,10 +1294,45 @@ function renderGround(m) {
     }
 
     g.innerHTML = `<div class="ground-row batters-row">${strikerSlot}${nonStrikerSlot}</div>
+                   ${farmToggle(m, slDisabled)}
                    <div class="ground-row bowler-row">${bowlerSlot}</div>`;
     wireRoleButtons();
+    wireFarmToggle();
     wireDropZone(m);
     wireRetireButtons();
+}
+
+// Strike farming: only offered to the batting side, and only when the pair at
+// the crease is mismatched enough for it to mean anything (the server decides
+// that via FARM_MIN_GAP and sends can_farm).
+function farmToggle(m, disabled) {
+    if (!m.i_am_batting || !m.can_farm) return '';
+    const on = ui.farmStrike;
+    return `<div class="farm-row ${on ? 'on' : ''} ${disabled ? 'is-disabled' : ''}" id="farm-toggle">
+        <div class="farm-label">
+            <span class="farm-title">Farm the strike</span>
+            <span class="farm-hint">${on
+                ? 'Your better batsman keeps the strike early, then works a single to hold it for the next over.'
+                : 'Protect the weaker batsman by turning down singles early in the over.'}</span>
+        </div>
+        <div class="switch"></div>
+    </div>`;
+}
+
+function wireFarmToggle() {
+    const el = $('farm-toggle');
+    if (!el || el.classList.contains('is-disabled')) return;
+    el.addEventListener('click', () => {
+        ui.farmStrike = !ui.farmStrike;
+        el.classList.toggle('on', ui.farmStrike);
+        const hint = el.querySelector('.farm-hint');
+        if (hint) {
+            hint.textContent = ui.farmStrike
+                ? 'Your better batsman keeps the strike early, then works a single to hold it for the next over.'
+                : 'Protect the weaker batsman by turning down singles early in the over.';
+        }
+        if (navigator.vibrate) navigator.vibrate(8);
+    });
 }
 
 function wireRetireButtons() {
@@ -1515,6 +1552,7 @@ async function submitOver() {
                 striker_role: getBatterRole(m.striker.name),
                 non_striker_role: getBatterRole(m.non_striker.name),
                 gambit: ui.armGambit,
+                farm_strike: ui.farmStrike,
             });
         } else {
             if (!ui.selectedBowler) return toast('Pick a bowler first.');
@@ -1542,7 +1580,8 @@ async function submitFreeHit() {
 async function submitResume() {
     const m = CURRENT.match;
     const body = m.i_am_batting
-        ? { token: Net.getToken(), striker_role: getBatterRole(m.striker.name), non_striker_role: getBatterRole(m.non_striker.name) }
+        ? { token: Net.getToken(), striker_role: getBatterRole(m.striker.name),
+            non_striker_role: getBatterRole(m.non_striker.name), farm_strike: ui.farmStrike }
         : { token: Net.getToken(), bowl_role: ui.bowlRole };
     try { await Net.post('/api/ready_resume', body); Net.forceRefresh(); }
     catch (e) { toast(e.message); }
