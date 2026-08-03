@@ -1,1 +1,8 @@
 flask>=3.1
+
+# The learned ball engine (ml/runtime/) serves from a small .npz of fitted
+# weights, so numpy is all it needs at runtime. torch is offline-only, for
+# retraining, and lives in ml/requirements.txt.
+# If numpy is missing the server still boots -- ml.runtime.engine falls back to
+# the classic hand-tuned engine and says so at startup.
+numpy>=2.0

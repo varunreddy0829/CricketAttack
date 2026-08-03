@@ -35,6 +35,15 @@ from src.engine.simulator import calculate_single_ball, EXTRAS_PROB, WIDE_SHARE_
 from src.engine.conditions import phase_for_over
 from src.engine.draft_generator import generate_draft_pool, auction_set_sizes
 
+# The ball engine. Defaults to the learned model (ml/, trained on 290,611 real
+# deliveries); falls back to the classic hand-tuned pipeline above if the model
+# can't be loaded, so a missing or stale artifact degrades the game rather than
+# stopping it booting. See docs/model.md.
+from ml.runtime.engine import resolve_engine
+
+BALL_FN, ENRICH_CTX, ENGINE_DESC = resolve_engine()
+print(f"[engine] {ENGINE_DESC}", flush=True)
+
 app = Flask(__name__, static_folder="public")
 
 @app.after_request
@@ -1022,10 +1031,18 @@ def _simulate_until_pause():
             "bowl_role": bowl_role,
             "bowl_grid": _bowl_grid(bowler.name, over_num, bowl_role),
             # wicket cascade (engine Stage 6): stored on active_over so it
-            # survives the mid-over await_batter pause and dies with the over
+            # survives the mid-over await_batter pause and dies with the over.
+            # Read only by the classic engine -- the learned model sees a new
+            # batter directly (striker_balls / is_set both read 0) and applying
+            # the old damping on top double-suppresses wickets.
             "wickets_this_over": ao.get("wkts_this_over", 0),
         }
-        outcome = calculate_single_ball(striker, bowler, LEAGUE_AVG, ctx)
+        # the learned model needs the match state the ctx above doesn't carry --
+        # score, wickets, balls left, how long the striker has been in, the
+        # ground's real scoring rate. No-op on the classic path.
+        if ENRICH_CTX is not None:
+            ctx = ENRICH_CTX(ctx, striker, bowler, g)
+        outcome = BALL_FN(striker, bowler, LEAGUE_AVG, ctx)
 
         # Strike farming: a post-roll decision by the batsmen, not a change to
         # the odds -- they simply decline a run that was there (see
