@@ -1,12 +1,20 @@
 # The learned ball model — a mental model
 
-**Status: this is the live engine.** The server runs on the learned model; the
-hand-tuned engine it replaced is preserved on the `classic-engine` branch. The
-model itself and everything supporting it lives under `ml/`; `src/` holds the game
-around it.
+**Status: live.** The server runs on learned models — one per playable era —
+with the original hand-tuned engine kept as the All-Time mode. Everything
+supporting them lives under `ml/`; `src/` holds the game around it.
 
-It reproduces modern IPL on **0 of 16** tracked statistics outside tolerance —
-the engine it replaced missed 9 of 16.
+Each era's model reproduces its own cricket closely:
+
+| era | real innings | model | engine |
+|---|---|---|---|
+| 2008–2013 | 150.9 | **149.8** | learned |
+| 2014–2022 | 160.9 | **160.2** | learned |
+| 2023–2026 | 181.5 | **180.5** | learned |
+| All-Time | — | — | classic hand-tuned |
+
+See [eras.md](eras.md) for why the split exists and how OVRs are derived.
+This document explains the model itself, which is the same design in every era.
 
 ## The one-sentence version
 
