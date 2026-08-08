@@ -6,9 +6,16 @@ __pycache__/
 # ball_table.npz alone is 5.5MB of regenerable training data.
 /artifacts/*
 
-# ...EXCEPT the two the running game actually needs. The server loads these at
-# startup; without them in the repo a fresh clone can't serve a ball. They're
-# 52KB total, and regenerating them requires the 104MB raw match dataset plus a
-# training run, so they're committed deliberately.
+# ...EXCEPT what the running game actually needs at startup. Without these a
+# fresh clone can't serve a ball, and regenerating them requires the 104MB raw
+# match dataset plus a training run, so they're committed deliberately.
 !/artifacts/backbone.npz
 !/artifacts/model_calibration.json
+
+# Per-era artifacts: the model, its calibration and its venue rates for each
+# playable era. Un-ignore the directory wholesale...
+!/artifacts/eras/
+
+# ...then re-exclude the one big rebuildable file inside it. Each era's ball
+# table is training input only and never read at play time.
+/artifacts/eras/*/ball_table.npz

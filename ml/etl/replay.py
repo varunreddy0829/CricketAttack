@@ -414,9 +414,18 @@ def iter_innings(match_glob: str = DEFAULT_MATCH_GLOB, limit: int | None = None)
             continue
 
         teams = info.get("teams") or ["", ""]
-        season_raw = info.get("season", 0)
-        # seasons are ints ("2017") except for split years ("2007/08")
-        season = int(str(season_raw).split("/")[0]) if season_raw else 0
+        # Season comes from the match DATE, not the `season` label.
+        #
+        # The label is ambiguous: it is a plain year most of the time ("2017") but
+        # a split year for tournaments that straddle a new year ("2007/08"). Taking
+        # the part before the slash collides -- "2009" (IPL 2009) and "2009/10"
+        # (IPL 2010) both reduce to 2009, silently merging two whole tournaments
+        # into one season with double the balls. "2007/08" likewise reports 2007
+        # for a tournament played entirely in 2008.
+        #
+        # The date is unambiguous and present on every match, so use it.
+        dates = info.get("dates") or []
+        season = int(str(dates[0])[:4]) if dates else 0
 
         meta = {
             "match_id": os.path.splitext(os.path.basename(path))[0],

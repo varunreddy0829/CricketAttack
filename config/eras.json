@@ -1,0 +1,45 @@
+{
+  "_comment": "Playable eras. Each has its own trained model, its own player pool, and its own OVRs derived by simulating players through that era's model (ml/train/derive_ovr.py) rather than by any hand-written formula. Boundaries sit where the scoring data actually breaks -- runs/ball jumps +0.080 at 2013->2014 and +0.070/+0.095 at 2022->2023 (see ml/etl/season_shift.py). Seasons are calendar years taken from match dates, NOT the ambiguous Cricsheet `season` label.",
+
+  "_cutoffs": "min_bat_balls / min_bowl_balls decide whether a player is RATEABLE in an era, not whether the auction can be filled -- every era supplies 200+ draftable players against the 175 an 8-team auction needs. Below these counts a rating is mostly noise.",
+
+  "eras": [
+    {
+      "id": "2008_2013",
+      "label": "The Early Years",
+      "tagline": "Low and slow. 7.4 an over, and a six is an event.",
+      "seasons": [2008, 2013],
+      "engine": "model",
+      "min_bat_balls": 100,
+      "min_bowl_balls": 200
+    },
+    {
+      "id": "2014_2022",
+      "label": "The Power Shift",
+      "tagline": "Bats get bigger, boundaries get shorter, the rate creeps up.",
+      "seasons": [2014, 2022],
+      "engine": "model",
+      "min_bat_balls": 100,
+      "min_bowl_balls": 200
+    },
+    {
+      "id": "2023_2026",
+      "label": "The Modern Game",
+      "tagline": "Nine an over. Everyone attacks from ball one.",
+      "seasons": [2023, 2026],
+      "engine": "model",
+      "min_bat_balls": 100,
+      "min_bowl_balls": 200
+    },
+    {
+      "id": "all_time",
+      "label": "All-Time Legends",
+      "tagline": "Every player who ever played, rated on what they achieved.",
+      "seasons": [2008, 2026],
+      "engine": "classic",
+      "min_bat_balls": 0,
+      "min_bowl_balls": 0,
+      "_note": "Deliberately NOT the learned engine. This is the nostalgia mode: the original hand-tuned pipeline with the original career OVRs, where Gayle is a 93 because of what he did, not what he would do against 2026 bowling. Uses data/players_historical.json unchanged."
+    }
+  ]
+}

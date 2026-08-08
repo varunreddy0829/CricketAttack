@@ -45,13 +45,15 @@ OUT_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__
 MIN_BALLS = 2000
 
 
-def compute(season_min: int | None = None) -> dict:
+def compute(season_min: int | None = None, season_max: int | None = None) -> dict:
     agg: dict = defaultdict(lambda: [0, 0, 0])     # balls, runs, wickets
     tot = [0, 0, 0]
     raw_names_seen: dict = defaultdict(set)
 
     for innings in iter_innings():
         if season_min is not None and innings.season < season_min:
+            continue
+        if season_max is not None and innings.season > season_max:
             continue
         key = canonical_ground(innings.venue)
         for b in innings.balls:
@@ -76,6 +78,7 @@ def compute(season_min: int | None = None) -> dict:
             "wkts_per_ball": round(league_wpb, 5),
         },
         "_season_min": season_min,
+        "_season_max": season_max,
     }
     for key in CANONICAL_GROUNDS:
         balls, runs, wkts = agg.get(key, [0, 0, 0])
@@ -91,22 +94,8 @@ def compute(season_min: int | None = None) -> dict:
     return out
 
 
-if __name__ == "__main__":
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--since", type=int, default=2023,
-                    help="only seasons >= this count (default 2023: the game as "
-                         "currently played, and it puts every ground on comparable "
-                         "footing regardless of how long it's existed). 0 = all-time.")
-    args = ap.parse_args()
-
-    data = compute(season_min=args.since or None)
-    os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
-    with open(OUT_PATH, "w", encoding="utf-8") as fh:
-        json.dump(data, fh, indent=2)
-
-    print(f"wrote {OUT_PATH}"
-          f"{f' (seasons >= {args.since})' if args.since else ' (all-time)'}\n")
-    print(f"  {'ground':<16} {'balls':>7} {'runs/ball':>10} {'wkts/ball':>10}")
+def _report(data: dict, path: str, label: str) -> None:
+    print(f"wrote {path}  ({label})")
     fb = data["_league_fallback"]
     print(f"  {'(league avg)':<16} {'':>7} {fb['runs_per_ball']:>10.4f} "
           f"{fb['wkts_per_ball']:>10.5f}")
@@ -115,3 +104,35 @@ if __name__ == "__main__":
         flag = "  <- league fallback" if "note" in e else ""
         print(f"  {key:<16} {e['balls']:>7} {e['runs_per_ball']:>10.4f} "
               f"{e['wkts_per_ball']:>10.5f}{flag}")
+    print()
+
+
+if __name__ == "__main__":
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--eras", action="store_true",
+                    help="write per-era venue stats for every model era. Grounds "
+                         "scored very differently across eras, so reusing one "
+                         "window's rates in another double-counts the same way "
+                         "the classic pitch multipliers did.")
+    ap.add_argument("--since", type=int, default=2023,
+                    help="single-window mode: only seasons >= this. 0 = all-time.")
+    args = ap.parse_args()
+
+    if args.eras:
+        from ml.etl import eras as E
+        artifacts = os.path.dirname(os.path.dirname(OUT_PATH))
+        for era in E.MODEL_ERAS:
+            data = compute(season_min=era.first, season_max=era.last)
+            d = os.path.join(artifacts, "artifacts", "eras", era.id)
+            os.makedirs(d, exist_ok=True)
+            p = os.path.join(d, "venue_stats.json")
+            with open(p, "w", encoding="utf-8") as fh:
+                json.dump(data, fh, indent=2)
+            _report(data, p, f"{era.first}-{era.last}")
+    else:
+        data = compute(season_min=args.since or None)
+        os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
+        with open(OUT_PATH, "w", encoding="utf-8") as fh:
+            json.dump(data, fh, indent=2)
+        _report(data, OUT_PATH,
+                f"seasons >= {args.since}" if args.since else "all-time")

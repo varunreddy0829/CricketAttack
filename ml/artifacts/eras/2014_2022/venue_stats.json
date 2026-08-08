@@ -1,0 +1,97 @@
+{
+  "_league_fallback": {
+    "runs_per_ball": 1.345,
+    "wkts_per_ball": 0.0485
+  },
+  "_season_min": 2014,
+  "_season_max": 2022,
+  "chepauk": {
+    "balls": 6109,
+    "name_variants": [
+      "MA Chidambaram Stadium",
+      "MA Chidambaram Stadium, Chepauk",
+      "MA Chidambaram Stadium, Chepauk, Chennai"
+    ],
+    "runs_per_ball": 1.2128,
+    "wkts_per_ball": 0.05074
+  },
+  "eden_gardens": {
+    "balls": 9473,
+    "name_variants": [
+      "Eden Gardens",
+      "Eden Gardens, Kolkata"
+    ],
+    "runs_per_ball": 1.4093,
+    "wkts_per_ball": 0.04835
+  },
+  "pca_mohali": {
+    "balls": 6345,
+    "name_variants": [
+      "Punjab Cricket Association IS Bindra Stadium",
+      "Punjab Cricket Association IS Bindra Stadium, Mohali",
+      "Punjab Cricket Association Stadium, Mohali"
+    ],
+    "runs_per_ball": 1.3759,
+    "wkts_per_ball": 0.04555
+  },
+  "narendra_modi": {
+    "balls": 1603,
+    "name_variants": [
+      "Narendra Modi Stadium, Ahmedabad"
+    ],
+    "runs_per_ball": 1.345,
+    "wkts_per_ball": 0.0485,
+    "note": "only 1603 real balls -- league average used instead"
+  },
+  "wankhede": {
+    "balls": 17042,
+    "name_variants": [
+      "Wankhede Stadium",
+      "Wankhede Stadium, Mumbai"
+    ],
+    "runs_per_ball": 1.3811,
+    "wkts_per_ball": 0.04823
+  },
+  "chinnaswamy": {
+    "balls": 9254,
+    "name_variants": [
+      "M Chinnaswamy Stadium",
+      "M.Chinnaswamy Stadium"
+    ],
+    "runs_per_ball": 1.4378,
+    "wkts_per_ball": 0.05111
+  },
+  "sawai_mansingh": {
+    "balls": 3054,
+    "name_variants": [
+      "Sawai Mansingh Stadium"
+    ],
+    "runs_per_ball": 1.3386,
+    "wkts_per_ball": 0.04617
+  },
+  "arun_jaitley": {
+    "balls": 4010,
+    "name_variants": [
+      "Arun Jaitley Stadium",
+      "Arun Jaitley Stadium, Delhi"
+    ],
+    "runs_per_ball": 1.3781,
+    "wkts_per_ball": 0.04539
+  },
+  "rajiv_gandhi": {
+    "balls": 8283,
+    "name_variants": [
+      "Rajiv Gandhi International Stadium",
+      "Rajiv Gandhi International Stadium, Uppal"
+    ],
+    "runs_per_ball": 1.3006,
+    "wkts_per_ball": 0.04817
+  },
+  "ekana": {
+    "balls": 0,
+    "name_variants": [],
+    "runs_per_ball": 1.345,
+    "wkts_per_ball": 0.0485,
+    "note": "only 0 real balls -- league average used instead"
+  }
+}
