@@ -28,13 +28,15 @@ OUT_PATH = os.path.join(ARTIFACTS, "ball_table.npz")
 MIN_VENUE_BALLS = 600
 
 
-def _venue_aggregates():
+def _venue_aggregates(era=None):
     """-> (per-venue totals, per-(venue,match) totals, league means)."""
     venue = defaultdict(lambda: [0, 0, 0])          # balls, runs, wickets
     venue_match = defaultdict(lambda: [0, 0, 0])
     tot = [0, 0, 0]
 
     for innings in iter_innings():
+        if era is not None and not era.covers(innings.season):
+            continue
         v = innings.venue
         vm = (v, innings.match_id)
         for b in innings.balls:
@@ -49,17 +51,20 @@ def _venue_aggregates():
     return venue, venue_match, league
 
 
-def build(out_path: str = OUT_PATH) -> dict:
+def build(out_path: str = OUT_PATH, era=None) -> dict:
+    """Build a ball table. `era` (an ml.etl.eras.Era) scopes it to that era's
+    balls AND that era's player pool -- so the model's player table only ever
+    contains players who actually appeared in the era it will be used for."""
     t0 = time.time()
-    os.makedirs(ARTIFACTS, exist_ok=True)
+    os.makedirs(os.path.dirname(out_path), exist_ok=True)
 
     print("[1/3] venue aggregates ...", flush=True)
-    venue, venue_match, (league_rpb, league_wpb) = _venue_aggregates()
+    venue, venue_match, (league_rpb, league_wpb) = _venue_aggregates(era)
     print(f"      {len(venue)} venues; league {league_rpb:.3f} runs/ball, "
           f"{league_wpb:.4f} wkts/ball")
 
     print("[2/3] player anchors ...", flush=True)
-    by_name = load_players()
+    by_name = load_players(era.id if era else None)
     names, bat_anchors, bowl_anchors = F.build_anchor_tables(by_name)
     name_to_idx = {nm: i for i, nm in enumerate(names)}
     # career volumes, used as context features (when to hedge)
@@ -73,7 +78,9 @@ def build(out_path: str = OUT_PATH) -> dict:
             continue
         career_bat_balls[i] = (r.get("batting") or {}).get("balls", 0)
         career_bowl_balls[i] = (r.get("bowling") or {}).get("legal_balls", 0)
-        ns_ovr[i] = r.get("batting_ovr", 55)
+        # via model_ovr, NOT batting_ovr directly -- era pools have it null until
+        # derive_ovr runs, and a direct read yields NaN (see features.model_ovr)
+        ns_ovr[i] = F.model_ovr(r)
         ns_sr[i] = (r.get("batting") or {}).get("sr", 0.0)
     print(f"      {len(names) - 1} players (+1 unknown slot)")
 
@@ -86,6 +93,8 @@ def build(out_path: str = OUT_PATH) -> dict:
     n_innings = 0
 
     for innings in iter_innings():
+        if era is not None and not era.covers(innings.season):
+            continue
         n_innings += 1
         mi = match_ids.setdefault(innings.match_id, len(match_ids))
         uid = n_innings - 1
@@ -168,4 +177,19 @@ def build(out_path: str = OUT_PATH) -> dict:
 
 
 if __name__ == "__main__":
-    build()
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--era", default=None,
+                    help="build for one era id, or 'all' for every model era. "
+                         "Omit for the career-wide table.")
+    args = ap.parse_args()
+
+    if args.era is None:
+        build()
+    else:
+        from ml.etl import eras as E
+        targets = E.MODEL_ERAS if args.era == "all" else [E.get(args.era)]
+        for era in targets:
+            print(f"\n=== {era.id}  ({era.first}-{era.last}) ===")
+            out = os.path.join(ARTIFACTS, "eras", era.id, "ball_table.npz")
+            build(out_path=out, era=era)

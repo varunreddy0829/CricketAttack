@@ -93,6 +93,43 @@ def empty_row() -> np.ndarray:
 
 # --- player anchors --------------------------------------------------------
 
+# Anchor OVR is pinned to a constant for ERA pools, and this is load-bearing.
+#
+# Era OVRs are DERIVED from the trained model (ml/train/derive_ovr.py measures
+# each player by simulating them). Feeding that back in as a model input would be
+# circular, and worse, it would create train/serve skew of exactly the kind the
+# parity tests exist to catch: OVR is null while the model trains and a real
+# number once the auction needs it, so the same player would look different at
+# play time than during fitting.
+#
+# Pinning it costs nothing. OVR was always a lossy summary of the same career
+# stats already in slots 0-5 and the grids in 7-15; the model has the underlying
+# numbers and doesn't need the summary. Era records set `anchor_ovr` explicitly,
+# the all-time pool has no such key and keeps its historical OVR unchanged.
+ANCHOR_OVR_CONSTANT = 55.0
+
+
+def model_ovr(record: dict, ovr_key: str = "batting_ovr") -> float:
+    """The OVR the MODEL is allowed to see, on the raw 0-100 scale.
+
+    Use this ANYWHERE a rating feeds the model -- the player anchors, and the
+    `nonstriker_ovr` context feature. Never read `batting_ovr` directly for that
+    purpose: on an era pool it is None until derive_ovr runs and a real number
+    afterwards, so a direct read silently trains on one value and serves another.
+    (It also produces NaN rather than a fallback, because `record.get(k, 55)`
+    returns None when the key exists-but-is-null, and `None or 55` looks safe
+    while `float('nan') or 55` does not -- NaN is truthy.)
+    """
+    pinned = record.get("anchor_ovr")
+    if pinned is not None:
+        return float(pinned)
+    v = record.get(ovr_key)
+    return float(v) if v else ANCHOR_OVR_CONSTANT
+
+
+def _anchor_ovr(record: dict, ovr_key: str) -> float:
+    return model_ovr(record, ovr_key) / 100.0
+
 def bat_anchor(record: dict) -> np.ndarray:
     """f_p for a batter, from a players_historical.json record."""
     b = record.get("batting") or {}
@@ -105,7 +142,7 @@ def bat_anchor(record: dict) -> np.ndarray:
     v[3] = b.get("fours", 0) / balls
     v[4] = b.get("sixes", 0) / balls
     v[5] = b.get("dismissals", 0) / balls
-    v[6] = record.get("batting_ovr", 55) / 100.0
+    v[6] = _anchor_ovr(record, "batting_ovr")
     i = 7
     for phase in ("pp", "mid", "death"):
         cell = sf.get(phase) or {}
@@ -126,7 +163,7 @@ def bowl_anchor(record: dict) -> np.ndarray:
     v[2] = min(bw.get("avg", 0.0) or 30.0, 60.0) / 40.0
     v[3] = min(bw.get("sr", 0.0) or 24.0, 60.0) / 40.0
     v[4] = bw.get("wickets", 0) / balls
-    v[5] = record.get("bowling_ovr", 55) / 100.0
+    v[5] = _anchor_ovr(record, "bowling_ovr")
     v[6] = 1.0 if record.get("bowling_style") == "Spin" else 0.0
     i = 7
     for phase in ("pp", "mid", "death"):

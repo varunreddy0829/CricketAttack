@@ -144,12 +144,23 @@ def finalise(players: dict, era: E.Era) -> list:
     compute_style_fits(players)
     compute_bowler_fits(players)
 
+    # EVERY player who appeared in the era is emitted, with `rateable_*` flags
+    # marking who is good enough to draft. These are two different questions and
+    # conflating them costs real accuracy:
+    #
+    #   the model  wants every player, so each one's balls are attributed to
+    #              their own row. Dropping the fringe sent 5-7.6% of lookups to
+    #              the shared UNKNOWN row, blurring ~75 players into one average.
+    #   the draft  wants only players with enough balls for a trustworthy rating.
+    #
+    # The server filters on the flags when building the auction pool; the ETL
+    # does not filter at all.
     out = []
     for name, p in sorted(players.items()):
         bat_ok = p["batting"]["balls"] >= era.min_bat_balls
         bowl_ok = p["bowling"]["legal_balls"] >= era.min_bowl_balls
-        if not (bat_ok or bowl_ok):
-            continue
+        if p["batting"]["balls"] == 0 and p["bowling"]["legal_balls"] == 0:
+            continue                      # never actually took the field
         out.append({
             "name": name,
             "is_keeper": name in KNOWN_KEEPERS,
@@ -167,6 +178,12 @@ def finalise(players: dict, era: E.Era) -> list:
             # zeros or, worse, the old formula's era-blind numbers.
             "batting_ovr": None,
             "bowling_ovr": None,
+            # ...and pinned OUT of the model's inputs. derive_ovr writes the two
+            # fields above from the model's own behaviour, so letting them back
+            # in as features would be circular and would make a player look
+            # different at play time than during training. See
+            # ml/runtime/features.py::_anchor_ovr.
+            "anchor_ovr": 55,
             "rateable_batting": bat_ok,
             "rateable_bowling": bowl_ok,
         })
@@ -182,8 +199,9 @@ def build(era: E.Era) -> list:
         json.dump(records, fh, indent=1)
     nb = sum(1 for r in records if r["rateable_batting"])
     nw = sum(1 for r in records if r["rateable_bowling"])
-    print(f"  {era.id:<12} {len(records):>4} players   "
-          f"({nb} rateable batting, {nw} bowling)   -> {d}/players.json")
+    draft = sum(1 for r in records if r["rateable_batting"] or r["rateable_bowling"])
+    print(f"  {era.id:<12} {len(records):>4} in the model   "
+          f"{draft:>4} draftable  ({nb} batting, {nw} bowling)")
     return records
 
 

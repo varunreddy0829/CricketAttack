@@ -16,6 +16,7 @@ from dataclasses import dataclass
 
 from src.engine.simulator import EXTRAS_PROB, WIDE_SHARE_OF_EXTRAS
 from ml.harness.stats import OVERS, InningsOutcome
+from ml.runtime import features as F
 from ml.runtime import players as P
 
 MAX_WICKETS = 10
@@ -189,7 +190,12 @@ def simulate_innings(
                 "over_in_spell": spell_len.get(bowler.name, 1),
                 "bat_career_balls": s_obj.career_balls,
                 "bowl_career_balls": bowler.legal_balls,
-                "ns_ovr": bat_objs[non_striker].ovr if non_striker < len(bat_objs) else 55.0,
+                # from the RECORD via model_ovr, not from the Batter object: on an
+                # era pool `Batter.ovr` carries the derived rating, which the model
+                # must never see (it is derived FROM the model). See
+                # features.model_ovr.
+                "ns_ovr": (F.model_ovr(lineup[non_striker])
+                           if non_striker < len(lineup) else 55.0),
                 "ns_sr": bat_objs[non_striker].sr if non_striker < len(bat_objs) else 120.0,
                 "venue_rpb": venue_rpb,
                 "venue_wpb": venue_wpb,

@@ -81,7 +81,10 @@ L2_PROJ = 1.0
 # --- data ------------------------------------------------------------------
 
 class Data:
-    def __init__(self, path: str = TABLE_PATH):
+    def __init__(self, path: str = TABLE_PATH, era=None):
+        if era is not None:
+            path = os.path.join(ARTIFACTS, "eras", era.id, "ball_table.npz")
+        self.era = era
         d = np.load(path, allow_pickle=True)
         got = str(d["schema_hash"])
         if got != SCHEMA_HASH:
@@ -125,9 +128,18 @@ class Data:
         return ~(va | te), va, te
 
     def recency_weights(self, mask, half_life: float = RECENCY_HALF_LIFE) -> np.ndarray:
-        """Exponential decay by season. Applied to the TRAINING rows only, so the
-        model plays like recent cricket while still using two decades of matches to
-        pin down player effects."""
+        """Exponential decay by season, on the TRAINING rows only.
+
+        OFF for era models (`half_life <= 0`). The era boundary already IS the
+        recency filter -- it was cut where the game changed. Re-weighting inside
+        one would tilt each era toward its own last season or two, which is both
+        redundant and actively wrong for an era meant to represent its whole span
+        evenly. The career-wide model still uses it, because there the whole point
+        is to favour cricket as it is played now.
+        """
+        n = int(mask.sum())
+        if half_life is None or half_life <= 0:
+            return np.ones(n, dtype=np.float32)
         s = self.season[mask].astype(np.float32)
         return np.power(0.5, (self.season.max() - s) / half_life).astype(np.float32)
 
@@ -289,11 +301,30 @@ def main() -> None:
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--split", default=SPLIT_MODE,
                     choices=["random_by_match", "chronological"])
-    ap.add_argument("--half-life", type=float, default=RECENCY_HALF_LIFE,
-                    help="recency half-life in seasons; lower = more modern")
+    ap.add_argument("--half-life", type=float, default=None,
+                    help="recency half-life in seasons; lower = more modern. "
+                         "Defaults to 0 (off) for era models and "
+                         f"{RECENCY_HALF_LIFE} for the career-wide model.")
+    ap.add_argument("--era", default=None,
+                    help="train one era id, or 'all' for every model era")
     args = ap.parse_args()
 
-    data = Data()
+    if args.era:
+        from ml.etl import eras as E
+        targets = E.MODEL_ERAS if args.era == "all" else [E.get(args.era)]
+        for era in targets:
+            print(f"\n{'=' * 62}\n{era.id}  ({era.first}-{era.last})  {era.label}\n{'=' * 62}")
+            _train_one(args, era)
+        return
+    _train_one(args, None)
+
+
+def _train_one(args, era) -> None:
+    # era models: no recency weighting -- the era boundary is already the filter
+    half_life = args.half_life if args.half_life is not None else (
+        0.0 if era is not None else RECENCY_HALF_LIFE)
+
+    data = Data(era=era)
     tr, va, te = data.split(args.split)
     print(f"rows {data.X.shape[0]}  features {data.X.shape[1]}  players {data.n_players}")
     print(f"split mode: {args.split}")
@@ -310,9 +341,10 @@ def main() -> None:
                              "D_bat", "D_bowl"])
     print(f"parameters {n_params}\n")
 
-    print(f"recency half-life {args.half_life} seasons\n")
+    print(f"recency half-life {half_life} seasons"
+          f"{'  (OFF -- the era boundary is the filter)' if not half_life else ''}\n")
     m = fit(data, iters=args.iters, lr=args.lr, seed=args.seed,
-            split_mode=args.split, half_life=args.half_life)
+            split_mode=args.split, half_life=half_life)
 
     print("\nheld-out negative log-likelihood (lower is better):")
     for name, mask in (("train", tr), ("val", va), ("test", te)):
@@ -325,23 +357,26 @@ def main() -> None:
     floor = -float(np.mean(np.log(np.maximum(prior[data.y[te]], 1e-12))))
     print(f"  {'(prior)':<6} {floor:.5f}   <- constant predictor on test")
 
-    # Broken out by era, because recency weighting deliberately trades accuracy on
-    # 2010 cricket for accuracy on 2026 cricket. The recent rows are the ones that
-    # matter for a game meant to feel like the IPL people actually watch.
-    print("\ntest NLL by era (recency weighting favours the recent rows on purpose):")
-    for label, lo, hi in (("2008-2015", 2007, 2015), ("2016-2022", 2016, 2022),
-                          ("2023-2026", 2023, 2026)):
-        em = te & (data.season >= lo) & (data.season <= hi)
-        if em.sum() < 200:
-            continue
-        v = eval_nll(m, data.X[em], data.y[em], data.bat[em], data.bowl[em],
-                     data.A_bat, data.A_bowl)
-        pf = -float(np.mean(np.log(np.maximum(prior[data.y[em]], 1e-12))))
-        print(f"  {label:<10} n={em.sum():>6}   model {v:.5f}   prior {pf:.5f}"
-              f"   {100 * (pf - v) / pf:+5.2f}%")
+    # Only meaningful for the career-wide model, where recency weighting
+    # deliberately trades accuracy on 2010 cricket for accuracy on 2026. An era
+    # model spans one regime by construction, so there is nothing to break out.
+    if era is None:
+        print("\ntest NLL by era (recency weighting favours recent rows on purpose):")
+        for label, lo, hi in (("2008-2015", 2007, 2015), ("2016-2022", 2016, 2022),
+                              ("2023-2026", 2023, 2026)):
+            em = te & (data.season >= lo) & (data.season <= hi)
+            if em.sum() < 200:
+                continue
+            v = eval_nll(m, data.X[em], data.y[em], data.bat[em], data.bowl[em],
+                         data.A_bat, data.A_bowl)
+            pf = -float(np.mean(np.log(np.maximum(prior[data.y[em]], 1e-12))))
+            print(f"  {label:<10} n={em.sum():>6}   model {v:.5f}   prior {pf:.5f}"
+                  f"   {100 * (pf - v) / pf:+5.2f}%")
 
-    save(m, data)
-    print(f"\nwrote {MODEL_PATH}")
+    out = MODEL_PATH if era is None else os.path.join(
+        ARTIFACTS, "eras", era.id, "backbone.npz")
+    save(m, data, out)
+    print(f"\nwrote {out}")
 
 
 if __name__ == "__main__":
