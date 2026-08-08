@@ -35,14 +35,35 @@ from src.engine.stats_calculator import (
 ENGINE_KEYS = ("0", "1", "2", "3", "4", "5", "6", "Out")
 
 
-def _gambits_only(ctx: dict | None) -> dict | None:
-    """Strip the world-state keys, keep the player-chosen cards."""
+def _post_model_conditions(ctx: dict | None) -> dict | None:
+    """What still applies AFTER the model: pitch character and the gambit cards.
+
+    Two of the three things `apply_conditions` handles survive the model, one
+    doesn't:
+
+      pitch      KEPT. The model knows each ground's real SCORING RATE (two
+                 numbers measured from actual matches there), but nothing about
+                 its CHARACTER -- no dataset records whether a surface turns
+                 square or seams, so it cannot know a dusty track helps spinners.
+                 That is hand-authored knowledge the data can't supply, which is
+                 exactly the kind that belongs in a post-model layer.
+      gambits    KEPT. One-shot player choices; never inferable from history.
+      over_num   DROPPED. This drives PHASE_EFFECTS (powerplay/death), and the
+                 model already takes the over as 20 separate inputs -- it learned
+                 each over's real shape, including that the old hand-tuned
+                 powerplay multipliers had two SIGNS INVERTED (they raised wicket
+                 chance and cut dots; reality is the opposite on both).
+
+    Returns None when there's nothing to apply, so the common case skips the call.
+    """
     if not ctx:
         return None
-    if not (ctx.get("attack_gambit") or ctx.get("trap_gambit")):
+    pitch = ctx.get("pitch")
+    if not pitch and not (ctx.get("attack_gambit") or ctx.get("trap_gambit")):
         return None
     return {
-        "pitch": None,
+        "pitch": pitch,
+        "bowler_style": ctx.get("bowler_style"),
         "over_num": None,
         "attack_gambit": ctx.get("attack_gambit"),
         "trap_gambit": ctx.get("trap_gambit"),
@@ -100,7 +121,7 @@ def make_ball_fn(
             w = {k: v * scale.get(k, 1.0) for k, v in w.items()}
             w = normalise(w)
 
-        g = _gambits_only(ctx)
+        g = _post_model_conditions(ctx)
         if g:
             w = apply_conditions(w, g)
 
