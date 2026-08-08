@@ -24,6 +24,7 @@ import random
 
 from src.engine.conditions import apply_conditions
 from src.engine.roles import apply_modes, apply_roles
+from ml.runtime.pitch import apply_pitch
 from ml.runtime.roles import apply_roles as ml_apply_roles
 from src.engine.simulator import WICKET_CASCADE_MULT
 from src.engine.stats_calculator import (
@@ -35,35 +36,27 @@ from src.engine.stats_calculator import (
 ENGINE_KEYS = ("0", "1", "2", "3", "4", "5", "6", "Out")
 
 
-def _post_model_conditions(ctx: dict | None) -> dict | None:
-    """What still applies AFTER the model: pitch character and the gambit cards.
+def _gambits_only(ctx: dict | None) -> dict | None:
+    """Gambit cards only -- one-shot player choices, never inferable from history.
 
-    Two of the three things `apply_conditions` handles survive the model, one
-    doesn't:
+    Pitch and phase are both stripped here and handled elsewhere:
 
-      pitch      KEPT. The model knows each ground's real SCORING RATE (two
-                 numbers measured from actual matches there), but nothing about
-                 its CHARACTER -- no dataset records whether a surface turns
-                 square or seams, so it cannot know a dusty track helps spinners.
-                 That is hand-authored knowledge the data can't supply, which is
-                 exactly the kind that belongs in a post-model layer.
-      gambits    KEPT. One-shot player choices; never inferable from history.
-      over_num   DROPPED. This drives PHASE_EFFECTS (powerplay/death), and the
-                 model already takes the over as 20 separate inputs -- it learned
-                 each over's real shape, including that the old hand-tuned
-                 powerplay multipliers had two SIGNS INVERTED (they raised wicket
-                 chance and cut dots; reality is the opposite on both).
-
-    Returns None when there's nothing to apply, so the common case skips the call.
+      pitch      -> ml/runtime/pitch.py, which keeps only the surface's CHARACTER.
+                    The classic PITCH_EFFECTS also carried the scoring LEVEL,
+                    which the model now knows per-ground from real data; applying
+                    both double-counts (measured: 12.3 runs mean error vs 6.5).
+      over_num   -> dropped entirely. This drives PHASE_EFFECTS, and the model
+                    takes the over as 20 separate inputs -- it learned each over's
+                    real shape, including that the old powerplay multipliers had
+                    two SIGNS INVERTED (they raised wicket chance and cut dots;
+                    reality does the opposite on both).
     """
     if not ctx:
         return None
-    pitch = ctx.get("pitch")
-    if not pitch and not (ctx.get("attack_gambit") or ctx.get("trap_gambit")):
+    if not (ctx.get("attack_gambit") or ctx.get("trap_gambit")):
         return None
     return {
-        "pitch": pitch,
-        "bowler_style": ctx.get("bowler_style"),
+        "pitch": None,
         "over_num": None,
         "attack_gambit": ctx.get("attack_gambit"),
         "trap_gambit": ctx.get("trap_gambit"),
@@ -121,7 +114,10 @@ def make_ball_fn(
             w = {k: v * scale.get(k, 1.0) for k, v in w.items()}
             w = normalise(w)
 
-        g = _post_model_conditions(ctx)
+        # pitch character (matchup + shape), then the gambit cards
+        w = apply_pitch(w, ctx.get("pitch"), ctx.get("bowler_style"))
+
+        g = _gambits_only(ctx)
         if g:
             w = apply_conditions(w, g)
 
