@@ -41,8 +41,15 @@ from src.engine.draft_generator import generate_draft_pool, auction_set_sizes
 # stopping it booting. See docs/model.md.
 from ml.runtime.engine import resolve_engine
 
-BALL_FN, ENRICH_CTX, ENGINE_DESC = resolve_engine()
-print(f"[engine] {ENGINE_DESC}", flush=True)
+# One engine per era, resolved once at import. Each era's model is trained on
+# that era's balls and calibrated against that era's real innings (150 runs an
+# innings in 2008-2013 against 181 in 2023-2026), so they are genuinely
+# different engines rather than one engine with a parameter.
+#
+# "all_time" deliberately resolves to the CLASSIC hand-tuned pipeline with the
+# original career OVRs -- the nostalgia mode, where a player is rated for what
+# they achieved rather than for what they would do against 2026 bowling.
+ERA_ENGINES = {}   # populated by _resolve_all_engines() once the pools exist
 
 app = Flask(__name__, static_folder="public")
 
@@ -84,6 +91,80 @@ def _load_historical():
 
 ALL_PLAYERS = _load_historical()
 BY_NAME = {p["name"]: p for p in ALL_PLAYERS}
+
+# --- Era pools ---------------------------------------------------------------
+# Each playable era has its own player pool, with that era's stats, playstyle
+# grids and OVRs (measured by simulating players through that era's model, see
+# ml/train/derive_ovr.py). "all_time" is the career-wide pool above, unchanged.
+#
+# A pool holds EVERY player who appeared in the era so the model can attribute
+# each ball to its own player; `rateable_batting`/`rateable_bowling` mark who has
+# enough balls to be worth drafting. The auction filters on those flags -- the
+# pool itself is deliberately wider than the draft.
+from ml.etl import eras as ERA_DEFS
+
+ERA_POOLS = {}          # era_id -> {"all": [...], "by_name": {...}, "draft": [...]}
+
+
+def _load_era_pools():
+    for era in ERA_DEFS.ERAS.values():
+        if era.is_all_time:
+            players, by_name = ALL_PLAYERS, BY_NAME
+        else:
+            path = os.path.join(REPO_ROOT, "data", "eras", era.id, "players.json")
+            try:
+                with open(path, "r", encoding="utf-8") as f:
+                    players = json.load(f)
+            except OSError:
+                print(f"[eras] {era.id}: no pool at {path} -- era unavailable", flush=True)
+                continue
+            by_name = {p["name"]: p for p in players}
+
+            # An era pool ships with null OVRs until ml/train/derive_ovr.py has
+            # measured them. Fill a neutral placeholder so the game stays
+            # playable, but say so -- a silently flat pool would make every
+            # auction lot cost the same and look like a pricing bug rather than
+            # a missing build step.
+            missing = sum(1 for p in players if p.get("batting_ovr") is None)
+            if missing:
+                print(f"[eras] {era.id}: {missing}/{len(players)} players have no "
+                      f"derived OVR -- using placeholders. Run: "
+                      f"python -m ml.train.derive_ovr --era {era.id}", flush=True)
+                for p in players:
+                    if p.get("batting_ovr") is None:
+                        p["batting_ovr"] = 55
+                    if p.get("bowling_ovr") is None:
+                        p["bowling_ovr"] = 55
+
+        draft = [p for p in players
+                 if era.is_all_time
+                 or p.get("rateable_batting") or p.get("rateable_bowling")]
+        ERA_POOLS[era.id] = {"all": players, "by_name": by_name, "draft": draft}
+
+
+_load_era_pools()
+
+DEFAULT_ERA = ERA_DEFS.ALL_TIME
+
+
+def _era_id(g=None):
+    """The era of the given game (defaults to the current one). Falls back to
+    all-time -- games restored from a pre-era snapshot have no `era` key."""
+    g = g if g is not None else GAME
+    if not g:
+        return DEFAULT_ERA
+    eid = g.get("era") or DEFAULT_ERA
+    return eid if eid in ERA_POOLS else DEFAULT_ERA
+
+
+def _pool(g=None):
+    return ERA_POOLS[_era_id(g)]
+
+
+def _by_name(g=None):
+    """Replaces the module-level BY_NAME everywhere a GAME is in scope, so a
+    player's stats and grids come from the era being played."""
+    return _pool(g)["by_name"]
 
 # Stage-2 (strike rate vs economy) and Stage-3 (wicket factor) benchmarks are
 # tunable from config/baseline_weights.json -- see that file for the formula
@@ -202,6 +283,112 @@ def _compute_league_avg():
     }
 
 LEAGUE_AVG = _compute_league_avg()
+
+# Per-era league baselines. _compute_league_avg derives its medians from a player
+# pool, and those medians differ a lot by era -- an average 2010 regular is not an
+# average 2025 one. Scoring a 2008-2013 game against all-time medians would judge
+# every player in it against cricket that hadn't been played yet.
+#
+# This is the one place with no GAME in scope at definition time, so it is
+# precomputed per era and selected at ball time instead.
+ERA_LEAGUE_AVG = {}
+
+
+def _load_era_league_avgs():
+    global ALL_PLAYERS
+    career = ALL_PLAYERS
+    for era_id, pool in ERA_POOLS.items():
+        try:
+            ALL_PLAYERS = pool["all"]          # _compute_league_avg reads the global
+            ERA_LEAGUE_AVG[era_id] = _compute_league_avg()
+        except Exception as exc:               # noqa: BLE001 -- never block startup
+            print(f"[eras] {era_id}: league avg failed ({exc}); using career-wide",
+                  flush=True)
+            ERA_LEAGUE_AVG[era_id] = LEAGUE_AVG
+    ALL_PLAYERS = career
+
+
+_load_era_league_avgs()
+
+
+def _league_avg(g=None):
+    return ERA_LEAGUE_AVG.get(_era_id(g), LEAGUE_AVG)
+
+
+def _resolve_all_engines():
+    """One engine per era. Each era's model is trained on that era's balls and
+    calibrated against that era's real innings -- 150 runs an innings in
+    2008-2013 against 181 in 2023-2026 -- so these are genuinely different
+    engines, not one engine with a parameter.
+
+    "all_time" resolves to the CLASSIC hand-tuned pipeline with the original
+    career OVRs: the nostalgia mode, where a player is rated for what they
+    achieved rather than for what they would do against 2026 bowling."""
+    for era in ERA_DEFS.ERAS.values():
+        if era.id not in ERA_POOLS:
+            continue
+        if era.uses_model:
+            fn, enrich, desc = resolve_engine(era.id)
+        else:
+            fn, enrich, desc = calculate_single_ball, None, "classic (hand-tuned)"
+        ERA_ENGINES[era.id] = (fn, enrich, desc)
+        print(f"[engine] {era.id:<12} {desc}", flush=True)
+
+
+_resolve_all_engines()
+
+
+def _engine(g=None):
+    return ERA_ENGINES.get(_era_id(g)) or ERA_ENGINES[DEFAULT_ERA]
+
+
+def _era_options():
+    """Public era list for the lobby picker, chronological with all-time last."""
+    out = []
+    for era in ERA_DEFS.ERAS.values():
+        if era.id not in ERA_POOLS:
+            continue          # pool missing (not yet built) -- don't offer it
+        out.append({
+            "id": era.id,
+            "label": era.label,
+            "tagline": era.tagline,
+            "first": era.first,
+            "last": era.last,
+            "is_all_time": era.is_all_time,
+            "players": len(ERA_POOLS[era.id]["draft"]),
+        })
+    out.sort(key=lambda e: (e["is_all_time"], e["first"]))
+    return out
+
+
+def _era_agreed(g):
+    """The era every team voted for, or None if they haven't converged."""
+    votes = g.get("era_votes") or {}
+    picks = [votes.get(t) for t in g["team_ids"]]
+    if picks and all(p is not None for p in picks) and len(set(picks)) == 1:
+        return picks[0]
+    return None
+
+
+def _era_block_reason(g):
+    """Why the match can't start yet on era grounds, or None if it can.
+
+    Deliberately permissive: if NOBODY has voted, the game just plays the
+    all-time default, so nothing new blocks a group who don't care which era
+    they're in. But once someone has expressed a preference, starting on a
+    different era would silently hand them the wrong player pool and the wrong
+    engine -- so that does block until both sides match.
+    """
+    votes = g.get("era_votes") or {}
+    picks = [votes.get(t) for t in g["team_ids"]]
+    if not any(p is not None for p in picks):
+        return None                        # nobody voted -- default era is fine
+    if _era_agreed(g):
+        return None
+    missing = [t for t in g["team_ids"] if votes.get(t) is None]
+    if missing:
+        return "Both teams need to pick an era first."
+    return "You've each picked a different era -- agree on one to start."
 
 # --- Multi-game registry -----------------------------------------------------
 # GAMES holds every live game, keyed by its 4-char join code, so unrelated
@@ -463,6 +650,12 @@ def _fresh_game(num_teams=2):
                      "bowl_role": DEFAULT_BOWL_ROLE},
         # auction / squad / XI selection (phase == "auction" / "grounds" / "xi")
         "start_votes": {t: False for t in team_ids},   # every team must agree to start the auction
+        # Which era this match is played in: decides the player pool, the ball
+        # engine and the league baselines. Every team must pick the SAME one.
+        # Defaults to all-time so a game that never votes still works, and so
+        # snapshots restored from before eras existed keep playing.
+        "era": DEFAULT_ERA,
+        "era_votes": {t: None for t in team_ids},
         "auction": None,
         "squads": None,
         "xi_select": None,
@@ -500,7 +693,12 @@ def _make_batter(record):
     b = record["batting"]
     return Batter(
         name=record["name"],
-        ovr=max(1, round(record["batting_ovr"] * _energy_mult(record["name"]))),
+        # `or 55` covers an era pool whose OVRs haven't been derived yet
+        # (ml/train/derive_ovr.py measures them by simulation, which runs after
+        # the pool is built). The model path never reads this -- it runs with
+        # player_stages=False -- so a placeholder can't change what it predicts;
+        # it only keeps the game playable and the UI sane in the meantime.
+        ovr=max(1, round((record.get("batting_ovr") or 55) * _energy_mult(record["name"]))),
         career_runs=b["runs"],
         career_balls=b["balls"],
         fours=b["fours"],
@@ -514,7 +712,7 @@ def _make_bowler(record, intent=50):
     bw = record["bowling"]
     return Bowler(
         name=record["name"],
-        ovr=max(1, round(record["bowling_ovr"] * _energy_mult(record["name"]))),
+        ovr=max(1, round((record.get("bowling_ovr") or 55) * _energy_mult(record["name"]))),
         eco=bw["eco"] if bw["eco"] and bw["eco"] > 0 else 8.5,
         wkt=bw["wickets"],
         intent=intent,
@@ -555,7 +753,7 @@ def _clean_bowl_role(v):
 
 def _bat_grid(name, over_num, role):
     """The batter's 0-99 grid for this phase + role (50 if unknown)."""
-    rec = BY_NAME.get(name) or {}
+    rec = _by_name().get(name) or {}
     sf = rec.get("style_fit") or {}
     cell = _BAT_ROLE_CELL.get(role, "rotate")
     return (sf.get(_phase_key(over_num)) or {}).get(cell, 50)
@@ -563,7 +761,7 @@ def _bat_grid(name, over_num, role):
 
 def _bowl_grid(name, over_num, role):
     """The bowler's 0-99 grid for this phase + role (50 if unknown)."""
-    rec = BY_NAME.get(name) or {}
+    rec = _by_name().get(name) or {}
     bf = rec.get("bowl_fit") or {}
     return (bf.get(_phase_key(over_num)) or {}).get(role, 50)
 
@@ -596,7 +794,7 @@ def _role_meta(name, reveal_grid=True):
     match-time player the viewer doesn't own (the opponent's batter/bowler),
     since Stage 4/5's hidden-role guessing game only works if you can't read
     the other side's exact grid numbers to counter-pick with certainty."""
-    r = BY_NAME.get(name, {})
+    r = _by_name().get(name, {})
     out = {"role": r.get("role"), "roles": r.get("roles")}
     if reveal_grid:
         out["signature"] = r.get("signature")
@@ -616,10 +814,23 @@ def _auto_two_xis():
 
     Returns (xi1, xi2, roster1, roster2) -- roster includes the XI plus the
     2 reserves, in the shape GAME["squads"][t]["roster"] expects."""
-    bats = sorted([p for p in ALL_PLAYERS if p["batting"]["balls"] >= 300],
-                  key=lambda p: -p["batting_ovr"])[:40]
-    bowls = sorted([p for p in ALL_PLAYERS if p["bowling"]["legal_balls"] >= 300],
-                   key=lambda p: -p["bowling_ovr"])[:40]
+    # Draw from the CURRENT ERA's draftable players. The thresholds scale to the
+    # pool: a fixed 300-ball filter and top-40 cap were tuned for the 811-player
+    # career pool and starve a ~200-player era -- the safety filler below would
+    # then raise StopIteration and Quick Match would 500 rather than degrade.
+    pool = _pool()["draft"]
+    era = ERA_DEFS.ERAS.get(_era_id())
+    min_bat = era.min_bat_balls if era and not era.is_all_time else 300
+    min_bowl = era.min_bowl_balls if era and not era.is_all_time else 300
+    cap = max(24, len(pool) // 4)
+
+    def _ovr(p, key):
+        return p.get(key) or 0
+
+    bats = sorted([p for p in pool if p["batting"]["balls"] >= min_bat],
+                  key=lambda p: -_ovr(p, "batting_ovr"))[:cap]
+    bowls = sorted([p for p in pool if p["bowling"]["legal_balls"] >= min_bowl],
+                   key=lambda p: -_ovr(p, "bowling_ovr"))[:cap]
     random.shuffle(bats)
     random.shuffle(bowls)
 
@@ -642,7 +853,7 @@ def _auto_two_xis():
     take(bowls, 5, t2)
 
     # safety fill from the full DB if the filtered pools ran short
-    filler = (p for p in ALL_PLAYERS if p["name"] not in used)
+    filler = (p for p in pool if p["name"] not in used)
     for team in (t1, t2):
         while len(team) < 11:
             p = next(filler)
@@ -680,7 +891,7 @@ def _prepare_innings(batting_side, target=None, keep_this_over=False):
     g = GAME
     g["batting_side"] = batting_side
     g["target"] = target
-    lineup = [_make_batter(BY_NAME[p["name"]]) for p in g["teams"][batting_side]["xi"]]
+    lineup = [_make_batter(_by_name()[p["name"]]) for p in g["teams"][batting_side]["xi"]]
     state = MatchState(lineup)
     state.target = target
     state.striker_index = None
@@ -736,7 +947,7 @@ def _bowling_side():
 
 def _ensure_bat_row(name):
     if name not in GAME["bat_card"]:
-        rec = BY_NAME[name]
+        rec = _by_name()[name]
         GAME["bat_card"][name] = {
             "name": name,
             "runs": 0, "balls": 0, "fours": 0, "sixes": 0,
@@ -747,7 +958,7 @@ def _ensure_bat_row(name):
 
 def _ensure_bowl_row(name):
     if name not in GAME["bowl_card"]:
-        rec = BY_NAME[name]
+        rec = _by_name()[name]
         GAME["bowl_card"][name] = {
             "name": name,
             "balls": 0, "runs": 0, "wickets": 0,
@@ -1040,9 +1251,10 @@ def _simulate_until_pause():
         # the learned model needs the match state the ctx above doesn't carry --
         # score, wickets, balls left, how long the striker has been in, the
         # ground's real scoring rate. No-op on the classic path.
-        if ENRICH_CTX is not None:
-            ctx = ENRICH_CTX(ctx, striker, bowler, g)
-        outcome = BALL_FN(striker, bowler, LEAGUE_AVG, ctx)
+        ball_fn, enrich_ctx, _ = _engine(g)
+        if enrich_ctx is not None:
+            ctx = enrich_ctx(ctx, striker, bowler, g)
+        outcome = ball_fn(striker, bowler, _league_avg(g), ctx)
 
         # Strike farming: a post-roll decision by the batsmen, not a change to
         # the odds -- they simply decline a run that was there (see
@@ -1211,7 +1423,7 @@ def _apply_impact_sub(role, out_name, in_name):
     # squad-composition guard on the resulting XI (same rule as locking one)
     new_xi = [dict(p) for p in xi]
     idx = next(i for i, p in enumerate(new_xi) if p["name"] == out_name)
-    new_xi[idx] = _card_fields(BY_NAME[in_name])
+    new_xi[idx] = _card_fields(_by_name()[in_name])
     os_in = sum(1 for p in new_xi if p.get("is_foreigner"))
     wk_in = sum(1 for p in new_xi if p.get("is_keeper"))
     if os_in > XI_MAX_OVERSEAS:
@@ -1222,7 +1434,7 @@ def _apply_impact_sub(role, out_name, in_name):
     g["teams"][role]["xi"] = new_xi
 
     if i_bat:
-        new_batter = _make_batter(BY_NAME[in_name])
+        new_batter = _make_batter(_by_name()[in_name])
         if stage == "await_batter":
             # Fills the open crease slot by replacing out_name's slot IN
             # PLACE (not appended -- keeps len(lineup) fixed at the original
@@ -1393,7 +1605,7 @@ def _try_resolve_over():
         # strike farming for this over (see _strike_farm)
         "farm_strike": bool(p["batting"].get("farm_strike")),
     }
-    g["bowler"] = _make_bowler(BY_NAME[p["bowling"]["bowler_name"]], p["bowling"]["bowl_intent"])
+    g["bowler"] = _make_bowler(_by_name()[p["bowling"]["bowler_name"]], p["bowling"]["bowl_intent"])
     g["this_over"] = []
     g["over_end_at"] = st.balls + (6 - st.balls % 6 if st.balls % 6 else 6)
     g["over_start_runs"] = st.runs
@@ -1457,7 +1669,10 @@ def _new_squad():
 
 def _start_auction():
     set_sizes = auction_set_sizes(len(GAME["team_ids"]))
-    sets, _total, _os = generate_draft_pool(ALL_PLAYERS, set_sizes=set_sizes)
+    # the era's draftable players -- everyone with enough balls in that era for a
+    # trustworthy rating, which is 201-246 per era against the 175 an 8-team
+    # auction needs
+    sets, _total, _os = generate_draft_pool(_pool()["draft"], set_sizes=set_sizes)
     pool = []
     for s in sets:
         for p in s["players"]:
@@ -2503,7 +2718,7 @@ def _serialize_spectator_view():
         if not name:
             return None
         r = g["bat_card"].get(name, {})
-        rec = BY_NAME[name]
+        rec = _by_name()[name]
         return {"name": name, "runs": r.get("runs", 0), "balls": r.get("balls", 0),
                 "batting_ovr": rec["batting_ovr"], "bowling_ovr": rec["bowling_ovr"],
                 **_role_meta(name)}
@@ -2512,7 +2727,7 @@ def _serialize_spectator_view():
         if not name:
             return None
         bc = g["bowl_card"].get(name, {})
-        rec = BY_NAME[name]
+        rec = _by_name()[name]
         return {"name": name, "wickets": bc.get("wickets", 0), "runs": bc.get("runs", 0),
                 "overs": _overs_str(bc.get("balls", 0)),
                 "bowling_ovr": rec["bowling_ovr"], "batting_ovr": rec["batting_ovr"],
@@ -2603,6 +2818,11 @@ def _serialize(token):
         "phase": g["phase"],
         "code": g["code"],
         "is_tournament": is_tournament,
+        # always present, like `code` -- every screen can show which era is in
+        # play, and it survives snapshots taken before eras existed via _era_id
+        "era": _era_id(g),
+        "era_label": (ERA_DEFS.ERAS[_era_id(g)].label
+                      if _era_id(g) in ERA_DEFS.ERAS else None),
         "you": {"role": role, "joined": role is not None,
                 "name": g["teams"][role]["name"] if role else None,
                 "color": g["teams"][role].get("color") if role else None},
@@ -2707,10 +2927,16 @@ def _serialize(token):
                 "i_voted": g["start_votes"].get(role, False) if role else False,
             }
         else:
+            votes = g.get("era_votes") or {}
             out["lobby"] = {
                 "start_votes": g["start_votes"],
                 "i_voted": g["start_votes"].get(role, False) if role else False,
                 "opponent_voted": g["start_votes"].get(opp_role, False) if opp_role else False,
+                "eras": _era_options(),
+                "era_votes": votes,
+                "my_era": votes.get(role) if role else None,
+                "opponent_era": votes.get(opp_role) if opp_role else None,
+                "era_agreed": _era_agreed(g),
             }
         return out
 
@@ -2768,7 +2994,7 @@ def _serialize(token):
         if not name:
             return None
         r = g["bat_card"].get(name, {})
-        rec = BY_NAME[name]
+        rec = _by_name()[name]
         # the batter belongs to the batting side -- only THAT side's viewer
         # gets the flip-revealing grid; the bowling side sees the public stats
         return {"name": name, "runs": r.get("runs", 0), "balls": r.get("balls", 0),
@@ -2785,7 +3011,7 @@ def _serialize(token):
         # the bowler belongs to the bowling side -- same reveal-only-to-owner rule
         cur_bowler = {"name": bn, "wickets": bc.get("wickets", 0),
                       "runs": bc.get("runs", 0), "overs": _overs_str(bc.get("balls", 0)),
-                      "bowling_ovr": BY_NAME[bn]["bowling_ovr"], "batting_ovr": BY_NAME[bn]["batting_ovr"],
+                      "bowling_ovr": _by_name()[bn]["bowling_ovr"], "batting_ovr": _by_name()[bn]["batting_ovr"],
                       **_role_meta(bn, reveal_grid=not i_bat)}
 
     # my bench (role-specific)
@@ -2804,14 +3030,14 @@ def _serialize(token):
                 status = "out"  # already batted (retired/rotated not modeled) -> unavailable
             else:
                 status = "available"
-            card = _card_fields(BY_NAME[nm])
+            card = _card_fields(_by_name()[nm])
             card["status"] = status
             my_bench.append(card)
     else:
         for p in g["teams"][bowling]["xi"]:
             nm = p["name"]
             overs = g["bowler_stats"].get(nm, 0)
-            card = _card_fields(BY_NAME[nm])
+            card = _card_fields(_by_name()[nm])
             card["overs_bowled"] = overs
             card["max_overs"] = MAX_OVERS_PER_BOWLER
             disabled = overs >= MAX_OVERS_PER_BOWLER or nm == g["last_bowler"]
@@ -2841,7 +3067,7 @@ def _serialize(token):
         bn = opp_pending["bowler_name"]
         bc = g["bowl_card"].get(bn, {})
         pending["opponent_bowler"] = {
-            "name": bn, "bowling_ovr": BY_NAME[bn]["bowling_ovr"], "batting_ovr": BY_NAME[bn]["batting_ovr"],
+            "name": bn, "bowling_ovr": _by_name()[bn]["bowling_ovr"], "batting_ovr": _by_name()[bn]["batting_ovr"],
             "wickets": bc.get("wickets", 0), "runs": bc.get("runs", 0),
             "overs": _overs_str(bc.get("balls", 0)),
             **_role_meta(bn, reveal_grid=False),
@@ -2886,7 +3112,7 @@ def _serialize(token):
     ip_pool, ip_out_options = [], []
     if ip_can_use:
         xi_names = {p["name"] for p in g["teams"][role]["xi"]}
-        ip_pool = [_card_fields(BY_NAME[p["name"]]) for p in g["squads"][role]["roster"]
+        ip_pool = [_card_fields(_by_name()[p["name"]]) for p in g["squads"][role]["roster"]
                    if p["name"] not in xi_names]
         dismissed = {n for n, row in g["bat_card"].items() if row["out"]} if i_bat else set()
         if i_bat and g["stage"] == "await_batter":
@@ -3366,6 +3592,9 @@ def quick_match():
         if GAME is None:
             return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
         _require_both_joined()
+        blocked = _era_block_reason(GAME)
+        if blocked:
+            return jsonify({"status": "error", "message": blocked}), 400
         t1_xi, t2_xi, t1_roster, t2_roster = _auto_two_xis()
         GAME["teams"]["team1"]["xi"] = t1_xi
         GAME["teams"]["team2"]["xi"] = t2_xi
@@ -3382,6 +3611,42 @@ def quick_match():
         _start_single_match()
         _bump()
         return jsonify({"status": "success"})
+
+
+# --- Era selection -----------------------------------------------------------
+
+@app.route("/api/vote_era", methods=["POST"])
+def vote_era():
+    """Pick which era to play. Both teams must land on the SAME one.
+
+    Unlike start_votes (a boolean "I'm ready"), this is a VALUE both sides have
+    to agree on, so a team can change its pick freely until the other matches it.
+    The era is only locked in once every team has voted the same way -- and it
+    decides the player pool, the ball engine and the league baselines, so it has
+    to be settled before the auction opens.
+    """
+    global GAME
+    with LOCK:
+        data = request.get_json(silent=True) or {}
+        GAME = _game_by_token(data.get("token", ""))
+        if GAME is None:
+            return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
+        role = _role_of(data.get("token", ""))
+        if role is None:
+            return jsonify({"status": "error", "message": "Unknown player."}), 403
+        if GAME["phase"] != "lobby":
+            return jsonify({"status": "error", "message": "The match has already started."}), 400
+
+        era_id = data.get("era")
+        if era_id not in ERA_POOLS:
+            return jsonify({"status": "error", "message": "Unknown era."}), 400
+
+        GAME.setdefault("era_votes", {t: None for t in GAME["team_ids"]})[role] = era_id
+        agreed = _era_agreed(GAME)
+        if agreed:
+            GAME["era"] = agreed
+        _bump()
+        return jsonify({"status": "success", "era": GAME.get("era"), "agreed": bool(agreed)})
 
 
 # --- Auction endpoints -------------------------------------------------------
@@ -3401,6 +3666,9 @@ def start_auction():
             return jsonify({"status": "error", "message": "Unknown player."}), 403
         if GAME["phase"] != "lobby":
             return jsonify({"status": "error", "message": "Already started."}), 400
+        blocked = _era_block_reason(GAME)
+        if blocked:
+            return jsonify({"status": "error", "message": blocked}), 400
         GAME["start_votes"][role] = True
         if all(GAME["start_votes"][t] for t in GAME["team_ids"]):
             _start_auction()

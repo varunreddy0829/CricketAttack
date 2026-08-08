@@ -59,10 +59,15 @@ class Driver:
         return _req(f"{self.base}/api/state?token={token}", timeout=self.req_timeout)
 
     # --- setup ------------------------------------------------------------
-    def setup(self):
+    def setup(self, era: str | None = None):
         a = self.post("/api/create_game", {"name": "Alpha"})
         self.ta, code = a["token"], a["code"]
         self.tb = self.post("/api/join_game", {"code": code, "name": "Bravo"})["token"]
+        if era:
+            # both teams must agree on the era before the lobby will let go --
+            # it decides the player pool, the engine and the baselines
+            for tok in (self.ta, self.tb):
+                self.post("/api/vote_era", {"token": tok, "era": era})
         self.post("/api/quick_match", {"token": self.ta})
         for tok in (self.ta, self.tb):
             if self.post("/api/toss_choice", {"token": tok, "choice": "bat"}).get(
@@ -137,8 +142,8 @@ class Driver:
         return out
 
     # --- main loop --------------------------------------------------------
-    def play(self, max_steps=MAX_STEPS, trace=False):
-        code = self.setup()
+    def play(self, max_steps=MAX_STEPS, trace=False, era=None):
+        code = self.setup(era)
         seen_innings = set()
         events = {"overs": 0, "wickets": 0, "free_hits": 0, "resumes": 0}
         stuck = {"key": None, "n": 0}
@@ -216,6 +221,7 @@ def main() -> None:
     ap.add_argument("--verbose", action="store_true")
     ap.add_argument("--trace", action="store_true", help="print every stage step")
     ap.add_argument("--max-steps", type=int, default=MAX_STEPS)
+    ap.add_argument("--era", default=None, help="play in a specific era")
     args = ap.parse_args()
     base = f"http://{args.host}:{args.port}"
 
@@ -223,7 +229,7 @@ def main() -> None:
     for i in range(args.matches):
         print(f"--- starting match {i + 1}/{args.matches} ---", flush=True)
         d = Driver(base, verbose=args.verbose)
-        ok, ev, m = d.play(max_steps=args.max_steps, trace=args.trace)
+        ok, ev, m = d.play(max_steps=args.max_steps, trace=args.trace, era=args.era)
         tag = "PASS" if ok else "FAIL"
         print(f"[{tag}] match {i + 1}: {ev['overs']} overs, {ev['wickets']} wickets, "
               f"{ev['free_hits']} free hits, {ev['resumes']} resumes", flush=True)

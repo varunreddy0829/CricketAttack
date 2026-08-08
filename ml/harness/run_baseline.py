@@ -26,7 +26,8 @@ from ml.harness.stats import from_replay, summarize
 ARTIFACTS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "artifacts")
 
 
-def real_reference(limit: int | None = None, season_min: int | None = None):
+def real_reference(limit: int | None = None, season_min: int | None = None,
+                   season_max: int | None = None, era=None):
     """Replay every eligible innings and summarize. Returns (summary, plans).
 
     `season_min` restricts BOTH the targets and the replayed lineups to recent
@@ -38,9 +39,13 @@ def real_reference(limit: int | None = None, season_min: int | None = None):
     Targets and plans are filtered together on purpose -- scoring modern targets
     while replaying 2010 XIs and 2010 bowling plans would be measuring a mismatch.
     """
+    if era is not None:
+        season_min, season_max = era.first, era.last
     plans = list(iter_innings(limit=limit))
     if season_min is not None:
         plans = [p for p in plans if p.season >= season_min]
+    if season_max is not None:
+        plans = [p for p in plans if p.season <= season_max]
     outcomes = [from_replay(p) for p in plans]
     return summarize(outcomes), plans
 

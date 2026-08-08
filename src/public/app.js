@@ -488,6 +488,53 @@ function elevatorLobbyHtml(code, guests, statusText) {
     </div>`;
 }
 
+function renderEraPick(state) {
+    const lob = state.lobby || {};
+    const eras = lob.eras || [];
+    const both = state.you.joined && state.opponent.joined;
+    const box = $('era-pick');
+    box.classList.toggle('hidden', !both || !eras.length);
+    if (!both || !eras.length) return;
+
+    // Both sides must land on the SAME era -- it decides the player pool, the
+    // ball engine and the scoring baselines, so a mismatch can't be papered over.
+    const mine = lob.my_era, theirs = lob.opponent_era;
+    const cards = eras.map(e => {
+        const iPicked = mine === e.id, theyPicked = theirs === e.id;
+        const cls = ['era-card', iPicked ? 'mine' : '', theyPicked ? 'theirs' : '',
+                     (iPicked && theyPicked) ? 'agreed' : ''].filter(Boolean).join(' ');
+        const who = [iPicked ? 'You' : null, theyPicked ? 'Opponent' : null]
+            .filter(Boolean).join(' + ');
+        return `<button class="${cls}" data-era="${e.id}">
+            <span class="era-years">${e.is_all_time ? 'ALL-TIME' : e.first + '–' + e.last}</span>
+            <span class="era-label">${e.label}</span>
+            <span class="era-tag">${e.tagline || ''}</span>
+            <span class="era-meta">${e.players} players</span>
+            ${who ? `<span class="era-who">${who}</span>` : ''}
+        </button>`;
+    }).join('');
+
+    let status;
+    if (lob.era_agreed) status = `Playing <b>${eras.find(e => e.id === lob.era_agreed)?.label}</b>`;
+    else if (mine && theirs) status = 'You picked different eras — agree on one to start.';
+    else if (mine) status = 'Waiting for your opponent to pick…';
+    else if (theirs) status = 'Your opponent has picked. Choose an era.';
+    else status = 'Pick an era (both must agree).';
+
+    box.innerHTML = `<div class="era-title">Choose your era</div>
+        <div class="era-grid">${cards}</div>
+        <div class="era-status">${status}</div>`;
+
+    box.querySelectorAll('.era-card').forEach(el => {
+        el.onclick = async () => {
+            try {
+                await Net.post('/api/vote_era', { era: el.dataset.era });
+                Net.forceRefresh();
+            } catch (e) { toast(e.message); }
+        };
+    });
+}
+
 function renderLobby(state) {
     const lob = state.lobby || {};
     const guests = [
@@ -502,9 +549,17 @@ function renderLobby(state) {
         : 'Waiting for opponent to join…';
     $('lobby-elevator').innerHTML = elevatorLobbyHtml(state.code, guests, statusText);
 
+    renderEraPick(state);
+
     $('lobby-actions').classList.toggle('hidden', !both);
     const btn = $('btn-auction');
-    if (lob.i_voted) { btn.textContent = 'Waiting for opponent…'; btn.disabled = true; }
+    // block starting on a mismatch -- the server enforces this too, but the
+    // button shouldn't invite a click that can only fail
+    const clash = lob.my_era && lob.opponent_era && !lob.era_agreed;
+    const quick = $('btn-quick');
+    if (quick) quick.disabled = !!clash;
+    if (clash) { btn.textContent = 'Agree on an era first'; btn.disabled = true; }
+    else if (lob.i_voted) { btn.textContent = 'Waiting for opponent…'; btn.disabled = true; }
     else if (lob.opponent_voted) { btn.textContent = "Ready for Auction (opponent's in)"; btn.disabled = false; }
     else { btn.textContent = 'Ready for Auction'; btn.disabled = false; }
 }

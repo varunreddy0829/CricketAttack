@@ -19,19 +19,31 @@ from ml.runtime.venues import canonical_ground
 
 OVERS_PER_INNINGS = 20
 
-_VENUE_STATS_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                 "venue_stats.json")
+_RUNTIME_DIR = os.path.dirname(os.path.abspath(__file__))
+_VENUE_STATS_PATH = os.path.join(_RUNTIME_DIR, "venue_stats.json")
+_ERA_ARTIFACTS = os.path.join(os.path.dirname(_RUNTIME_DIR), "artifacts", "eras")
 
 
-def _load_venue_stats() -> dict:
+def _venue_path(era_id: str | None) -> str:
+    if era_id in (None, "all_time"):
+        return _VENUE_STATS_PATH
+    return os.path.join(_ERA_ARTIFACTS, era_id, "venue_stats.json")
+
+
+def _load_venue_stats(era_id: str | None = None) -> dict:
     """ground_configs.json name -> (runs/ball, wkts/ball), from real IPL history.
 
-    Built by `python -m ml.etl.compute_venue_stats`. Falls back to the league
-    average -- both if the ground isn't recognised, and if the file is missing
-    entirely (e.g. before it's been generated), so this never hard-fails play.
+    Built by `python -m ml.etl.compute_venue_stats [--eras]`. Falls back to the
+    league average -- both if the ground isn't recognised, and if the file is
+    missing entirely, so this never hard-fails play.
+
+    Era-scoped because a ground's character genuinely changes: Chepauk was the
+    highest-scoring of the big venues in 2008-2013 (1.311 runs/ball) and among
+    the lowest by 2023-2026 (1.379 against Wankhede's 1.587). Reusing one
+    window's rates in another inverts it.
     """
     try:
-        with open(_VENUE_STATS_PATH, "r", encoding="utf-8") as fh:
+        with open(_venue_path(era_id), "r", encoding="utf-8") as fh:
             data = json.load(fh)
     except OSError:
         return {}
@@ -44,15 +56,27 @@ def _load_venue_stats() -> dict:
     return out
 
 
-_VENUE_STATS = _load_venue_stats()
+_VENUE_CACHE: dict[str | None, dict] = {}
+
+
+def _venue_stats(era_id: str | None = None) -> dict:
+    key = None if era_id in (None, "all_time") else era_id
+    if key not in _VENUE_CACHE:
+        _VENUE_CACHE[key] = _load_venue_stats(key)
+    return _VENUE_CACHE[key]
+
+
+_VENUE_STATS = _venue_stats()
 LEAGUE_RPB, LEAGUE_WPB = _VENUE_STATS.get(None, (1.358, 0.0493))
 
 
-def venue_rates(ground_name: str | None) -> tuple[float, float]:
-    """The CURRENT match's ground's real runs/ball and wkts/ball, or the league
-    average if the ground isn't one of the ones ml.etl.compute_venue_stats knows."""
+def venue_rates(ground_name: str | None,
+                era_id: str | None = None) -> tuple[float, float]:
+    """This ground's real runs/ball and wkts/ball IN THIS ERA, or the era's league
+    average if the ground isn't one ml.etl.compute_venue_stats knows."""
+    stats = _venue_stats(era_id)
     key = canonical_ground(ground_name)
-    return _VENUE_STATS.get(key, _VENUE_STATS.get(None, (LEAGUE_RPB, LEAGUE_WPB)))
+    return stats.get(key, stats.get(None, (LEAGUE_RPB, LEAGUE_WPB)))
 
 
 _state: dict = {"innings": None, "day_factor": 0.0, "pship_key": None,
@@ -86,7 +110,8 @@ def _over_in_spell(bowler_name: str, over: int) -> int:
     return _state["spell_len"][bowler_name]
 
 
-def enrich(ctx: dict, striker, bowler, game, *, day_sigma: float = 0.0) -> dict:
+def enrich(ctx: dict, striker, bowler, game, *, day_sigma: float = 0.0,
+           era_id: str | None = None) -> dict:
     """Return `ctx` with the model's match-state keys added. Never mutates `game`."""
     st = game.get("state")
     if st is None:
@@ -116,7 +141,7 @@ def enrich(ctx: dict, striker, bowler, game, *, day_sigma: float = 0.0) -> dict:
     ns = st.get_non_striker() if hasattr(st, "get_non_striker") else None
 
     ground_name = (game.get("match_ground") or {}).get("name")
-    v_rpb, v_wpb = venue_rates(ground_name)
+    v_rpb, v_wpb = venue_rates(ground_name, era_id)
 
     ctx = dict(ctx)
     ctx.update({

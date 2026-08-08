@@ -30,22 +30,30 @@ DEFAULT_CALIBRATION = {
 }
 
 
-def load_calibration() -> dict:
+def load_calibration(era_id: str | None = None) -> dict:
+    """The three fitted constants for one engine. `era_id` selects that era's
+    file; each era is calibrated against its OWN real innings, which differ a
+    lot -- 150 runs an innings in 2008-2013 against 181 in 2023-2026."""
+    path = (CALIBRATION_PATH if era_id in (None, "all_time")
+            else os.path.join(ARTIFACTS, "eras", era_id, "model_calibration.json"))
     cal = dict(DEFAULT_CALIBRATION)
     try:
-        with open(CALIBRATION_PATH, "r", encoding="utf-8") as fh:
+        with open(path, "r", encoding="utf-8") as fh:
             cal.update(json.load(fh))
     except (OSError, ValueError):
         pass
     return cal
 
 
-def resolve_engine():
+def resolve_engine(era_id: str | None = None):
     """-> (ball_fn, enrich_fn | None, description)
 
     `ball_fn` has exactly `calculate_single_ball`'s signature.
     `enrich_fn(ctx, striker, bowler, game) -> ctx` adds the match state the model
     needs; None on the classic path, which ignores those fields anyway.
+
+    `era_id` selects that era's model, calibration and venue rates. None gives
+    the career-wide model.
     """
     from src.engine.simulator import calculate_single_ball as classic
 
@@ -54,8 +62,8 @@ def resolve_engine():
         from ml.runtime.adapter import make_ball_fn
         from ml.runtime.model import OutcomeModel
 
-        model = OutcomeModel.load()
-        cal = load_calibration()
+        model = OutcomeModel.load(era_id=era_id)
+        cal = load_calibration(era_id)
 
         ball_fn = make_ball_fn(
             model.base_provider(),
@@ -68,7 +76,8 @@ def resolve_engine():
         sigma = cal["day_sigma"]
 
         def enrich(ctx, striker, bowler, game):
-            return server_ctx.enrich(ctx, striker, bowler, game, day_sigma=sigma)
+            return server_ctx.enrich(ctx, striker, bowler, game, day_sigma=sigma,
+                                     era_id=era_id)
 
         desc = (f"learned model (calibration {cal['calibration']:.3f}, "
                 f"out {cal['out_calibration']:.3f}, day sigma {sigma:.3f})")

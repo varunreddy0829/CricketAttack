@@ -304,11 +304,16 @@ def run_batch(
     extras_fn=None,
     use_roles: bool = True,
     day_sigma: float = 0.0,
+    era_id: str | None = None,
     progress_every: int = 2000,
 ) -> list[InningsOutcome]:
-    """Cycle through real innings plans until `n` simulated innings are done."""
+    """Cycle through real innings plans until `n` simulated innings are done.
+
+    `era_id` selects which player pool the lineups are built from -- an era's
+    records carry that era's own stats, grids and (once derived) OVRs.
+    """
     league_avg = P.league_avg()
-    by_name = P.load_players()
+    by_name = P.load_players(era_id)
     role_mix = role_mix or RoleMix.realistic()
     rng = random.Random(seed)
     # calculate_single_ball samples from the GLOBAL random module, so seed it too

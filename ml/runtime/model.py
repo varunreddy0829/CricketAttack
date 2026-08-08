@@ -59,7 +59,12 @@ class OutcomeModel:
         self._row = np.zeros(N_CONTEXT, dtype=np.float32)
 
     @classmethod
-    def load(cls, path: str = DEFAULT_MODEL) -> "OutcomeModel":
+    def load(cls, path: str | None = None, era_id: str | None = None) -> "OutcomeModel":
+        """Load a trained model. `era_id` selects that era's artifact; omitting
+        both gives the career-wide model."""
+        if path is None:
+            path = (DEFAULT_MODEL if era_id in (None, "all_time")
+                    else os.path.join(ARTIFACTS, "eras", era_id, "backbone.npz"))
         return cls(np.load(path, allow_pickle=True))
 
     # --- core ---------------------------------------------------------------

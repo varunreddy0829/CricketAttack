@@ -74,15 +74,24 @@ def main() -> None:
     ap.add_argument("--no-classic", action="store_true")
     ap.add_argument("--since", type=int, default=2023,
                     help="score against seasons >= this (default 2023). 0 = all-time.")
+    ap.add_argument("--era", default=None,
+                    help="score an era model against that era's own real innings")
     args = ap.parse_args()
+
+    era = None
+    if args.era:
+        from ml.etl import eras as E
+        era = E.get(args.era)
 
     mix = RoleMix.neutral() if args.neutral else RoleMix.realistic()
     label = "neutral" if args.neutral else "realistic"
 
     print("[1/3] replaying real matches ...", flush=True)
-    real, plans = real_reference(season_min=args.since or None)
-    print(f"      {real['n_innings']} real innings"
-          f"{f' (seasons >= {args.since})' if args.since else ' (all-time)'}")
+    real, plans = real_reference(season_min=None if era else (args.since or None),
+                                 era=era)
+    window = (f"{era.first}-{era.last}" if era else
+              (f"seasons >= {args.since}" if args.since else "all-time"))
+    print(f"      {real['n_innings']} real innings ({window})")
 
     classic = None
     if not args.no_classic:
@@ -95,7 +104,7 @@ def main() -> None:
     print(f"\n[3/3] learned model, {args.n} innings "
           f"(calib {args.calibration:g}/{args.out_calibration:g}, "
           f"day sigma {args.day_sigma:g}) ...", flush=True)
-    model = OutcomeModel.load()
+    model = OutcomeModel.load(era_id=era.id if era else None)
     t0 = time.time()
     sims = run_batch(
         plans,
@@ -104,7 +113,8 @@ def main() -> None:
                       cascade=args.cascade),
         n=args.n, seed=args.seed, role_mix=mix,
         extras_fn=model_extras_fn(model),
-        day_sigma=args.day_sigma, progress_every=0,
+        day_sigma=args.day_sigma, era_id=era.id if era else None,
+        progress_every=0,
     )
     print(f"      {time.time() - t0:.1f}s")
     sim = summarize(sims)

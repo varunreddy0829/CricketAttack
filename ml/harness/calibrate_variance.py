@@ -32,12 +32,28 @@ def main() -> None:
     ap.add_argument("--since", type=int, default=2023,
                     help="calibrate against seasons >= this (default 2023: the game "
                          "as currently played). Pass 0 for the all-time average.")
+    ap.add_argument("--era", default=None,
+                    help="calibrate one era against its OWN real innings, or 'all'")
     args = ap.parse_args()
 
-    real, plans = real_reference(season_min=args.since or None)
-    print(f"reference: {real['n_innings']} innings"
-          f"{f', seasons >= {args.since}' if args.since else ' (all-time)'}")
-    model = OutcomeModel.load()
+    if args.era:
+        from ml.etl import eras as E
+        targets = E.MODEL_ERAS if args.era == "all" else [E.get(args.era)]
+        for era in targets:
+            print(f"\n{'=' * 62}\n{era.id}  ({era.first}-{era.last})\n{'=' * 62}")
+            _calibrate(args, era)
+        return
+    _calibrate(args, None)
+
+
+def _calibrate(args, era) -> None:
+    real, plans = real_reference(season_min=None if era else (args.since or None),
+                                 era=era)
+    window = (f"{era.first}-{era.last}" if era else
+              (f"seasons >= {args.since}" if args.since else "all-time"))
+    print(f"reference: {real['n_innings']} innings ({window})")
+    era_id = era.id if era else None
+    model = OutcomeModel.load(era_id=era_id)
     extras = model_extras_fn(model)
     mix = RoleMix.neutral()
 
@@ -46,7 +62,8 @@ def main() -> None:
                          model_ball_fn(model, calibration=calib,
                                        out_calibration=out_calib),
                          n=args.n, seed=args.seed, role_mix=mix,
-                         extras_fn=extras, day_sigma=sigma, progress_every=0)
+                         extras_fn=extras, day_sigma=sigma, era_id=era_id,
+                         progress_every=0)
         return summarize(sims)
 
     print(f"targets: innings SD {real['innings_sd']:.2f}, "
@@ -80,11 +97,12 @@ def main() -> None:
               "over_rr_autocorr"):
         print(f"  {k:<20} real {real[k]:>7.2f}   model {final[k]:>7.2f}")
 
-    os.makedirs(ARTIFACTS, exist_ok=True)
-    path = os.path.join(ARTIFACTS, "model_calibration.json")
+    d = ARTIFACTS if era is None else os.path.join(ARTIFACTS, "eras", era.id)
+    os.makedirs(d, exist_ok=True)
+    path = os.path.join(d, "model_calibration.json")
     with open(path, "w", encoding="utf-8") as fh:
         json.dump({"day_sigma": sigma, "calibration": calib,
-                   "out_calibration": out_calib,
+                   "out_calibration": out_calib, "era": era_id,
                    "fitted_at": "neutral", "n": args.n}, fh, indent=2)
     print(f"\nwrote {path}")
 

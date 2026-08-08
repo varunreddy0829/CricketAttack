@@ -1,0 +1,8 @@
+{
+  "day_sigma": 0.1875,
+  "calibration": 1.20625,
+  "out_calibration": 1.05,
+  "era": "2023_2026",
+  "fitted_at": "neutral",
+  "n": 2000
+}
