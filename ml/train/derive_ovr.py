@@ -57,6 +57,11 @@ ERA_ROOT = os.path.join(REPO_ROOT, "data", "eras")
 # (80-85) and MID_FLOOR (70) are expressed on it, as are the UI's tier borders.
 OVR_MIN, OVR_MAX = 55, 99
 
+# The two anchor points the 55-99 band is pinned to (see to_ovr). MEDIAN_OVR
+# sits just under draft_generator's MID_FLOOR(70) so the typical player is a
+# base buy, and TOP_OVR is set so MARQUEE_CUT(80) lands around the top 15%.
+MEDIAN_OVR, TOP_QUANTILE, TOP_OVR = 68, 0.95, 88
+
 BAT_SLOT = 2        # measure batters at #3 -- reached in almost every innings
 BOWL_SLOT = 0       # measure bowlers as the first-change option
 
@@ -157,19 +162,69 @@ def measure_bowling(era, model, cal, plans_by, n: int, seed: int) -> dict:
 
 
 def to_ovr(values: dict) -> dict:
-    """Rescale measured value onto the 55-99 band, linearly between the pool's
-    own worst and best. Linear on purpose: the measurement is already in runs,
-    which is the units the game cares about, so a rank transform would throw
-    away the fact that the gap between the top two players is smaller than the
-    gap between the bottom two."""
+    """Rescale measured value onto the 55-99 band, anchored on the pool's MEDIAN
+    and its 95th percentile rather than its worst and best.
+
+    Still linear in runs, deliberately: the measurement is already in the units
+    the game cares about, so a rank transform would throw away the fact that the
+    gap between the top two players is smaller than the gap between the bottom
+    two. Only the two anchor points changed.
+
+    Anchoring on min/max looked equivalent and was not. It hands the whole scale
+    to the two most extreme players, so the tiers land wherever the tails happen
+    to fall -- and the bowling distribution has a long thin BAD tail (a handful
+    of part-timers who concede 12+ runs more than the baseline) against a tightly
+    packed good end. In 2023-2026 that stretched the scale so far that the MEDIAN
+    bowler rescaled to OVR 86, putting 69 of 100 bowlers above MARQUEE_CUT. An
+    auction where two thirds of the pool is marquee has no scarcity and no tiers.
+
+    Median -> 68 and p95 -> 88 fixes the tiers to what they're supposed to mean:
+    the typical player sits just under MID_FLOOR, and marquee is the top ~15%.
+    Both ends clip, so the bad tail compresses into 55 instead of setting the
+    scale for everyone above it."""
     if not values:
         return {}
-    lo, hi = min(values.values()), max(values.values())
-    span = hi - lo
+    ranked = sorted(values.values())
+    n = len(ranked)
+    mid = ranked[n // 2]
+    top = ranked[min(n - 1, int(n * TOP_QUANTILE))]
+    span = top - mid
     if span <= 0:
-        return {k: (OVR_MIN + OVR_MAX) // 2 for k in values}
-    return {k: int(round(OVR_MIN + (v - lo) / span * (OVR_MAX - OVR_MIN)))
+        return {k: MEDIAN_OVR for k in values}
+    return {k: max(OVR_MIN, min(OVR_MAX,
+                                int(round(MEDIAN_OVR + (v - mid) / span
+                                          * (TOP_OVR - MEDIAN_OVR)))))
             for k, v in values.items()}
+
+
+def rescale_only(era: E.Era) -> None:
+    """Re-run just to_ovr over the ALREADY-measured values on disk.
+
+    The simulation is the expensive half (~40 min an era) and its output --
+    `measured_bat_value` / `measured_bowl_value`, in runs -- is what gets stored.
+    Changing how those runs map onto the 55-99 band costs nothing and needs no
+    re-measurement, so tuning the anchors doesn't mean re-simulating."""
+    path = os.path.join(ERA_ROOT, era.id, "players.json")
+    with open(path, "r", encoding="utf-8") as fh:
+        records = json.load(fh)
+
+    for key, mkey, flag in (("batting_ovr", "measured_bat_value", "rateable_batting"),
+                            ("bowling_ovr", "measured_bowl_value", "rateable_bowling")):
+        vals = {r["name"]: r[mkey] for r in records
+                if r.get(flag) and mkey in r}
+        if not vals:
+            print(f"  {era.id}: no {mkey} on disk -- run the full derivation first")
+            continue
+        ovr = to_ovr(vals)
+        for r in records:
+            r[key] = ovr.get(r["name"])
+        band = sorted(ovr.values())
+        marquee = sum(1 for v in band if v >= 80)
+        print(f"  {era.id:<10} {key:<12} med {band[len(band) // 2]:>3}  "
+              f"marquee {marquee:>3}/{len(band)}")
+
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump(records, fh, indent=1)
 
 
 def derive(era: E.Era, n: int, seed: int) -> None:
@@ -225,10 +280,16 @@ def main() -> None:
                     help="innings per player. Paired sampling makes this go a long "
                          "way; 400 resolves differences of ~1.5 runs.")
     ap.add_argument("--seed", type=int, default=11)
+    ap.add_argument("--rescale-only", action="store_true",
+                    help="skip the simulation; just remap the measured runs "
+                         "already on disk onto the OVR band")
     args = ap.parse_args()
     targets = E.MODEL_ERAS if args.era == "all" else [E.get(args.era)]
     for era in targets:
-        derive(era, args.n, args.seed)
+        if args.rescale_only:
+            rescale_only(era)
+        else:
+            derive(era, args.n, args.seed)
 
 
 if __name__ == "__main__":

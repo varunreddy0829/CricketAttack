@@ -125,16 +125,24 @@ def _load_era_pools():
             # playable, but say so -- a silently flat pool would make every
             # auction lot cost the same and look like a pricing bug rather than
             # a missing build step.
-            missing = sum(1 for p in players if p.get("batting_ovr") is None)
+            #
+            # Only a RATEABLE player missing their own OVR means the build step
+            # hasn't run. A fully-derived era still has nulls everywhere else --
+            # a specialist bowler has no batting_ovr by design -- so counting
+            # those would nag about a step that's already done, every boot.
+            missing = sum(1 for p in players
+                          if (p.get("rateable_batting") and p.get("batting_ovr") is None)
+                          or (p.get("rateable_bowling") and p.get("bowling_ovr") is None))
             if missing:
-                print(f"[eras] {era.id}: {missing}/{len(players)} players have no "
-                      f"derived OVR -- using placeholders. Run: "
+                print(f"[eras] {era.id}: {missing}/{len(players)} rateable players "
+                      f"have no derived OVR -- using placeholders. Run: "
                       f"python -m ml.train.derive_ovr --era {era.id}", flush=True)
-                for p in players:
-                    if p.get("batting_ovr") is None:
-                        p["batting_ovr"] = 55
-                    if p.get("bowling_ovr") is None:
-                        p["bowling_ovr"] = 55
+            # Non-rateable slots always need a number for the draft/UI to sort on.
+            for p in players:
+                if p.get("batting_ovr") is None:
+                    p["batting_ovr"] = 55
+                if p.get("bowling_ovr") is None:
+                    p["bowling_ovr"] = 55
 
         draft = [p for p in players
                  if era.is_all_time
