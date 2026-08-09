@@ -16,17 +16,29 @@ from __future__ import annotations
 
 # canonical id -> substrings that identify it in either Cricsheet or the game config.
 # Order doesn't matter; each ground's substrings are distinct enough not to collide.
+# Renamed grounds list BOTH names: they are one physical pitch and splitting them
+# halves the history behind its measured character. Delhi's ground was Feroz Shah
+# Kotla until 2019 and Arun Jaitley after; Ahmedabad's was Sardar Patel (Motera)
+# before the Narendra Modi rebuild.
 CANONICAL_GROUNDS: dict[str, list[str]] = {
     "chepauk":        ["Chidambaram", "Chepauk"],
     "eden_gardens":   ["Eden Gardens"],
     "pca_mohali":     ["Punjab Cricket Association", "PCA"],
-    "narendra_modi":  ["Narendra Modi"],
+    "narendra_modi":  ["Narendra Modi", "Sardar Patel", "Motera"],
     "wankhede":       ["Wankhede"],
     "chinnaswamy":    ["Chinnaswamy"],
     "sawai_mansingh": ["Sawai Mansingh"],
-    "arun_jaitley":   ["Arun Jaitley"],
-    "rajiv_gandhi":   ["Rajiv Gandhi"],
+    "arun_jaitley":   ["Arun Jaitley", "Feroz Shah Kotla"],
+    "rajiv_gandhi":   ["Rajiv Gandhi", "Uppal"],
     "ekana":          ["Ekana"],
+    # not pickable in-game, but they carry real IPL history and the model trains
+    # on their balls, so they need stable ids too
+    "dubai":          ["Dubai International"],
+    "sharjah":        ["Sharjah"],
+    "abu_dhabi":      ["Sheikh Zayed", "Zayed Cricket"],
+    "brabourne":      ["Brabourne"],
+    "dy_patil":       ["DY Patil"],
+    "pune_mca":       ["Maharashtra Cricket Association", "Subrata Roy"],
 }
 
 

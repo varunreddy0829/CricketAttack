@@ -104,15 +104,16 @@ class OutcomeModel:
             target=ctx.get("target"),
             striker_balls=ctx.get("striker_balls", 0),
             striker_position=ctx.get("striker_position", 1),
-            partnership_balls=ctx.get("partnership_balls", 0),
             bowler_balls=ctx.get("bowler_balls", 0),
             over_in_spell=ctx.get("over_in_spell", 1),
             bat_career_balls=ctx.get("bat_career_balls", getattr(striker, "career_balls", 0)),
             bowl_career_balls=ctx.get("bowl_career_balls", getattr(bowler, "legal_balls", 0)),
-            ns_ovr=ctx.get("ns_ovr", 55.0),
             ns_sr=ctx.get("ns_sr", 120.0),
             venue_rpb=ctx.get("venue_rpb", 1.358),
             venue_wpb=ctx.get("venue_wpb", 0.0493),
+            venue_bdry_share=ctx.get("venue_bdry_share", 0.589),
+            venue_type_edge=ctx.get("venue_type_edge", 0.0),
+            edges=ctx.get("edges"),
         )
         p = self.probs(striker.name, bowler.name, row, ctx.get("day_factor", 0.0))
 

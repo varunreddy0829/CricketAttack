@@ -107,6 +107,9 @@ def simulate_innings(
     use_roles: bool = True,
     venue_rpb: float = 1.358,
     venue_wpb: float = 0.0493,
+    venue_bdry_share: float = 0.589,
+    venue_spin_edge: float = 0.0,
+    venue_pace_edge: float = 0.0,
     day_sigma: float = 0.0,
 ) -> InningsOutcome:
     """One innings. `lineup` and `bowler_by_over` are raw player records.
@@ -123,6 +126,9 @@ def simulate_innings(
     a wild bowler from a metronomic one.
     """
     bat_objs = [P.make_batter(r) for r in lineup]
+    # name -> raw record, so the shared edge resolver can be handed the bowler's
+    # splits without threading them through the Bowler object
+    bowl_records = {r.get("name"): r for r in bowler_by_over if r}
     out = InningsOutcome(lineup_size=len(bat_objs))
     scores = [0] * len(bat_objs)
     balls_faced = [0] * len(bat_objs)
@@ -149,6 +155,7 @@ def simulate_innings(
         phase = P.phase_key(over)
         bowl_role = _pick(rng, _BOWL_ROLES, role_mix.bowl[phase])
         bowler = P.make_bowler(b_rec, intent=50)
+        bowl_rec_is_spin = (b_rec or {}).get("bowling_style") == "Spin"
         b_grid = P.bowl_grid(b_rec, over, bowl_role)
 
         if spell_last_over.get(bowler.name) == over - 2:
@@ -190,15 +197,18 @@ def simulate_innings(
                 "over_in_spell": spell_len.get(bowler.name, 1),
                 "bat_career_balls": s_obj.career_balls,
                 "bowl_career_balls": bowler.legal_balls,
-                # from the RECORD via model_ovr, not from the Batter object: on an
-                # era pool `Batter.ovr` carries the derived rating, which the model
-                # must never see (it is derived FROM the model). See
-                # features.model_ovr.
-                "ns_ovr": (F.model_ovr(lineup[non_striker])
-                           if non_striker < len(lineup) else 55.0),
                 "ns_sr": bat_objs[non_striker].sr if non_striker < len(bat_objs) else 120.0,
                 "venue_rpb": venue_rpb,
                 "venue_wpb": venue_wpb,
+                "venue_bdry_share": venue_bdry_share,
+                "venue_type_edge": (venue_spin_edge if bowl_rec_is_spin
+                                    else venue_pace_edge),
+                # resolved through the SHARED function, never inline -- the one
+                # path that hand-rolled a player feature (`nonstriker_ovr` in
+                # server_ctx) is the one that silently diverged from training
+                "edges": F.resolve_edges(lineup[striker] if striker < len(lineup) else None,
+                                         bowl_records.get(bowler.name),
+                                         over, bowl_rec_is_spin),
                 "day_factor": day_factor,
             }
 

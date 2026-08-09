@@ -21,29 +21,64 @@ import hashlib
 
 N_OVERS = 20
 
+# Balls faced by the striker, as one-hot buckets rather than a capped ramp.
+# Measured over 124,765 legal balls in 2014-2022, runs/ball by balls faced is
+# 0.806 -> 1.243 (5) -> 1.396 (6-14) -> 1.440 (15-29) -> 1.620 (30-59): steep
+# early, flat through the middle, rising again. That shape is not linear and the
+# old min(balls,15)/15 cap threw away everything past ball 15. Buckets let the
+# data pick the curve, exactly as the 20 over one-hots do.
+#
+# The old cap was justified to me as guarding against survivorship making set
+# batters look invulnerable. The data does not support that: out% is FLAT to
+# RISING with balls faced (4.81% at 15-29, 5.94% at 30-59), so dismissal keeps
+# pulling batters out and the feedback loop under simulation stays bounded.
+STRIKER_BALL_BUCKETS = [
+    (0, 0), (1, 1), (2, 2), (3, 3), (4, 4), (5, 5),
+    (6, 9), (10, 14), (15, 24), (25, 39), (40, 10_000),
+]
+
 CONTEXT_FEATURES = [
     *[f"over_{i:02d}" for i in range(N_OVERS)],
     "ball_in_over",         # /6
     "wickets",              # /10
-    "balls_remaining",      # /120
     "is_second_innings",
     "rrr",                  # /15, clipped; 0 in the first innings
     "rrr_gt_8",
     "rrr_gt_12",
     "rrr_gt_16",
     "wickets_x_death",      # wickets down matters far more at the death
-    "striker_balls",        # min(balls, 15)/15 -- see the survivorship note below
-    "is_set",               # balls faced >= 10
+    *[f"sb_{lo}_{hi}" for lo, hi in STRIKER_BALL_BUCKETS],
     "striker_position",     # /11
-    "partnership_balls",    # /60, clipped
     "bowler_balls",         # /24
     "over_in_spell",        # /4
     "bat_career_balls",     # log1p/10 -- tells the model when to hedge
     "bowl_career_balls",    # log1p/10
-    "nonstriker_ovr",       # /100
     "nonstriker_sr",        # /200
+
+    # --- interactions: computed per ball, where BOTH sides are known ---------
+    # These exist because the model is additive -- logits = a + row.B
+    # + E_bat.V_bat + E_bowl.V_bowl -- and E_bat is a lookup by player index
+    # alone. A number sitting in a player's anchor is therefore IDENTICAL in
+    # over 1 and over 19, and identical against spin and pace. Any "this player
+    # is good at X" fact must be resolved against the live situation here, in
+    # the context row, or it is structurally inert.
+    "bat_sr_edge_vs_type",     # vs THIS bowler's type, minus his own overall
+    "bat_out_edge_vs_type",
+    "bat_bdry_edge_vs_type",   # separates a spin BASHER from a spin milker:
+                               # Gambhir's SR vs spin is +22 while his boundary
+                               # rate FALLS -- he runs it, he doesn't hit it
+    "bat_phase_sr_edge",       # in THIS phase, minus his own overall
+    "bowl_phase_eco_edge",
+
+    # --- venue: level, shape, and who it favours -----------------------------
     "venue_runs_per_ball",  # /2,  leave-one-match-out
     "venue_wkts_per_ball",  # x20, leave-one-match-out
+    "venue_bdry_share",     # boundary runs / all runs -- the road<->grind axis,
+                            # independent of level: Jaipur and Wankhede score
+                            # alike, but Jaipur runs them and Wankhede hits them
+    "venue_type_edge",      # this ground's economy edge for THIS bowler's type,
+                            # residualised (each bowler vs his own economy) so it
+                            # measures the pitch and not who happened to bowl on it
 ]
 
 N_CONTEXT = len(CONTEXT_FEATURES)
@@ -87,15 +122,25 @@ CTX = {name: i for i, name in enumerate(CONTEXT_FEATURES)}
 # vector from f_p alone, and the long tail of sub-100-ball players shrinks toward
 # it rather than fitting noise.
 
+# `ovr` is NOT here, and its absence is load-bearing. Era OVRs are DERIVED from
+# this model by ml/train/derive_ovr.py, so feeding them back in is circular. It
+# was previously pinned to the constant 55 for every era player, which made it a
+# dead column that contributed nothing beyond the intercept -- while the matching
+# `nonstriker_ovr` context feature was pinned at train time but read the REAL
+# rating at serve time, a train/serve skew worth ~4% on runs per ball. Deleting
+# the feature removes the bug by construction rather than guarding against it.
 BAT_ANCHOR = [
-    "log_balls", "sr", "avg", "four_rate", "six_rate", "out_rate", "ovr",
+    "log_balls", "sr", "avg", "four_rate", "six_rate", "out_rate",
     "sf_pp_attack", "sf_pp_anchor", "sf_pp_rotate",
     "sf_mid_attack", "sf_mid_anchor", "sf_mid_rotate",
     "sf_death_attack", "sf_death_anchor", "sf_death_rotate",
 ]
 
+# `sr` (balls per wicket) is gone too: it is the EXACT reciprocal of wkt_rate
+# (wickets per ball), so the two carried one fact between them and merely split
+# a coefficient inside a rank-4 bottleneck.
 BOWL_ANCHOR = [
-    "log_balls", "eco", "avg", "sr", "wkt_rate", "ovr", "is_spin",
+    "log_balls", "eco", "avg", "wkt_rate", "is_spin",
     "bf_pp_attack", "bf_pp_contain", "bf_pp_defend",
     "bf_mid_attack", "bf_mid_contain", "bf_mid_defend",
     "bf_death_attack", "bf_death_contain", "bf_death_defend",

@@ -17,9 +17,126 @@ import numpy as np
 
 from ml.etl.schema import (
     BAT_ANCHOR, BOWL_ANCHOR, CTX, N_BAT_ANCHOR, N_BOWL_ANCHOR, N_CONTEXT, N_OVERS,
+    STRIKER_BALL_BUCKETS,
 )
 
 DEATH_START = 15
+
+# Shrinkage for every split-derived edge. A batter with 30 balls against spin
+# will show a wild edge that is mostly noise, so each edge is pulled toward 0 by
+# n/(n+K). One constant for all of them on purpose -- seven separately-tuned
+# knobs would be seven things to get subtly wrong.
+SPLIT_SHRINK_BALLS = 150
+
+_EDGE_CACHE: dict[tuple[int, str], dict] = {}
+
+
+def phase_of(over: int) -> str:
+    """pp / mid / death. MUST match ml/etl/era_players.py::_phase -- the splits
+    are bucketed there and read here, so a mismatch would silently look up the
+    wrong numbers."""
+    return "pp" if over <= 5 else ("mid" if over <= 14 else "death")
+
+
+def _edge(part_num: float, part_den: float, whole_num: float, whole_den: float,
+          scale: float) -> float:
+    """(part rate - whole rate) / scale, shrunk by how much of the part we saw."""
+    if part_den <= 0 or whole_den <= 0:
+        return 0.0
+    diff = (part_num / part_den) - (whole_num / whole_den)
+    return (diff / scale) * (part_den / (part_den + SPLIT_SHRINK_BALLS))
+
+
+def player_edges(record: dict) -> dict:
+    """Every split-derived edge for ONE player, precomputed and shrunk.
+
+    THE ONLY PLACE THESE ARE COMPUTED. The training ETL, the harness and the
+    live server all resolve their features through resolve_edges() below, which
+    calls this. That is not stylistic: `nonstriker_ovr` was pinned to a constant
+    in two of those three paths and read the real rating in the third, so live
+    play silently ran on a feature the model had never seen vary. Seven new
+    derived features means seven new chances to repeat it, unless there is
+    exactly one implementation.
+
+    Edges are relative to the player's OWN overall rate, never the league's,
+    because the anchor already carries his level. Subtracting the league instead
+    would double-count quality: a batter good against everything would be
+    credited twice, and a specialist flattened.
+    """
+    key = (id(record), record.get("name", ""))
+    hit = _EDGE_CACHE.get(key)
+    if hit is not None:
+        return hit
+
+    b = record.get("batting") or {}
+    bw = record.get("bowling") or {}
+    tot_runs, tot_balls = b.get("runs", 0), b.get("balls", 0)
+    tot_outs = b.get("dismissals", 0)
+    tot_bdry = b.get("fours", 0) + b.get("sixes", 0)
+
+    out = {"vs_type": {}, "phase_bat": {}, "phase_bowl": {}}
+
+    vs = record.get("vs_type") or {}
+    for t in ("spin", "pace"):
+        s = vs.get(t) or {}
+        out["vs_type"][t] = (
+            # /100 keeps a strike-rate edge on roughly the same scale as the
+            # other normalised context features
+            _edge(s.get("runs", 0), s.get("balls", 0), tot_runs, tot_balls, 1.0),
+            _edge(s.get("outs", 0), s.get("balls", 0), tot_outs, tot_balls, 0.05),
+            _edge(s.get("bdry", 0), s.get("balls", 0), tot_bdry, tot_balls, 0.15),
+        )
+
+    pb = record.get("phase_bat") or {}
+    for ph in ("pp", "mid", "death"):
+        s = pb.get(ph) or {}
+        out["phase_bat"][ph] = _edge(
+            s.get("runs", 0), s.get("balls", 0), tot_runs, tot_balls, 1.0)
+
+    pw = record.get("phase_bowl") or {}
+    for ph in ("pp", "mid", "death"):
+        s = pw.get(ph) or {}
+        out["phase_bowl"][ph] = _edge(
+            s.get("runs", 0), s.get("balls", 0),
+            bw.get("runs_conceded", 0), bw.get("legal_balls", 0), 1.0)
+
+    _EDGE_CACHE[key] = out
+    return out
+
+
+def resolve_edges(bat_record: dict | None, bowl_record: dict | None,
+                  over: int, bowler_is_spin: bool) -> dict:
+    """The five player-derived context scalars for THIS exact matchup.
+
+    Call this and pass the result straight into build_row. Do not read
+    `vs_type` / `phase_bat` / `phase_bowl` anywhere else.
+    """
+    ph = phase_of(over)
+    t = "spin" if bowler_is_spin else "pace"
+    sr = out = bdry = phase_sr = phase_eco = 0.0
+    if bat_record:
+        e = player_edges(bat_record)
+        sr, out, bdry = e["vs_type"].get(t, (0.0, 0.0, 0.0))
+        phase_sr = e["phase_bat"].get(ph, 0.0)
+    if bowl_record:
+        phase_eco = player_edges(bowl_record)["phase_bowl"].get(ph, 0.0)
+    return {
+        "bat_sr_edge_vs_type": sr,
+        "bat_out_edge_vs_type": out,
+        "bat_bdry_edge_vs_type": bdry,
+        "bat_phase_sr_edge": phase_sr,
+        "bowl_phase_eco_edge": phase_eco,
+    }
+
+
+_BUCKET_IDX = [CTX[f"sb_{lo}_{hi}"] for lo, hi in STRIKER_BALL_BUCKETS]
+
+
+def _striker_bucket(balls: int) -> int:
+    for i, (lo, hi) in enumerate(STRIKER_BALL_BUCKETS):
+        if lo <= balls <= hi:
+            return _BUCKET_IDX[i]
+    return _BUCKET_IDX[-1]
 
 
 def build_row(
@@ -34,23 +151,30 @@ def build_row(
     target: int | None,
     striker_balls: int,
     striker_position: int,
-    partnership_balls: int,
     bowler_balls: int,
     over_in_spell: int,
     bat_career_balls: int,
     bowl_career_balls: int,
-    ns_ovr: float,
     ns_sr: float,
     venue_rpb: float,
     venue_wpb: float,
+    venue_bdry_share: float = 0.59,
+    venue_type_edge: float = 0.0,
+    edges: dict | None = None,
 ) -> None:
-    """Write one feature row into `out` (shape (N_CONTEXT,), pre-zeroed)."""
+    """Write one feature row into `out` (shape (N_CONTEXT,), pre-zeroed).
+
+    `edges` is the dict returned by resolve_edges() -- never hand-built.
+    `balls_remaining` is still taken as an argument because the required rate is
+    computed from it, but it is no longer a feature: it equals
+    120 - 6*over - ball_in_over, which the 20 over one-hots plus ball_in_over
+    already span exactly.
+    """
     o = min(max(over, 0), N_OVERS - 1)
     out[o] = 1.0
 
     out[CTX["ball_in_over"]] = min(ball_in_over, 6) / 6.0
     out[CTX["wickets"]] = wickets / 10.0
-    out[CTX["balls_remaining"]] = balls_remaining / 120.0
 
     second = 1.0 if innings_no == 2 and target else 0.0
     out[CTX["is_second_innings"]] = second
@@ -67,24 +191,28 @@ def build_row(
     if over >= DEATH_START:
         out[CTX["wickets_x_death"]] = wickets / 10.0
 
-    # capped on purpose -- the "getting set" effect plateaus fast and the raw
-    # slope is mostly survivorship (see the note in schema.py)
-    out[CTX["striker_balls"]] = min(striker_balls, 15) / 15.0
-    out[CTX["is_set"]] = 1.0 if striker_balls >= 10 else 0.0
+    out[_striker_bucket(max(0, striker_balls))] = 1.0
     out[CTX["striker_position"]] = min(striker_position, 11) / 11.0
 
-    out[CTX["partnership_balls"]] = min(partnership_balls, 60) / 60.0
     out[CTX["bowler_balls"]] = min(bowler_balls, 24) / 24.0
     out[CTX["over_in_spell"]] = min(over_in_spell, 4) / 4.0
 
     out[CTX["bat_career_balls"]] = math.log1p(max(0, bat_career_balls)) / 10.0
     out[CTX["bowl_career_balls"]] = math.log1p(max(0, bowl_career_balls)) / 10.0
 
-    out[CTX["nonstriker_ovr"]] = ns_ovr / 100.0
     out[CTX["nonstriker_sr"]] = min(ns_sr, 250.0) / 200.0
+
+    e = edges or {}
+    out[CTX["bat_sr_edge_vs_type"]] = e.get("bat_sr_edge_vs_type", 0.0)
+    out[CTX["bat_out_edge_vs_type"]] = e.get("bat_out_edge_vs_type", 0.0)
+    out[CTX["bat_bdry_edge_vs_type"]] = e.get("bat_bdry_edge_vs_type", 0.0)
+    out[CTX["bat_phase_sr_edge"]] = e.get("bat_phase_sr_edge", 0.0)
+    out[CTX["bowl_phase_eco_edge"]] = e.get("bowl_phase_eco_edge", 0.0)
 
     out[CTX["venue_runs_per_ball"]] = venue_rpb / 2.0
     out[CTX["venue_wkts_per_ball"]] = venue_wpb * 20.0
+    out[CTX["venue_bdry_share"]] = venue_bdry_share
+    out[CTX["venue_type_edge"]] = venue_type_edge
 
 
 def empty_row() -> np.ndarray:
@@ -93,42 +221,14 @@ def empty_row() -> np.ndarray:
 
 # --- player anchors --------------------------------------------------------
 
-# Anchor OVR is pinned to a constant for ERA pools, and this is load-bearing.
-#
-# Era OVRs are DERIVED from the trained model (ml/train/derive_ovr.py measures
-# each player by simulating them). Feeding that back in as a model input would be
-# circular, and worse, it would create train/serve skew of exactly the kind the
-# parity tests exist to catch: OVR is null while the model trains and a real
-# number once the auction needs it, so the same player would look different at
-# play time than during fitting.
-#
-# Pinning it costs nothing. OVR was always a lossy summary of the same career
-# stats already in slots 0-5 and the grids in 7-15; the model has the underlying
-# numbers and doesn't need the summary. Era records set `anchor_ovr` explicitly,
-# the all-time pool has no such key and keeps its historical OVR unchanged.
-ANCHOR_OVR_CONSTANT = 55.0
+# OVR is deliberately absent from the model's inputs -- see the note on
+# BAT_ANCHOR in ml/etl/schema.py. Era OVRs are DERIVED from this model by
+# ml/train/derive_ovr.py, so feeding them back in is circular; and the previous
+# arrangement (pin the anchor to a constant, guard every read behind a helper)
+# failed exactly where guards fail -- ml/runtime/server_ctx.py bypassed it and
+# fed the live rating for `nonstriker_ovr`, so play ran on a feature the model
+# had only ever seen as 55. Removing the feature removes the failure mode.
 
-
-def model_ovr(record: dict, ovr_key: str = "batting_ovr") -> float:
-    """The OVR the MODEL is allowed to see, on the raw 0-100 scale.
-
-    Use this ANYWHERE a rating feeds the model -- the player anchors, and the
-    `nonstriker_ovr` context feature. Never read `batting_ovr` directly for that
-    purpose: on an era pool it is None until derive_ovr runs and a real number
-    afterwards, so a direct read silently trains on one value and serves another.
-    (It also produces NaN rather than a fallback, because `record.get(k, 55)`
-    returns None when the key exists-but-is-null, and `None or 55` looks safe
-    while `float('nan') or 55` does not -- NaN is truthy.)
-    """
-    pinned = record.get("anchor_ovr")
-    if pinned is not None:
-        return float(pinned)
-    v = record.get(ovr_key)
-    return float(v) if v else ANCHOR_OVR_CONSTANT
-
-
-def _anchor_ovr(record: dict, ovr_key: str) -> float:
-    return model_ovr(record, ovr_key) / 100.0
 
 def bat_anchor(record: dict) -> np.ndarray:
     """f_p for a batter, from a players_historical.json record."""
@@ -142,8 +242,7 @@ def bat_anchor(record: dict) -> np.ndarray:
     v[3] = b.get("fours", 0) / balls
     v[4] = b.get("sixes", 0) / balls
     v[5] = b.get("dismissals", 0) / balls
-    v[6] = _anchor_ovr(record, "batting_ovr")
-    i = 7
+    i = 6
     for phase in ("pp", "mid", "death"):
         cell = sf.get(phase) or {}
         for k in ("attack", "anchor", "rotate"):
@@ -161,11 +260,9 @@ def bowl_anchor(record: dict) -> np.ndarray:
     v[0] = math.log1p(bw.get("legal_balls", 0)) / 10.0
     v[1] = min(bw.get("eco", 8.5) or 8.5, 15.0) / 10.0
     v[2] = min(bw.get("avg", 0.0) or 30.0, 60.0) / 40.0
-    v[3] = min(bw.get("sr", 0.0) or 24.0, 60.0) / 40.0
-    v[4] = bw.get("wickets", 0) / balls
-    v[5] = _anchor_ovr(record, "bowling_ovr")
-    v[6] = 1.0 if record.get("bowling_style") == "Spin" else 0.0
-    i = 7
+    v[3] = bw.get("wickets", 0) / balls
+    v[4] = 1.0 if record.get("bowling_style") == "Spin" else 0.0
+    i = 5
     for phase in ("pp", "mid", "death"):
         cell = bf.get(phase) or {}
         for k in ("attack", "contain", "defend"):

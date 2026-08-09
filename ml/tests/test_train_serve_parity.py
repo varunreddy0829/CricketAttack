@@ -123,12 +123,60 @@ class FeatureRowParity(unittest.TestCase):
         supplied = {
             "over", "ball_in_over", "wickets", "balls_remaining", "innings_no",
             "score", "target", "striker_balls", "striker_position",
-            "partnership_balls", "bowler_balls", "over_in_spell",
-            "bat_career_balls", "bowl_career_balls", "ns_ovr", "ns_sr",
-            "venue_rpb", "venue_wpb",
+            "bowler_balls", "over_in_spell",
+            "bat_career_balls", "bowl_career_balls", "ns_sr",
+            "venue_rpb", "venue_wpb", "venue_bdry_share", "venue_type_edge",
+            "edges",
         }
         self.assertEqual(needed, supplied,
                          "features.build_row and the live ctx have drifted apart")
+
+    def test_every_derived_edge_comes_from_the_shared_resolver(self):
+        """The seven interaction features must be produced by ONE function.
+
+        This is the test that would have caught the `nonstriker_ovr` bug: it was
+        pinned to a constant by the training ETL and the harness, while
+        server_ctx read the live rating, so play ran on a feature the model had
+        only ever seen as 55. Any path that hand-rolls one of these instead of
+        calling resolve_edges() will drift the same way.
+        """
+        import inspect
+
+        from ml.runtime import features as F
+
+        keys = set(F.resolve_edges(None, None, 0, False))
+        self.assertEqual(
+            keys,
+            {"bat_sr_edge_vs_type", "bat_out_edge_vs_type", "bat_bdry_edge_vs_type",
+             "bat_phase_sr_edge", "bowl_phase_eco_edge"},
+            "resolve_edges no longer returns the features build_row consumes")
+
+        for mod_name in ("ml.etl.build_table", "ml.harness.simulate",
+                         "ml.runtime.server_ctx"):
+            mod = __import__(mod_name, fromlist=["*"])
+            src = inspect.getsource(mod)
+            self.assertIn(
+                "resolve_edges", src,
+                f"{mod_name} builds a feature row without the shared resolver")
+            # the raw split blocks belong to features.py alone
+            for raw in ('["vs_type"]', '["phase_bat"]', '["phase_bowl"]'):
+                self.assertNotIn(
+                    raw, src,
+                    f"{mod_name} reads {raw} directly -- resolve those through "
+                    f"features.resolve_edges so all paths agree")
+
+    def test_missing_splits_degrade_to_neutral(self):
+        """A player with no split data must yield zero edges, not a crash or a
+        NaN. Auction pools can contain anyone, including someone the era ETL
+        never emitted splits for."""
+        import math
+
+        from ml.runtime import features as F
+
+        e = F.resolve_edges({"name": "nobody", "batting": {}}, None, 5, True)
+        for k, v in e.items():
+            self.assertFalse(math.isnan(v), f"{k} is NaN for an unknown player")
+            self.assertEqual(v, 0.0, f"{k} should be neutral for an unknown player")
 
 
 if __name__ == "__main__":

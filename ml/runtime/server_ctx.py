@@ -15,6 +15,8 @@ import json
 import os
 import random
 
+from ml.runtime import features as F
+from ml.runtime import players as P
 from ml.runtime.venues import canonical_ground
 
 OVERS_PER_INNINGS = 20
@@ -77,6 +79,40 @@ def venue_rates(ground_name: str | None,
     stats = _venue_stats(era_id)
     key = canonical_ground(ground_name)
     return stats.get(key, stats.get(None, (LEAGUE_RPB, LEAGUE_WPB)))
+
+
+_CHAR_CACHE: dict = {}
+LEAGUE_BDRY_SHARE = 0.589
+
+
+def _venue_character(era_id: str | None) -> dict:
+    """canonical ground -> (boundary share, spin edge, pace edge), per era.
+
+    Built by ml/etl/venue_types.py. Falls back to league-neutral, so a ground
+    with no profile behaves like an average one rather than inventing character.
+    """
+    key = None if era_id in (None, "all_time") else era_id
+    if key in _CHAR_CACHE:
+        return _CHAR_CACHE[key]
+    path = os.path.join(_ERA_ARTIFACTS, key, "venue_profile.json") if key else None
+    out = {}
+    if path and os.path.exists(path):
+        with open(path, "r", encoding="utf-8") as fh:
+            data = json.load(fh)
+        for g, x in (data.get("grounds") or {}).items():
+            se, pe = x.get("spin_edge"), x.get("pace_edge")
+            out[g] = (x.get("bdry_share", LEAGUE_BDRY_SHARE),
+                      se if se is not None else 0.0,
+                      pe if pe is not None else 0.0)
+    _CHAR_CACHE[key] = out
+    return out
+
+
+def venue_character(ground_name: str | None, era_id: str | None = None):
+    """-> (boundary share, spin edge, pace edge) for this ground IN THIS ERA."""
+    chars = _venue_character(era_id)
+    key = canonical_ground(ground_name)
+    return chars.get(key, (LEAGUE_BDRY_SHARE, 0.0, 0.0))
 
 
 _state: dict = {"innings": None, "day_factor": 0.0, "pship_key": None,
@@ -142,6 +178,17 @@ def enrich(ctx: dict, striker, bowler, game, *, day_sigma: float = 0.0,
 
     ground_name = (game.get("match_ground") or {}).get("name")
     v_rpb, v_wpb = venue_rates(ground_name, era_id)
+    v_bdry, v_spin, v_pace = venue_character(ground_name, era_id)
+
+    # The RAW records, from the same loader the training ETL uses, so the shared
+    # edge resolver sees byte-identical inputs on both sides. Deriving these off
+    # the Batter/Bowler objects instead is precisely how `nonstriker_ovr` came to
+    # be pinned in training and live in play.
+    pool = P.load_players(era_id)
+    bat_rec = pool.get(striker.name)
+    bowl_rec = pool.get(bowler.name)
+    is_spin = (bowl_rec or {}).get("bowling_style") == "Spin"
+    over_num = st.balls // 6
 
     ctx = dict(ctx)
     ctx.update({
@@ -158,10 +205,12 @@ def enrich(ctx: dict, striker, bowler, game, *, day_sigma: float = 0.0,
         "over_in_spell": _over_in_spell(bowler.name, st.balls // 6),
         "bat_career_balls": getattr(striker, "career_balls", 0),
         "bowl_career_balls": getattr(bowler, "legal_balls", 0),
-        "ns_ovr": float(getattr(ns, "ovr", 55)) if ns else 55.0,
         "ns_sr": float(getattr(ns, "sr", 120.0)) if ns else 120.0,
         "venue_rpb": v_rpb,
         "venue_wpb": v_wpb,
+        "venue_bdry_share": v_bdry,
+        "venue_type_edge": v_spin if is_spin else v_pace,
+        "edges": F.resolve_edges(bat_rec, bowl_rec, over_num, is_spin),
         "day_factor": _state["day_factor"],
     })
     return ctx

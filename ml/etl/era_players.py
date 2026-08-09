@@ -61,8 +61,17 @@ def _blank(name: str) -> dict:
         "name": name,
         "batting": {"runs": 0, "balls": 0, "fours": 0, "sixes": 0, "dismissals": 0},
         "bowling": {"runs_conceded": 0, "legal_balls": 0, "wickets": 0},
+        # `runs` is added on top of the shared blank so bowl_phase can yield a
+        # real per-phase economy; _blank_bowl_phase only tracks boundary/running
+        # runs off the bat, which misses extras. compute_bowler_fits ignores the
+        # extra key, so the shared grid recipe is untouched.
         "bat_phase": {ph: _blank_phase() for ph in PHASES},
-        "bowl_phase": {ph: _blank_bowl_phase() for ph in PHASES},
+        "bowl_phase": {ph: {**_blank_bowl_phase(), "runs": 0} for ph in PHASES},
+        # Who the BATTER faced. This is what lets the model tell a spin basher
+        # from a pace basher -- measured, across 2014-2022, at a 76-point strike
+        # rate spread (Maxwell +19.6 vs spin, Jadeja -43.3).
+        "vs_type": {t: {"runs": 0, "balls": 0, "outs": 0, "bdry": 0}
+                    for t in ("spin", "pace")},
     }
 
 
@@ -82,9 +91,15 @@ def aggregate(era: E.Era) -> dict:
         for b in innings.balls:
             ph = _phase(b.over)
             bat, bowl = rec(b.batter), rec(b.bowler)
+            btype = "spin" if b.bowler in KNOWN_SPINNERS else "pace"
 
             # --- batting. A wide is not faced; everything else is.
             if b.outcome != "wide":
+                v = bat["vs_type"][btype]
+                v["balls"] += 1
+                v["runs"] += b.runs_batter
+                v["outs"] += (b.outcome == "Out")
+                v["bdry"] += (b.outcome in ("4", "6"))
                 d = bat["bat_phase"][ph]
                 bat["batting"]["balls"] += 1
                 d["balls"] += 1
@@ -112,6 +127,7 @@ def aggregate(era: E.Era) -> dict:
             # --- bowling
             wd = bowl["bowl_phase"][ph]
             bowl["bowling"]["runs_conceded"] += b.runs_total
+            wd["runs"] += b.runs_total
             if b.is_legal:
                 bowl["bowling"]["legal_balls"] += 1
                 wd["balls"] += 1
@@ -173,6 +189,20 @@ def finalise(players: dict, era: E.Era) -> list:
             "bowl_fit": p["bowl_fit"],
             "batting": p["batting"],
             "bowling": p["bowling"],
+            # --- raw split COUNTS for the model's matchup/phase features ------
+            # Stored as counts, never as finished edges, so the shrinkage
+            # constant can be retuned without re-running this ETL -- the same
+            # reason derive_ovr stores measured runs rather than OVRs.
+            "phase_bat": {ph: {"runs": p["bat_phase"][ph]["runs"],
+                               "balls": p["bat_phase"][ph]["balls"],
+                               "outs": p["bat_phase"][ph]["dismissals"],
+                               "bdry": p["bat_phase"][ph]["fours"]
+                                       + p["bat_phase"][ph]["sixes"]}
+                          for ph in PHASES},
+            "phase_bowl": {ph: {"runs": p["bowl_phase"][ph]["runs"],
+                                "balls": p["bowl_phase"][ph]["balls"]}
+                           for ph in PHASES},
+            "vs_type": p["vs_type"],
             # OVR is MEASURED later by ml/train/derive_ovr.py -- null here on
             # purpose so an un-derived pool fails loudly instead of shipping
             # zeros or, worse, the old formula's era-blind numbers.

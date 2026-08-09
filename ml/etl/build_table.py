@@ -20,6 +20,8 @@ from ml.etl.replay import CLASS_INDEX, iter_innings
 from ml.etl.schema import N_CONTEXT, SCHEMA_HASH
 from ml.runtime import features as F
 from ml.runtime.players import load_players
+from ml.runtime.venues import canonical_ground
+from src.utils.compile_player_stats import KNOWN_SPINNERS
 
 ARTIFACTS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "artifacts")
 OUT_PATH = os.path.join(ARTIFACTS, "ball_table.npz")
@@ -28,16 +30,43 @@ OUT_PATH = os.path.join(ARTIFACTS, "ball_table.npz")
 MIN_VENUE_BALLS = 600
 
 
+def venue_key(raw: str) -> str:
+    """One id per physical ground, shared with live play."""
+    return canonical_ground(raw) or (raw or "").strip().lower().replace(" ", "_")
+
+
 def _venue_aggregates(era=None):
-    """-> (per-venue totals, per-(venue,match) totals, league means)."""
+    """-> (per-venue totals, per-(venue,match) totals, league means, character).
+
+    `character` carries the two features that describe what KIND of ground it is
+    rather than how much it scores:
+
+      bdry_share   boundary runs / all runs. The road<->grind axis, and genuinely
+                   independent of level -- Jaipur and Wankhede score at a similar
+                   rate but Jaipur RUNS them (53.5% boundary share) while
+                   Wankhede HITS them (62.4%).
+      type_edge    the ground's economy edge for spin and for pace, RESIDUALISED:
+                   each bowler is compared to his own overall economy, then those
+                   deltas are averaged. Without residualising, the number mostly
+                   reports who bowled there -- Chepauk reads spin-friendly on raw
+                   figures purely because CSK played Jadeja and Ashwin on it.
+    """
     venue = defaultdict(lambda: [0, 0, 0])          # balls, runs, wickets
     venue_match = defaultdict(lambda: [0, 0, 0])
+    bdry = defaultdict(lambda: [0, 0])              # boundary runs, all runs
     tot = [0, 0, 0]
+    tot_bdry = [0, 0]
+    bowler_tot = defaultdict(lambda: [0, 0])        # runs, balls (whole era)
+    bowler_at = defaultdict(lambda: [0, 0])         # runs, balls (at this venue)
 
     for innings in iter_innings():
         if era is not None and not era.covers(innings.season):
             continue
-        v = innings.venue
+        # canonical, NOT the raw Cricsheet string: live play looks these up
+        # through ml/runtime/venues.py, and "Wankhede Stadium" vs "Wankhede
+        # Stadium, Mumbai" would otherwise train on half the ground's history
+        # each while serving the merged figure
+        v = venue_key(innings.venue)
         vm = (v, innings.match_id)
         for b in innings.balls:
             if not b.is_legal:
@@ -46,9 +75,38 @@ def _venue_aggregates(era=None):
                 acc[0] += 1
                 acc[1] += b.runs_total
                 acc[2] += 1 if b.outcome == "Out" else 0
+            br = 4 if b.outcome == "4" else 6 if b.outcome == "6" else 0
+            for acc in (bdry[v], tot_bdry):
+                acc[0] += br
+                acc[1] += b.runs_total
+            t = bowler_tot[b.bowler]; t[0] += b.runs_total; t[1] += 1
+            a = bowler_at[(v, b.bowler)]; a[0] += b.runs_total; a[1] += 1
 
     league = (tot[1] / max(1, tot[0]), tot[2] / max(1, tot[0]))
-    return venue, venue_match, league
+    league_bdry = tot_bdry[0] / max(1, tot_bdry[1])
+
+    res = defaultdict(lambda: {"spin": [0.0, 0], "pace": [0.0, 0]})
+    for (v, bw), (r, bl) in bowler_at.items():
+        if bl < 60:                       # too few balls for his delta to mean much
+            continue
+        tr, tb = bowler_tot[bw]
+        if tb < 300:
+            continue
+        k = "spin" if bw in KNOWN_SPINNERS else "pace"
+        c = res[v][k]
+        c[0] += (6 * r / bl - 6 * tr / tb) * bl
+        c[1] += bl
+
+    character = {}
+    for v in venue:
+        d = res.get(v) or {"spin": [0.0, 0], "pace": [0.0, 0]}
+        sp, pc = d["spin"], d["pace"]
+        character[v] = {
+            "bdry_share": (bdry[v][0] / bdry[v][1]) if bdry[v][1] else league_bdry,
+            "spin": (sp[0] / sp[1]) if sp[1] >= 400 else 0.0,
+            "pace": (pc[0] / pc[1]) if pc[1] >= 400 else 0.0,
+        }
+    return venue, venue_match, league, character, league_bdry
 
 
 def build(out_path: str = OUT_PATH, era=None) -> dict:
@@ -59,9 +117,10 @@ def build(out_path: str = OUT_PATH, era=None) -> dict:
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
 
     print("[1/3] venue aggregates ...", flush=True)
-    venue, venue_match, (league_rpb, league_wpb) = _venue_aggregates(era)
+    venue, venue_match, (league_rpb, league_wpb), character, league_bdry = \
+        _venue_aggregates(era)
     print(f"      {len(venue)} venues; league {league_rpb:.3f} runs/ball, "
-          f"{league_wpb:.4f} wkts/ball")
+          f"{league_wpb:.4f} wkts/ball, {100*league_bdry:.1f}% boundary share")
 
     print("[2/3] player anchors ...", flush=True)
     by_name = load_players(era.id if era else None)
@@ -78,9 +137,6 @@ def build(out_path: str = OUT_PATH, era=None) -> dict:
             continue
         career_bat_balls[i] = (r.get("batting") or {}).get("balls", 0)
         career_bowl_balls[i] = (r.get("bowling") or {}).get("legal_balls", 0)
-        # via model_ovr, NOT batting_ovr directly -- era pools have it null until
-        # derive_ovr runs, and a direct read yields NaN (see features.model_ovr)
-        ns_ovr[i] = F.model_ovr(r)
         ns_sr[i] = (r.get("batting") or {}).get("sr", 0.0)
     print(f"      {len(names) - 1} players (+1 unknown slot)")
 
@@ -100,14 +156,18 @@ def build(out_path: str = OUT_PATH, era=None) -> dict:
         uid = n_innings - 1
 
         # leave-one-match-out venue rates
-        vt = venue[innings.venue]
-        vm = venue_match[(innings.venue, innings.match_id)]
+        vkey = venue_key(innings.venue)
+        vt = venue[vkey]
+        vm = venue_match[(vkey, innings.match_id)]
         loo_balls = vt[0] - vm[0]
         if loo_balls >= MIN_VENUE_BALLS:
             v_rpb = (vt[1] - vm[1]) / loo_balls
             v_wpb = (vt[2] - vm[2]) / loo_balls
         else:
             v_rpb, v_wpb = league_rpb, league_wpb
+        ch = character.get(vkey) or {}
+        v_bdry = ch.get("bdry_share", league_bdry)
+        v_edge_spin, v_edge_pace = ch.get("spin", 0.0), ch.get("pace", 0.0)
 
         for b in innings.balls:
             bi = name_to_idx.get(b.batter, 0)
@@ -127,15 +187,19 @@ def build(out_path: str = OUT_PATH, era=None) -> dict:
                 target=b.target,
                 striker_balls=b.striker_balls,
                 striker_position=b.striker_position,
-                partnership_balls=b.partnership_balls,
                 bowler_balls=b.bowler_balls,
                 over_in_spell=b.over_in_spell,
                 bat_career_balls=int(career_bat_balls[bi]),
                 bowl_career_balls=int(career_bowl_balls[wi]),
-                ns_ovr=float(ns_ovr[ni]) or 55.0,
                 ns_sr=float(ns_sr[ni]) or 120.0,
                 venue_rpb=v_rpb,
                 venue_wpb=v_wpb,
+                venue_bdry_share=v_bdry,
+                venue_type_edge=v_edge_spin if b.bowler in KNOWN_SPINNERS else v_edge_pace,
+                # every path resolves these through the SAME function -- see
+                # features.player_edges for why that is not merely tidy
+                edges=F.resolve_edges(by_name.get(b.batter), by_name.get(b.bowler),
+                                      b.over, b.bowler in KNOWN_SPINNERS),
             )
             X_list.append(row)
             y_list.append(CLASS_INDEX[b.outcome])
