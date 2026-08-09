@@ -12,10 +12,20 @@ const Net = (() => {
     function clearToken() { localStorage.removeItem(TOKEN_KEY); }
 
     async function post(path, body) {
+        // Attach the session token unless the caller passed one (or is
+        // create/join, which has no token yet and where getToken() is null).
+        //
+        // Every endpoint bar create/join identifies the caller by token, and
+        // omitting it fails as "Game not found or session expired" -- which
+        // reads like an expired session rather than a missing field. Defaulting
+        // it here means a new call site cannot make that mistake.
+        const payload = body || {};
+        const tok = getToken();
+        if (tok && payload.token === undefined) payload.token = tok;
         const res = await fetch(path, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(body || {})
+            body: JSON.stringify(payload)
         });
         const data = await res.json().catch(() => ({}));
         if (!res.ok || data.status === 'error') {
