@@ -501,15 +501,20 @@ function renderEraPick(state) {
     const mine = lob.my_era, theirs = lob.opponent_era;
     const cards = eras.map(e => {
         const iPicked = mine === e.id, theyPicked = theirs === e.id;
-        const cls = ['era-card', iPicked ? 'mine' : '', theyPicked ? 'theirs' : '',
+        // An era whose trained model is missing or stale would silently play on
+        // the classic engine -- same squads, none of its own scoring level,
+        // phase acceleration or spin/pace character. Shown, but not selectable.
+        const soon = !!e.coming_soon;
+        const cls = ['era-card', soon ? 'soon' : '', iPicked ? 'mine' : '',
+                     theyPicked ? 'theirs' : '',
                      (iPicked && theyPicked) ? 'agreed' : ''].filter(Boolean).join(' ');
         const who = [iPicked ? 'You' : null, theyPicked ? 'Opponent' : null]
             .filter(Boolean).join(' + ');
-        return `<button class="${cls}" data-era="${e.id}">
+        return `<button class="${cls}" ${soon ? 'disabled' : `data-era="${e.id}"`}>
             <span class="era-years">${e.is_all_time ? 'ALL-TIME' : e.first + '–' + e.last}</span>
             <span class="era-label">${e.label}</span>
             <span class="era-tag">${e.tagline || ''}</span>
-            <span class="era-meta">${e.players} players</span>
+            <span class="era-meta">${soon ? 'Coming soon' : e.players + ' players'}</span>
             ${who ? `<span class="era-who">${who}</span>` : ''}
         </button>`;
     }).join('');

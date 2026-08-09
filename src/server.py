@@ -51,6 +51,12 @@ from ml.runtime.engine import resolve_engine
 # they achieved rather than for what they would do against 2026 bowling.
 ERA_ENGINES = {}   # populated by _resolve_all_engines() once the pools exist
 
+# Eras that exist but can't yet be played AS THEMSELVES -- their trained model
+# is missing or stale, so they would silently run on the classic engine. Filled
+# by _resolve_all_engines from what actually loaded; shown in the lobby as
+# "Coming soon" and rejected by /api/vote_era.
+COMING_SOON = set()
+
 app = Flask(__name__, static_folder="public")
 
 @app.after_request
@@ -337,10 +343,21 @@ def _resolve_all_engines():
             continue
         if era.uses_model:
             fn, enrich, desc = resolve_engine(era.id)
+            # An era that WANTS the learned engine but silently fell back to the
+            # classic one is not the era it claims to be: same pool and OVRs, but
+            # none of its scoring level, phase acceleration, spin/pace matchup or
+            # venue character. Offering it would be shipping a mislabelled mode,
+            # so it is withheld until its model is rebuilt.
+            #
+            # DERIVED, never hardcoded -- retrain the model and the era reappears
+            # on its own, with no list to remember to edit.
+            if enrich is None:
+                COMING_SOON.add(era.id)
         else:
             fn, enrich, desc = calculate_single_ball, None, "classic (hand-tuned)"
         ERA_ENGINES[era.id] = (fn, enrich, desc)
-        print(f"[engine] {era.id:<12} {desc}", flush=True)
+        tag = "  [COMING SOON -- hidden from the lobby]" if era.id in COMING_SOON else ""
+        print(f"[engine] {era.id:<12} {desc}{tag}", flush=True)
 
 
 _resolve_all_engines()
@@ -371,6 +388,7 @@ def _era_options():
             "is_all_time": era.is_all_time,
             "is_multiverse": era.is_multiverse,
             "players": len(ERA_POOLS[era.id]["draft"]),
+            "coming_soon": era.id in COMING_SOON,
         })
     rank = {True: 1, False: 0}
     out.sort(key=lambda e: (rank[e["is_multiverse"] or e["is_all_time"]],
@@ -3695,6 +3713,11 @@ def vote_era():
         era_id = data.get("era")
         if era_id not in ERA_POOLS:
             return jsonify({"status": "error", "message": "Unknown era."}), 400
+        if era_id in COMING_SOON:
+            # enforced here too, not only hidden in the lobby -- the UI is not a
+            # security boundary and a stale client could still post the id
+            return jsonify({"status": "error",
+                            "message": f"{ERA_DEFS.ERAS[era_id].label} is coming soon."}), 400
 
         GAME.setdefault("era_votes", {t: None for t in GAME["team_ids"]})[role] = era_id
         agreed = _era_agreed(GAME)

@@ -1691,6 +1691,23 @@ button:disabled {
 .era-card:hover { background: rgba(0, 0, 0, 0.4); transform: translateY(-1px); }
 .era-card:focus-visible { outline: 2px solid var(--board-amber); outline-offset: 2px; }
 
+/* An era whose trained model isn't built yet. Shown so players can see what is
+ * on the way, but not selectable -- picking it would run the classic engine and
+ * quietly deliver a different game from the one on the label. */
+.era-card.soon {
+    opacity: 0.42;
+    cursor: not-allowed;
+    border-style: dashed;
+    filter: grayscale(0.6);
+}
+.era-card.soon:hover { background: rgba(0, 0, 0, 0.28); transform: none; }
+.era-card.soon .era-meta {
+    color: var(--board-amber);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 0.62rem;
+}
+
 /* picked by you / by them / by both -- three visibly different states */
 .era-card.mine   { border-color: var(--board-amber); }
 .era-card.theirs { border-style: dashed; border-color: var(--cream-2); }
