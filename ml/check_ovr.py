@@ -39,8 +39,27 @@ EXPECT = [
     ("CH Gayle",         "2008_2013", "top15",  "the six-hitting era belonged to him"),
     ("CH Gayle",         "2023_2026", "absent", "he does not play in this era"),
     ("Abhishek Sharma",  "2023_2026", "top15",  "the modern game's defining hitter"),
-    ("V Kohli",          "2014_2022", "top40",  "consistently elite throughout"),
+    ("AB de Villiers",   "2014_2022", "top15",  "the era's most feared batter"),
     ("SP Narine",        "2014_2022", "bowl40", "the era's most economical bowler"),
+]
+
+# Players whose REPUTATION and whose measured T20 value genuinely disagree.
+#
+# These are not failures and must not be asserted on -- they are the metric
+# doing exactly what it was chosen to do. Team-runs-added rewards scoring RATE,
+# because in a 120-ball innings the scarce resource is balls, not wickets. A
+# high-average, medium-tempo accumulator can be a great cricketer and still add
+# ~0 runs over a median player occupying the same slot.
+#
+# Asserting "Kohli must be top-40" would encode reputation, and the honest
+# reading is that the same logic which correctly demotes him also correctly
+# demoted Amla (SR 119) and promoted Abhishek Sharma -- which is the reordering
+# this whole exercise was for. But it IS a game-feel decision, so the gate
+# prints these every run rather than burying them.
+WATCH = [
+    ("V Kohli",     "2014_2022", "high average, median strike rate"),
+    ("MS Dhoni",    "2014_2022", "finisher's reputation, mid-tier tempo by then"),
+    ("F du Plessis", "2014_2022", "anchor, not an impact rate"),
 ]
 
 
@@ -182,6 +201,29 @@ def main() -> None:
               f"want {want:<7} got {got:<16} -- {why}")
         if not ok:
             failures.append(f"{name} in {era_id}: wanted {want}, got {got}")
+
+    # ---- reputation vs measurement, reported not asserted -----------------
+    print()
+    print("=" * 68)
+    print("WATCH -- where reputation and measured T20 value disagree")
+    print("=" * 68)
+    print("  (not failures: the metric rewards RATE, because balls are the")
+    print("   scarce resource in 120. Your call whether the game feel is right.)")
+    for name, era_id, why in WATCH:
+        recs = pools.get(era_id)
+        if not recs:
+            continue
+        rec = next((r for r in recs if r["name"] == name), None)
+        if not rec or not rec.get("batting_ovr"):
+            print(f"  {name:<15} {era_id:<10} not rated in this era")
+            continue
+        rank, total = _rank(recs, "batting_ovr", name)
+        b = rec["batting"]
+        srs = sorted(r["batting"]["sr"] for r in recs if r.get("batting_ovr"))
+        pct = sum(1 for s in srs if s < b["sr"]) / len(srs)
+        print(f"  {name:<15} {era_id:<10} OVR {rec['batting_ovr']:>3}  "
+              f"rank {rank:>3}/{total}  SR {b['sr']:>6} (p{pct * 100:.0f})  "
+              f"avg {b['avg']:>5}  {rec['measured_bat_value']:>+6.1f} runs -- {why}")
 
     # ---- what the eras actually look like --------------------------------
     for era_id, recs in pools.items():

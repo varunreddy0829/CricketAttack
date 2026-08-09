@@ -62,6 +62,14 @@ OVR_MIN, OVR_MAX = 55, 99
 # base buy, and TOP_OVR is set so MARQUEE_CUT(80) lands around the top 15%.
 MEDIAN_OVR, TOP_QUANTILE, TOP_OVR = 68, 0.95, 88
 
+# Reliability shrinkage: a rating is only as trustworthy as the sample it came
+# from, so measured value is pulled toward the pool median by balls/(balls+K).
+# K is the ball count at which a player's own record and the median count
+# equally. 300 is deliberately gentle -- it halves the inflation on a 140-ball
+# cameo while barely touching anyone with a real career's worth of deliveries.
+SHRINK_BAT_BALLS = 300
+SHRINK_BOWL_BALLS = 300
+
 BAT_SLOT = 2        # measure batters at #3 -- reached in almost every innings
 BOWL_SLOT = 0       # measure bowlers as the first-change option
 
@@ -161,6 +169,22 @@ def measure_bowling(era, model, cal, plans_by, n: int, seed: int) -> dict:
     return out
 
 
+def shrink(value: float, balls: int, k: int) -> float:
+    """Pull a measured value toward the pool median in proportion to how little
+    we saw of the player.
+
+    The simulation measures every player over the same 400 innings, so its OWN
+    noise is tiny (~0.5 runs). What it can't undo is uncertainty carried in from
+    the model: a batter the model only ever saw for 141 balls has an extreme
+    fitted rate, and the measurement faithfully reproduces that extreme. Left
+    raw, BCJ Cutting (141 balls) rated 90 and Livingstone (329) rated 99 in
+    2014-2022 -- above Buttler and Pollard, on a fraction of the evidence.
+
+    Shrinking by balls/(balls+k) is the standard reliability correction, and the
+    same idea the ETL already applies to averages and economies upstream."""
+    return value * (balls / (balls + k)) if balls > 0 else 0.0
+
+
 def to_ovr(values: dict) -> dict:
     """Rescale measured value onto the 55-99 band, anchored on the pool's MEDIAN
     and its 95th percentile rather than its worst and best.
@@ -208,13 +232,17 @@ def rescale_only(era: E.Era) -> None:
     with open(path, "r", encoding="utf-8") as fh:
         records = json.load(fh)
 
-    for key, mkey, flag in (("batting_ovr", "measured_bat_value", "rateable_batting"),
-                            ("bowling_ovr", "measured_bowl_value", "rateable_bowling")):
-        vals = {r["name"]: r[mkey] for r in records
-                if r.get(flag) and mkey in r}
-        if not vals:
+    for key, mkey, flag, bkey, ball_field, K in (
+            ("batting_ovr", "measured_bat_value", "rateable_batting",
+             "batting", "balls", SHRINK_BAT_BALLS),
+            ("bowling_ovr", "measured_bowl_value", "rateable_bowling",
+             "bowling", "legal_balls", SHRINK_BOWL_BALLS)):
+        raw = {r["name"]: r[mkey] for r in records if r.get(flag) and mkey in r}
+        if not raw:
             print(f"  {era.id}: no {mkey} on disk -- run the full derivation first")
             continue
+        balls = {r["name"]: r[bkey][ball_field] for r in records if r["name"] in raw}
+        vals = {n: shrink(v, balls[n], K) for n, v in raw.items()}
         ovr = to_ovr(vals)
         for r in records:
             r[key] = ovr.get(r["name"])
@@ -251,7 +279,13 @@ def derive(era: E.Era, n: int, seed: int) -> None:
 
     bat = measure_batting(era, model, cal, ctx, n, seed)
     bowl = measure_bowling(era, model, cal, ctx, n, seed)
-    bat_ovr, bowl_ovr = to_ovr(bat), to_ovr(bowl)
+
+    # The RAW runs are what gets stored -- shrinkage and banding are cheap
+    # post-processing that --rescale-only can redo without re-simulating.
+    bat_ovr = to_ovr({nm: shrink(v, by_name[nm]["batting"]["balls"],
+                                 SHRINK_BAT_BALLS) for nm, v in bat.items()})
+    bowl_ovr = to_ovr({nm: shrink(v, by_name[nm]["bowling"]["legal_balls"],
+                                  SHRINK_BOWL_BALLS) for nm, v in bowl.items()})
 
     for r in records:
         r.pop("_bat_rank", None)

@@ -123,15 +123,48 @@ Because the measured runs are what's stored, re-tuning those anchors costs
 nothing: `derive_ovr --rescale-only` remaps what's already on disk without
 re-simulating.
 
+**Shrink by sample size.** The simulation's own noise is tiny, but it faithfully
+reproduces uncertainty carried in from the model: a batter the model only saw
+for 141 balls has an extreme fitted rate, and the measurement repeats it. Raw,
+that put **BCJ Cutting (141 balls) at OVR 90** and Livingstone (329) at 99 in
+2014–2022 — above Buttler and Pollard, on a fraction of the evidence. Pulling
+measured value toward the median by `balls / (balls + 300)` is the standard
+reliability correction, and the same idea the ETL already applies to averages
+and economies upstream.
+
 ## What the ratings look like
 
-Low-sample players are *not* inflated — the model's shrinkage handles it. Players
-under 400 balls are 53–59% of each pool but only 35% of the top 20.
+| era | top batters |
+|---|---|
+| 2008–2013 | Gayle (**99**, career 93), Pietersen (93, career 73), Miller, Dhoni |
+| 2014–2022 | de Villiers (**99**), Russell, Hetmyer, Pollard, Buttler |
+| 2023–2026 | Klaasen (**99**, career 88), Suryavanshi, **Abhishek Sharma (94)**, Patidar |
 
-Era 1's top batters are Gayle (+16.2 runs, career OVR 93 → **99**), Miller,
-Pietersen (73 → 92). Era 3's are Klaasen (+9.7, 88 → **99**), Suryavanshi,
-Pooran (81 → 90). The reordering against the old career formula is real but not
-arbitrary — r = 0.65 in era 1, 0.39 in era 3.
+The reordering against the old career formula is real but not arbitrary —
+r = 0.74 / 0.34 / 0.44 across the three eras.
+
+## Where reputation and measurement disagree
+
+This is a design consequence, not a bug, and it's worth knowing about before it
+surprises you in an auction. Team-runs-added rewards scoring **rate**, because
+in a 120-ball innings the scarce resource is balls. A high-average, medium-tempo
+accumulator can be a great cricketer and still add ~0 runs over a median player
+in the same slot.
+
+| player | era | OVR | strike rate | measured |
+|---|---|---|---|---|
+| V Kohli | 2014–2022 | 70 | 129.9 (**p51**) | −1.3 runs |
+| MS Dhoni | 2014–2022 | 69 | 131.6 (p57) | −1.6 runs |
+| F du Plessis | 2014–2022 | 69 | 130.4 (p55) | −1.6 runs |
+
+Kohli's strike rate in that era is *exactly* the pool median, so "roughly
+replacement level by runs added" is arithmetic, not an opinion. The same logic
+that demotes him is the logic that correctly demoted Amla (SR 119) and promoted
+Abhishek Sharma — which is the reordering this whole exercise was for.
+
+`ml/check_ovr.py` prints these every run under **WATCH** rather than asserting on
+them, so the divergence stays visible instead of being either hidden or baked in
+as a fake requirement.
 
 One consequence of smaller pools: era draft sets run short at 8 teams (~78–87
 players pulled vs all-time's 118). Auto-fill covers the gap from the undrafted
