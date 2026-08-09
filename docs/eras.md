@@ -101,6 +101,43 @@ same lineups, same bowling plans. Unpaired, the noise (±3.5 runs) swamps the
 signal (a ~10-run spread across the whole pool). Paired, the same comparison is
 stable to ~0.5 runs.
 
+**Anchor the band on the median, not the extremes.** Mapping measured runs
+linearly from the pool's worst player to its best hands the entire scale to two
+outliers. Bowling has a long thin *bad* tail — a few part-timers conceding 12+
+runs over baseline — against a tightly packed good end, so stretched across that
+range the **median** 2023–2026 bowler landed on OVR 86, putting 69 of 100 bowlers
+above the marquee cut. An auction where two thirds of the pool is marquee has no
+tiers at all. Anchoring median→68 and p95→88 restores the pyramid:
+
+| era | marquee | mid | base |
+|---|---|---|---|
+| 2008–2013 | 62 → **31** | 85 → 78 | 70 → **108** |
+| 2023–2026 | 100 → **39** | 76 → 58 | 25 → **104** |
+
+Still linear in runs between the anchors — a 5-run gap is still a 5-run gap; only
+the anchor points moved. Both ends clip, so the bad tail compresses into 55
+instead of setting the scale for everyone above it, and only 2–3 players per era
+clip at 99, leaving the elite properly separated.
+
+Because the measured runs are what's stored, re-tuning those anchors costs
+nothing: `derive_ovr --rescale-only` remaps what's already on disk without
+re-simulating.
+
+## What the ratings look like
+
+Low-sample players are *not* inflated — the model's shrinkage handles it. Players
+under 400 balls are 53–59% of each pool but only 35% of the top 20.
+
+Era 1's top batters are Gayle (+16.2 runs, career OVR 93 → **99**), Miller,
+Pietersen (73 → 92). Era 3's are Klaasen (+9.7, 88 → **99**), Suryavanshi,
+Pooran (81 → 90). The reordering against the old career formula is real but not
+arbitrary — r = 0.65 in era 1, 0.39 in era 3.
+
+One consequence of smaller pools: era draft sets run short at 8 teams (~78–87
+players pulled vs all-time's 118). Auto-fill covers the gap from the undrafted
+remainder. This is pool size, not the rating method — the old min/max scale
+pulled 81.
+
 ## The circularity, and how it's broken
 
 OVR is derived *from* the model, so the model must never take it as an input.
