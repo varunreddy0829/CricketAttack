@@ -59,45 +59,57 @@ def main() -> None:
         _, j = post("/api/join_tournament", {"code": a["code"], "name": f"T{n}"})
         toks.append(j["token"])
 
-    tl = get(toks[0]).get("tournament_lobby") or {}
-    eras = tl.get("eras") or []
+    # ready FIRST -- era selection is now its own step after that
+    for t in toks:
+        post("/api/start_auction", {"token": t})
+    st = get(toks[0])
+    print(f"   phase after everyone ready: {st.get('phase')}")
+    if st.get("phase") != "era":
+        failures.append(f"expected the era screen after Ready, got {st.get('phase')}")
+    ep = st.get("era_pick") or {}
+    eras = ep.get("eras") or []
     playable = [e["id"] for e in eras if not e.get("coming_soon")]
-    print(f"1. tournament lobby exposes {len(eras)} eras, {len(playable)} playable")
+    print(f"1. era screen exposes {len(eras)} eras, {len(playable)} playable")
     if not eras:
-        failures.append("tournament_lobby carries no era options -- no picker can render")
+        failures.append("era screen carries no era options -- no picker can render")
     if len(playable) < 2:
         failures.append(f"need 2 playable eras, found {playable}")
         _report(failures)
         return
     first, second = playable[0], playable[1]
 
-    print("\n2. teams pick DIFFERENT eras")
+    print("\n2. teams pick DIFFERENT eras -- nothing should advance")
     post("/api/vote_era", {"token": toks[0], "era": first})
     post("/api/vote_era", {"token": toks[1], "era": second})
-    tl = get(toks[0])["tournament_lobby"]
-    print(f"   era_clash={tl.get('era_clash')}  voted={tl.get('voted_count')}/{tl.get('size')}")
-    if not tl.get("era_clash"):
-        failures.append("a genuine era clash was not reported to the lobby")
-    code, body = post("/api/start_auction", {"token": toks[0]})
-    print(f"   start_auction -> HTTP {code}: {body.get('message')!r}")
-    if code == 200:
-        failures.append("the auction started while teams disagreed on the era")
+    st = get(toks[0])
+    ep = st.get("era_pick") or {}
+    print(f"   clash={ep.get('clash')}  voted={ep.get('voted_count')}/{ep.get('teams')}"
+          f"  phase={st.get('phase')}")
+    if not ep.get("clash"):
+        failures.append("a genuine era clash was not reported")
+    if st.get("phase") != "era":
+        failures.append(f"a disagreement let the game leave the era screen "
+                        f"({st.get('phase')})")
 
-    print("\n3. everyone agrees")
+    print("\n2b. a withheld era is refused")
+    soon = [e["id"] for e in eras if e.get("coming_soon")]
+    if soon:
+        code, body = post("/api/vote_era", {"token": toks[0], "era": soon[0]})
+        print(f"   vote {soon[0]} -> HTTP {code}: {body.get('message')!r}")
+        if code == 200:
+            failures.append(f"{soon[0]} is coming soon but was still votable")
+
+    print("\n3. everyone agrees -- should advance on its own")
     for t in toks:
         post("/api/vote_era", {"token": t, "era": first})
-    tl = get(toks[0])["tournament_lobby"]
-    print(f"   era_agreed={tl.get('era_agreed')}  clash={tl.get('era_clash')}")
-    if tl.get("era_agreed") != first:
-        failures.append(f"agreement did not lock the era in ({tl.get('era_agreed')})")
-
-    print("\n4. through grounds into the auction")
-    for t in toks:
-        post("/api/start_auction", {"token": t})
     st = get(toks[0])
     print(f"   phase={st.get('phase')}  era={st.get('era')}")
+    if st.get("era") != first:
+        failures.append(f"agreement did not lock the era in ({st.get('era')})")
     if st.get("phase") != "grounds":
-        failures.append(f"expected the grounds phase first, got {st.get('phase')}")
+        failures.append(f"agreement did not advance to grounds ({st.get('phase')})")
+
+    print("\n4. grounds, then the auction")
     for t in toks:
         gr = get(t).get("grounds") or {}
         free = [g["id"] for g in (gr.get("stadiums") or []) if not g.get("taken")]

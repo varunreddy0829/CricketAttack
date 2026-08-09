@@ -66,11 +66,13 @@ class AuctionDriver:
         self.ta, code = a["token"], a["code"]
         b = self.post("/api/join_game", {"code": code, "name": "Bravo"})
         self.tb = b["token"]
+        # Ready first, then the era screen, then home grounds -- era selection
+        # is its own step now rather than a strip inside the lobby.
+        for tok in (self.ta, self.tb):
+            self.post("/api/start_auction", {"token": tok})
         if era:
             for tok in (self.ta, self.tb):
                 self.post("/api/vote_era", {"token": tok, "era": era})
-        for tok in (self.ta, self.tb):
-            self.post("/api/start_auction", {"token": tok})
         self.pick_grounds()
         return code
 

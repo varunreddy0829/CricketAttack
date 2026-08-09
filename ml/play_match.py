@@ -63,12 +63,12 @@ class Driver:
         a = self.post("/api/create_game", {"name": "Alpha"})
         self.ta, code = a["token"], a["code"]
         self.tb = self.post("/api/join_game", {"code": code, "name": "Bravo"})["token"]
-        if era:
-            # both teams must agree on the era before the lobby will let go --
-            # it decides the player pool, the engine and the baselines
-            for tok in (self.ta, self.tb):
-                self.post("/api/vote_era", {"token": tok, "era": era})
+        # Quick Match routes through the era screen too -- skipping the draft
+        # doesn't mean skipping the choice of game. Request it, then agree on the
+        # era, and the match starts itself.
         self.post("/api/quick_match", {"token": self.ta})
+        for tok in (self.ta, self.tb):
+            self.post("/api/vote_era", {"token": tok, "era": era or "all_time"})
         for tok in (self.ta, self.tb):
             if self.post("/api/toss_choice", {"token": tok, "choice": "bat"}).get(
                     "status") == "success":

@@ -714,6 +714,9 @@ def _fresh_game(num_teams=2):
         # snapshots restored from before eras existed keep playing.
         "era": DEFAULT_ERA,
         "era_votes": {t: None for t in team_ids},
+        # what the era screen hands off to once everyone agrees: "auction" or
+        # "quick". Read with .get() everywhere, so a pre-era snapshot is fine.
+        "after_era": "auction",
         "auction": None,
         "squads": None,
         "xi_select": None,
@@ -2164,6 +2167,32 @@ def _to_xi():
     _set_match_venue(random.choice(GAME["team_ids"][:2]))
 
 
+def _to_era_pick(next_step="auction"):
+    """Era selection on its OWN screen, after everyone has pressed Ready.
+
+    It used to sit inside the lobby beside the Ready button, and mixing the two
+    was a genuine trap: people pressed Ready before noticing the picker, nobody
+    had voted, and _era_block_reason -- deliberately permissive when NOBODY has
+    voted -- let the game start on the all-time default. Separating the steps
+    makes the choice unmissable and unambiguous.
+
+    `next_step` is what happens once everyone agrees: the auction (which begins
+    with home grounds) or a straight Quick Match.
+    """
+    GAME["phase"] = "era"
+    GAME["after_era"] = next_step
+    GAME["era_votes"] = {t: None for t in GAME["team_ids"]}
+
+
+def _era_pick_done():
+    """Everyone has agreed. Move on to whatever they were heading for."""
+    GAME["era"] = _era_agreed(GAME) or DEFAULT_ERA
+    if GAME.get("after_era") == "quick":
+        return _run_quick_match()
+    _to_grounds()
+    return None
+
+
 def _to_grounds():
     """PRE-auction home-ground selection.
 
@@ -3007,8 +3036,6 @@ def _serialize(token):
     if g["phase"] == "lobby":
         if is_tournament:
             t = g["tournament"]
-            votes = g.get("era_votes") or {}
-            picked = [votes.get(tid) for tid in g["team_ids"]]
             out["tournament_lobby"] = {
                 "size": t["size"],
                 "joined_count": sum(1 for tid in g["team_ids"] if g["teams"][tid]["joined"]),
@@ -3017,32 +3044,36 @@ def _serialize(token):
                 "all_joined": all(g["teams"][tid]["joined"] for tid in g["team_ids"]),
                 "start_votes": g["start_votes"],
                 "i_voted": g["start_votes"].get(role, False) if role else False,
-                # A tournament picks an era exactly like a 1v1 does. Without
-                # these the client had nothing to render a picker from, so
-                # nobody ever voted and _era_block_reason -- deliberately
-                # permissive when NOBODY has voted -- waved the game through on
-                # the all-time default.
-                "eras": _era_options(),
-                "era_votes": votes,
-                "my_era": votes.get(role) if role else None,
-                "era_agreed": _era_agreed(g),
-                # with 3-8 teams there is no single "opponent", so report the
-                # spread instead: how many have chosen, and whether they clash
-                "voted_count": sum(1 for p in picked if p is not None),
-                "era_clash": len({p for p in picked if p is not None}) > 1,
             }
         else:
-            votes = g.get("era_votes") or {}
+            # The era picker moved OUT of the lobby onto its own screen
+            # (phase == "era"). Mixing the two meant people pressed Ready before
+            # noticing the picker and the game silently defaulted.
             out["lobby"] = {
                 "start_votes": g["start_votes"],
                 "i_voted": g["start_votes"].get(role, False) if role else False,
                 "opponent_voted": g["start_votes"].get(opp_role, False) if opp_role else False,
-                "eras": _era_options(),
-                "era_votes": votes,
-                "my_era": votes.get(role) if role else None,
-                "opponent_era": votes.get(opp_role) if opp_role else None,
-                "era_agreed": _era_agreed(g),
             }
+        return out
+
+    if g["phase"] == "era":
+        votes = g.get("era_votes") or {}
+        picked = [votes.get(tid) for tid in g["team_ids"]]
+        n = len(g["team_ids"])
+        out["era_pick"] = {
+            "eras": _era_options(),
+            "my_era": votes.get(role) if role else None,
+            "era_agreed": _era_agreed(g),
+            "teams": n,
+            "voted_count": sum(1 for p in picked if p is not None),
+            "clash": len({p for p in picked if p is not None}) > 1,
+            # who has chosen, without saying WHAT they chose -- seeing an
+            # opponent's pick before you commit would just start a staring match
+            "roster": [{"name": g["teams"][tid]["name"],
+                        "voted": votes.get(tid) is not None,
+                        "is_me": tid == role} for tid in g["team_ids"]],
+            "next": "Quick Match" if g.get("after_era") == "quick" else "the auction",
+        }
         return out
 
     if g["phase"] == "auction":
@@ -3703,25 +3734,30 @@ def quick_match():
         if GAME is None:
             return jsonify({"status": "error", "message": "Game not found or session expired."}), 404
         _require_both_joined()
-        blocked = _era_block_reason(GAME)
-        if blocked:
-            return jsonify({"status": "error", "message": blocked}), 400
-        t1_xi, t2_xi, t1_roster, t2_roster = _auto_two_xis()
-        GAME["teams"]["team1"]["xi"] = t1_xi
-        GAME["teams"]["team2"]["xi"] = t2_xi
-        # populate squads (XI + 2 reserves each) so Impact Player has a bench
-        # to draw from -- Quick Match otherwise never touches GAME["squads"]
-        GAME["squads"] = {
-            t: {**_new_squad(), "roster": roster, "locked": True,
-                "os": sum(1 for p in roster if p.get("is_foreigner")),
-                "wk": sum(1 for p in roster if p.get("is_keeper"))}
-            for t, roster in (("team1", t1_roster), ("team2", t2_roster))
-        }
-        GAME["match_teams"] = GAME["team_ids"][:2]
-        _set_match_venue(None, GAME["match_teams"])   # Quick Match: neutral venue
-        _start_single_match()
+        # Quick Match picks its era on the same dedicated screen the auction path
+        # uses -- skipping the draft shouldn't mean skipping the choice of game.
+        _to_era_pick("quick")
         _bump()
         return jsonify({"status": "success"})
+
+
+def _run_quick_match():
+    """Auto-draft two XIs and start. Called once the era has been agreed."""
+    t1_xi, t2_xi, t1_roster, t2_roster = _auto_two_xis()
+    GAME["teams"]["team1"]["xi"] = t1_xi
+    GAME["teams"]["team2"]["xi"] = t2_xi
+    # populate squads (XI + 2 reserves each) so Impact Player has a bench
+    # to draw from -- Quick Match otherwise never touches GAME["squads"]
+    GAME["squads"] = {
+        t: {**_new_squad(), "roster": roster, "locked": True,
+            "os": sum(1 for p in roster if p.get("is_foreigner")),
+            "wk": sum(1 for p in roster if p.get("is_keeper"))}
+        for t, roster in (("team1", t1_roster), ("team2", t2_roster))
+    }
+    GAME["match_teams"] = GAME["team_ids"][:2]
+    _set_match_venue(None, GAME["match_teams"])   # Quick Match: neutral venue
+    _start_single_match()
+    return None
 
 
 # --- Era selection -----------------------------------------------------------
@@ -3745,24 +3781,27 @@ def vote_era():
         role = _role_of(data.get("token", ""))
         if role is None:
             return jsonify({"status": "error", "message": "Unknown player."}), 403
-        if GAME["phase"] != "lobby":
-            return jsonify({"status": "error", "message": "The match has already started."}), 400
+        if GAME["phase"] != "era":
+            return jsonify({"status": "error",
+                            "message": "Not choosing an era right now."}), 400
 
         era_id = data.get("era")
         if era_id not in ERA_POOLS:
             return jsonify({"status": "error", "message": "Unknown era."}), 400
         if era_id in COMING_SOON:
-            # enforced here too, not only hidden in the lobby -- the UI is not a
-            # security boundary and a stale client could still post the id
+            # enforced here too, not only hidden in the UI -- the client is not a
+            # security boundary and a stale one could still post the id
             return jsonify({"status": "error",
                             "message": f"{ERA_DEFS.ERAS[era_id].label} is coming soon."}), 400
 
         GAME.setdefault("era_votes", {t: None for t in GAME["team_ids"]})[role] = era_id
         agreed = _era_agreed(GAME)
         if agreed:
-            GAME["era"] = agreed
+            # everyone converged -- carry straight on to grounds or Quick Match
+            _era_pick_done()
         _bump()
-        return jsonify({"status": "success", "era": GAME.get("era"), "agreed": bool(agreed)})
+        return jsonify({"status": "success", "era": GAME.get("era"),
+                        "agreed": bool(agreed), "phase": GAME["phase"]})
 
 
 # --- Auction endpoints -------------------------------------------------------
@@ -3787,11 +3826,12 @@ def start_auction():
             return jsonify({"status": "error", "message": blocked}), 400
         GAME["start_votes"][role] = True
         if all(GAME["start_votes"][t] for t in GAME["team_ids"]):
-            # HOME GROUND FIRST, then the auction. The pitch decides what kind of
-            # squad you want -- spinners for a turning track, hitters for a road
-            # -- so choosing it afterwards makes it decorative. And because each
-            # side's pick is hidden, neither can bid up the other's specialists.
-            _to_grounds()
+            # ERA first, on its own screen. Then home grounds, then the auction:
+            # the pitch decides what kind of squad you want -- spinners for a
+            # turning track, hitters for a road -- so choosing it afterwards
+            # makes it decorative. Each side's ground stays hidden, so neither
+            # can bid up the other's specialists.
+            _to_era_pick("auction")
         _bump()
         return jsonify({"status": "success"})
 

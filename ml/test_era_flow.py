@@ -53,8 +53,16 @@ def main() -> None:
     ta, code = a["token"], a["code"]
     tb = post("/api/join_game", {"code": code, "name": "Bravo"})["token"]
 
-    lob = get(f"/api/state?token={ta}").get("lobby") or {}
-    eras = lob.get("eras") or []
+    # Ready FIRST. Era selection is its own screen after that -- it used to sit
+    # beside the Ready button, and people pressed Ready without noticing it.
+    post("/api/start_auction", {"token": ta})
+    post("/api/start_auction", {"token": tb})
+    st = get(f"/api/state?token={ta}")
+    print(f"phase after both ready: {st.get('phase')}")
+    if st.get("phase") != "era":
+        failures.append(f"expected the era screen after Ready, got {st.get('phase')}")
+    ep = st.get("era_pick") or {}
+    eras = ep.get("eras") or []
     print(f"eras offered ({len(eras)}):")
     for e in eras:
         soon = "   COMING SOON" if e.get("coming_soon") else ""
@@ -74,39 +82,56 @@ def main() -> None:
         raise SystemExit(1)
     first, second = playable[0], playable[1]
 
-    print("\n1. teams pick DIFFERENT eras")
+    print("\n1. teams pick DIFFERENT eras -- must not advance")
     post("/api/vote_era", {"token": ta, "era": first})
     post("/api/vote_era", {"token": tb, "era": second})
-    r = post("/api/quick_match", {"token": ta})
-    print(f"   start blocked: {r.get('message')!r}")
-    if r.get("status") == "success":
-        failures.append("a disagreement did NOT block the start")
+    st = get(f"/api/state?token={ta}")
+    print(f"   phase={st.get('phase')}  clash={(st.get('era_pick') or {}).get('clash')}")
+    if st.get("phase") != "era":
+        failures.append("a disagreement let the game leave the era screen")
 
-    print("\n2. they agree")
-    r = post("/api/vote_era", {"token": tb, "era": first})
-    print(f"   agreed={r.get('agreed')}  era={r.get('era')}")
-    if not r.get("agreed") or r.get("era") != first:
-        failures.append("agreement did not lock the era in")
-
-    print("\n2b. a withheld era is refused")
+    print("\n1b. a withheld era is refused")
     soon_ids = [e["id"] for e in eras if e.get("coming_soon")]
     if soon_ids:
         r = post("/api/vote_era", {"token": ta, "era": soon_ids[0]})
         print(f"   vote {soon_ids[0]} -> {r.get('message')!r}")
         if r.get("status") == "success":
             failures.append(f"{soon_ids[0]} is flagged coming soon but still votable")
-        # the refusal must not have disturbed the agreed era
-        post("/api/vote_era", {"token": ta, "era": first})
 
-    print("\n3. match starts")
-    r = post("/api/quick_match", {"token": ta})
+    print("\n2. they agree -- advances on its own")
+    post("/api/vote_era", {"token": ta, "era": first})
+    r = post("/api/vote_era", {"token": tb, "era": first})
+    print(f"   agreed={r.get('agreed')}  era={r.get('era')}  phase={r.get('phase')}")
+    if not r.get("agreed") or r.get("era") != first:
+        failures.append("agreement did not lock the era in")
+
+    print("\n3. agreement leads straight to home grounds")
     st = get(f"/api/state?token={ta}")
-    print(f"   quick_match={r.get('status')}  phase={st.get('phase')}  "
-          f"era={st.get('era')}")
-    if r.get("status") != "success":
-        failures.append(f"quick_match failed: {r.get('message')}")
+    print(f"   phase={st.get('phase')}  era={st.get('era')}")
+    if st.get("phase") != "grounds":
+        failures.append(f"expected grounds after agreement, got {st.get('phase')}")
     if st.get("era") != first:
         failures.append(f"wrong era in play: {st.get('era')} (wanted {first})")
+
+    # Quick Match takes the SAME era screen -- skipping the draft should not mean
+    # skipping the choice of game.
+    print("\n4. Quick Match also routes through the era screen")
+    qa = post("/api/create_game", {"name": "Q1"})
+    qb = post("/api/join_game", {"code": qa["code"], "name": "Q2"})
+    r = post("/api/quick_match", {"token": qa["token"]})
+    st = get(f"/api/state?token={qa['token']}")
+    print(f"   quick_match={r.get('status')}  phase={st.get('phase')}"
+          f"  next={(st.get('era_pick') or {}).get('next')!r}")
+    if st.get("phase") != "era":
+        failures.append(f"Quick Match skipped the era screen ({st.get('phase')})")
+    for tok in (qa["token"], qb["token"]):
+        post("/api/vote_era", {"token": tok, "era": first})
+    st = get(f"/api/state?token={qa['token']}")
+    print(f"   after agreeing -> phase={st.get('phase')}  era={st.get('era')}")
+    if st.get("phase") != "match":
+        failures.append(f"Quick Match did not start after agreement ({st.get('phase')})")
+    if st.get("era") != first:
+        failures.append(f"Quick Match playing {st.get('era')}, wanted {first}")
 
     print()
     if failures:

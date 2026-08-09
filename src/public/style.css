@@ -289,7 +289,12 @@ button:disabled {
 }
 
 /* ---------- Lobby ---------- */
-#lobby {
+/* The tournament lobby had NO rules of its own -- it fell back to bare
+ * `.screen.active { display: flex }`, which is row-direction and uncentred.
+ * That went unnoticed while it held only a full-width elevator and a button,
+ * but the era picker is a 620px box and it stretched edge to edge. */
+#lobby,
+#t-lobby {
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -1650,15 +1655,61 @@ button:disabled {
    Both teams must land on the same era: it decides the player pool, the ball
    engine and the scoring baselines. The card shows who has picked what so a
    disagreement is visible rather than a failed button press. */
-/* both lobbies use the same picker -- the 1v1 one and the tournament one */
-#era-pick,
-#t-era-pick {
+/* Era selection is its own screen now, not a strip inside the lobby. */
+#era-screen {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+}
+
+#era-main {
     width: 100%;
-    max-width: 620px;
-    margin: 0.6rem auto 0;
+    max-width: 760px;
     display: flex;
     flex-direction: column;
-    gap: 0.55rem;
+    gap: 0.9rem;
+    text-align: center;
+}
+
+.era-heading {
+    font-family: 'Oswald', sans-serif;
+    color: var(--gold);
+    font-size: 1.9rem;
+    margin: 0;
+}
+
+.era-sub {
+    color: var(--cream-2);
+    opacity: 0.75;
+    font-size: 0.85rem;
+    max-width: 52ch;
+    margin: 0 auto;
+}
+
+/* who has committed -- never WHAT they committed to */
+.era-voters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    justify-content: center;
+}
+
+.era-voter {
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: var(--cream-2);
+    opacity: 0.5;
+}
+
+.era-voter.voted {
+    border-color: var(--green-go);
+    color: var(--green-go);
+    opacity: 1;
 }
 
 .era-title {
@@ -1670,10 +1721,14 @@ button:disabled {
     text-align: center;
 }
 
+/* Sized for the era SCREEN, not the old lobby strip: 210px keeps five eras on
+ * two comfortable rows on a laptop and stacks cleanly on a phone. auto-fit with
+ * a floor is what stops one card stretching the full window width. */
 .era-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 0.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 0.7rem;
+    text-align: left;
 }
 
 .era-card {

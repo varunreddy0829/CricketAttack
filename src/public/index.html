@@ -102,7 +102,6 @@
     <!-- ============ TOURNAMENT LOBBY (elevator theme) ============ -->
     <div id="t-lobby" class="screen">
         <div id="t-lobby-elevator"></div>
-        <div id="t-era-pick" class="hidden"></div>
         <button class="btn-gold btn-lg hidden" id="btn-t-start">Start Auction Draft</button>
         <div class="tagline" style="max-width:440px; text-align:center; opacity:0.7;">
             Round robin (everyone plays everyone once) seeds the playoffs: top 2 go to Qualifier 1, the loser gets a
@@ -116,9 +115,13 @@
     </div>
 
     <!-- ============ LOBBY (elevator theme) ============ -->
+    <!-- ============ ERA SELECTION (its own step, after Ready) ============ -->
+    <div id="era-screen" class="screen">
+        <div id="era-main"></div>
+    </div>
+
     <div id="lobby" class="screen">
         <div id="lobby-elevator"></div>
-        <div id="era-pick" class="hidden"></div>
         <div id="lobby-actions" class="hidden"
             style="display:flex; flex-direction:column; gap:0.8rem; align-items:center;">
             <button class="btn-gold btn-lg" id="btn-auction">Start Auction Draft</button>

@@ -405,6 +405,7 @@ function render(state) {
         else { showScreen('lobby'); renderLobby(state); }
         return;
     }
+    if (state.phase === 'era') { showScreen('era-screen'); renderEraScreen(state); return; }
     if (state.phase === 'auction') { showScreen('auction'); renderAuction(state); return; }
     if (state.phase === 'grounds') { showScreen('grounds-screen'); renderGrounds(state); return; }
     if (state.phase === 'xi') { showScreen('xi-screen'); renderXI(state); return; }
@@ -488,68 +489,57 @@ function elevatorLobbyHtml(code, guests, statusText) {
     </div>`;
 }
 
-// Serves BOTH lobbies. A tournament used to render its own lobby and never call
-// this, so no picker ever appeared, nobody voted, and the server -- which is
-// deliberately permissive when NOBODY has voted -- started the auction on the
-// all-time default without ever asking.
-function renderEraPick(state, opts) {
-    const o = opts || {};
-    const lob = o.lobby || state.lobby || {};
-    const eras = lob.eras || [];
-    const box = $(o.boxId || 'era-pick');
-    if (!box) return;
-    const ready = o.ready !== undefined
-        ? o.ready
-        : (state.you.joined && state.opponent.joined);
-    box.classList.toggle('hidden', !ready || !eras.length);
-    if (!ready || !eras.length) return;
+// ---------- era selection (phase == 'era', its own screen) ----------
+//
+// This used to live INSIDE the lobby, next to the Ready button, and mixing the
+// two was a trap: people pressed Ready before noticing the picker, so nobody
+// voted, and the server -- deliberately permissive when NOBODY has voted --
+// started the game on the all-time default without ever asking. It is now a
+// step of its own that has to be completed before anything else happens.
+function renderEraScreen(state) {
+    const ep = state.era_pick || {};
+    const eras = ep.eras || [];
+    const mine = ep.my_era;
+    const teams = ep.teams || 2;
 
-    // Everyone must land on the SAME era -- it decides the player pool, the
-    // ball engine and the scoring baselines, so a mismatch can't be papered over.
-    // A tournament has 3-8 teams and therefore no single "opponent", so
-    // `theirs` is only meaningful in the 1v1 case.
-    const mine = lob.my_era, theirs = lob.opponent_era;
     const cards = eras.map(e => {
-        const iPicked = mine === e.id, theyPicked = theirs === e.id;
         // An era whose trained model is missing or stale would silently play on
         // the classic engine -- same squads, none of its own scoring level,
         // phase acceleration or spin/pace character. Shown, but not selectable.
         const soon = !!e.coming_soon;
+        const iPicked = mine === e.id;
         const cls = ['era-card', soon ? 'soon' : '', iPicked ? 'mine' : '',
-                     theyPicked ? 'theirs' : '',
-                     (iPicked && theyPicked) ? 'agreed' : ''].filter(Boolean).join(' ');
-        const who = [iPicked ? 'You' : null, theyPicked ? 'Opponent' : null]
-            .filter(Boolean).join(' + ');
+                     (iPicked && ep.era_agreed) ? 'agreed' : ''].filter(Boolean).join(' ');
         return `<button class="${cls}" ${soon ? 'disabled' : `data-era="${e.id}"`}>
             <span class="era-years">${e.is_all_time ? 'ALL-TIME' : e.first + '–' + e.last}</span>
             <span class="era-label">${e.label}</span>
             <span class="era-tag">${e.tagline || ''}</span>
             <span class="era-meta">${soon ? 'Coming soon' : e.players + ' players'}</span>
-            ${who ? `<span class="era-who">${who}</span>` : ''}
+            ${iPicked ? '<span class="era-who">Your pick</span>' : ''}
         </button>`;
     }).join('');
 
-    const teams = o.teams || 2;
-    let status;
-    if (lob.era_agreed) status = `Playing <b>${eras.find(e => e.id === lob.era_agreed)?.label}</b>`;
-    else if (teams > 2) {
-        // no single opponent to name -- report the spread instead
-        const voted = lob.voted_count || 0;
-        if (lob.era_clash) status = `Teams have picked different eras — all ${teams} must agree.`;
-        else if (mine) status = `${voted}/${teams} picked. Waiting for the rest…`;
-        else if (voted) status = `${voted}/${teams} have picked. Choose an era.`;
-        else status = `Pick an era (all ${teams} teams must agree).`;
-    }
-    else if (mine && theirs) status = 'You picked different eras — agree on one to start.';
-    else if (mine) status = 'Waiting for your opponent to pick…';
-    else if (theirs) status = 'Your opponent has picked. Choose an era.';
-    else status = 'Pick an era (both must agree).';
+    // who has chosen -- deliberately NOT what they chose, so nobody waits to
+    // see the others before committing
+    const chips = (ep.roster || []).map(r =>
+        `<span class="era-voter ${r.voted ? 'voted' : ''}">${r.name}${r.is_me ? ' (you)' : ''}</span>`
+    ).join('');
 
-    box.innerHTML = `<div class="era-title">Choose your era</div>
+    let status;
+    if (ep.clash) status = `Different picks — all ${teams} must land on the same era.`;
+    else if (mine) status = `${ep.voted_count}/${teams} chosen. Waiting for the rest…`;
+    else if (ep.voted_count) status = `${ep.voted_count}/${teams} have chosen. Pick yours.`;
+    else status = `Everyone picks one. Agree and you go straight to ${ep.next || 'the auction'}.`;
+
+    $('era-main').innerHTML = `
+        <h2 class="era-heading">Choose your era</h2>
+        <div class="era-sub">It decides the player pool, the ball engine and how the
+            game itself plays. All ${teams} must agree.</div>
         <div class="era-grid">${cards}</div>
+        <div class="era-voters">${chips}</div>
         <div class="era-status">${status}</div>`;
 
-    box.querySelectorAll('.era-card').forEach(el => {
+    document.querySelectorAll('#era-main [data-era]').forEach(el => {
         el.onclick = async () => {
             try {
                 await Net.post('/api/vote_era', { era: el.dataset.era });
@@ -573,17 +563,12 @@ function renderLobby(state) {
         : 'Waiting for opponent to join…';
     $('lobby-elevator').innerHTML = elevatorLobbyHtml(state.code, guests, statusText);
 
-    renderEraPick(state);
-
     $('lobby-actions').classList.toggle('hidden', !both);
     const btn = $('btn-auction');
-    // block starting on a mismatch -- the server enforces this too, but the
-    // button shouldn't invite a click that can only fail
-    const clash = lob.my_era && lob.opponent_era && !lob.era_agreed;
-    const quick = $('btn-quick');
-    if (quick) quick.disabled = !!clash;
-    if (clash) { btn.textContent = 'Agree on an era first'; btn.disabled = true; }
-    else if (lob.i_voted) { btn.textContent = 'Waiting for opponent…'; btn.disabled = true; }
+    // No era gating here any more -- picking the era is its own step that comes
+    // AFTER everyone is ready (phase == 'era'), so there is nothing to clash on
+    // while still in the lobby.
+    if (lob.i_voted) { btn.textContent = 'Waiting for opponent…'; btn.disabled = true; }
     else if (lob.opponent_voted) { btn.textContent = "Ready for Auction (opponent's in)"; btn.disabled = false; }
     else { btn.textContent = 'Ready for Auction'; btn.disabled = false; }
 }
@@ -600,20 +585,11 @@ function renderTournamentLobby(state) {
         : `${tl.joined_count}/${tl.size} teams joined`;
     $('t-lobby-elevator').innerHTML = elevatorLobbyHtml(state.code, guests, statusText);
 
-    // Same picker the 1v1 lobby uses. Its absence here is why a tournament went
-    // straight from the lobby to grounds and then the auction without ever
-    // asking which era to play.
-    renderEraPick(state, {
-        lobby: tl, boxId: 't-era-pick', ready: tl.all_joined, teams: tl.size,
-    });
-
     const btn = $('btn-t-start');
     btn.classList.toggle('hidden', !tl.all_joined);
     if (tl.all_joined) {
-        // block on a mismatch -- the server enforces it too, but the button
-        // shouldn't invite a click that can only fail
-        if (tl.era_clash) { btn.textContent = 'Agree on an era first'; btn.disabled = true; }
-        else if (tl.i_voted) { btn.textContent = 'Waiting for everyone…'; btn.disabled = true; }
+        // choosing the era is its own step after this one -- nothing to gate on here
+        if (tl.i_voted) { btn.textContent = 'Waiting for everyone…'; btn.disabled = true; }
         else { btn.textContent = 'Ready for Auction'; btn.disabled = false; }
     }
 }
