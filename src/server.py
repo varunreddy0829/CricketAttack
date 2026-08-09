@@ -1681,6 +1681,21 @@ def _start_auction():
     # trustworthy rating, which is 201-246 per era against the 175 an 8-team
     # auction needs
     sets, _total, _os = generate_draft_pool(_pool()["draft"], set_sizes=set_sizes)
+
+    # An era whose OVRs haven't been derived yet is all placeholders, so every
+    # tier boundary collapses onto the same number and generate_draft_pool can
+    # only find ONE player per set -- 15 lots for two squads that need 15 each.
+    # That used to strand the auction in `preview` with no explanation. Refuse
+    # up front and name the build step instead.
+    need = len(GAME["team_ids"]) * SQUAD_MIN
+    if _total < need:
+        era_id = _era_id(GAME)
+        label = ERA_DEFS.ERAS[era_id].label
+        raise ValueError(
+            f"The {label} pool can only fill {_total} auction lots, but "
+            f"{len(GAME['team_ids'])} teams need {need}. Its player ratings are "
+            f"probably still placeholders -- run "
+            f"`python -m ml.train.derive_ovr --era {era_id}`.")
     pool = []
     for s in sets:
         for p in s["players"]:
@@ -3679,7 +3694,14 @@ def start_auction():
             return jsonify({"status": "error", "message": blocked}), 400
         GAME["start_votes"][role] = True
         if all(GAME["start_votes"][t] for t in GAME["team_ids"]):
-            _start_auction()
+            try:
+                _start_auction()
+            except ValueError as e:
+                # an era whose ratings aren't built can't fill a draft -- clear
+                # the votes so the lobby stays usable and say why
+                GAME["start_votes"] = {t: False for t in GAME["team_ids"]}
+                _bump()
+                return jsonify({"status": "error", "message": str(e)}), 400
         _bump()
         return jsonify({"status": "success"})
 

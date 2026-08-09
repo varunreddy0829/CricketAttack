@@ -66,7 +66,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "A Badoni",
@@ -131,11 +133,13 @@
    "avg": 6.0,
    "sr": 6.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 65,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -4.21,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "A Choudhary",
@@ -204,7 +208,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "A Dananjaya",
@@ -273,7 +279,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "A Manohar",
@@ -342,7 +350,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "A Mishra",
@@ -407,11 +417,13 @@
    "avg": 30.16,
    "sr": 22.97
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 55,
+  "bowling_ovr": 79,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -9.3,
+  "measured_bowl_value": 6.9
  },
  {
   "name": "A Nehra",
@@ -477,10 +489,12 @@
    "sr": 16.04
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 78,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 6.69
  },
  {
   "name": "A Nortje",
@@ -546,10 +560,12 @@
    "sr": 15.59
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 86,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 8.63
  },
  {
   "name": "A Tomar",
@@ -618,7 +634,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "A Zampa",
@@ -684,10 +702,12 @@
    "sr": 14.28
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 77,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 6.51
  },
  {
   "name": "AB Dinda",
@@ -753,10 +773,12 @@
    "sr": 35.73
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": -0.55
  },
  {
   "name": "AB de Villiers",
@@ -826,11 +848,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 99,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 7.73,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "AD Hales",
@@ -895,11 +919,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 63,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -4.75,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "AD Mathews",
@@ -964,11 +990,13 @@
    "avg": 43.71,
    "sr": 30.0
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 67,
+  "bowling_ovr": 58,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -3.56,
+  "measured_bowl_value": 1.5
  },
  {
   "name": "AD Nath",
@@ -1037,7 +1065,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "AD Russell",
@@ -1107,11 +1137,13 @@
    "avg": 22.55,
    "sr": 14.7
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 99,
+  "bowling_ovr": 75,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 9.12,
+  "measured_bowl_value": 5.92
  },
  {
   "name": "AF Milne",
@@ -1177,10 +1209,12 @@
    "sr": 29.43
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": -2.0
  },
  {
   "name": "AJ Finch",
@@ -1250,11 +1284,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 70,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -2.54,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "AJ Turner",
@@ -1323,7 +1359,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "AJ Tye",
@@ -1389,10 +1427,12 @@
    "sr": 16.5
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 79,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 6.98
  },
  {
   "name": "AK Markram",
@@ -1457,11 +1497,13 @@
    "avg": 87.0,
    "sr": 60.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 78,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "AM Nayar",
@@ -1530,7 +1572,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "AM Rahane",
@@ -1600,11 +1644,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 62,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -5.15,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "AN Ahmed",
@@ -1673,7 +1719,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "AP Tare",
@@ -1738,11 +1786,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 55,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -7.75,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "AR Bawne",
@@ -1811,7 +1861,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "AR Patel",
@@ -1881,11 +1933,13 @@
    "avg": 30.87,
    "sr": 25.35
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 71,
+  "bowling_ovr": 80,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -2.22,
+  "measured_bowl_value": 7.28
  },
  {
   "name": "AS Joseph",
@@ -1951,10 +2005,12 @@
    "sr": 17.85
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 64,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 2.9
  },
  {
   "name": "AS Rajpoot",
@@ -2020,10 +2076,12 @@
    "sr": 21.59
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": -1.5
  },
  {
   "name": "AS Roy",
@@ -2092,7 +2150,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "AT Carey",
@@ -2161,7 +2221,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "AT Rayudu",
@@ -2231,11 +2293,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 75,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -1.16,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "AU Rashid",
@@ -2304,7 +2368,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Abdul Samad",
@@ -2369,11 +2435,13 @@
    "avg": 56.5,
    "sr": 27.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 65,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -4.03,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Abhishek Sharma",
@@ -2438,11 +2506,13 @@
    "avg": 31.14,
    "sr": 22.29
   },
-  "batting_ovr": null,
+  "batting_ovr": 65,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -4.18,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Akash Deep",
@@ -2511,7 +2581,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Akash Singh",
@@ -2580,7 +2652,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Aman Hakim Khan",
@@ -2649,7 +2723,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Ankit Sharma",
@@ -2715,10 +2791,12 @@
    "sr": 26.25
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 66,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 3.59
  },
  {
   "name": "Ankit Soni",
@@ -2787,7 +2865,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Anmolpreet Singh",
@@ -2856,7 +2936,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Anuj Rawat",
@@ -2921,11 +3003,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 56,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -6.92,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Anureet Singh",
@@ -2991,10 +3075,12 @@
    "sr": 23.88
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 62,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 2.6
  },
  {
   "name": "Arshdeep Singh",
@@ -3060,10 +3146,12 @@
    "sr": 18.93
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 73,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 5.41
  },
  {
   "name": "Avesh Khan",
@@ -3129,10 +3217,12 @@
    "sr": 17.43
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 80,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 7.2
  },
  {
   "name": "Azhar Mahmood",
@@ -3201,7 +3291,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "B Indrajith",
@@ -3270,7 +3362,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "B Kumar",
@@ -3335,11 +3429,13 @@
    "avg": 25.57,
    "sr": 20.22
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 55,
+  "bowling_ovr": 86,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -8.6,
+  "measured_bowl_value": 8.73
  },
  {
   "name": "B Laughlin",
@@ -3408,7 +3504,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "B Sai Sudharsan",
@@ -3473,11 +3571,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 74,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -1.41,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "B Stanlake",
@@ -3546,7 +3646,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "BA Stokes",
@@ -3611,11 +3713,13 @@
    "avg": 34.11,
    "sr": 23.32
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 72,
+  "bowling_ovr": 62,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -2.05,
+  "measured_bowl_value": 2.49
  },
  {
   "name": "BB McCullum",
@@ -3685,11 +3789,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 70,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -2.72,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "BB Sran",
@@ -3755,10 +3861,12 @@
    "sr": 28.62
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.28
  },
  {
   "name": "BCJ Cutting",
@@ -3823,11 +3931,13 @@
    "avg": 42.9,
    "sr": 28.0
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 90,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 3.66,
+  "measured_bowl_value": -0.19
  },
  {
   "name": "BE Hendricks",
@@ -3896,7 +4006,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "BJ Hodge",
@@ -3965,7 +4077,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "BR Dunk",
@@ -4034,7 +4148,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "BW Hilfenhaus",
@@ -4103,7 +4219,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Basil Thampi",
@@ -4169,10 +4287,12 @@
    "sr": 23.68
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 59,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 1.74
  },
  {
   "name": "Bipul Sharma",
@@ -4238,10 +4358,12 @@
    "sr": 23.33
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 69,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 4.34
  },
  {
   "name": "C Munro",
@@ -4306,11 +4428,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 64,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -4.44,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "C Sakariya",
@@ -4376,10 +4500,12 @@
    "sr": 22.24
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 72,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 5.04
  },
  {
   "name": "C de Grandhomme",
@@ -4444,11 +4570,13 @@
    "avg": 53.83,
    "sr": 36.0
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 68,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -3.36,
+  "measured_bowl_value": -4.02
  },
  {
   "name": "CA Ingram",
@@ -4513,11 +4641,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 58,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -6.47,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "CA Lynn",
@@ -4587,11 +4717,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 78,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "CA Pujara",
@@ -4656,11 +4788,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 60,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -5.56,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "CH Gayle",
@@ -4730,11 +4864,13 @@
    "avg": 30.0,
    "sr": 29.5
   },
-  "batting_ovr": null,
+  "batting_ovr": 78,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -0.12,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "CH Morris",
@@ -4804,11 +4940,13 @@
    "avg": 24.1,
    "sr": 17.59
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 72,
+  "bowling_ovr": 78,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -2.09,
+  "measured_bowl_value": 6.53
  },
  {
   "name": "CJ Anderson",
@@ -4873,11 +5011,13 @@
    "avg": 47.09,
    "sr": 26.55
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 71,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -2.15,
+  "measured_bowl_value": -4.77
  },
  {
   "name": "CJ Dala",
@@ -4946,7 +5086,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "CJ Green",
@@ -5015,7 +5157,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "CJ Jordan",
@@ -5081,10 +5225,12 @@
    "sr": 20.15
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 71,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 4.75
  },
  {
   "name": "CM Gautam",
@@ -5149,11 +5295,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 56,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -6.79,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "CR Brathwaite",
@@ -5218,11 +5366,13 @@
    "avg": 29.54,
    "sr": 19.54
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 74,
+  "bowling_ovr": 59,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -1.26,
+  "measured_bowl_value": 1.73
  },
  {
   "name": "CR Woakes",
@@ -5288,10 +5438,12 @@
    "sr": 14.67
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 64,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 3.02
  },
  {
   "name": "CV Varun",
@@ -5357,10 +5509,12 @@
    "sr": 23.71
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 87,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 9.1
  },
  {
   "name": "D Brevis",
@@ -5425,11 +5579,13 @@
    "avg": 8.0,
    "sr": 3.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 69,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -2.9,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "D Padikkal",
@@ -5499,11 +5655,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 67,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -3.46,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "D Pretorius",
@@ -5572,7 +5730,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "D Wiese",
@@ -5638,10 +5798,12 @@
    "sr": 19.0
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 63,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 2.83
  },
  {
   "name": "DA Miller",
@@ -5711,11 +5873,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 73,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -1.78,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "DA Warner",
@@ -5785,11 +5949,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 81,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.94,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "DG Nalkande",
@@ -5858,7 +6024,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "DH Yagnik",
@@ -5927,7 +6095,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "DJ Bravo",
@@ -5997,11 +6167,13 @@
    "avg": 24.66,
    "sr": 16.85
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 63,
+  "bowling_ovr": 73,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -4.77,
+  "measured_bowl_value": 5.39
  },
  {
   "name": "DJ Hooda",
@@ -6071,11 +6243,13 @@
    "avg": 56.11,
    "sr": 38.78
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 65,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -4.06,
+  "measured_bowl_value": -1.9
  },
  {
   "name": "DJ Hussey",
@@ -6144,7 +6318,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "DJ Malan",
@@ -6213,7 +6389,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "DJ Mitchell",
@@ -6282,7 +6460,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "DJ Muthuswami",
@@ -6351,7 +6531,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "DJ Willey",
@@ -6420,7 +6602,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "DJG Sammy",
@@ -6485,11 +6669,13 @@
    "avg": 61.67,
    "sr": 34.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 57,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -6.59,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "DJM Short",
@@ -6558,7 +6744,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "DL Chahar",
@@ -6624,10 +6812,12 @@
    "sr": 22.32
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 70,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 4.62
  },
  {
   "name": "DM Bravo",
@@ -6696,7 +6886,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "DP Conway",
@@ -6761,11 +6953,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 83,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 1.52,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "DR Sams",
@@ -6831,10 +7025,12 @@
    "sr": 25.71
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": -0.1
  },
  {
   "name": "DR Shorey",
@@ -6903,7 +7099,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "DR Smith",
@@ -6973,11 +7171,13 @@
    "avg": 28.07,
    "sr": 17.2
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 72,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -2.03,
+  "measured_bowl_value": 0.09
  },
  {
   "name": "DS Kulkarni",
@@ -7043,10 +7243,12 @@
    "sr": 22.63
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 68,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 4.06
  },
  {
   "name": "DT Christian",
@@ -7111,11 +7313,13 @@
    "avg": 29.74,
    "sr": 21.63
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 56,
+  "bowling_ovr": 69,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -6.89,
+  "measured_bowl_value": 4.38
  },
  {
   "name": "DW Steyn",
@@ -7181,10 +7385,12 @@
    "sr": 31.29
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 61,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 2.32
  },
  {
   "name": "E Lewis",
@@ -7254,11 +7460,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 72,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -1.88,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "EJG Morgan",
@@ -7328,11 +7536,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 67,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -3.41,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "ER Dwivedi",
@@ -7401,7 +7611,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "F Behardien",
@@ -7470,7 +7682,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "F du Plessis",
@@ -7540,11 +7754,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 73,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -1.56,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "FA Allen",
@@ -7613,7 +7829,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Fazalhaq Farooqi",
@@ -7682,7 +7900,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "G Gambhir",
@@ -7752,11 +7972,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 61,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -5.31,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "GB Hogg",
@@ -7822,10 +8044,12 @@
    "sr": 17.08
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 69,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 4.38
  },
  {
   "name": "GC Viljoen",
@@ -7894,7 +8118,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "GD Phillips",
@@ -7963,7 +8189,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "GH Vihari",
@@ -8032,7 +8260,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "GHS Garton",
@@ -8101,7 +8331,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "GJ Bailey",
@@ -8171,11 +8403,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 69,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -2.79,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "GJ Maxwell",
@@ -8245,11 +8479,13 @@
    "avg": 39.23,
    "sr": 28.85
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 87,
+  "bowling_ovr": 65,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 2.79,
+  "measured_bowl_value": 3.34
  },
  {
   "name": "GS Sandhu",
@@ -8318,7 +8554,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Gurkeerat Singh",
@@ -8383,11 +8621,13 @@
    "avg": 19.4,
    "sr": 15.6
   },
-  "batting_ovr": null,
+  "batting_ovr": 63,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -4.61,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "H Klaasen",
@@ -8456,7 +8696,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "HE van der Dussen",
@@ -8525,7 +8767,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "HF Gurney",
@@ -8594,7 +8838,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "HH Pandya",
@@ -8664,11 +8910,13 @@
    "avg": 31.34,
    "sr": 21.1
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 88,
+  "bowling_ovr": 63,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 3.01,
+  "measured_bowl_value": 2.84
  },
  {
   "name": "HM Amla",
@@ -8733,11 +8981,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 86,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 2.47,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "HR Shokeen",
@@ -8806,7 +9056,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "HV Patel",
@@ -8871,11 +9123,13 @@
    "avg": 21.36,
    "sr": 15.08
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 61,
+  "bowling_ovr": 87,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -5.51,
+  "measured_bowl_value": 9.1
  },
  {
   "name": "Harbhajan Singh",
@@ -8940,11 +9194,13 @@
    "avg": 29.53,
    "sr": 23.67
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 58,
+  "bowling_ovr": 77,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -6.28,
+  "measured_bowl_value": 6.32
  },
  {
   "name": "Harpreet Brar",
@@ -9010,10 +9266,12 @@
    "sr": 32.0
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 62,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 2.63
  },
  {
   "name": "Harshit Rana",
@@ -9082,7 +9340,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "I Sharma",
@@ -9148,10 +9408,12 @@
    "sr": 34.0
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": -1.44
  },
  {
   "name": "I Udana",
@@ -9220,7 +9482,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "IC Pandey",
@@ -9286,10 +9550,12 @@
    "sr": 25.76
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 64,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 3.06
  },
  {
   "name": "IC Porel",
@@ -9358,7 +9624,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "IK Pathan",
@@ -9427,7 +9695,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "IR Jaggi",
@@ -9496,7 +9766,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "IS Sodhi",
@@ -9565,7 +9837,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Imran Tahir",
@@ -9631,10 +9905,12 @@
    "sr": 15.98
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 94,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 10.83
  },
  {
   "name": "Iqbal Abdulla",
@@ -9700,10 +9976,12 @@
    "sr": 25.5
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 56,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.9
  },
  {
   "name": "Ishan Kishan",
@@ -9773,11 +10051,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 72,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -2.07,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "J Botha",
@@ -9846,7 +10126,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "J Suchith",
@@ -9912,10 +10194,12 @@
    "sr": 22.11
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 57,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 1.26
  },
  {
   "name": "J Theron",
@@ -9984,7 +10268,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "J Yadav",
@@ -10050,10 +10336,12 @@
    "sr": 45.75
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 69,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 4.21
  },
  {
   "name": "JA Morkel",
@@ -10118,11 +10406,13 @@
    "avg": 34.0,
    "sr": 22.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 71,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -2.13,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "JA Richardson",
@@ -10191,7 +10481,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "JC Archer",
@@ -10256,11 +10548,13 @@
    "avg": 21.71,
    "sr": 17.91
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 73,
+  "bowling_ovr": 99,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -1.57,
+  "measured_bowl_value": 12.52
  },
  {
   "name": "JC Buttler",
@@ -10330,11 +10624,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 89,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 3.21,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "JD Unadkat",
@@ -10399,11 +10695,13 @@
    "avg": 32.79,
    "sr": 21.57
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 58,
+  "bowling_ovr": 66,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -6.31,
+  "measured_bowl_value": 3.49
  },
  {
   "name": "JDS Neesham",
@@ -10469,10 +10767,12 @@
    "sr": 27.0
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": -2.49
  },
  {
   "name": "JH Kallis",
@@ -10537,11 +10837,13 @@
    "avg": 48.25,
    "sr": 33.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 60,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -5.57,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "JJ Bumrah",
@@ -10607,10 +10909,12 @@
    "sr": 19.01
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 93,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 10.65
  },
  {
   "name": "JJ Roy",
@@ -10675,11 +10979,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 71,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -2.2,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "JL Denly",
@@ -10748,7 +11054,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "JL Pattinson",
@@ -10814,10 +11122,12 @@
    "sr": 19.36
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 65,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 3.34
  },
  {
   "name": "JM Bairstow",
@@ -10887,11 +11197,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 75,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -1.1,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "JM Sharma",
@@ -10956,11 +11268,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 87,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 2.65,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "JO Holder",
@@ -11025,11 +11339,13 @@
    "avg": 21.83,
    "sr": 14.98
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 57,
+  "bowling_ovr": 73,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -6.48,
+  "measured_bowl_value": 5.29
  },
  {
   "name": "JP Behrendorff",
@@ -11098,7 +11414,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "JP Duminy",
@@ -11168,11 +11486,13 @@
    "avg": 35.46,
    "sr": 27.69
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 88,
+  "bowling_ovr": 65,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 2.94,
+  "measured_bowl_value": 3.25
  },
  {
   "name": "JP Faulkner",
@@ -11242,11 +11562,13 @@
    "avg": 48.41,
    "sr": 29.19
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 72,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -1.96,
+  "measured_bowl_value": -0.74
  },
  {
   "name": "JPR Scantlebury-Searles",
@@ -11315,7 +11637,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "JR Hazlewood",
@@ -11381,10 +11705,12 @@
    "sr": 17.16
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 78,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 6.67
  },
  {
   "name": "JR Philippe",
@@ -11453,7 +11779,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "JW Hastings",
@@ -11522,7 +11850,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Jalaj S Saxena",
@@ -11591,7 +11921,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "K Gowtham",
@@ -11656,11 +11988,13 @@
    "avg": 37.12,
    "sr": 26.82
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 60,
+  "bowling_ovr": 62,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -5.57,
+  "measured_bowl_value": 2.57
  },
  {
   "name": "K Kartikeya",
@@ -11729,7 +12063,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "K Khejroliya",
@@ -11798,7 +12134,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "K Rabada",
@@ -11863,11 +12201,13 @@
    "avg": 20.34,
    "sr": 14.42
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 55,
+  "bowling_ovr": 89,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -7.1,
+  "measured_bowl_value": 9.49
  },
  {
   "name": "K Santokie",
@@ -11936,7 +12276,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "K Yadav",
@@ -12005,7 +12347,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "KA Jamieson",
@@ -12074,7 +12418,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "KA Pollard",
@@ -12144,11 +12490,13 @@
    "avg": 53.18,
    "sr": 32.88
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 89,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 3.37,
+  "measured_bowl_value": -4.38
  },
  {
   "name": "KC Cariappa",
@@ -12217,7 +12565,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "KD Karthik",
@@ -12287,11 +12637,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 75,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -1.07,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "KH Pandya",
@@ -12361,11 +12713,13 @@
    "avg": 35.02,
    "sr": 28.34
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 67,
+  "bowling_ovr": 75,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -3.4,
+  "measured_bowl_value": 5.78
  },
  {
   "name": "KJ Abbott",
@@ -12434,7 +12788,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "KK Ahmed",
@@ -12500,10 +12856,12 @@
    "sr": 15.78
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 85,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 8.4
  },
  {
   "name": "KK Cooper",
@@ -12572,7 +12930,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "KK Nair",
@@ -12637,11 +12997,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 67,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -3.56,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "KL Nagarkoti",
@@ -12710,7 +13072,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "KL Rahul",
@@ -12780,11 +13144,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 82,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.99,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "KM Asif",
@@ -12853,7 +13219,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "KM Jadhav",
@@ -12923,11 +13291,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 75,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -1.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "KMA Paul",
@@ -12996,7 +13366,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "KP Pietersen",
@@ -13061,11 +13433,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 61,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -5.38,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "KR Sen",
@@ -13134,7 +13508,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "KS Bharat",
@@ -13199,11 +13575,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 69,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -2.82,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "KS Sharma",
@@ -13272,7 +13650,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "KS Williamson",
@@ -13342,11 +13722,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 68,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -3.15,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "KV Sharma",
@@ -13411,11 +13793,13 @@
    "avg": 28.38,
    "sr": 20.48
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 57,
+  "bowling_ovr": 72,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -6.69,
+  "measured_bowl_value": 4.97
  },
  {
   "name": "KW Richardson",
@@ -13481,10 +13865,12 @@
    "sr": 15.47
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 71,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 4.92
  },
  {
   "name": "Karanveer Singh",
@@ -13550,10 +13936,12 @@
    "sr": 17.0
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 66,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 3.56
  },
  {
   "name": "Kartik Tyagi",
@@ -13619,10 +14007,12 @@
    "sr": 25.79
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 60,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 1.97
  },
  {
   "name": "Kuldeep Yadav",
@@ -13687,11 +14077,13 @@
    "avg": 27.95,
    "sr": 20.07
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 55,
+  "bowling_ovr": 76,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -8.79,
+  "measured_bowl_value": 6.01
  },
  {
   "name": "L Balaji",
@@ -13757,10 +14149,12 @@
    "sr": 17.0
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 68,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 3.98
  },
  {
   "name": "L Ngidi",
@@ -13826,10 +14220,12 @@
    "sr": 12.96
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 83,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 8.06
  },
  {
   "name": "LE Plunkett",
@@ -13898,7 +14294,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "LH Ferguson",
@@ -13964,10 +14362,12 @@
    "sr": 21.25
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 72,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 5.19
  },
  {
   "name": "LI Meriwala",
@@ -14036,7 +14436,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "LMP Simmons",
@@ -14106,11 +14508,13 @@
    "avg": 34.0,
    "sr": 18.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 68,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -3.18,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "LR Shukla",
@@ -14179,7 +14583,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "LRPL Taylor",
@@ -14248,7 +14654,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "LS Livingstone",
@@ -14313,11 +14721,13 @@
    "avg": 35.17,
    "sr": 23.5
   },
-  "batting_ovr": null,
+  "batting_ovr": 99,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 6.31,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Lalit Yadav",
@@ -14382,11 +14792,13 @@
    "avg": 31.62,
    "sr": 24.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 62,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -5.15,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "M Ashwin",
@@ -14452,10 +14864,12 @@
    "sr": 23.83
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 80,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 7.19
  },
  {
   "name": "M Jansen",
@@ -14521,10 +14935,12 @@
    "sr": 25.33
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 65,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 3.22
  },
  {
   "name": "M Kartik",
@@ -14593,7 +15009,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "M Manhas",
@@ -14662,7 +15080,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "M Markande",
@@ -14728,10 +15148,12 @@
    "sr": 21.18
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 60,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 1.95
  },
  {
   "name": "M Morkel",
@@ -14797,10 +15219,12 @@
    "sr": 20.9
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 74,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 5.58
  },
  {
   "name": "M Muralitharan",
@@ -14869,7 +15293,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "M Pathirana",
@@ -14938,7 +15364,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "M Prasidh Krishna",
@@ -15004,10 +15432,12 @@
    "sr": 23.37
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 64,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 2.95
  },
  {
   "name": "M Shahrukh Khan",
@@ -15072,11 +15502,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 72,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -2.11,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "M Theekshana",
@@ -15142,10 +15574,12 @@
    "sr": 17.5
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 71,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 4.94
  },
  {
   "name": "M Vijay",
@@ -15215,11 +15649,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 55,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -7.87,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "M Vohra",
@@ -15289,11 +15725,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 62,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -5.17,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "M de Lange",
@@ -15362,7 +15800,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "MA Agarwal",
@@ -15432,11 +15872,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 66,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -3.81,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "MA Starc",
@@ -15502,10 +15944,12 @@
    "sr": 17.03
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 81,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 7.34
  },
  {
   "name": "MA Wood",
@@ -15574,7 +16018,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "MC Henriques",
@@ -15644,11 +16090,13 @@
    "avg": 35.0,
    "sr": 26.12
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 63,
+  "bowling_ovr": 62,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -4.87,
+  "measured_bowl_value": 2.41
  },
  {
   "name": "MEK Hussey",
@@ -15713,11 +16161,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 61,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -5.48,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "MG Johnson",
@@ -15782,11 +16232,13 @@
    "avg": 34.14,
    "sr": 22.92
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 55,
+  "bowling_ovr": 60,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -8.18,
+  "measured_bowl_value": 2.03
  },
  {
   "name": "MJ Guptill",
@@ -15851,11 +16303,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 66,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -3.68,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "MJ Henry",
@@ -15924,7 +16378,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "MJ McClenaghan",
@@ -15990,10 +16446,12 @@
    "sr": 17.94
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 75,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 5.78
  },
  {
   "name": "MJ Santner",
@@ -16059,10 +16517,12 @@
    "sr": 24.0
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 79,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 6.81
  },
  {
   "name": "MK Lomror",
@@ -16127,11 +16587,13 @@
    "avg": 92.0,
    "sr": 72.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 64,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -4.45,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "MK Pandey",
@@ -16201,11 +16663,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 67,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -3.45,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "MK Tiwary",
@@ -16270,11 +16734,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 66,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -3.97,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "MM Ali",
@@ -16339,11 +16805,13 @@
    "avg": 26.21,
    "sr": 23.0
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 79,
+  "bowling_ovr": 82,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.28,
+  "measured_bowl_value": 7.81
  },
  {
   "name": "MM Patel",
@@ -16412,7 +16880,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "MM Sharma",
@@ -16477,11 +16947,13 @@
    "avg": 29.56,
    "sr": 19.89
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 55,
+  "bowling_ovr": 67,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -7.5,
+  "measured_bowl_value": 3.9
  },
  {
   "name": "MN Samuels",
@@ -16550,7 +17022,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "MP Stoinis",
@@ -16620,11 +17094,13 @@
    "avg": 31.47,
    "sr": 19.26
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 74,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -1.48,
+  "measured_bowl_value": 0.31
  },
  {
   "name": "MR Marsh",
@@ -16689,11 +17165,13 @@
    "avg": 24.83,
    "sr": 18.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 69,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -2.9,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "MS Bisla",
@@ -16762,7 +17240,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "MS Dhoni",
@@ -16832,11 +17312,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 73,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -1.55,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "MS Gony",
@@ -16905,7 +17387,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "MS Wade",
@@ -16970,11 +17454,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 58,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -6.21,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Mandeep Singh",
@@ -17044,11 +17530,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 66,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -3.98,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Mohammad Nabi",
@@ -17113,11 +17601,13 @@
    "avg": 32.08,
    "sr": 26.38
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 66,
+  "bowling_ovr": 72,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -3.85,
+  "measured_bowl_value": 5.16
  },
  {
   "name": "Mohammed Shami",
@@ -17183,10 +17673,12 @@
    "sr": 20.24
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 66,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 3.62
  },
  {
   "name": "Mohammed Siraj",
@@ -17251,11 +17743,13 @@
    "avg": 33.95,
    "sr": 22.66
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 55,
+  "bowling_ovr": 65,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -9.25,
+  "measured_bowl_value": 3.24
  },
  {
   "name": "Mohsin Khan",
@@ -17324,7 +17818,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Monu Kumar",
@@ -17393,7 +17889,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Mujeeb Ur Rahman",
@@ -17459,10 +17957,12 @@
    "sr": 23.0
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 81,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 7.46
  },
  {
   "name": "Mukesh Choudhary",
@@ -17528,10 +18028,12 @@
    "sr": 17.06
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": -0.07
  },
  {
   "name": "Mustafizur Rahman",
@@ -17597,10 +18099,12 @@
    "sr": 22.57
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 88,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 9.26
  },
  {
   "name": "N Jagadeesan",
@@ -17669,7 +18173,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "N Pooran",
@@ -17739,11 +18245,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 84,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 1.65,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "N Rana",
@@ -17813,11 +18321,13 @@
    "avg": 25.43,
    "sr": 18.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 78,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -0.25,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "NB Singh",
@@ -17886,7 +18396,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "NJ Maddinson",
@@ -17955,7 +18467,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "NLTC Perera",
@@ -18024,7 +18538,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "NM Coulter-Nile",
@@ -18090,10 +18606,12 @@
    "sr": 18.11
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 77,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 6.44
  },
  {
   "name": "NS Naik",
@@ -18162,7 +18680,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "NT Ellis",
@@ -18231,7 +18751,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "NV Ojha",
@@ -18296,11 +18818,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 58,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -6.46,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Navdeep Saini",
@@ -18366,10 +18890,12 @@
    "sr": 31.1
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 56,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.87
  },
  {
   "name": "O Thomas",
@@ -18438,7 +18964,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "OC McCoy",
@@ -18507,7 +19035,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "OF Smith",
@@ -18576,7 +19106,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "P Awana",
@@ -18645,7 +19177,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "P Chopra",
@@ -18714,7 +19248,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "P Dubey",
@@ -18783,7 +19319,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "P Kumar",
@@ -18849,10 +19387,12 @@
    "sr": 29.48
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 64,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 2.89
  },
  {
   "name": "P Negi",
@@ -18917,11 +19457,13 @@
    "avg": 28.59,
    "sr": 20.7
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 63,
+  "bowling_ovr": 71,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -4.7,
+  "measured_bowl_value": 4.85
  },
  {
   "name": "P Ray Barman",
@@ -18990,7 +19532,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "P Sahu",
@@ -19059,7 +19603,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "P Simran Singh",
@@ -19128,7 +19674,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "P Suyal",
@@ -19197,7 +19745,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "PA Patel",
@@ -19267,11 +19817,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 65,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -4.19,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "PBB Rajapaksa",
@@ -19336,11 +19888,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 80,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.44,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "PH Solanki",
@@ -19409,7 +19963,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "PJ Cummins",
@@ -19474,11 +20030,13 @@
    "avg": 31.22,
    "sr": 21.18
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 78,
+  "bowling_ovr": 70,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -0.22,
+  "measured_bowl_value": 4.63
  },
  {
   "name": "PJ Sangwan",
@@ -19547,7 +20105,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "PK Garg",
@@ -19612,11 +20172,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 60,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -5.85,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "PN Mankad",
@@ -19685,7 +20247,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "PP Chawla",
@@ -19750,11 +20314,13 @@
    "avg": 28.88,
    "sr": 20.71
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 55,
+  "bowling_ovr": 74,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -8.58,
+  "measured_bowl_value": 5.5
  },
  {
   "name": "PP Ojha",
@@ -19820,10 +20386,12 @@
    "sr": 72.0
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": -0.08
  },
  {
   "name": "PP Shaw",
@@ -19893,11 +20461,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 72,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -1.9,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "PSP Handscomb",
@@ -19966,7 +20536,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "PV Tambe",
@@ -20032,10 +20604,12 @@
    "sr": 22.85
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 72,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 5.16
  },
  {
   "name": "PVD Chameera",
@@ -20101,10 +20675,12 @@
    "sr": 29.33
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": -0.46
  },
  {
   "name": "PWH de Silva",
@@ -20170,10 +20746,12 @@
    "sr": 14.54
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 97,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 11.69
  },
  {
   "name": "Parvez Rasool",
@@ -20242,7 +20820,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Q de Kock",
@@ -20312,11 +20892,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 73,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -1.54,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "R Ashwin",
@@ -20386,11 +20968,13 @@
    "avg": 32.73,
    "sr": 26.67
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 66,
+  "bowling_ovr": 76,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -3.74,
+  "measured_bowl_value": 6.22
  },
  {
   "name": "R Bhatia",
@@ -20456,10 +21040,12 @@
    "sr": 24.3
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 76,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 6.16
  },
  {
   "name": "R Dhawan",
@@ -20524,11 +21110,13 @@
    "avg": 32.0,
    "sr": 23.27
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 62,
+  "bowling_ovr": 68,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -5.13,
+  "measured_bowl_value": 4.09
  },
  {
   "name": "R Parag",
@@ -20593,11 +21181,13 @@
    "avg": 66.5,
    "sr": 37.75
   },
-  "batting_ovr": null,
+  "batting_ovr": 68,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -3.32,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "R Powell",
@@ -20662,11 +21252,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 90,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 3.62,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "R Rampaul",
@@ -20735,7 +21327,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "R Sai Kishore",
@@ -20804,7 +21398,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "R Sanjay Yadav",
@@ -20873,7 +21469,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "R Sathish",
@@ -20942,7 +21540,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "R Sharma",
@@ -21011,7 +21611,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "R Shepherd",
@@ -21080,7 +21682,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "R Shukla",
@@ -21149,7 +21753,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "R Tewatia",
@@ -21219,11 +21825,13 @@
    "avg": 34.42,
    "sr": 25.97
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 68,
+  "bowling_ovr": 64,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -3.22,
+  "measured_bowl_value": 3.11
  },
  {
   "name": "R Vinay Kumar",
@@ -21289,10 +21897,12 @@
    "sr": 26.1
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.34
  },
  {
   "name": "RA Bawa",
@@ -21361,7 +21971,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "RA Jadeja",
@@ -21431,11 +22043,13 @@
    "avg": 32.54,
    "sr": 25.06
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 75,
+  "bowling_ovr": 71,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -1.0,
+  "measured_bowl_value": 4.93
  },
  {
   "name": "RA Tripathi",
@@ -21505,11 +22119,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 71,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -2.36,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "RD Chahar",
@@ -21574,11 +22190,13 @@
    "avg": 26.33,
    "sr": 20.75
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 55,
+  "bowling_ovr": 85,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -9.0,
+  "measured_bowl_value": 8.58
  },
  {
   "name": "RD Gaikwad",
@@ -21648,11 +22266,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 74,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -1.2,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "RG More",
@@ -21721,7 +22341,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "RG Sharma",
@@ -21791,11 +22413,13 @@
    "avg": 39.0,
    "sr": 25.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 69,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -2.84,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "RK Bhui",
@@ -21864,7 +22488,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "RK Singh",
@@ -21929,11 +22555,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 67,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -3.49,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "RM Patidar",
@@ -21998,11 +22626,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 85,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 1.93,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "RN ten Doeschate",
@@ -22071,7 +22701,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "RP Meredith",
@@ -22137,10 +22769,12 @@
    "sr": 21.08
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 57,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 1.23
  },
  {
   "name": "RP Singh",
@@ -22209,7 +22843,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "RR Pant",
@@ -22279,11 +22915,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 84,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 1.64,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "RR Rossouw",
@@ -22352,7 +22990,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "RS Bopara",
@@ -22417,11 +23057,13 @@
    "avg": 31.4,
    "sr": 22.8
   },
-  "batting_ovr": null,
+  "batting_ovr": 67,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -3.46,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "RV Patel",
@@ -22490,7 +23132,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "RV Uthappa",
@@ -22560,11 +23204,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 73,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -1.64,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Ramandeep Singh",
@@ -22633,7 +23279,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Rashid Khan",
@@ -22698,11 +23346,13 @@
    "avg": 21.25,
    "sr": 19.49
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 61,
+  "bowling_ovr": 99,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -5.51,
+  "measured_bowl_value": 14.81
  },
  {
   "name": "Rasikh Salam",
@@ -22771,7 +23421,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Ravi Bishnoi",
@@ -22837,10 +23489,12 @@
    "sr": 22.86
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 77,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 6.51
  },
  {
   "name": "S Anirudha",
@@ -22909,7 +23563,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "S Aravind",
@@ -22975,10 +23631,12 @@
    "sr": 20.64
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 72,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 5.11
  },
  {
   "name": "S Badree",
@@ -23044,10 +23702,12 @@
    "sr": 21.27
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 67,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 3.84
  },
  {
   "name": "S Dhawan",
@@ -23117,11 +23777,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 70,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -2.64,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "S Dube",
@@ -23186,11 +23848,13 @@
    "avg": 44.0,
    "sr": 26.5
   },
-  "batting_ovr": null,
+  "batting_ovr": 76,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -0.68,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "S Gopal",
@@ -23255,11 +23919,13 @@
    "avg": 25.98,
    "sr": 19.15
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 59,
+  "bowling_ovr": 70,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -5.96,
+  "measured_bowl_value": 4.66
  },
  {
   "name": "S Kaul",
@@ -23325,10 +23991,12 @@
    "sr": 20.11
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 72,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 5.1
  },
  {
   "name": "S Kaushik",
@@ -23394,10 +24062,12 @@
    "sr": 34.0
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": -2.14
  },
  {
   "name": "S Ladda",
@@ -23466,7 +24136,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "S Lamichhane",
@@ -23532,10 +24204,12 @@
    "sr": 16.15
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 68,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 3.96
  },
  {
   "name": "S Midhun",
@@ -23604,7 +24278,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "S Nadeem",
@@ -23670,10 +24346,12 @@
    "sr": 29.48
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 64,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 2.9
  },
  {
   "name": "S Rana",
@@ -23742,7 +24420,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "S Sandeep Warrier",
@@ -23811,7 +24491,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "SA Abbott",
@@ -23880,7 +24562,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "SA Yadav",
@@ -23950,11 +24634,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 79,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.08,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "SB Jakati",
@@ -24023,7 +24709,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "SC Kuggeleijn",
@@ -24092,7 +24780,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "SD Lad",
@@ -24161,7 +24851,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "SE Marsh",
@@ -24226,11 +24918,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 67,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -3.38,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "SE Rutherford",
@@ -24295,11 +24989,13 @@
    "avg": 58.0,
    "sr": 36.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 58,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -6.34,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "SK Raina",
@@ -24369,11 +25065,13 @@
    "avg": 105.25,
    "sr": 79.5
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 75,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -1.1,
+  "measured_bowl_value": -0.91
  },
  {
   "name": "SL Malinga",
@@ -24439,10 +25137,12 @@
    "sr": 16.91
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 88,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 9.13
  },
  {
   "name": "SM Boland",
@@ -24511,7 +25211,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "SM Curran",
@@ -24576,11 +25278,13 @@
    "avg": 31.41,
    "sr": 20.25
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 71,
+  "bowling_ovr": 65,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -2.37,
+  "measured_bowl_value": 3.34
  },
  {
   "name": "SN Khan",
@@ -24645,11 +25349,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 71,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -2.17,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "SN Thakur",
@@ -24714,11 +25420,13 @@
    "avg": 28.91,
    "sr": 18.9
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 62,
+  "bowling_ovr": 66,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -5.17,
+  "measured_bowl_value": 3.54
  },
  {
   "name": "SO Hetmyer",
@@ -24788,11 +25496,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 99,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 7.44,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "SP Goswami",
@@ -24861,7 +25571,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "SP Jackson",
@@ -24930,7 +25642,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "SP Narine",
@@ -25000,11 +25714,13 @@
    "avg": 29.69,
    "sr": 25.05
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 68,
+  "bowling_ovr": 92,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -3.28,
+  "measured_bowl_value": 10.34
  },
  {
   "name": "SPD Smith",
@@ -25074,11 +25790,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 70,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -2.73,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "SR Watson",
@@ -25148,11 +25866,13 @@
    "avg": 33.88,
    "sr": 22.76
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 71,
+  "bowling_ovr": 61,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -2.38,
+  "measured_bowl_value": 2.29
  },
  {
   "name": "SS Agarwal",
@@ -25221,7 +25941,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "SS Cottrell",
@@ -25290,7 +26012,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "SS Iyer",
@@ -25360,11 +26084,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 70,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -2.64,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "SS Prabhudessai",
@@ -25433,7 +26159,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "SS Tiwary",
@@ -25498,11 +26226,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 78,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -0.03,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "STR Binny",
@@ -25567,11 +26297,13 @@
    "avg": 35.15,
    "sr": 27.15
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 61,
+  "bowling_ovr": 59,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -5.47,
+  "measured_bowl_value": 1.84
  },
  {
   "name": "SV Samson",
@@ -25641,11 +26373,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 77,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -0.27,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "SW Billings",
@@ -25710,11 +26444,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 67,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -3.5,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Sachin Baby",
@@ -25779,11 +26515,13 @@
    "avg": 2.0,
    "sr": 2.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 64,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -4.6,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Sandeep Sharma",
@@ -25849,10 +26587,12 @@
    "sr": 20.99
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 84,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 8.33
  },
  {
   "name": "Shahbaz Ahmed",
@@ -25917,11 +26657,13 @@
    "avg": 36.77,
    "sr": 25.38
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 69,
+  "bowling_ovr": 62,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -2.88,
+  "measured_bowl_value": 2.63
  },
  {
   "name": "Shakib Al Hasan",
@@ -25986,11 +26728,13 @@
    "avg": 37.51,
    "sr": 29.05
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 64,
+  "bowling_ovr": 70,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -4.46,
+  "measured_bowl_value": 4.49
  },
  {
   "name": "Shashank Singh",
@@ -26059,7 +26803,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Shivam Mavi",
@@ -26125,10 +26871,12 @@
    "sr": 21.03
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 79,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 6.8
  },
  {
   "name": "Shivam Sharma",
@@ -26197,7 +26945,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Shubman Gill",
@@ -26267,11 +27017,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 68,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -3.21,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Simarjeet Singh",
@@ -26340,7 +27092,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Swapnil Singh",
@@ -26409,7 +27163,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "T Banton",
@@ -26478,7 +27234,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "T Natarajan",
@@ -26544,10 +27302,12 @@
    "sr": 19.97
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 70,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 4.59
  },
  {
   "name": "T Shamsi",
@@ -26616,7 +27376,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "T Stubbs",
@@ -26685,7 +27447,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "TA Boult",
@@ -26751,10 +27515,12 @@
    "sr": 19.65
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 70,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 4.69
  },
  {
   "name": "TG Southee",
@@ -26819,11 +27585,13 @@
    "avg": 37.27,
    "sr": 25.76
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 55,
+  "bowling_ovr": 61,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -7.62,
+  "measured_bowl_value": 2.13
  },
  {
   "name": "TH David",
@@ -26892,7 +27660,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "TK Curran",
@@ -26957,11 +27727,13 @@
    "avg": 32.77,
    "sr": 18.23
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 68,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -3.28,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "TL Seifert",
@@ -27030,7 +27802,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "TM Head",
@@ -27095,11 +27869,13 @@
    "avg": 40.5,
    "sr": 23.5
   },
-  "batting_ovr": null,
+  "batting_ovr": 72,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -2.12,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "TS Mills",
@@ -27165,10 +27941,12 @@
    "sr": 19.0
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": -0.78
  },
  {
   "name": "TU Deshpande",
@@ -27237,7 +28015,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Tejas Baroka",
@@ -27306,7 +28086,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Tilak Varma",
@@ -27371,11 +28153,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 83,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 1.3,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "UBT Chand",
@@ -27444,7 +28228,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "UT Khawaja",
@@ -27513,7 +28299,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "UT Yadav",
@@ -27578,11 +28366,13 @@
    "avg": 29.48,
    "sr": 20.19
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 55,
+  "bowling_ovr": 58,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -8.47,
+  "measured_bowl_value": 1.51
  },
  {
   "name": "Umran Malik",
@@ -27648,10 +28438,12 @@
    "sr": 15.29
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 67,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 3.78
  },
  {
   "name": "V Kohli",
@@ -27721,11 +28513,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 74,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -1.28,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "V Sehwag",
@@ -27790,11 +28584,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 68,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -3.2,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "V Shankar",
@@ -27864,11 +28660,13 @@
    "avg": 37.22,
    "sr": 26.0
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 61,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -5.38,
+  "measured_bowl_value": -1.18
  },
  {
   "name": "VG Arora",
@@ -27937,7 +28735,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "VH Zol",
@@ -28006,7 +28806,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "VR Aaron",
@@ -28072,10 +28874,12 @@
    "sr": 21.47
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.68
  },
  {
   "name": "VR Iyer",
@@ -28140,11 +28944,13 @@
    "avg": 39.0,
    "sr": 25.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 68,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -3.25,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "VS Malik",
@@ -28213,7 +29019,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Virat Singh",
@@ -28282,7 +29090,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Vishnu Vinod",
@@ -28351,7 +29161,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "WD Parnell",
@@ -28420,7 +29232,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "WP Saha",
@@ -28490,11 +29304,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 67,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -3.4,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Washington Sundar",
@@ -28559,11 +29375,13 @@
    "avg": 33.82,
    "sr": 27.82
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 61,
+  "bowling_ovr": 75,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -5.27,
+  "measured_bowl_value": 5.89
  },
  {
   "name": "Y Prithvi Raj",
@@ -28632,7 +29450,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Y Venugopal Rao",
@@ -28701,7 +29521,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "YBK Jaiswal",
@@ -28766,11 +29588,13 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": null,
+  "batting_ovr": 66,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": -3.84,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "YK Pathan",
@@ -28840,11 +29664,13 @@
    "avg": 36.2,
    "sr": 25.2
   },
-  "batting_ovr": null,
+  "batting_ovr": 84,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 1.83,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "YS Chahal",
@@ -28910,10 +29736,12 @@
    "sr": 17.65
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 88,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 9.16
  },
  {
   "name": "YV Takawale",
@@ -28982,7 +29810,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Yash Dayal",
@@ -29051,7 +29881,9 @@
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": false
+  "rateable_bowling": false,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 0.0
  },
  {
   "name": "Yuvraj Singh",
@@ -29121,11 +29953,13 @@
    "avg": 49.71,
    "sr": 34.43
   },
-  "batting_ovr": null,
-  "bowling_ovr": null,
+  "batting_ovr": 72,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": true,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": -2.06,
+  "measured_bowl_value": -0.31
  },
  {
   "name": "Z Khan",
@@ -29191,9 +30025,11 @@
    "sr": 24.12
   },
   "batting_ovr": null,
-  "bowling_ovr": null,
+  "bowling_ovr": 76,
   "anchor_ovr": 55,
   "rateable_batting": false,
-  "rateable_bowling": true
+  "rateable_bowling": true,
+  "measured_bat_value": 0.0,
+  "measured_bowl_value": 6.04
  }
 ]
