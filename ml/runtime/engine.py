@@ -62,8 +62,19 @@ def resolve_engine(era_id: str | None = None):
         from ml.runtime.adapter import make_ball_fn
         from ml.runtime.model import OutcomeModel
 
-        model = OutcomeModel.load(era_id=era_id)
-        cal = load_calibration(era_id)
+        # An era may play with ANOTHER era's artifacts -- the multiverse borrows
+        # the middle era's, because its pool spans three decades and a single
+        # ball can pair a 2009 batter with a 2025 bowler. Venue rates and the
+        # player pool still come from `era_id` itself.
+        from ml.etl import eras as ERA_DEFS
+        art_era = era_id
+        try:
+            art_era = ERA_DEFS.get(era_id).model_era if era_id else era_id
+        except KeyError:
+            pass
+
+        model = OutcomeModel.load(era_id=art_era)
+        cal = load_calibration(art_era)
 
         ball_fn = make_ball_fn(
             model.base_provider(),

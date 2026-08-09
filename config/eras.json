@@ -32,6 +32,17 @@
       "min_bowl_balls": 200
     },
     {
+      "id": "multiverse",
+      "label": "Multiverse",
+      "tagline": "Every version of every player. Buy 2011 Gayle and 2024 Gayle, and play them together.",
+      "seasons": [2008, 2026],
+      "engine": "model",
+      "model_era": "2014_2022",
+      "min_bat_balls": 100,
+      "min_bowl_balls": 200,
+      "_note": "Pool built by ml/etl/multiverse.py: each era's version of a player as a separate, era-tagged entry. A ball can pair a 2009 batter with a 2025 bowler, so one model has to resolve it -- the MIDDLE era, since it sits between the other two and neither end is played under wholly foreign rules. Players keep their own era's stats, which the model reads as inputs, so each version still behaves like himself. Every tagged name is a stranger to that model, and cold_effect (E = A.W) is what stops them all collapsing to an identical league-average player."
+    },
+    {
       "id": "all_time",
       "label": "All-Time Legends",
       "tagline": "Every player who ever played, rated on what they achieved.",

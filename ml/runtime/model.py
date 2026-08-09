@@ -18,6 +18,10 @@ import numpy as np
 from ml.etl.schema import CLASSES, N_CONTEXT, SCHEMA_HASH
 from ml.runtime import features as F
 
+
+def _features():
+    return F
+
 ARTIFACTS = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "artifacts")
 DEFAULT_MODEL = os.path.join(ARTIFACTS, "backbone.npz")
 
@@ -51,6 +55,11 @@ class OutcomeModel:
         self.V_bowl = d["V_bowl"].astype(np.float64)
         self.E_bat = d["E_bat"].astype(np.float64)
         self.E_bowl = d["E_bowl"].astype(np.float64)
+        # the shared projections, kept so a player this model never saw can still
+        # be given a real effect from his own observables -- see cold_effect
+        self.W_bat = d["W_bat"].astype(np.float64)
+        self.W_bowl = d["W_bowl"].astype(np.float64)
+        self._cold: dict = {}
         names = [str(n) for n in d["player_names"]]
         self.idx = {n: i for i, n in enumerate(names)}
         self.classes = [str(c) for c in d["classes"]] if "classes" in d else list(CLASSES)
@@ -69,22 +78,53 @@ class OutcomeModel:
 
     # --- core ---------------------------------------------------------------
 
+    def cold_effect(self, record: dict, side: str) -> np.ndarray:
+        """The player effect for someone this model has NEVER seen: A . W.
+
+        Index 0 is a zero row, so an unrecognised name otherwise contributes
+        NOTHING and every stranger plays as an identical league-average player.
+        That is fine for one surprise auction pick and useless for a pool built
+        of them -- the multiverse era tags names by era ("V Kohli (14-22)"), so
+        every single player would be a stranger.
+
+        Projecting the player's own observables through the shared W recovers a
+        real, differentiated effect without the learned per-player correction D.
+        That is exactly the cold-start the low-rank design exists for: E = A.W + D,
+        and D is the small part.
+        """
+        F = _features()
+        if side == "bat":
+            return F.bat_anchor(record).astype(np.float64) @ self.W_bat
+        return F.bowl_anchor(record).astype(np.float64) @ self.W_bowl
+
+    def effect(self, name: str, side: str, record: dict | None = None) -> np.ndarray:
+        """Player effect by name, falling back to the anchor projection."""
+        i = self.idx.get(name)
+        if i is not None:
+            return self.E_bat[i] if side == "bat" else self.E_bowl[i]
+        if record is None:
+            return self.E_bat[0] if side == "bat" else self.E_bowl[0]
+        key = (side, name)
+        hit = self._cold.get(key)
+        if hit is None:
+            hit = self._cold[key] = self.cold_effect(record, side)
+        return hit
+
     def logits(self, striker_name: str, bowler_name: str, row: np.ndarray,
-               z: float = 0.0) -> np.ndarray:
-        # index 0 is the UNKNOWN slot: a zero correction on a zero anchor, which is
-        # what makes an auction pick the model has never seen still work
-        bi = self.idx.get(striker_name, 0)
-        wi = self.idx.get(bowler_name, 0)
+               z: float = 0.0, bat_record: dict | None = None,
+               bowl_record: dict | None = None) -> np.ndarray:
         out = (self.alpha
                + row @ self.B
-               + self.E_bat[bi] @ self.V_bat
-               + self.E_bowl[wi] @ self.V_bowl)
+               + self.effect(striker_name, "bat", bat_record) @ self.V_bat
+               + self.effect(bowler_name, "bowl", bowl_record) @ self.V_bowl)
         if z:
             out = out + z * self.axis
         return out
 
-    def probs(self, striker_name, bowler_name, row, z=0.0) -> np.ndarray:
-        z_ = self.logits(striker_name, bowler_name, row, z)
+    def probs(self, striker_name, bowler_name, row, z=0.0,
+              bat_record=None, bowl_record=None) -> np.ndarray:
+        z_ = self.logits(striker_name, bowler_name, row, z,
+                         bat_record=bat_record, bowl_record=bowl_record)
         z_ -= z_.max()
         e = np.exp(z_)
         return e / e.sum()
@@ -115,7 +155,9 @@ class OutcomeModel:
             venue_type_edge=ctx.get("venue_type_edge", 0.0),
             edges=ctx.get("edges"),
         )
-        p = self.probs(striker.name, bowler.name, row, ctx.get("day_factor", 0.0))
+        p = self.probs(striker.name, bowler.name, row, ctx.get("day_factor", 0.0),
+                       bat_record=ctx.get("bat_record"),
+                       bowl_record=ctx.get("bowl_record"))
 
         p_wide = float(p[self.ci["wide"]])
         p_nb = float(p[self.ci["noball"]])

@@ -71,7 +71,22 @@ class AuctionDriver:
                 self.post("/api/vote_era", {"token": tok, "era": era})
         for tok in (self.ta, self.tb):
             self.post("/api/start_auction", {"token": tok})
+        self.pick_grounds()
         return code
+
+    def pick_grounds(self):
+        """Home grounds are chosen BEFORE the auction now, and each pick is
+        hidden -- a ground someone else holds reports only `taken`."""
+        for tok in (self.ta, self.tb):
+            s = self.state(tok)
+            if s.get("phase") != "grounds":
+                return
+            gr = s.get("grounds") or {}
+            free = [g["id"] for g in (gr.get("stadiums") or []) if not g.get("taken")]
+            if not free:
+                return
+            self.post("/api/claim_ground", {"token": tok, "ground_id": free[0]})
+            self.post("/api/lock_ground", {"token": tok})
 
     def run(self, era, max_steps=MAX_STEPS):
         self.setup(era)

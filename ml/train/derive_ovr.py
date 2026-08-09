@@ -79,8 +79,32 @@ SHRINK_BOWL_BALLS = 300
 # from 66th to 17th while de Villiers and Russell keep 1st and 2nd.
 LONGEVITY_GAIN = 5.0
 
-BAT_SLOT = 2        # measure batters at #3 -- reached in almost every innings
+# Rotate the batting slot rather than pinning it. An opener and a finisher are
+# different jobs, and a rating taken at one slot answers only that slot's
+# question. Openers through number 7; below that a candidate barely bats.
+BAT_SLOTS = (0, 1, 2, 3, 4, 5, 6)
 BOWL_SLOT = 0       # measure bowlers as the first-change option
+
+
+def _venue_rotation(era):
+    """(runs/ball, wkts/ball, boundary share, spin edge, pace edge) per ground.
+
+    Measured per era by ml/etl/venue_types.py. Falls back to a single neutral
+    ground so a missing profile degrades to the old behaviour rather than
+    crashing a derivation that takes an hour.
+    """
+    path = os.path.join(REPO_ROOT, "ml", "artifacts", "eras", era.id,
+                        "venue_profile.json")
+    try:
+        with open(path, "r", encoding="utf-8") as fh:
+            grounds = json.load(fh)["grounds"]
+    except OSError:
+        print(f"      no venue profile for {era.id} -- using one neutral ground")
+        return [(1.4, 0.05, 0.589, 0.0, 0.0)]
+    out = [(v["rpb"], v["wpb"], v["bdry_share"],
+            v.get("spin_edge") or 0.0, v.get("pace_edge") or 0.0)
+           for v in grounds.values()]
+    return sorted(out) or [(1.4, 0.05, 0.589, 0.0, 0.0)]
 
 
 def _usable_plans(plans, by_name):
@@ -102,8 +126,20 @@ def _median_pool(pool: list, key: str) -> dict:
 
 
 def measure_batting(era, model, cal, plans_by, n: int, seed: int) -> dict:
-    """name -> team runs added over the replacement batter, at slot #3."""
+    """name -> team runs added over the replacement batter, across the range.
+
+    Rotated over batting SLOTS and GROUNDS rather than pinned to one of each.
+    Holding conditions fixed is what makes a comparison fair, but holding them
+    at a single value answers a much narrower question: "who is best at #3 on a
+    neutral pitch" is not "who is the better player". An opener never faces the
+    death overs at slot 3, and a spin-hitter's advantage is invisible unless a
+    turning ground is in the rotation.
+
+    Every candidate walks the SAME rotation in the SAME order with the SAME
+    seeds, so the pairing that removes simulation noise is untouched.
+    """
     by_name, usable = plans_by
+    venues = _venue_rotation(era)
     league = P.league_avg()
     ball_fn = model_ball_fn(model, calibration=cal["calibration"],
                             out_calibration=cal["out_calibration"])
@@ -114,19 +150,21 @@ def measure_batting(era, model, cal, plans_by, n: int, seed: int) -> dict:
     baseline = _median_pool(cands, "_bat_rank")
 
     def team_total(record) -> float:
-        lu_base, ov = usable[0]
         total = 0.0
         for i in range(n):
             lu_src, ov_src = usable[i % len(usable)]
             lu = list(lu_src)
-            lu[BAT_SLOT] = record          # same slot, same team-mates, every time
+            lu[BAT_SLOTS[i % len(BAT_SLOTS)]] = record
+            v_rpb, v_wpb, v_bdry, v_spin, v_pace = venues[i % len(venues)]
             # common random numbers: identical stream per innings index for
             # every player, so the comparison is paired
             rng = random.Random(seed * 1_000_003 + i)
             random.seed(seed * 7_919 + i)
             o = simulate_innings(lu, ov_src, ball_fn, league, target=None, rng=rng,
                                  role_mix=mix, extras_fn=extras,
-                                 venue_rpb=1.4, venue_wpb=0.05,
+                                 venue_rpb=v_rpb, venue_wpb=v_wpb,
+                                 venue_bdry_share=v_bdry,
+                                 venue_spin_edge=v_spin, venue_pace_edge=v_pace,
                                  day_sigma=cal["day_sigma"])
             total += o.total
         return total / n
@@ -141,8 +179,16 @@ def measure_batting(era, model, cal, plans_by, n: int, seed: int) -> dict:
 
 
 def measure_bowling(era, model, cal, plans_by, n: int, seed: int) -> dict:
-    """name -> runs PREVENTED vs the replacement bowler (higher = better)."""
+    """name -> runs PREVENTED vs the replacement bowler (higher = better).
+
+    Rotated over grounds for the same reason batting is rotated over slots: a
+    spinner measured only on a neutral pitch is being asked the wrong question.
+    The 1079 real bowling plans already vary the OPPOSITION he bowls at, from
+    strong top orders to tail-enders, so batting strength needs no extra
+    rotation -- it is in the plans.
+    """
     by_name, usable = plans_by
+    venues = _venue_rotation(era)
     league = P.league_avg()
     ball_fn = model_ball_fn(model, calibration=cal["calibration"],
                             out_calibration=cal["out_calibration"])
@@ -160,11 +206,14 @@ def measure_bowling(era, model, cal, plans_by, n: int, seed: int) -> dict:
             # give the candidate a full quota-sized share of the attack
             for slot in range(0, len(ov), max(1, len(ov) // 4)):
                 ov[slot] = record
+            v_rpb, v_wpb, v_bdry, v_spin, v_pace = venues[i % len(venues)]
             rng = random.Random(seed * 1_000_003 + i)
             random.seed(seed * 7_919 + i)
             o = simulate_innings(lu, ov, ball_fn, league, target=None, rng=rng,
                                  role_mix=mix, extras_fn=extras,
-                                 venue_rpb=1.4, venue_wpb=0.05,
+                                 venue_rpb=v_rpb, venue_wpb=v_wpb,
+                                 venue_bdry_share=v_bdry,
+                                 venue_spin_edge=v_spin, venue_pace_edge=v_pace,
                                  day_sigma=cal["day_sigma"])
             total += o.total
         return total / n

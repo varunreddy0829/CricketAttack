@@ -229,12 +229,12 @@
     "bdry": 16
    }
   },
-  "batting_ovr": 59,
+  "batting_ovr": 58,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -2.12,
+  "measured_bat_value": -0.2,
   "measured_bowl_value": 0.0
  },
  {
@@ -706,12 +706,12 @@
    }
   },
   "batting_ovr": 55,
-  "bowling_ovr": 75,
+  "bowling_ovr": 76,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -6.51,
-  "measured_bowl_value": 4.67
+  "measured_bat_value": -4.85,
+  "measured_bowl_value": 4.51
  },
  {
   "name": "A Nehra",
@@ -830,7 +830,7 @@
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 12.14
+  "measured_bowl_value": 11.3
  },
  {
   "name": "A Nortje",
@@ -944,12 +944,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 77,
+  "bowling_ovr": 78,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 11.75
+  "measured_bowl_value": 11.19
  },
  {
   "name": "A Tomar",
@@ -1182,12 +1182,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 64,
+  "bowling_ovr": 63,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 11.92
+  "measured_bowl_value": 11.63
  },
  {
   "name": "AB Dinda",
@@ -1301,12 +1301,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 57,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 0.1
+  "measured_bowl_value": -1.74
  },
  {
   "name": "AB de Villiers",
@@ -1429,7 +1429,7 @@
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": 7.34,
+  "measured_bat_value": 8.55,
   "measured_bowl_value": 0.0
  },
  {
@@ -1543,12 +1543,12 @@
     "bdry": 18
    }
   },
-  "batting_ovr": 56,
+  "batting_ovr": 55,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -4.04,
+  "measured_bat_value": -1.46,
   "measured_bowl_value": 0.0
  },
  {
@@ -1662,13 +1662,13 @@
     "bdry": 15
    }
   },
-  "batting_ovr": 60,
+  "batting_ovr": 58,
   "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -1.76,
-  "measured_bowl_value": 3.16
+  "measured_bat_value": -0.4,
+  "measured_bowl_value": 2.43
  },
  {
   "name": "AD Nath",
@@ -1906,12 +1906,12 @@
    }
   },
   "batting_ovr": 99,
-  "bowling_ovr": 81,
+  "bowling_ovr": 80,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": 11.07,
-  "measured_bowl_value": 9.0
+  "measured_bat_value": 11.22,
+  "measured_bowl_value": 7.72
  },
  {
   "name": "AF Milne",
@@ -2030,7 +2030,7 @@
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": -0.9
+  "measured_bowl_value": -1.84
  },
  {
   "name": "AJ Finch",
@@ -2148,12 +2148,12 @@
     "bdry": 132
    }
   },
-  "batting_ovr": 80,
+  "batting_ovr": 76,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": 0.62,
+  "measured_bat_value": -0.61,
   "measured_bowl_value": 0.0
  },
  {
@@ -2387,12 +2387,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 76,
+  "bowling_ovr": 74,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 11.32
+  "measured_bowl_value": 9.54
  },
  {
   "name": "AK Markram",
@@ -2505,7 +2505,7 @@
     "bdry": 36
    }
   },
-  "batting_ovr": 70,
+  "batting_ovr": 68,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -2748,12 +2748,12 @@
     "bdry": 251
    }
   },
-  "batting_ovr": 73,
+  "batting_ovr": 76,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -3.92,
+  "measured_bat_value": -2.32,
   "measured_bowl_value": 0.0
  },
  {
@@ -2986,12 +2986,12 @@
     "bdry": 20
    }
   },
-  "batting_ovr": 57,
+  "batting_ovr": 55,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -6.0,
+  "measured_bat_value": -5.35,
   "measured_bowl_value": 0.0
  },
  {
@@ -3229,13 +3229,13 @@
     "bdry": 89
    }
   },
-  "batting_ovr": 74,
-  "bowling_ovr": 89,
+  "batting_ovr": 77,
+  "bowling_ovr": 91,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -0.71,
-  "measured_bowl_value": 11.04
+  "measured_bat_value": 0.95,
+  "measured_bowl_value": 10.84
  },
  {
   "name": "AS Joseph",
@@ -3354,7 +3354,7 @@
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 4.71
+  "measured_bowl_value": 6.06
  },
  {
   "name": "AS Rajpoot",
@@ -3468,12 +3468,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 59,
+  "bowling_ovr": 58,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 1.22
+  "measured_bowl_value": 0.8
  },
  {
   "name": "AS Roy",
@@ -3829,12 +3829,12 @@
     "bdry": 243
    }
   },
-  "batting_ovr": 82,
+  "batting_ovr": 84,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -0.72,
+  "measured_bat_value": 0.29,
   "measured_bowl_value": 0.0
  },
  {
@@ -4067,12 +4067,12 @@
     "bdry": 21
    }
   },
-  "batting_ovr": 63,
+  "batting_ovr": 61,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -0.14,
+  "measured_bat_value": 0.46,
   "measured_bowl_value": 0.0
  },
  {
@@ -4191,7 +4191,7 @@
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -2.77,
+  "measured_bat_value": -1.47,
   "measured_bowl_value": 0.0
  },
  {
@@ -4663,12 +4663,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 58,
+  "bowling_ovr": 56,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 8.79
+  "measured_bowl_value": 8.15
  },
  {
   "name": "Ankit Soni",
@@ -5019,12 +5019,12 @@
     "bdry": 14
    }
   },
-  "batting_ovr": 56,
+  "batting_ovr": 55,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -5.14,
+  "measured_bat_value": -4.06,
   "measured_bowl_value": 0.0
  },
  {
@@ -5139,12 +5139,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 62,
+  "bowling_ovr": 59,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 4.78
+  "measured_bowl_value": 3.41
  },
  {
   "name": "Arshdeep Singh",
@@ -5263,7 +5263,7 @@
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 7.2
+  "measured_bowl_value": 6.67
  },
  {
   "name": "Avesh Khan",
@@ -5382,7 +5382,7 @@
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 9.07
+  "measured_bowl_value": 8.91
  },
  {
   "name": "Azhar Mahmood",
@@ -5734,12 +5734,12 @@
    }
   },
   "batting_ovr": 55,
-  "bowling_ovr": 92,
+  "bowling_ovr": 93,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -7.29,
-  "measured_bowl_value": 12.67
+  "measured_bat_value": -4.76,
+  "measured_bowl_value": 11.65
  },
  {
   "name": "B Laughlin",
@@ -5971,12 +5971,12 @@
     "bdry": 12
    }
   },
-  "batting_ovr": 58,
+  "batting_ovr": 55,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -0.68,
+  "measured_bat_value": -0.57,
   "measured_bowl_value": 0.0
  },
  {
@@ -6210,12 +6210,12 @@
    }
   },
   "batting_ovr": 74,
-  "bowling_ovr": 62,
+  "bowling_ovr": 61,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -0.24,
-  "measured_bowl_value": 1.42
+  "measured_bat_value": 0.55,
+  "measured_bowl_value": 0.76
  },
  {
   "name": "BB McCullum",
@@ -6338,7 +6338,7 @@
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -0.78,
+  "measured_bat_value": -0.03,
   "measured_bowl_value": 0.0
  },
  {
@@ -6453,12 +6453,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 57,
+  "bowling_ovr": 56,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": -0.18
+  "measured_bowl_value": -0.47
  },
  {
   "name": "BCJ Cutting",
@@ -6571,13 +6571,13 @@
     "bdry": 30
    }
   },
-  "batting_ovr": 65,
+  "batting_ovr": 63,
   "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": 2.42,
-  "measured_bowl_value": -0.39
+  "measured_bat_value": 3.24,
+  "measured_bowl_value": -1.77
  },
  {
   "name": "BE Hendricks",
@@ -7167,12 +7167,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 62,
+  "bowling_ovr": 61,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 2.65
+  "measured_bowl_value": 2.36
  },
  {
   "name": "Bipul Sharma",
@@ -7286,12 +7286,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 59,
+  "bowling_ovr": 57,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 10.78
+  "measured_bowl_value": 9.16
  },
  {
   "name": "C Munro",
@@ -7404,12 +7404,12 @@
     "bdry": 17
    }
   },
-  "batting_ovr": 58,
+  "batting_ovr": 57,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -4.4,
+  "measured_bat_value": -2.76,
   "measured_bowl_value": 0.0
  },
  {
@@ -7524,12 +7524,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 62,
+  "bowling_ovr": 61,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 5.51
+  "measured_bowl_value": 4.81
  },
  {
   "name": "C de Grandhomme",
@@ -7642,13 +7642,13 @@
     "bdry": 21
    }
   },
-  "batting_ovr": 65,
+  "batting_ovr": 64,
   "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -1.1,
-  "measured_bowl_value": -3.21
+  "measured_bat_value": -0.13,
+  "measured_bowl_value": -4.17
  },
  {
   "name": "CA Ingram",
@@ -7761,12 +7761,12 @@
     "bdry": 12
    }
   },
-  "batting_ovr": 59,
+  "batting_ovr": 58,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -4.44,
+  "measured_bat_value": -2.58,
   "measured_bowl_value": 0.0
  },
  {
@@ -7885,12 +7885,12 @@
     "bdry": 136
    }
   },
-  "batting_ovr": 77,
+  "batting_ovr": 79,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": 0.34,
+  "measured_bat_value": 1.93,
   "measured_bowl_value": 0.0
  },
  {
@@ -8004,12 +8004,12 @@
     "bdry": 15
    }
   },
-  "batting_ovr": 57,
+  "batting_ovr": 55,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -3.84,
+  "measured_bat_value": -2.93,
   "measured_bowl_value": 0.0
  },
  {
@@ -8128,12 +8128,12 @@
     "bdry": 233
    }
   },
-  "batting_ovr": 88,
+  "batting_ovr": 87,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": 2.74,
+  "measured_bat_value": 2.36,
   "measured_bowl_value": 0.0
  },
  {
@@ -8252,13 +8252,13 @@
     "bdry": 53
    }
   },
-  "batting_ovr": 67,
-  "bowling_ovr": 79,
+  "batting_ovr": 68,
+  "bowling_ovr": 78,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -1.36,
-  "measured_bowl_value": 7.1
+  "measured_bat_value": 0.18,
+  "measured_bowl_value": 5.9
  },
  {
   "name": "CJ Anderson",
@@ -8371,13 +8371,13 @@
     "bdry": 42
    }
   },
-  "batting_ovr": 70,
+  "batting_ovr": 68,
   "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -0.76,
-  "measured_bowl_value": -3.69
+  "measured_bat_value": -0.47,
+  "measured_bowl_value": -4.52
  },
  {
   "name": "CJ Dala",
@@ -8729,12 +8729,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 62,
+  "bowling_ovr": 61,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 2.77
+  "measured_bowl_value": 2.72
  },
  {
   "name": "CM Gautam",
@@ -8847,12 +8847,12 @@
     "bdry": 14
    }
   },
-  "batting_ovr": 56,
+  "batting_ovr": 55,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -4.07,
+  "measured_bat_value": -3.4,
   "measured_bowl_value": 0.0
  },
  {
@@ -8966,13 +8966,13 @@
     "bdry": 20
    }
   },
-  "batting_ovr": 58,
-  "bowling_ovr": 57,
+  "batting_ovr": 55,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": 0.06,
-  "measured_bowl_value": 4.6
+  "measured_bat_value": 0.48,
+  "measured_bowl_value": 2.72
  },
  {
   "name": "CR Woakes",
@@ -9086,12 +9086,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 64,
+  "bowling_ovr": 62,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 5.47
+  "measured_bowl_value": 4.72
  },
  {
   "name": "CV Varun",
@@ -9205,12 +9205,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 84,
+  "bowling_ovr": 85,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 12.68
+  "measured_bowl_value": 12.6
  },
  {
   "name": "D Brevis",
@@ -9323,12 +9323,12 @@
     "bdry": 14
    }
   },
-  "batting_ovr": 58,
+  "batting_ovr": 56,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -0.99,
+  "measured_bat_value": 0.41,
   "measured_bowl_value": 0.0
  },
  {
@@ -9447,12 +9447,12 @@
     "bdry": 124
    }
   },
-  "batting_ovr": 73,
+  "batting_ovr": 74,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -2.1,
+  "measured_bat_value": -1.02,
   "measured_bowl_value": 0.0
  },
  {
@@ -9686,12 +9686,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 62,
+  "bowling_ovr": 59,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 8.73
+  "measured_bowl_value": 6.42
  },
  {
   "name": "DA Miller",
@@ -9809,12 +9809,12 @@
     "bdry": 141
    }
   },
-  "batting_ovr": 79,
+  "batting_ovr": 80,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -0.51,
+  "measured_bat_value": 0.59,
   "measured_bowl_value": 0.0
  },
  {
@@ -9933,12 +9933,12 @@
     "bdry": 371
    }
   },
-  "batting_ovr": 94,
+  "batting_ovr": 96,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": 3.65,
+  "measured_bat_value": 4.14,
   "measured_bowl_value": 0.0
  },
  {
@@ -10295,13 +10295,13 @@
     "bdry": 60
    }
   },
-  "batting_ovr": 66,
-  "bowling_ovr": 75,
+  "batting_ovr": 69,
+  "bowling_ovr": 77,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -3.34,
-  "measured_bowl_value": 4.15
+  "measured_bat_value": -0.64,
+  "measured_bowl_value": 4.74
  },
  {
   "name": "DJ Hooda",
@@ -10419,13 +10419,13 @@
     "bdry": 88
    }
   },
-  "batting_ovr": 74,
-  "bowling_ovr": 57,
+  "batting_ovr": 78,
+  "bowling_ovr": 56,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -1.27,
-  "measured_bowl_value": 2.03
+  "measured_bat_value": 1.13,
+  "measured_bowl_value": 1.72
  },
  {
   "name": "DJ Hussey",
@@ -11138,7 +11138,7 @@
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -3.45,
+  "measured_bat_value": -2.86,
   "measured_bowl_value": 0.0
  },
  {
@@ -11377,7 +11377,7 @@
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 10.0
+  "measured_bowl_value": 8.97
  },
  {
   "name": "DM Bravo",
@@ -11609,12 +11609,12 @@
     "bdry": 17
    }
   },
-  "batting_ovr": 68,
+  "batting_ovr": 64,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": 3.35,
+  "measured_bat_value": 1.94,
   "measured_bowl_value": 0.0
  },
  {
@@ -11729,12 +11729,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 57,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 1.69
+  "measured_bowl_value": 1.05
  },
  {
   "name": "DR Shorey",
@@ -11971,13 +11971,13 @@
     "bdry": 146
    }
   },
-  "batting_ovr": 76,
+  "batting_ovr": 75,
   "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -1.01,
-  "measured_bowl_value": 0.07
+  "measured_bat_value": -0.87,
+  "measured_bowl_value": -0.1
  },
  {
   "name": "DS Kulkarni",
@@ -12091,12 +12091,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 73,
+  "bowling_ovr": 72,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 5.28
+  "measured_bowl_value": 4.35
  },
  {
   "name": "DT Christian",
@@ -12210,12 +12210,12 @@
    }
   },
   "batting_ovr": 55,
-  "bowling_ovr": 58,
+  "bowling_ovr": 57,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -3.09,
-  "measured_bowl_value": 1.18
+  "measured_bat_value": -3.37,
+  "measured_bowl_value": 1.51
  },
  {
   "name": "DW Steyn",
@@ -12334,7 +12334,7 @@
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 5.28
+  "measured_bowl_value": 4.96
  },
  {
   "name": "E Lewis",
@@ -12452,12 +12452,12 @@
     "bdry": 66
    }
   },
-  "batting_ovr": 69,
+  "batting_ovr": 70,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -1.83,
+  "measured_bat_value": -0.58,
   "measured_bowl_value": 0.0
  },
  {
@@ -12576,12 +12576,12 @@
     "bdry": 75
    }
   },
-  "batting_ovr": 69,
+  "batting_ovr": 70,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -2.63,
+  "measured_bat_value": -1.51,
   "measured_bowl_value": 0.0
  },
  {
@@ -12938,12 +12938,12 @@
     "bdry": 276
    }
   },
-  "batting_ovr": 83,
+  "batting_ovr": 84,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -0.47,
+  "measured_bat_value": 0.4,
   "measured_bowl_value": 0.0
  },
  {
@@ -13300,12 +13300,12 @@
     "bdry": 160
    }
   },
-  "batting_ovr": 71,
+  "batting_ovr": 70,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -3.62,
+  "measured_bat_value": -3.27,
   "measured_bowl_value": 0.0
  },
  {
@@ -13420,12 +13420,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 61,
+  "bowling_ovr": 60,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 11.15
+  "measured_bowl_value": 11.0
  },
  {
   "name": "GC Viljoen",
@@ -14024,7 +14024,7 @@
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -1.86,
+  "measured_bat_value": -0.84,
   "measured_bowl_value": 0.0
  },
  {
@@ -14143,13 +14143,13 @@
     "bdry": 167
    }
   },
-  "batting_ovr": 95,
-  "bowling_ovr": 72,
+  "batting_ovr": 93,
+  "bowling_ovr": 70,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": 6.19,
-  "measured_bowl_value": 7.08
+  "measured_bat_value": 5.6,
+  "measured_bowl_value": 5.79
  },
  {
   "name": "GS Sandhu",
@@ -14381,12 +14381,12 @@
     "bdry": 26
    }
   },
-  "batting_ovr": 64,
+  "batting_ovr": 63,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -2.71,
+  "measured_bat_value": -2.17,
   "measured_bowl_value": 0.0
  },
  {
@@ -14862,13 +14862,13 @@
     "bdry": 195
    }
   },
-  "batting_ovr": 85,
+  "batting_ovr": 82,
   "bowling_ovr": 70,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": 2.34,
-  "measured_bowl_value": 3.15
+  "measured_bat_value": 1.73,
+  "measured_bowl_value": 3.33
  },
  {
   "name": "HM Amla",
@@ -14981,12 +14981,12 @@
     "bdry": 65
    }
   },
-  "batting_ovr": 72,
+  "batting_ovr": 71,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": 1.12,
+  "measured_bat_value": 1.22,
   "measured_bowl_value": 0.0
  },
  {
@@ -15219,13 +15219,13 @@
     "bdry": 23
    }
   },
-  "batting_ovr": 62,
-  "bowling_ovr": 78,
+  "batting_ovr": 60,
+  "bowling_ovr": 77,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -1.4,
-  "measured_bowl_value": 6.85
+  "measured_bat_value": -0.7,
+  "measured_bowl_value": 5.82
  },
  {
   "name": "Harbhajan Singh",
@@ -15343,8 +15343,8 @@
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -2.11,
-  "measured_bowl_value": 11.69
+  "measured_bat_value": -0.87,
+  "measured_bowl_value": 10.58
  },
  {
   "name": "Harpreet Brar",
@@ -15458,12 +15458,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 59,
+  "bowling_ovr": 57,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 5.33
+  "measured_bowl_value": 4.55
  },
  {
   "name": "Harshit Rana",
@@ -15696,12 +15696,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 62,
+  "bowling_ovr": 59,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 0.57
+  "measured_bowl_value": -0.85
  },
  {
   "name": "I Udana",
@@ -15934,12 +15934,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 68,
+  "bowling_ovr": 67,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 9.1
+  "measured_bowl_value": 8.62
  },
  {
   "name": "IC Porel",
@@ -16529,12 +16529,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 86,
+  "bowling_ovr": 87,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 12.22
+  "measured_bowl_value": 11.66
  },
  {
   "name": "Iqbal Abdulla",
@@ -16648,12 +16648,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 61,
+  "bowling_ovr": 59,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 6.37
+  "measured_bowl_value": 5.33
  },
  {
   "name": "Ishan Kishan",
@@ -16771,12 +16771,12 @@
     "bdry": 164
    }
   },
-  "batting_ovr": 74,
+  "batting_ovr": 77,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -2.21,
+  "measured_bat_value": -0.54,
   "measured_bowl_value": 0.0
  },
  {
@@ -17015,7 +17015,7 @@
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 5.99
+  "measured_bowl_value": 5.95
  },
  {
   "name": "J Theron",
@@ -17248,12 +17248,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 64,
+  "bowling_ovr": 65,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 7.08
+  "measured_bowl_value": 8.21
  },
  {
   "name": "JA Morkel",
@@ -17366,12 +17366,12 @@
     "bdry": 10
    }
   },
-  "batting_ovr": 59,
+  "batting_ovr": 56,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": 0.29,
+  "measured_bat_value": 0.31,
   "measured_bowl_value": 0.0
  },
  {
@@ -17604,13 +17604,13 @@
     "bdry": 21
    }
   },
-  "batting_ovr": 60,
-  "bowling_ovr": 86,
+  "batting_ovr": 59,
+  "bowling_ovr": 88,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": 0.2,
-  "measured_bowl_value": 15.87
+  "measured_bat_value": 1.37,
+  "measured_bowl_value": 15.58
  },
  {
   "name": "JC Buttler",
@@ -17728,12 +17728,12 @@
     "bdry": 288
    }
   },
-  "batting_ovr": 93,
+  "batting_ovr": 96,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": 4.53,
+  "measured_bat_value": 5.66,
   "measured_bowl_value": 0.0
  },
  {
@@ -17847,13 +17847,13 @@
     "bdry": 15
    }
   },
-  "batting_ovr": 58,
+  "batting_ovr": 57,
   "bowling_ovr": 78,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -3.57,
-  "measured_bowl_value": 6.48
+  "measured_bat_value": -1.93,
+  "measured_bowl_value": 6.0
  },
  {
   "name": "JDS Neesham",
@@ -17972,7 +17972,7 @@
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": -3.39
+  "measured_bowl_value": -2.19
  },
  {
   "name": "JH Kallis",
@@ -18085,12 +18085,12 @@
     "bdry": 11
    }
   },
-  "batting_ovr": 58,
+  "batting_ovr": 56,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -2.87,
+  "measured_bat_value": -2.3,
   "measured_bowl_value": 0.0
  },
  {
@@ -18205,12 +18205,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 94,
+  "bowling_ovr": 96,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 13.66
+  "measured_bowl_value": 13.09
  },
  {
   "name": "JJ Roy",
@@ -18323,12 +18323,12 @@
     "bdry": 35
    }
   },
-  "batting_ovr": 65,
+  "batting_ovr": 64,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -1.72,
+  "measured_bat_value": -0.73,
   "measured_bowl_value": 0.0
  },
  {
@@ -18562,12 +18562,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 56,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 5.88
+  "measured_bowl_value": 4.16
  },
  {
   "name": "JM Bairstow",
@@ -18685,12 +18685,12 @@
     "bdry": 125
    }
   },
-  "batting_ovr": 78,
+  "batting_ovr": 80,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": 0.79,
+  "measured_bat_value": 1.96,
   "measured_bowl_value": 0.0
  },
  {
@@ -18804,12 +18804,12 @@
     "bdry": 22
    }
   },
-  "batting_ovr": 67,
+  "batting_ovr": 64,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": 4.35,
+  "measured_bat_value": 3.77,
   "measured_bowl_value": 0.0
  },
  {
@@ -18923,13 +18923,13 @@
     "bdry": 27
    }
   },
-  "batting_ovr": 62,
+  "batting_ovr": 59,
   "bowling_ovr": 68,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -3.09,
-  "measured_bowl_value": 4.95
+  "measured_bat_value": -2.85,
+  "measured_bowl_value": 5.04
  },
  {
   "name": "JP Behrendorff",
@@ -19166,13 +19166,13 @@
     "bdry": 80
    }
   },
-  "batting_ovr": 80,
+  "batting_ovr": 81,
   "bowling_ovr": 62,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": 2.42,
-  "measured_bowl_value": 6.33
+  "measured_bat_value": 3.0,
+  "measured_bowl_value": 6.66
  },
  {
   "name": "JP Faulkner",
@@ -19291,12 +19291,12 @@
    }
   },
   "batting_ovr": 70,
-  "bowling_ovr": 61,
+  "bowling_ovr": 58,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": 0.93,
-  "measured_bowl_value": -0.85
+  "measured_bat_value": 1.84,
+  "measured_bowl_value": -2.34
  },
  {
   "name": "JPR Scantlebury-Searles",
@@ -19534,7 +19534,7 @@
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 9.96
+  "measured_bowl_value": 9.76
  },
  {
   "name": "JR Philippe",
@@ -20009,8 +20009,8 @@
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -2.4,
-  "measured_bowl_value": 8.77
+  "measured_bat_value": -2.59,
+  "measured_bowl_value": 8.58
  },
  {
   "name": "K Kartikeya",
@@ -20361,13 +20361,13 @@
     "bdry": 18
    }
   },
-  "batting_ovr": 60,
-  "bowling_ovr": 86,
+  "batting_ovr": 59,
+  "bowling_ovr": 87,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -4.86,
-  "measured_bowl_value": 11.09
+  "measured_bat_value": -2.73,
+  "measured_bowl_value": 10.88
  },
  {
   "name": "K Santokie",
@@ -20842,13 +20842,13 @@
     "bdry": 211
    }
   },
-  "batting_ovr": 91,
+  "batting_ovr": 90,
   "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": 4.19,
-  "measured_bowl_value": -7.21
+  "measured_bat_value": 4.02,
+  "measured_bowl_value": -7.77
  },
  {
   "name": "KC Cariappa",
@@ -21085,12 +21085,12 @@
     "bdry": 236
    }
   },
-  "batting_ovr": 81,
+  "batting_ovr": 83,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -0.3,
+  "measured_bat_value": 0.85,
   "measured_bowl_value": 0.0
  },
  {
@@ -21209,13 +21209,13 @@
     "bdry": 116
    }
   },
-  "batting_ovr": 74,
-  "bowling_ovr": 83,
+  "batting_ovr": 78,
+  "bowling_ovr": 84,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -1.24,
-  "measured_bowl_value": 9.02
+  "measured_bat_value": 1.11,
+  "measured_bowl_value": 8.82
  },
  {
   "name": "KJ Abbott",
@@ -21453,7 +21453,7 @@
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 12.18
+  "measured_bowl_value": 11.55
  },
  {
   "name": "KK Cooper",
@@ -21685,12 +21685,12 @@
     "bdry": 139
    }
   },
-  "batting_ovr": 71,
+  "batting_ovr": 75,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -3.0,
+  "measured_bat_value": -0.73,
   "measured_bowl_value": 0.0
  },
  {
@@ -21928,12 +21928,12 @@
     "bdry": 364
    }
   },
-  "batting_ovr": 88,
+  "batting_ovr": 91,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": 1.47,
+  "measured_bat_value": 2.67,
   "measured_bowl_value": 0.0
  },
  {
@@ -22171,12 +22171,12 @@
     "bdry": 82
    }
   },
-  "batting_ovr": 74,
+  "batting_ovr": 73,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -0.33,
+  "measured_bat_value": -0.41,
   "measured_bowl_value": 0.0
  },
  {
@@ -22409,12 +22409,12 @@
     "bdry": 23
    }
   },
-  "batting_ovr": 62,
+  "batting_ovr": 60,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -4.73,
+  "measured_bat_value": -4.41,
   "measured_bowl_value": 0.0
  },
  {
@@ -22647,12 +22647,12 @@
     "bdry": 11
    }
   },
-  "batting_ovr": 63,
+  "batting_ovr": 61,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -0.58,
+  "measured_bat_value": 0.23,
   "measured_bowl_value": 0.0
  },
  {
@@ -22890,12 +22890,12 @@
     "bdry": 182
    }
   },
-  "batting_ovr": 75,
+  "batting_ovr": 76,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -2.48,
+  "measured_bat_value": -1.55,
   "measured_bowl_value": 0.0
  },
  {
@@ -23009,13 +23009,13 @@
     "bdry": 16
    }
   },
-  "batting_ovr": 61,
-  "bowling_ovr": 79,
+  "batting_ovr": 60,
+  "bowling_ovr": 77,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -3.24,
-  "measured_bowl_value": 9.51
+  "measured_bat_value": -1.83,
+  "measured_bowl_value": 7.55
  },
  {
   "name": "KW Richardson",
@@ -23129,12 +23129,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 62,
+  "bowling_ovr": 61,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 9.66
+  "measured_bowl_value": 8.83
  },
  {
   "name": "Karanveer Singh",
@@ -23253,7 +23253,7 @@
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 5.88
+  "measured_bowl_value": 5.65
  },
  {
   "name": "Kartik Tyagi",
@@ -23367,12 +23367,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 56,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": -0.03
+  "measured_bowl_value": 0.5
  },
  {
   "name": "Kuldeep Yadav",
@@ -23486,12 +23486,12 @@
    }
   },
   "batting_ovr": 55,
-  "bowling_ovr": 83,
+  "bowling_ovr": 82,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -6.78,
-  "measured_bowl_value": 10.84
+  "measured_bat_value": -6.28,
+  "measured_bowl_value": 9.48
  },
  {
   "name": "L Balaji",
@@ -23610,7 +23610,7 @@
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 6.17
+  "measured_bowl_value": 4.88
  },
  {
   "name": "L Ngidi",
@@ -23724,12 +23724,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 66,
+  "bowling_ovr": 64,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 10.97
+  "measured_bowl_value": 9.26
  },
  {
   "name": "LE Plunkett",
@@ -23962,12 +23962,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 70,
+  "bowling_ovr": 69,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 5.39
+  "measured_bowl_value": 4.84
  },
  {
   "name": "LI Meriwala",
@@ -24204,12 +24204,12 @@
     "bdry": 103
    }
   },
-  "batting_ovr": 73,
+  "batting_ovr": 72,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -1.0,
+  "measured_bat_value": -0.79,
   "measured_bowl_value": 0.0
  },
  {
@@ -24561,12 +24561,12 @@
     "bdry": 59
    }
   },
-  "batting_ovr": 81,
+  "batting_ovr": 82,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": 8.09,
+  "measured_bat_value": 9.36,
   "measured_bowl_value": 0.0
  },
  {
@@ -24680,12 +24680,12 @@
     "bdry": 15
    }
   },
-  "batting_ovr": 62,
+  "batting_ovr": 60,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -3.81,
+  "measured_bat_value": -2.83,
   "measured_bowl_value": 0.0
  },
  {
@@ -24800,12 +24800,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 75,
+  "bowling_ovr": 73,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 7.57
+  "measured_bowl_value": 6.32
  },
  {
   "name": "M Jansen",
@@ -24919,12 +24919,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 57,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 6.25
+  "measured_bowl_value": 4.8
  },
  {
   "name": "M Kartik",
@@ -25276,12 +25276,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 63,
+  "bowling_ovr": 61,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 6.89
+  "measured_bowl_value": 6.06
  },
  {
   "name": "M Morkel",
@@ -25395,12 +25395,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 73,
+  "bowling_ovr": 71,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 9.49
+  "measured_bowl_value": 7.78
  },
  {
   "name": "M Muralitharan",
@@ -25757,7 +25757,7 @@
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 6.19
+  "measured_bowl_value": 5.41
  },
  {
   "name": "M Shahrukh Khan",
@@ -25870,12 +25870,12 @@
     "bdry": 24
    }
   },
-  "batting_ovr": 68,
+  "batting_ovr": 66,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": 1.14,
+  "measured_bat_value": 1.04,
   "measured_bowl_value": 0.0
  },
  {
@@ -25990,12 +25990,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 60,
+  "bowling_ovr": 59,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 12.13
+  "measured_bowl_value": 11.17
  },
  {
   "name": "M Vijay",
@@ -26113,12 +26113,12 @@
     "bdry": 95
    }
   },
-  "batting_ovr": 64,
+  "batting_ovr": 63,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -5.43,
+  "measured_bat_value": -4.91,
   "measured_bowl_value": 0.0
  },
  {
@@ -26237,12 +26237,12 @@
     "bdry": 83
    }
   },
-  "batting_ovr": 68,
+  "batting_ovr": 71,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -3.34,
+  "measured_bat_value": -0.94,
   "measured_bowl_value": 0.0
  },
  {
@@ -26480,12 +26480,12 @@
     "bdry": 177
    }
   },
-  "batting_ovr": 76,
+  "batting_ovr": 75,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -1.54,
+  "measured_bat_value": -1.3,
   "measured_bowl_value": 0.0
  },
  {
@@ -26600,12 +26600,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 71,
+  "bowling_ovr": 72,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 8.6
+  "measured_bowl_value": 9.13
  },
  {
   "name": "MA Wood",
@@ -26842,13 +26842,13 @@
     "bdry": 56
    }
   },
-  "batting_ovr": 70,
-  "bowling_ovr": 68,
+  "batting_ovr": 71,
+  "bowling_ovr": 67,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -1.98,
-  "measured_bowl_value": 4.92
+  "measured_bat_value": -0.29,
+  "measured_bowl_value": 4.35
  },
  {
   "name": "MEK Hussey",
@@ -26961,12 +26961,12 @@
     "bdry": 26
    }
   },
-  "batting_ovr": 62,
+  "batting_ovr": 61,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -4.49,
+  "measured_bat_value": -3.11,
   "measured_bowl_value": 0.0
  },
  {
@@ -27080,13 +27080,13 @@
     "bdry": 10
    }
   },
-  "batting_ovr": 56,
+  "batting_ovr": 55,
   "bowling_ovr": 68,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -5.54,
-  "measured_bowl_value": 2.82
+  "measured_bat_value": -5.24,
+  "measured_bowl_value": 3.13
  },
  {
   "name": "MJ Guptill",
@@ -27204,7 +27204,7 @@
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -3.04,
+  "measured_bat_value": -0.96,
   "measured_bowl_value": 0.0
  },
  {
@@ -27438,12 +27438,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 80,
+  "bowling_ovr": 79,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 8.49
+  "measured_bowl_value": 6.99
  },
  {
   "name": "MJ Santner",
@@ -27557,12 +27557,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 63,
+  "bowling_ovr": 62,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 12.04
+  "measured_bowl_value": 11.55
  },
  {
   "name": "MK Lomror",
@@ -27675,12 +27675,12 @@
     "bdry": 15
    }
   },
-  "batting_ovr": 64,
+  "batting_ovr": 63,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -1.86,
+  "measured_bat_value": -0.48,
   "measured_bowl_value": 0.0
  },
  {
@@ -27799,12 +27799,12 @@
     "bdry": 205
    }
   },
-  "batting_ovr": 80,
+  "batting_ovr": 83,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -0.92,
+  "measured_bat_value": 0.36,
   "measured_bowl_value": 0.0
  },
  {
@@ -27918,12 +27918,12 @@
     "bdry": 50
    }
   },
-  "batting_ovr": 68,
+  "batting_ovr": 67,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -2.34,
+  "measured_bat_value": -1.6,
   "measured_bowl_value": 0.0
  },
  {
@@ -28037,13 +28037,13 @@
     "bdry": 75
    }
   },
-  "batting_ovr": 75,
-  "bowling_ovr": 77,
+  "batting_ovr": 73,
+  "bowling_ovr": 78,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": 0.67,
-  "measured_bowl_value": 13.67
+  "measured_bat_value": 0.36,
+  "measured_bowl_value": 13.77
  },
  {
   "name": "MM Patel",
@@ -28276,12 +28276,12 @@
    }
   },
   "batting_ovr": 55,
-  "bowling_ovr": 81,
+  "bowling_ovr": 82,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -6.45,
-  "measured_bowl_value": 7.99
+  "measured_bat_value": -4.09,
+  "measured_bowl_value": 7.88
  },
  {
   "name": "MN Samuels",
@@ -28518,13 +28518,13 @@
     "bdry": 91
    }
   },
-  "batting_ovr": 73,
-  "bowling_ovr": 63,
+  "batting_ovr": 74,
+  "bowling_ovr": 61,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -1.12,
-  "measured_bowl_value": 1.65
+  "measured_bat_value": 0.32,
+  "measured_bowl_value": 1.0
  },
  {
   "name": "MR Marsh",
@@ -28642,7 +28642,7 @@
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -2.67,
+  "measured_bat_value": -0.71,
   "measured_bowl_value": 0.0
  },
  {
@@ -28880,12 +28880,12 @@
     "bdry": 226
    }
   },
-  "batting_ovr": 82,
+  "batting_ovr": 83,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -0.24,
+  "measured_bat_value": 0.4,
   "measured_bowl_value": 0.0
  },
  {
@@ -29118,12 +29118,12 @@
     "bdry": 22
    }
   },
-  "batting_ovr": 59,
+  "batting_ovr": 56,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -3.79,
+  "measured_bat_value": -3.04,
   "measured_bowl_value": 0.0
  },
  {
@@ -29242,12 +29242,12 @@
     "bdry": 84
    }
   },
-  "batting_ovr": 68,
+  "batting_ovr": 71,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -3.41,
+  "measured_bat_value": -0.9,
   "measured_bowl_value": 0.0
  },
  {
@@ -29361,13 +29361,13 @@
     "bdry": 18
    }
   },
-  "batting_ovr": 59,
-  "bowling_ovr": 68,
+  "batting_ovr": 56,
+  "bowling_ovr": 67,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -1.29,
-  "measured_bowl_value": 12.06
+  "measured_bat_value": -0.85,
+  "measured_bowl_value": 11.49
  },
  {
   "name": "Mohammed Shami",
@@ -29481,12 +29481,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 81,
+  "bowling_ovr": 82,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 7.41
+  "measured_bowl_value": 7.06
  },
  {
   "name": "Mohammed Siraj",
@@ -29600,12 +29600,12 @@
    }
   },
   "batting_ovr": 55,
-  "bowling_ovr": 72,
+  "bowling_ovr": 71,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -6.9,
-  "measured_bowl_value": 3.26
+  "measured_bat_value": -5.53,
+  "measured_bowl_value": 2.36
  },
  {
   "name": "Mohsin Khan",
@@ -29957,12 +29957,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 70,
+  "bowling_ovr": 71,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 11.2
+  "measured_bowl_value": 11.67
  },
  {
   "name": "Mukesh Choudhary",
@@ -30076,12 +30076,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 58,
+  "bowling_ovr": 56,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 5.0
+  "measured_bowl_value": 3.48
  },
  {
   "name": "Mustafizur Rahman",
@@ -30195,12 +30195,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 83,
+  "bowling_ovr": 84,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 11.62
+  "measured_bowl_value": 11.16
  },
  {
   "name": "N Jagadeesan",
@@ -30442,7 +30442,7 @@
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": 2.93,
+  "measured_bat_value": 3.72,
   "measured_bowl_value": 0.0
  },
  {
@@ -30566,7 +30566,7 @@
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": 1.11,
+  "measured_bat_value": 1.3,
   "measured_bowl_value": 0.0
  },
  {
@@ -31038,12 +31038,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 79,
+  "bowling_ovr": 81,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 11.24
+  "measured_bowl_value": 11.3
  },
  {
   "name": "NS Naik",
@@ -31399,7 +31399,7 @@
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -5.0,
+  "measured_bat_value": -3.91,
   "measured_bowl_value": 0.0
  },
  {
@@ -31514,12 +31514,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 66,
+  "bowling_ovr": 64,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 4.44
+  "measured_bowl_value": 3.59
  },
  {
   "name": "O Thomas",
@@ -32347,12 +32347,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 67,
+  "bowling_ovr": 66,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 4.56
+  "measured_bowl_value": 3.82
  },
  {
   "name": "P Negi",
@@ -32466,12 +32466,12 @@
    }
   },
   "batting_ovr": 62,
-  "bowling_ovr": 67,
+  "bowling_ovr": 65,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -4.18,
-  "measured_bowl_value": 6.09
+  "measured_bat_value": -2.86,
+  "measured_bowl_value": 4.54
  },
  {
   "name": "P Ray Barman",
@@ -33065,12 +33065,12 @@
     "bdry": 197
    }
   },
-  "batting_ovr": 72,
+  "batting_ovr": 75,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -2.76,
+  "measured_bat_value": -1.22,
   "measured_bowl_value": 0.0
  },
  {
@@ -33184,12 +33184,12 @@
     "bdry": 21
    }
   },
-  "batting_ovr": 64,
+  "batting_ovr": 61,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": 3.16,
+  "measured_bat_value": 3.36,
   "measured_bowl_value": 0.0
  },
  {
@@ -33422,13 +33422,13 @@
     "bdry": 49
    }
   },
-  "batting_ovr": 71,
-  "bowling_ovr": 73,
+  "batting_ovr": 69,
+  "bowling_ovr": 72,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": 2.56,
-  "measured_bowl_value": 5.75
+  "measured_bat_value": 2.91,
+  "measured_bowl_value": 4.85
  },
  {
   "name": "PJ Sangwan",
@@ -33665,7 +33665,7 @@
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -3.49,
+  "measured_bat_value": -1.68,
   "measured_bowl_value": 0.0
  },
  {
@@ -33898,13 +33898,13 @@
     "bdry": 21
    }
   },
-  "batting_ovr": 57,
-  "bowling_ovr": 85,
+  "batting_ovr": 56,
+  "bowling_ovr": 88,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -6.99,
-  "measured_bowl_value": 10.9
+  "measured_bat_value": -4.69,
+  "measured_bowl_value": 11.16
  },
  {
   "name": "PP Ojha",
@@ -34023,7 +34023,7 @@
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 1.27
+  "measured_bowl_value": 1.88
  },
  {
   "name": "PP Shaw",
@@ -34141,12 +34141,12 @@
     "bdry": 178
    }
   },
-  "batting_ovr": 73,
+  "batting_ovr": 74,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -2.14,
+  "measured_bat_value": -0.9,
   "measured_bowl_value": 0.0
  },
  {
@@ -34380,12 +34380,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 70,
+  "bowling_ovr": 71,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 7.9
+  "measured_bowl_value": 8.11
  },
  {
   "name": "PVD Chameera",
@@ -34504,7 +34504,7 @@
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 1.6
+  "measured_bowl_value": 0.61
  },
  {
   "name": "PWH de Silva",
@@ -34618,12 +34618,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 72,
+  "bowling_ovr": 70,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 13.98
+  "measured_bowl_value": 12.34
  },
  {
   "name": "Parvez Rasool",
@@ -34860,12 +34860,12 @@
     "bdry": 295
    }
   },
-  "batting_ovr": 81,
+  "batting_ovr": 84,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -0.38,
+  "measured_bat_value": 1.06,
   "measured_bowl_value": 0.0
  },
  {
@@ -34985,12 +34985,12 @@
    }
   },
   "batting_ovr": 68,
-  "bowling_ovr": 86,
+  "bowling_ovr": 89,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -1.68,
-  "measured_bowl_value": 9.26
+  "measured_bat_value": -0.57,
+  "measured_bowl_value": 9.82
  },
  {
   "name": "R Bhatia",
@@ -35104,12 +35104,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 68,
+  "bowling_ovr": 67,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 8.0
+  "measured_bowl_value": 7.56
  },
  {
   "name": "R Dhawan",
@@ -35222,13 +35222,13 @@
     "bdry": 17
    }
   },
-  "batting_ovr": 60,
+  "batting_ovr": 59,
   "bowling_ovr": 61,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -3.65,
-  "measured_bowl_value": 2.59
+  "measured_bat_value": -1.7,
+  "measured_bowl_value": 2.54
  },
  {
   "name": "R Parag",
@@ -35346,7 +35346,7 @@
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -1.34,
+  "measured_bat_value": -0.28,
   "measured_bowl_value": 0.0
  },
  {
@@ -35460,12 +35460,12 @@
     "bdry": 22
    }
   },
-  "batting_ovr": 68,
+  "batting_ovr": 67,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": 4.06,
+  "measured_bat_value": 5.22,
   "measured_bowl_value": 0.0
  },
  {
@@ -36417,13 +36417,13 @@
     "bdry": 76
    }
   },
-  "batting_ovr": 69,
-  "bowling_ovr": 74,
+  "batting_ovr": 70,
+  "bowling_ovr": 72,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -2.25,
-  "measured_bowl_value": 7.78
+  "measured_bat_value": -0.96,
+  "measured_bowl_value": 6.16
  },
  {
   "name": "R Vinay Kumar",
@@ -36537,12 +36537,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 62,
+  "bowling_ovr": 60,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 2.64
+  "measured_bowl_value": 1.55
  },
  {
   "name": "RA Bawa",
@@ -36779,13 +36779,13 @@
     "bdry": 119
    }
   },
-  "batting_ovr": 81,
-  "bowling_ovr": 82,
+  "batting_ovr": 84,
+  "bowling_ovr": 80,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": 1.36,
-  "measured_bowl_value": 7.45
+  "measured_bat_value": 2.93,
+  "measured_bowl_value": 5.52
  },
  {
   "name": "RA Tripathi",
@@ -36903,12 +36903,12 @@
     "bdry": 171
    }
   },
-  "batting_ovr": 78,
+  "batting_ovr": 79,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -0.48,
+  "measured_bat_value": 0.52,
   "measured_bowl_value": 0.0
  },
  {
@@ -37027,8 +37027,8 @@
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -6.67,
-  "measured_bowl_value": 12.02
+  "measured_bat_value": -4.62,
+  "measured_bowl_value": 10.95
  },
  {
   "name": "RD Gaikwad",
@@ -37146,12 +37146,12 @@
     "bdry": 105
    }
   },
-  "batting_ovr": 75,
+  "batting_ovr": 74,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -0.73,
+  "measured_bat_value": -0.3,
   "measured_bowl_value": 0.0
  },
  {
@@ -37389,12 +37389,12 @@
     "bdry": 327
    }
   },
-  "batting_ovr": 79,
+  "batting_ovr": 82,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -1.82,
+  "measured_bat_value": -0.63,
   "measured_bowl_value": 0.0
  },
  {
@@ -37627,12 +37627,12 @@
     "bdry": 27
    }
   },
-  "batting_ovr": 65,
+  "batting_ovr": 64,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": 0.2,
+  "measured_bat_value": 0.7,
   "measured_bowl_value": 0.0
  },
  {
@@ -37746,12 +37746,12 @@
     "bdry": 27
    }
   },
-  "batting_ovr": 72,
+  "batting_ovr": 69,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": 2.72,
+  "measured_bat_value": 1.62,
   "measured_bowl_value": 0.0
  },
  {
@@ -37990,7 +37990,7 @@
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 1.77
+  "measured_bowl_value": 1.74
  },
  {
   "name": "RP Singh",
@@ -38232,7 +38232,7 @@
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": 3.4,
+  "measured_bat_value": 3.49,
   "measured_bowl_value": 0.0
  },
  {
@@ -38465,12 +38465,12 @@
     "bdry": 6
    }
   },
-  "batting_ovr": 58,
+  "batting_ovr": 55,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -1.08,
+  "measured_bat_value": -1.21,
   "measured_bowl_value": 0.0
  },
  {
@@ -38708,12 +38708,12 @@
     "bdry": 284
    }
   },
-  "batting_ovr": 79,
+  "batting_ovr": 81,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -1.71,
+  "measured_bat_value": -0.36,
   "measured_bowl_value": 0.0
  },
  {
@@ -38946,13 +38946,13 @@
     "bdry": 36
    }
   },
-  "batting_ovr": 64,
-  "bowling_ovr": 96,
+  "batting_ovr": 62,
+  "bowling_ovr": 99,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -1.67,
-  "measured_bowl_value": 15.21
+  "measured_bat_value": -1.21,
+  "measured_bowl_value": 16.26
  },
  {
   "name": "Rasikh Salam",
@@ -39185,12 +39185,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 76,
+  "bowling_ovr": 77,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 8.68
+  "measured_bowl_value": 8.64
  },
  {
   "name": "S Anirudha",
@@ -39428,7 +39428,7 @@
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 9.39
+  "measured_bowl_value": 9.79
  },
  {
   "name": "S Badree",
@@ -39542,12 +39542,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 63,
+  "bowling_ovr": 62,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 12.02
+  "measured_bowl_value": 12.23
  },
  {
   "name": "S Dhawan",
@@ -39665,12 +39665,12 @@
     "bdry": 404
    }
   },
-  "batting_ovr": 80,
+  "batting_ovr": 82,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -1.67,
+  "measured_bat_value": -0.79,
   "measured_bowl_value": 0.0
  },
  {
@@ -39784,12 +39784,12 @@
     "bdry": 55
    }
   },
-  "batting_ovr": 73,
+  "batting_ovr": 74,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": 0.3,
+  "measured_bat_value": 1.39,
   "measured_bowl_value": 0.0
  },
  {
@@ -39903,13 +39903,13 @@
     "bdry": 15
    }
   },
-  "batting_ovr": 60,
-  "bowling_ovr": 81,
+  "batting_ovr": 59,
+  "bowling_ovr": 82,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -4.37,
-  "measured_bowl_value": 11.35
+  "measured_bat_value": -2.6,
+  "measured_bowl_value": 11.15
  },
  {
   "name": "S Kaul",
@@ -40023,12 +40023,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 74,
+  "bowling_ovr": 75,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 5.93
+  "measured_bowl_value": 6.08
  },
  {
   "name": "S Kaushik",
@@ -40147,7 +40147,7 @@
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": -3.31
+  "measured_bowl_value": -2.89
  },
  {
   "name": "S Ladda",
@@ -40380,12 +40380,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 60,
+  "bowling_ovr": 58,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 11.4
+  "measured_bowl_value": 10.34
  },
  {
   "name": "S Midhun",
@@ -40618,12 +40618,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 72,
+  "bowling_ovr": 70,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 7.3
+  "measured_bowl_value": 5.74
  },
  {
   "name": "S Rana",
@@ -41098,12 +41098,12 @@
     "bdry": 245
    }
   },
-  "batting_ovr": 85,
+  "batting_ovr": 84,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": 1.29,
+  "measured_bat_value": 0.9,
   "measured_bowl_value": 0.0
  },
  {
@@ -41574,12 +41574,12 @@
     "bdry": 44
    }
   },
-  "batting_ovr": 67,
+  "batting_ovr": 66,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -2.81,
+  "measured_bat_value": -2.21,
   "measured_bowl_value": 0.0
  },
  {
@@ -41698,7 +41698,7 @@
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -3.67,
+  "measured_bat_value": -2.79,
   "measured_bowl_value": 0.0
  },
  {
@@ -41817,13 +41817,13 @@
     "bdry": 226
    }
   },
-  "batting_ovr": 84,
-  "bowling_ovr": 56,
+  "batting_ovr": 88,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": 0.58,
-  "measured_bowl_value": 1.5
+  "measured_bat_value": 2.33,
+  "measured_bowl_value": 1.06
  },
  {
   "name": "SL Malinga",
@@ -41942,7 +41942,7 @@
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 11.31
+  "measured_bowl_value": 10.2
  },
  {
   "name": "SM Boland",
@@ -42175,12 +42175,12 @@
    }
   },
   "batting_ovr": 65,
-  "bowling_ovr": 68,
+  "bowling_ovr": 65,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -1.12,
-  "measured_bowl_value": 5.44
+  "measured_bat_value": 0.47,
+  "measured_bowl_value": 3.84
  },
  {
   "name": "SN Khan",
@@ -42298,7 +42298,7 @@
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -0.69,
+  "measured_bat_value": 0.4,
   "measured_bowl_value": 0.0
  },
  {
@@ -42412,13 +42412,13 @@
     "bdry": 18
    }
   },
-  "batting_ovr": 60,
+  "batting_ovr": 59,
   "bowling_ovr": 72,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -1.9,
-  "measured_bowl_value": 2.82
+  "measured_bat_value": -0.61,
+  "measured_bowl_value": 2.52
  },
  {
   "name": "SO Hetmyer",
@@ -42536,12 +42536,12 @@
     "bdry": 89
    }
   },
-  "batting_ovr": 85,
+  "batting_ovr": 86,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": 6.54,
+  "measured_bat_value": 7.03,
   "measured_bowl_value": 0.0
  },
  {
@@ -42898,13 +42898,13 @@
     "bdry": 115
    }
   },
-  "batting_ovr": 73,
+  "batting_ovr": 71,
   "bowling_ovr": 95,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -0.64,
-  "measured_bowl_value": 13.92
+  "measured_bat_value": -0.37,
+  "measured_bowl_value": 12.74
  },
  {
   "name": "SPD Smith",
@@ -43022,12 +43022,12 @@
     "bdry": 151
    }
   },
-  "batting_ovr": 77,
+  "batting_ovr": 80,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -1.25,
+  "measured_bat_value": 0.24,
   "measured_bowl_value": 0.0
  },
  {
@@ -43146,13 +43146,13 @@
     "bdry": 206
    }
   },
-  "batting_ovr": 78,
+  "batting_ovr": 76,
   "bowling_ovr": 71,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -1.28,
-  "measured_bowl_value": 4.25
+  "measured_bat_value": -1.39,
+  "measured_bowl_value": 4.07
  },
  {
   "name": "SS Agarwal",
@@ -43508,12 +43508,12 @@
     "bdry": 227
    }
   },
-  "batting_ovr": 81,
+  "batting_ovr": 83,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -0.86,
+  "measured_bat_value": 0.02,
   "measured_bowl_value": 0.0
  },
  {
@@ -43746,12 +43746,12 @@
     "bdry": 40
    }
   },
-  "batting_ovr": 72,
+  "batting_ovr": 71,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": 0.69,
+  "measured_bat_value": 1.11,
   "measured_bowl_value": 0.0
  },
  {
@@ -43865,13 +43865,13 @@
     "bdry": 36
    }
   },
-  "batting_ovr": 62,
-  "bowling_ovr": 61,
+  "batting_ovr": 63,
+  "bowling_ovr": 60,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -4.5,
-  "measured_bowl_value": 5.62
+  "measured_bat_value": -2.28,
+  "measured_bowl_value": 4.72
  },
  {
   "name": "SV Samson",
@@ -43994,7 +43994,7 @@
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": 0.97,
+  "measured_bat_value": 1.11,
   "measured_bowl_value": 0.0
  },
  {
@@ -44113,7 +44113,7 @@
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -1.46,
+  "measured_bat_value": -0.66,
   "measured_bowl_value": 0.0
  },
  {
@@ -44232,7 +44232,7 @@
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -3.94,
+  "measured_bat_value": -2.07,
   "measured_bowl_value": 0.0
  },
  {
@@ -44347,12 +44347,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 89,
+  "bowling_ovr": 87,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 11.17
+  "measured_bowl_value": 9.3
  },
  {
   "name": "Shahbaz Ahmed",
@@ -44466,12 +44466,12 @@
    }
   },
   "batting_ovr": 67,
-  "bowling_ovr": 63,
+  "bowling_ovr": 62,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": 0.34,
-  "measured_bowl_value": 7.96
+  "measured_bat_value": 1.83,
+  "measured_bowl_value": 7.33
  },
  {
   "name": "Shakib Al Hasan",
@@ -44584,13 +44584,13 @@
     "bdry": 52
    }
   },
-  "batting_ovr": 66,
-  "bowling_ovr": 77,
+  "batting_ovr": 68,
+  "bowling_ovr": 79,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -3.51,
-  "measured_bowl_value": 7.4
+  "measured_bat_value": -1.77,
+  "measured_bowl_value": 8.04
  },
  {
   "name": "Shashank Singh",
@@ -44823,12 +44823,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 71,
+  "bowling_ovr": 72,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 7.97
+  "measured_bowl_value": 8.48
  },
  {
   "name": "Shivam Sharma",
@@ -45065,12 +45065,12 @@
     "bdry": 162
    }
   },
-  "batting_ovr": 73,
+  "batting_ovr": 74,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -2.94,
+  "measured_bat_value": -1.9,
   "measured_bowl_value": 0.0
  },
  {
@@ -45542,12 +45542,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 71,
+  "bowling_ovr": 70,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 6.33
+  "measured_bowl_value": 5.35
  },
  {
   "name": "T Shamsi",
@@ -45899,12 +45899,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 85,
+  "bowling_ovr": 87,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 10.1
+  "measured_bowl_value": 9.83
  },
  {
   "name": "TG Southee",
@@ -46018,12 +46018,12 @@
    }
   },
   "batting_ovr": 55,
-  "bowling_ovr": 71,
+  "bowling_ovr": 69,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -6.04,
-  "measured_bowl_value": 3.63
+  "measured_bat_value": -3.49,
+  "measured_bowl_value": 2.53
  },
  {
   "name": "TH David",
@@ -46255,12 +46255,12 @@
     "bdry": 6
    }
   },
-  "batting_ovr": 56,
+  "batting_ovr": 55,
   "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -0.73,
+  "measured_bat_value": 0.11,
   "measured_bowl_value": 0.0
  },
  {
@@ -46493,12 +46493,12 @@
     "bdry": 16
    }
   },
-  "batting_ovr": 63,
+  "batting_ovr": 62,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": 0.09,
+  "measured_bat_value": 1.75,
   "measured_bowl_value": 0.0
  },
  {
@@ -46618,7 +46618,7 @@
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 3.68
+  "measured_bowl_value": 1.65
  },
  {
   "name": "TU Deshpande",
@@ -46969,12 +46969,12 @@
     "bdry": 27
    }
   },
-  "batting_ovr": 70,
+  "batting_ovr": 68,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": 0.98,
+  "measured_bat_value": 0.88,
   "measured_bowl_value": 0.0
  },
  {
@@ -47327,12 +47327,12 @@
    }
   },
   "batting_ovr": 55,
-  "bowling_ovr": 78,
+  "bowling_ovr": 76,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -6.07,
-  "measured_bowl_value": 5.35
+  "measured_bat_value": -4.99,
+  "measured_bowl_value": 4.17
  },
  {
   "name": "Umran Malik",
@@ -47446,12 +47446,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 60,
+  "bowling_ovr": 59,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 3.39
+  "measured_bowl_value": 3.33
  },
  {
   "name": "V Kohli",
@@ -47569,12 +47569,12 @@
     "bdry": 337
    }
   },
-  "batting_ovr": 82,
+  "batting_ovr": 83,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -1.06,
+  "measured_bat_value": -0.48,
   "measured_bowl_value": 0.0
  },
  {
@@ -47688,12 +47688,12 @@
     "bdry": 71
    }
   },
-  "batting_ovr": 66,
+  "batting_ovr": 67,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -2.46,
+  "measured_bat_value": -0.7,
   "measured_bowl_value": 0.0
  },
  {
@@ -47812,13 +47812,13 @@
     "bdry": 50
    }
   },
-  "batting_ovr": 66,
+  "batting_ovr": 65,
   "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -4.0,
-  "measured_bowl_value": -0.38
+  "measured_bat_value": -3.2,
+  "measured_bowl_value": 0.26
  },
  {
   "name": "VG Arora",
@@ -48170,12 +48170,12 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 60,
+  "bowling_ovr": 61,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": -0.64
+  "measured_bowl_value": 0.02
  },
  {
   "name": "VR Iyer",
@@ -48293,7 +48293,7 @@
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -2.16,
+  "measured_bat_value": -1.55,
   "measured_bowl_value": 0.0
  },
  {
@@ -48888,12 +48888,12 @@
     "bdry": 181
    }
   },
-  "batting_ovr": 75,
+  "batting_ovr": 77,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -2.32,
+  "measured_bat_value": -0.98,
   "measured_bowl_value": 0.0
  },
  {
@@ -49007,13 +49007,13 @@
     "bdry": 29
    }
   },
-  "batting_ovr": 63,
-  "bowling_ovr": 79,
+  "batting_ovr": 65,
+  "bowling_ovr": 80,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -3.83,
-  "measured_bowl_value": 9.72
+  "measured_bat_value": -0.9,
+  "measured_bowl_value": 10.0
  },
  {
   "name": "Y Prithvi Raj",
@@ -49369,7 +49369,7 @@
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": -2.64,
+  "measured_bat_value": -1.34,
   "measured_bowl_value": 0.0
  },
  {
@@ -49488,12 +49488,12 @@
     "bdry": 112
    }
   },
-  "batting_ovr": 86,
+  "batting_ovr": 85,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": false,
-  "measured_bat_value": 4.01,
+  "measured_bat_value": 3.69,
   "measured_bowl_value": 0.0
  },
  {
@@ -49613,7 +49613,7 @@
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 12.01
+  "measured_bowl_value": 10.79
  },
  {
   "name": "YV Takawale",
@@ -49969,13 +49969,13 @@
     "bdry": 116
    }
   },
-  "batting_ovr": 75,
+  "batting_ovr": 74,
   "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
-  "measured_bat_value": -0.8,
-  "measured_bowl_value": 2.37
+  "measured_bat_value": -0.71,
+  "measured_bowl_value": 2.16
  },
  {
   "name": "Z Khan",
@@ -50089,11 +50089,11 @@
    }
   },
   "batting_ovr": null,
-  "bowling_ovr": 78,
+  "bowling_ovr": 77,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
   "measured_bat_value": 0.0,
-  "measured_bowl_value": 10.69
+  "measured_bowl_value": 9.6
  }
 ]

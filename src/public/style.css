@@ -1545,6 +1545,34 @@ button:disabled {
 #auction { flex-direction: column; }
 #xi-screen { flex-direction: column; }
 
+/* The auction floor is a FIXED-height app screen, not a document that grows.
+ *
+ * `.screen` sets min-height:100vh, which is a floor rather than a ceiling, so
+ * every player bought made the roster list taller, pushed the page past the
+ * viewport, and sent the bidding console below the fold -- you had to scroll
+ * down to bid, on every single lot.
+ *
+ * Pinning the height to the viewport makes `.auc-main`'s `min-height: 0` bite,
+ * which is what finally lets the already-present `overflow-y: auto` on
+ * `.squad-panel` scroll the rosters IN PLACE. The console stays put. */
+#auction.active {
+    height: 100vh;
+    max-height: 100vh;
+    overflow: hidden;
+}
+
+/* dvh tracks the mobile URL bar; kept separate so a browser without it still
+ * gets the vh rule above rather than nothing */
+@supports (height: 100dvh) {
+    #auction.active { height: 100dvh; max-height: 100dvh; }
+}
+
+#auction .tab-body { overflow: hidden; }
+#auction .tab-panel.active { display: flex; flex-direction: column; min-height: 0; }
+
+/* the two roster columns scroll independently, and never stretch the floor */
+.squad-panel { min-height: 0; overscroll-behavior: contain; }
+
 .auc-center { justify-content: safe center; gap: 1rem; }
 
 .auctioneer-scene { height: 78px; }

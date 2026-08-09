@@ -14,6 +14,7 @@ REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fi
 ERAS_PATH = os.path.join(REPO_ROOT, "config", "eras.json")
 
 ALL_TIME = "all_time"
+MULTIVERSE = "multiverse"
 
 
 class Era:
@@ -25,10 +26,24 @@ class Era:
         self.engine = d.get("engine", "model")
         self.min_bat_balls = d.get("min_bat_balls", 100)
         self.min_bowl_balls = d.get("min_bowl_balls", 200)
+        # Which era's trained artifacts to play with. Normally the era's own,
+        # but the multiverse borrows the middle era's -- its pool spans three
+        # decades and a single ball can pair a 2009 batter with a 2025 bowler,
+        # which no per-era model can resolve on its own.
+        self.model_era = d.get("model_era", self.id)
 
     @property
     def is_all_time(self) -> bool:
         return self.id == ALL_TIME
+
+    @property
+    def is_multiverse(self) -> bool:
+        return self.id == MULTIVERSE
+
+    @property
+    def has_own_model(self) -> bool:
+        """False when the era plays with another era's artifacts."""
+        return self.uses_model and self.model_era == self.id
 
     @property
     def uses_model(self) -> bool:
@@ -49,8 +64,13 @@ def _load() -> dict:
 
 ERAS: dict[str, Era] = _load()
 
-# the eras with their own trained model, in chronological order
-MODEL_ERAS = [e for e in ERAS.values() if e.uses_model]
+# the eras that need their own ETL, training and calibration run. The multiverse
+# is excluded on purpose -- it borrows the middle era's artifacts, so training it
+# would be training the same model twice.
+MODEL_ERAS = [e for e in ERAS.values() if e.has_own_model]
+
+# everything that plays on a learned model, including the borrowers
+LEARNED_ERAS = [e for e in ERAS.values() if e.uses_model]
 
 
 def get(era_id: str) -> Era:

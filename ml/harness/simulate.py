@@ -209,6 +209,9 @@ def simulate_innings(
                 "edges": F.resolve_edges(lineup[striker] if striker < len(lineup) else None,
                                          bowl_records.get(bowler.name),
                                          over, bowl_rec_is_spin),
+                # cold-start inputs: see ml/runtime/model.py::cold_effect
+                "bat_record": lineup[striker] if striker < len(lineup) else None,
+                "bowl_record": bowl_records.get(bowler.name),
                 "day_factor": day_factor,
             }
 

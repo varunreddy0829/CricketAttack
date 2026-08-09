@@ -351,7 +351,13 @@ def _engine(g=None):
 
 
 def _era_options():
-    """Public era list for the lobby picker, chronological with all-time last."""
+    """Public era list for the lobby picker.
+
+    Chronological first, then the two that span everything -- multiverse, then
+    all-time. Both cover 2008-2026 so a plain sort on `first` would drop them
+    among the real eras, where they read as just another decade rather than as
+    the two novelty modes.
+    """
     out = []
     for era in ERA_DEFS.ERAS.values():
         if era.id not in ERA_POOLS:
@@ -363,9 +369,12 @@ def _era_options():
             "first": era.first,
             "last": era.last,
             "is_all_time": era.is_all_time,
+            "is_multiverse": era.is_multiverse,
             "players": len(ERA_POOLS[era.id]["draft"]),
         })
-    out.sort(key=lambda e: (e["is_all_time"], e["first"]))
+    rank = {True: 1, False: 0}
+    out.sort(key=lambda e: (rank[e["is_multiverse"] or e["is_all_time"]],
+                            e["is_all_time"], e["first"]))
     return out
 
 
@@ -1974,7 +1983,7 @@ def _check_auction_grace_expiry():
             GAME["result"] = "Tournament abandoned — not enough squads reached the minimum."
             return
         if all(GAME["squads"][t]["locked"] for t in remaining):
-            _to_grounds()
+            _after_auction()
         return
 
     if len(losers) == len(team_ids):
@@ -2115,11 +2124,28 @@ def _to_xi():
 
 
 def _to_grounds():
-    """Post-auction home-ground selection: every team claims a UNIQUE stadium
-    (server-enforced -- claiming one someone else holds is rejected, so the
-    players coordinate in the UI), then locks it. Once all locked -> XI."""
+    """PRE-auction home-ground selection.
+
+    Every team claims a UNIQUE stadium (server-enforced), then locks it; once all
+    are locked the auction opens. Picks are hidden from each other -- a taken
+    ground shows as taken, never as taken by whom -- so nobody can read an
+    opponent's pitch and bid up the specialists it calls for.
+
+    This used to run AFTER the auction, where it was decorative: the squad was
+    already bought by the time the surface was known.
+    """
     GAME["phase"] = "grounds"
     GAME["ground_pick"] = {t: {"ground": None, "locked": False} for t in GAME["team_ids"]}
+
+
+def _after_auction():
+    """Where the auction hands off. Grounds are already chosen by this point."""
+    if GAME.get("tournament"):
+        # Tournaments pick a fresh XI before EVERY fixture (see _set_awaiting_xi)
+        GAME["phase"] = "match"
+        _start_tournament_matches()
+    else:
+        _to_xi()
 
 
 def _resolved_advance():
@@ -2132,7 +2158,7 @@ def _resolved_advance():
         return a["ready"][t] or sq[t]["locked"]
     if all(ready(t) for t in team_ids):
         if all(sq[t]["locked"] for t in team_ids):
-            _to_grounds()
+            _after_auction()
         else:
             _advance_lot()
 
@@ -2969,10 +2995,16 @@ def _serialize(token):
 
     if g["phase"] == "grounds":
         gp = g["ground_pick"]
+        # A taken ground shows as TAKEN, never as taken BY WHOM.
+        #
+        # Knowing an opponent picked Chepauk tells you he needs spinners, and you
+        # can bid spinners up purely to wreck his auction. The pick has to stay
+        # secret for the auction that follows to be honest -- the same reason
+        # `pending` only ever exposes `opponent_submitted` during an over.
         out["grounds"] = {
             "stadiums": [{**s, "pitch_desc": PITCH_DESCRIPTIONS[s["pitch"]],
-                          "claimed_by": next((g["teams"][t]["name"] for t in g["team_ids"]
-                                              if gp[t]["ground"] == s["id"]), None),
+                          "taken": any(gp[t]["ground"] == s["id"]
+                                       for t in g["team_ids"]),
                           "claimed_by_me": gp.get(role, {}).get("ground") == s["id"]}
                          for s in STADIUMS],
             "my_ground": gp.get(role, {}).get("ground"),
@@ -3694,14 +3726,11 @@ def start_auction():
             return jsonify({"status": "error", "message": blocked}), 400
         GAME["start_votes"][role] = True
         if all(GAME["start_votes"][t] for t in GAME["team_ids"]):
-            try:
-                _start_auction()
-            except ValueError as e:
-                # an era whose ratings aren't built can't fill a draft -- clear
-                # the votes so the lobby stays usable and say why
-                GAME["start_votes"] = {t: False for t in GAME["team_ids"]}
-                _bump()
-                return jsonify({"status": "error", "message": str(e)}), 400
+            # HOME GROUND FIRST, then the auction. The pitch decides what kind of
+            # squad you want -- spinners for a turning track, hitters for a road
+            # -- so choosing it afterwards makes it decorative. And because each
+            # side's pick is hidden, neither can bid up the other's specialists.
+            _to_grounds()
         _bump()
         return jsonify({"status": "success"})
 
@@ -3826,7 +3855,7 @@ def lock_squad():
         sq["locked"] = True
         a = GAME["auction"]
         if all(GAME["squads"][t]["locked"] for t in GAME["team_ids"]):
-            _to_grounds()
+            _after_auction()
         elif a["stage"] == "resolved":
             _resolved_advance()      # locked side counts as ready
         elif a["stage"] == "bidding":
@@ -3983,8 +4012,10 @@ def claim_ground():
             return jsonify({"status": "error", "message": "Unknown stadium."}), 400
         holder = next((t for t in GAME["team_ids"] if t != role and gp[t]["ground"] == gid), None)
         if holder:
+            # deliberately does NOT name the holder -- see the redaction note in
+            # _serialize's grounds branch
             return jsonify({"status": "error",
-                            "message": f"{GAME['teams'][holder]['name']} has already claimed {STADIUM_BY_ID[gid]['name']} — pick another."}), 400
+                            "message": f"{STADIUM_BY_ID[gid]['name']} is already taken — pick another."}), 400
         gp[role]["ground"] = gid
         _bump()
         return jsonify({"status": "success"})
@@ -4006,14 +4037,15 @@ def lock_ground():
             return jsonify({"status": "error", "message": "Claim a stadium first."}), 400
         gp[role]["locked"] = True
         if all(gp[t]["locked"] for t in GAME["team_ids"]):
-            if GAME.get("tournament"):
-                # Tournaments pick a fresh XI before EVERY fixture anyway (see
-                # _set_awaiting_xi) -- asking again right after the auction,
-                # before fixture 1 even exists, was a pointless extra step.
-                GAME["phase"] = "match"
-                _start_tournament_matches()
-            else:
-                _to_xi()
+            # grounds now come BEFORE the auction, so this is where bidding opens
+            try:
+                _start_auction()
+            except ValueError as e:
+                # an era whose ratings aren't built can't fill a draft. Unlock so
+                # the phase stays usable rather than dead-ending, and say why.
+                gp[role]["locked"] = False
+                _bump()
+                return jsonify({"status": "error", "message": str(e)}), 400
         _bump()
         return jsonify({"status": "success"})
 

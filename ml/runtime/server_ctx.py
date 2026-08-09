@@ -211,6 +211,11 @@ def enrich(ctx: dict, striker, bowler, game, *, day_sigma: float = 0.0,
         "venue_bdry_share": v_bdry,
         "venue_type_edge": v_spin if is_spin else v_pace,
         "edges": F.resolve_edges(bat_rec, bowl_rec, over_num, is_spin),
+        # the raw records, so a player the model has never seen -- every
+        # multiverse entry, since names are era-tagged -- gets a real effect
+        # from his own observables instead of a zero row
+        "bat_record": bat_rec,
+        "bowl_record": bowl_rec,
         "day_factor": _state["day_factor"],
     })
     return ctx

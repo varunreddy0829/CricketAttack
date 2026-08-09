@@ -3065,7 +3065,10 @@ function renderGrounds(state) {
     $('grounds-role').textContent = 'You: ' + (state.you.name || '');
     $('grounds-role').className = 'role-pill batting';
     const cards = gr.stadiums.map(s => {
-        const takenByOther = s.claimed_by && !s.claimed_by_me;
+        // `taken` says a ground is gone; it deliberately never says WHO took it.
+        // The server redacts the holder so nobody can read an opponent's pitch
+        // and bid up the specialists it calls for in the auction that follows.
+        const takenByOther = s.taken && !s.claimed_by_me;
         const cls = ['ground-card', s.pitch];
         if (s.claimed_by_me) cls.push('mine');
         if (takenByOther) cls.push('taken');
@@ -3074,16 +3077,18 @@ function renderGrounds(state) {
             <div class="ground-city">${s.city}</div>
             <div class="pitch-chip ${s.pitch}">${s.pitch} pitch</div>
             <div class="ground-desc">${s.pitch_desc}</div>
-            ${s.claimed_by ? `<div class="ground-claim">${s.claimed_by_me ? 'Your home ground' : `Claimed by ${s.claimed_by}`}</div>` : ''}
+            ${s.taken ? `<div class="ground-claim">${s.claimed_by_me ? 'Your home ground' : 'Taken'}</div>` : ''}
         </div>`;
     }).join('');
     $('grounds-main').innerHTML = `
-        <div class="grounds-hint">Every team claims a different home ground — its pitch shapes your matches.
-            Round-robin fixtures are hosted fairly, rotating between each pair's two grounds over the tournament.
-            Coordinate below, then lock in. ${gr.locked_count}/${gr.total_teams} locked.</div>
+        <div class="grounds-hint"><b>Pick your home ground before the auction.</b> Its pitch decides what kind
+            of squad you want — spinners for a turning track, hitters for a road — so choose first, then buy to suit.
+            <br><b>Your pick stays hidden.</b> A ground others have taken shows as "Taken", never who took it,
+            so nobody can bid up the specialists your pitch needs.
+            ${gr.locked_count}/${gr.total_teams} locked.</div>
         <div class="grounds-grid">${cards}</div>
         <button class="btn-go btn-lg" id="btn-lock-ground" ${(gr.my_ground && !gr.my_locked) ? '' : 'disabled'}>
-            ${gr.my_locked ? 'Locked — waiting for the others…' : 'Lock In Home Ground'}</button>`;
+            ${gr.my_locked ? 'Locked — waiting for the others…' : 'Lock In & Start Auction'}</button>`;
     if (!gr.my_locked) {
         document.querySelectorAll('#grounds-main [data-ground]').forEach(el =>
             el.addEventListener('click', () => aucAction('/api/claim_ground', { ground_id: el.dataset.ground })));

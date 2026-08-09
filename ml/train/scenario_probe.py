@@ -32,7 +32,11 @@ from ml.harness.simulate import RoleMix, simulate_innings
 from ml.runtime import players as P
 from ml.runtime.engine import load_calibration
 from ml.runtime.model import OutcomeModel
-from ml.train.derive_ovr import (BAT_SLOT, ERA_ROOT, _median_pool, _usable_plans)
+from ml.train.derive_ovr import ERA_ROOT, _median_pool, _usable_plans
+
+# derive_ovr now rotates the slot; this probe deliberately holds it fixed at #3
+# so the scenario is the only thing changing.
+BAT_SLOT = 2
 
 PROBE = ["V Kohli", "DA Warner", "S Dhawan", "AB de Villiers", "AD Russell",
          "JC Buttler", "MS Dhoni", "F du Plessis", "KL Rahul", "SV Samson"]
