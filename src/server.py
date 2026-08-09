@@ -438,10 +438,15 @@ def _era_block_reason(g):
         return None                        # nobody voted -- default era is fine
     if _era_agreed(g):
         return None
+    n = len(g["team_ids"])
     missing = [t for t in g["team_ids"] if votes.get(t) is None]
     if missing:
-        return "Both teams need to pick an era first."
-    return "You've each picked a different era -- agree on one to start."
+        # a tournament has 3-8 teams, so "both" would be wrong there
+        return ("Both teams need to pick an era first." if n == 2 else
+                f"{len(missing)} of {n} teams still need to pick an era.")
+    return ("You've each picked a different era -- agree on one to start."
+            if n == 2 else
+            f"All {n} teams must agree on one era to start.")
 
 # --- Multi-game registry -----------------------------------------------------
 # GAMES holds every live game, keyed by its 4-char join code, so unrelated
@@ -3002,6 +3007,8 @@ def _serialize(token):
     if g["phase"] == "lobby":
         if is_tournament:
             t = g["tournament"]
+            votes = g.get("era_votes") or {}
+            picked = [votes.get(tid) for tid in g["team_ids"]]
             out["tournament_lobby"] = {
                 "size": t["size"],
                 "joined_count": sum(1 for tid in g["team_ids"] if g["teams"][tid]["joined"]),
@@ -3010,6 +3017,19 @@ def _serialize(token):
                 "all_joined": all(g["teams"][tid]["joined"] for tid in g["team_ids"]),
                 "start_votes": g["start_votes"],
                 "i_voted": g["start_votes"].get(role, False) if role else False,
+                # A tournament picks an era exactly like a 1v1 does. Without
+                # these the client had nothing to render a picker from, so
+                # nobody ever voted and _era_block_reason -- deliberately
+                # permissive when NOBODY has voted -- waved the game through on
+                # the all-time default.
+                "eras": _era_options(),
+                "era_votes": votes,
+                "my_era": votes.get(role) if role else None,
+                "era_agreed": _era_agreed(g),
+                # with 3-8 teams there is no single "opponent", so report the
+                # spread instead: how many have chosen, and whether they clash
+                "voted_count": sum(1 for p in picked if p is not None),
+                "era_clash": len({p for p in picked if p is not None}) > 1,
             }
         else:
             votes = g.get("era_votes") or {}

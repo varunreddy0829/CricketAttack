@@ -488,16 +488,26 @@ function elevatorLobbyHtml(code, guests, statusText) {
     </div>`;
 }
 
-function renderEraPick(state) {
-    const lob = state.lobby || {};
+// Serves BOTH lobbies. A tournament used to render its own lobby and never call
+// this, so no picker ever appeared, nobody voted, and the server -- which is
+// deliberately permissive when NOBODY has voted -- started the auction on the
+// all-time default without ever asking.
+function renderEraPick(state, opts) {
+    const o = opts || {};
+    const lob = o.lobby || state.lobby || {};
     const eras = lob.eras || [];
-    const both = state.you.joined && state.opponent.joined;
-    const box = $('era-pick');
-    box.classList.toggle('hidden', !both || !eras.length);
-    if (!both || !eras.length) return;
+    const box = $(o.boxId || 'era-pick');
+    if (!box) return;
+    const ready = o.ready !== undefined
+        ? o.ready
+        : (state.you.joined && state.opponent.joined);
+    box.classList.toggle('hidden', !ready || !eras.length);
+    if (!ready || !eras.length) return;
 
-    // Both sides must land on the SAME era -- it decides the player pool, the
+    // Everyone must land on the SAME era -- it decides the player pool, the
     // ball engine and the scoring baselines, so a mismatch can't be papered over.
+    // A tournament has 3-8 teams and therefore no single "opponent", so
+    // `theirs` is only meaningful in the 1v1 case.
     const mine = lob.my_era, theirs = lob.opponent_era;
     const cards = eras.map(e => {
         const iPicked = mine === e.id, theyPicked = theirs === e.id;
@@ -519,8 +529,17 @@ function renderEraPick(state) {
         </button>`;
     }).join('');
 
+    const teams = o.teams || 2;
     let status;
     if (lob.era_agreed) status = `Playing <b>${eras.find(e => e.id === lob.era_agreed)?.label}</b>`;
+    else if (teams > 2) {
+        // no single opponent to name -- report the spread instead
+        const voted = lob.voted_count || 0;
+        if (lob.era_clash) status = `Teams have picked different eras — all ${teams} must agree.`;
+        else if (mine) status = `${voted}/${teams} picked. Waiting for the rest…`;
+        else if (voted) status = `${voted}/${teams} have picked. Choose an era.`;
+        else status = `Pick an era (all ${teams} teams must agree).`;
+    }
     else if (mine && theirs) status = 'You picked different eras — agree on one to start.';
     else if (mine) status = 'Waiting for your opponent to pick…';
     else if (theirs) status = 'Your opponent has picked. Choose an era.';
@@ -581,10 +600,20 @@ function renderTournamentLobby(state) {
         : `${tl.joined_count}/${tl.size} teams joined`;
     $('t-lobby-elevator').innerHTML = elevatorLobbyHtml(state.code, guests, statusText);
 
+    // Same picker the 1v1 lobby uses. Its absence here is why a tournament went
+    // straight from the lobby to grounds and then the auction without ever
+    // asking which era to play.
+    renderEraPick(state, {
+        lobby: tl, boxId: 't-era-pick', ready: tl.all_joined, teams: tl.size,
+    });
+
     const btn = $('btn-t-start');
     btn.classList.toggle('hidden', !tl.all_joined);
     if (tl.all_joined) {
-        if (tl.i_voted) { btn.textContent = 'Waiting for everyone…'; btn.disabled = true; }
+        // block on a mismatch -- the server enforces it too, but the button
+        // shouldn't invite a click that can only fail
+        if (tl.era_clash) { btn.textContent = 'Agree on an era first'; btn.disabled = true; }
+        else if (tl.i_voted) { btn.textContent = 'Waiting for everyone…'; btn.disabled = true; }
         else { btn.textContent = 'Ready for Auction'; btn.disabled = false; }
     }
 }

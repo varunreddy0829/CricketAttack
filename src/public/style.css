@@ -1650,7 +1650,9 @@ button:disabled {
    Both teams must land on the same era: it decides the player pool, the ball
    engine and the scoring baselines. The card shows who has picked what so a
    disagreement is visible rather than a failed button press. */
-#era-pick {
+/* both lobbies use the same picker -- the 1v1 one and the tournament one */
+#era-pick,
+#t-era-pick {
     width: 100%;
     max-width: 620px;
     margin: 0.6rem auto 0;
