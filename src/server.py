@@ -57,6 +57,17 @@ ERA_ENGINES = {}   # populated by _resolve_all_engines() once the pools exist
 # "Coming soon" and rejected by /api/vote_era.
 COMING_SOON = set()
 
+# Held back DELIBERATELY, not because anything is broken. Kept separate from the
+# derived set above so retraining a model can never accidentally release one of
+# these, and so it is obvious which eras are withheld by choice rather than by
+# failure. Remove an id here to ship it.
+#
+# multiverse: it plays, but it borrows the middle era's model for a pool that
+#   spans three decades, and every entry is a cold-start (E = A.W, no learned
+#   per-player term). Worth holding until the other two eras are retrained and
+#   each version can be resolved against its own era's model.
+WITHHELD = {"multiverse"}
+
 app = Flask(__name__, static_folder="public")
 
 @app.after_request
@@ -355,8 +366,15 @@ def _resolve_all_engines():
                 COMING_SOON.add(era.id)
         else:
             fn, enrich, desc = calculate_single_ball, None, "classic (hand-tuned)"
+        if era.id in WITHHELD:
+            COMING_SOON.add(era.id)
         ERA_ENGINES[era.id] = (fn, enrich, desc)
-        tag = "  [COMING SOON -- hidden from the lobby]" if era.id in COMING_SOON else ""
+        if era.id in WITHHELD:
+            tag = "  [COMING SOON -- withheld on purpose]"
+        elif era.id in COMING_SOON:
+            tag = "  [COMING SOON -- model missing or stale]"
+        else:
+            tag = ""
         print(f"[engine] {era.id:<12} {desc}{tag}", flush=True)
 
 

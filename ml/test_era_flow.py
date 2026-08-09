@@ -34,7 +34,10 @@ def _call(url, payload=None, timeout=15):
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--host", default="127.0.0.1")
-    ap.add_argument("--port", type=int, default=8000)
+    # 8002 is the throwaway test server. Defaulting to 8000 meant this suite
+    # silently ran against a long-lived dev server with older code and passed
+    # on behaviour that no longer existed.
+    ap.add_argument("--port", type=int, default=8002)
     args = ap.parse_args()
     base = f"http://{args.host}:{args.port}"
 
@@ -54,24 +57,46 @@ def main() -> None:
     eras = lob.get("eras") or []
     print(f"eras offered ({len(eras)}):")
     for e in eras:
+        soon = "   COMING SOON" if e.get("coming_soon") else ""
         print(f"   {e['id']:<12} {e['first']}-{e['last']}  "
-              f"{e['players']:>3} draftable   {e['label']}")
+              f"{e['players']:>3} draftable   {e['label']}{soon}")
     if len(eras) < 2:
         failures.append("no era options exposed to the lobby")
 
+    # Take the PLAYABLE eras from what the lobby actually offers instead of
+    # naming ids. Hardcoded ids let this test keep "passing" long after both of
+    # them were withheld -- it was voting for eras the API now rejects, and
+    # reporting success only because it defaulted to a different, older server.
+    playable = [e["id"] for e in eras if not e.get("coming_soon")]
+    print(f"\n   playable: {playable}")
+    if len(playable) < 2:
+        print(f"\nFAIL: need 2 playable eras to test agreement, found {playable}")
+        raise SystemExit(1)
+    first, second = playable[0], playable[1]
+
     print("\n1. teams pick DIFFERENT eras")
-    post("/api/vote_era", {"token": ta, "era": "2023_2026"})
-    post("/api/vote_era", {"token": tb, "era": "2008_2013"})
+    post("/api/vote_era", {"token": ta, "era": first})
+    post("/api/vote_era", {"token": tb, "era": second})
     r = post("/api/quick_match", {"token": ta})
     print(f"   start blocked: {r.get('message')!r}")
     if r.get("status") == "success":
         failures.append("a disagreement did NOT block the start")
 
     print("\n2. they agree")
-    r = post("/api/vote_era", {"token": tb, "era": "2023_2026"})
+    r = post("/api/vote_era", {"token": tb, "era": first})
     print(f"   agreed={r.get('agreed')}  era={r.get('era')}")
-    if not r.get("agreed") or r.get("era") != "2023_2026":
+    if not r.get("agreed") or r.get("era") != first:
         failures.append("agreement did not lock the era in")
+
+    print("\n2b. a withheld era is refused")
+    soon_ids = [e["id"] for e in eras if e.get("coming_soon")]
+    if soon_ids:
+        r = post("/api/vote_era", {"token": ta, "era": soon_ids[0]})
+        print(f"   vote {soon_ids[0]} -> {r.get('message')!r}")
+        if r.get("status") == "success":
+            failures.append(f"{soon_ids[0]} is flagged coming soon but still votable")
+        # the refusal must not have disturbed the agreed era
+        post("/api/vote_era", {"token": ta, "era": first})
 
     print("\n3. match starts")
     r = post("/api/quick_match", {"token": ta})
@@ -80,8 +105,8 @@ def main() -> None:
           f"era={st.get('era')}")
     if r.get("status") != "success":
         failures.append(f"quick_match failed: {r.get('message')}")
-    if st.get("era") != "2023_2026":
-        failures.append(f"wrong era in play: {st.get('era')}")
+    if st.get("era") != first:
+        failures.append(f"wrong era in play: {st.get('era')} (wanted {first})")
 
     print()
     if failures:
