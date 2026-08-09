@@ -39,6 +39,7 @@ CANONICAL_GROUNDS: dict[str, list[str]] = {
     "brabourne":      ["Brabourne"],
     "dy_patil":       ["DY Patil"],
     "pune_mca":       ["Maharashtra Cricket Association", "Subrata Roy"],
+    "mullanpur":      ["Maharaja Yadavindra Singh"],
 }
 
 

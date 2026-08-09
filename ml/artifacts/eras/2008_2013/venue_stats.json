@@ -30,11 +30,13 @@
     "wkts_per_ball": 0.04795
   },
   "narendra_modi": {
-    "balls": 0,
-    "name_variants": [],
+    "balls": 917,
+    "name_variants": [
+      "Sardar Patel Stadium, Motera"
+    ],
     "runs_per_ball": 1.2563,
     "wkts_per_ball": 0.04885,
-    "note": "only 0 real balls -- league average used instead"
+    "note": "only 917 real balls -- league average used instead"
   },
   "wankhede": {
     "balls": 7043,
@@ -61,11 +63,12 @@
     "wkts_per_ball": 0.04488
   },
   "arun_jaitley": {
-    "balls": 0,
-    "name_variants": [],
-    "runs_per_ball": 1.2563,
-    "wkts_per_ball": 0.04885,
-    "note": "only 0 real balls -- league average used instead"
+    "balls": 7949,
+    "name_variants": [
+      "Feroz Shah Kotla"
+    ],
+    "runs_per_ball": 1.2976,
+    "wkts_per_ball": 0.04843
   },
   "rajiv_gandhi": {
     "balls": 6040,
@@ -76,6 +79,61 @@
     "wkts_per_ball": 0.05
   },
   "ekana": {
+    "balls": 0,
+    "name_variants": [],
+    "runs_per_ball": 1.2563,
+    "wkts_per_ball": 0.04885,
+    "note": "only 0 real balls -- league average used instead"
+  },
+  "dubai": {
+    "balls": 0,
+    "name_variants": [],
+    "runs_per_ball": 1.2563,
+    "wkts_per_ball": 0.04885,
+    "note": "only 0 real balls -- league average used instead"
+  },
+  "sharjah": {
+    "balls": 0,
+    "name_variants": [],
+    "runs_per_ball": 1.2563,
+    "wkts_per_ball": 0.04885,
+    "note": "only 0 real balls -- league average used instead"
+  },
+  "abu_dhabi": {
+    "balls": 0,
+    "name_variants": [],
+    "runs_per_ball": 1.2563,
+    "wkts_per_ball": 0.04885,
+    "note": "only 0 real balls -- league average used instead"
+  },
+  "brabourne": {
+    "balls": 1646,
+    "name_variants": [
+      "Brabourne Stadium",
+      "Brabourne Stadium, Mumbai"
+    ],
+    "runs_per_ball": 1.2563,
+    "wkts_per_ball": 0.04885,
+    "note": "only 1646 real balls -- league average used instead"
+  },
+  "dy_patil": {
+    "balls": 3639,
+    "name_variants": [
+      "Dr DY Patil Sports Academy"
+    ],
+    "runs_per_ball": 1.1904,
+    "wkts_per_ball": 0.05523
+  },
+  "pune_mca": {
+    "balls": 3960,
+    "name_variants": [
+      "Maharashtra Cricket Association Stadium",
+      "Subrata Roy Sahara Stadium"
+    ],
+    "runs_per_ball": 1.1609,
+    "wkts_per_ball": 0.04722
+  },
+  "mullanpur": {
     "balls": 0,
     "name_variants": [],
     "runs_per_ball": 1.2563,

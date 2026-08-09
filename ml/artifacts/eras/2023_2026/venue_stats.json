@@ -85,5 +85,56 @@
     ],
     "runs_per_ball": 1.4029,
     "wkts_per_ball": 0.05086
+  },
+  "dubai": {
+    "balls": 0,
+    "name_variants": [],
+    "runs_per_ball": 1.5227,
+    "wkts_per_ball": 0.05164,
+    "note": "only 0 real balls -- league average used instead"
+  },
+  "sharjah": {
+    "balls": 0,
+    "name_variants": [],
+    "runs_per_ball": 1.5227,
+    "wkts_per_ball": 0.05164,
+    "note": "only 0 real balls -- league average used instead"
+  },
+  "abu_dhabi": {
+    "balls": 0,
+    "name_variants": [],
+    "runs_per_ball": 1.5227,
+    "wkts_per_ball": 0.05164,
+    "note": "only 0 real balls -- league average used instead"
+  },
+  "brabourne": {
+    "balls": 0,
+    "name_variants": [],
+    "runs_per_ball": 1.5227,
+    "wkts_per_ball": 0.05164,
+    "note": "only 0 real balls -- league average used instead"
+  },
+  "dy_patil": {
+    "balls": 0,
+    "name_variants": [],
+    "runs_per_ball": 1.5227,
+    "wkts_per_ball": 0.05164,
+    "note": "only 0 real balls -- league average used instead"
+  },
+  "pune_mca": {
+    "balls": 0,
+    "name_variants": [],
+    "runs_per_ball": 1.5227,
+    "wkts_per_ball": 0.05164,
+    "note": "only 0 real balls -- league average used instead"
+  },
+  "mullanpur": {
+    "balls": 3878,
+    "name_variants": [
+      "Maharaja Yadavindra Singh International Cricket Stadium, Mullanpur",
+      "Maharaja Yadavindra Singh International Cricket Stadium, New Chandigarh"
+    ],
+    "runs_per_ball": 1.5315,
+    "wkts_per_ball": 0.05673
   }
 }

@@ -1,21 +1,34 @@
 {
-  "_comment": "Stadiums compiled from data/All_Matches_Json venue fields (top 10 IPL venues by match count, deduped across city-suffix variants). pitch drives the engine's conditions stage (src/engine/conditions.py): dusty=spinners bite, green=pacers bite, flat=batting paradise, slow=low & hard to time.",
+  "_comment": "Every ground the era models were trained on -- all 17, up from a hand-picked 10. The six that were missing (Pune, Dubai, Abu Dhabi, DY Patil, Sharjah, Brabourne) plus Mullanpur had real measured profiles the game simply never offered; Dubai alone has more 2014-2022 balls than Eden Gardens. Ids match ml/runtime/venues.py's canonical map, which is also what ml/etl/venue_types.py keys its profiles on, so a ground added here resolves to real per-era data instead of the league fallback.",
+
+  "_pitch_labels": "DERIVED FROM MEASUREMENT, not hand-authored. Aggregated over all three eras: |spin-pace edge| >= 0.30 makes a ground dusty or green, otherwise boundary share against the 59.7% league mean makes it flat or slow. Several old labels were simply wrong -- Rajiv Gandhi (Uppal) was typed `slow` and is the most PACE-friendly ground in the league at +0.53, and Arun Jaitley was typed `slow` but spin bites there at -0.33.",
+
+  "_what_the_label_does": "It drives the card text and the classic engine's PITCH_EFFECTS only. The learned model never reads it -- it takes the MEASURED numbers (runs/ball, wickets/ball, boundary share, and the residualised spin/pace edge for the bowler's own type) straight from ml/artifacts/eras/<era>/venue_profile.json. So a label being a judgement call cannot corrupt the simulation.",
+
   "pitch_types": {
     "dusty": "Dust bowl — turns square, spinners are lethal",
     "green": "Green seamer — nip, bounce and movement for pacers",
     "flat": "Flat road — batting paradise, boundaries flow",
     "slow": "Slow and low — timing is hard, run-making is a grind"
   },
+
   "stadiums": [
-    { "id": "chepauk",      "name": "MA Chidambaram Stadium", "city": "Chennai",   "pitch": "dusty" },
-    { "id": "eden",         "name": "Eden Gardens",           "city": "Kolkata",   "pitch": "dusty" },
-    { "id": "mohali",       "name": "PCA Stadium",            "city": "Mohali",    "pitch": "green" },
-    { "id": "motera",       "name": "Narendra Modi Stadium",  "city": "Ahmedabad", "pitch": "green" },
-    { "id": "wankhede",     "name": "Wankhede Stadium",       "city": "Mumbai",    "pitch": "flat" },
-    { "id": "chinnaswamy",  "name": "M Chinnaswamy Stadium",  "city": "Bengaluru", "pitch": "flat" },
-    { "id": "sms",          "name": "Sawai Mansingh Stadium", "city": "Jaipur",    "pitch": "flat" },
-    { "id": "kotla",        "name": "Arun Jaitley Stadium",   "city": "Delhi",     "pitch": "slow" },
-    { "id": "uppal",        "name": "Rajiv Gandhi Stadium",   "city": "Hyderabad", "pitch": "slow" },
-    { "id": "ekana",        "name": "Ekana Cricket Stadium",  "city": "Lucknow",   "pitch": "slow" }
+    { "id": "wankhede",       "name": "Wankhede Stadium",                 "city": "Mumbai",          "pitch": "flat"  },
+    { "id": "eden_gardens",   "name": "Eden Gardens",                     "city": "Kolkata",         "pitch": "flat"  },
+    { "id": "arun_jaitley",   "name": "Arun Jaitley Stadium",             "city": "Delhi",           "pitch": "dusty" },
+    { "id": "chepauk",        "name": "MA Chidambaram Stadium",           "city": "Chennai",         "pitch": "slow"  },
+    { "id": "chinnaswamy",    "name": "M Chinnaswamy Stadium",            "city": "Bengaluru",       "pitch": "flat"  },
+    { "id": "rajiv_gandhi",   "name": "Rajiv Gandhi International Stadium","city": "Hyderabad",      "pitch": "green" },
+    { "id": "sawai_mansingh", "name": "Sawai Mansingh Stadium",           "city": "Jaipur",          "pitch": "flat"  },
+    { "id": "pca_mohali",     "name": "PCA IS Bindra Stadium",            "city": "Mohali",          "pitch": "slow"  },
+    { "id": "pune_mca",       "name": "Maharashtra Cricket Association Stadium", "city": "Pune",     "pitch": "slow"  },
+    { "id": "narendra_modi",  "name": "Narendra Modi Stadium",            "city": "Ahmedabad",       "pitch": "green" },
+    { "id": "dubai",          "name": "Dubai International Stadium",      "city": "Dubai",           "pitch": "slow"  },
+    { "id": "abu_dhabi",      "name": "Sheikh Zayed Stadium",             "city": "Abu Dhabi",       "pitch": "slow"  },
+    { "id": "dy_patil",       "name": "DY Patil Stadium",                 "city": "Navi Mumbai",     "pitch": "slow"  },
+    { "id": "sharjah",        "name": "Sharjah Cricket Stadium",          "city": "Sharjah",         "pitch": "green" },
+    { "id": "ekana",          "name": "Ekana Cricket Stadium",            "city": "Lucknow",         "pitch": "dusty" },
+    { "id": "brabourne",      "name": "Brabourne Stadium",                "city": "Mumbai",          "pitch": "dusty" },
+    { "id": "mullanpur",      "name": "Maharaja Yadavindra Singh Stadium","city": "New Chandigarh",  "pitch": "flat"  }
   ]
 }
