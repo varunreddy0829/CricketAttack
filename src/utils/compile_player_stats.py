@@ -259,12 +259,26 @@ KNOWN_KEEPERS = {
     "Jitesh Sharma", "Dhruv Jurel", "KS Bharat", "Anuj Rawat", "SW Billings", "SS Goswami", "CM Gautam", "MS Bisla"
 }
 
-# Best-effort hand-curated from general cricket knowledge (no bowling-style
-# field exists anywhere in the raw Cricsheet data or ETL pipeline -- see the
-# pace/spin split investigation). Only covers bowlers we're confident about;
-# anyone not listed here defaults to "Pace" in compile_stats() below, which
-# also matches the real-world global split (pace bowlers are the majority).
+# Hand-curated: no bowling-style field exists anywhere in raw Cricsheet data, so
+# this list IS the source of truth for pace/spin.
+#
+# It is load-bearing in three places -- the model's `is_spin` input, the batter's
+# vs-spin/vs-pace matchup features, and the pitch layer's dusty/green matchup --
+# so a missing name is not cosmetic. Under the original 55-name list Rashid Khan,
+# Narine, Axar Patel, Chawla and Krunal Pandya were all typed as PACE, which
+# meant a dusty pitch handed Rashid the pace PENALTY instead of the spin bonus.
+#
+# The additions below were found by cross-checking the list against the data:
+# a STUMPING only happens with the keeper standing up, which in practice means
+# spin, so any bowler with stumpings off their bowling is a spinner. That caught
+# the 21 high-confidence cases; single-stumping and zero-stumping names were then
+# resolved by hand (a genuine spinner who never induced a stumping is invisible
+# to the heuristic, and a pace bowler can pick up a freak one -- Bhuvneshwar
+# Kumar has 2 in 4503 balls and is emphatically not a spinner).
+#
+# Anyone still unlisted defaults to "Pace", which remains the safer default.
 KNOWN_SPINNERS = {
+    # --- original list -----------------------------------------------------
     "A Kumble", "A Mishra", "A Zampa", "AU Rashid", "AM Ghazanfar", "DL Vettori", "GB Hogg", "IS Sodhi",
     "Imran Tahir", "J Suchith", "Jalaj S Saxena", "KA Maharaj", "Kuldeep Yadav", "M Kartik", "M Markande",
     "M Muralitharan", "M Theekshana", "Mohammad Hafeez", "Mujeeb Ur Rahman", "Noor Ahmad", "Parvez Rasool",
@@ -274,6 +288,23 @@ KNOWN_SPINNERS = {
     "Suyash Sharma", "HR Shokeen", "K Kartikeya", "KP Appanna", "Mayank Dagar", "MB Parmar",
     "R Ashwin", "RA Jadeja", "Washington Sundar", "Harbhajan Singh", "YK Pathan",
     "RD Chahar",
+
+    # --- front-line spinners the list missed entirely -----------------------
+    # All confirmed by stumpings off their own bowling.
+    "Rashid Khan", "SP Narine", "AR Patel", "PP Chawla", "KH Pandya", "Shakib Al Hasan",
+    "KV Sharma", "R Tewatia", "P Negi", "PWH de Silva", "Iqbal Abdulla", "J Botha",
+    "MJ Santner", "M Ashwin", "A Chandila", "Karanveer Singh", "R Sharma",
+    "MM Ali", "Shahbaz Ahmed", "Harmeet Singh", "Bipul Sharma", "BAW Mendis",
+    "K Gowtham", "Harpreet Brar", "RR Powar", "RE van der Merwe", "AG Murtaza",
+    "J Yadav", "Ankit Sharma", "Lalit Yadav", "Mohammad Nabi",
+    "KC Cariappa", "WG Jacks", "S Ladda",
+
+    # --- part-time spinners --------------------------------------------------
+    # They bowl few overs, but when they do it is spin, and the matchup features
+    # need the type right rather than the workload.
+    "Yuvraj Singh", "SK Raina", "GJ Maxwell", "CH Gayle", "A Symonds", "JP Duminy",
+    "ST Jayasuriya", "TM Dilshan", "DJ Hussey", "AK Markram", "LS Livingstone",
+    "N Rana", "Abhishek Sharma", "RG Sharma", "DJ Hooda", "R Parag", "MN Samuels",
 }
 
 def compile_stats():
