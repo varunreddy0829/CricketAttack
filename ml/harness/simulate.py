@@ -299,6 +299,7 @@ def simulate_innings(
     out.wickets = wickets
     out.legal_balls = legal
     out.batter_scores = [s for i, s in enumerate(scores) if i < next_in]
+    out.batter_balls = [b for i, b in enumerate(balls_faced) if i < next_in]
     out.chased = target is not None and runs >= target
     return out
 

@@ -25,6 +25,9 @@ class InningsOutcome:
     wickets_by_over: list[int] = field(default_factory=lambda: [0] * OVERS)
     balls_by_over: list[int] = field(default_factory=lambda: [0] * OVERS)
     batter_scores: list[int] = field(default_factory=list)
+    # balls faced, parallel to batter_scores -- needed to read a strike rate off
+    # a simulated innings rather than only a total
+    batter_balls: list[int] = field(default_factory=list)
     counts: dict = field(default_factory=dict)   # outcome class -> n
 
     @property

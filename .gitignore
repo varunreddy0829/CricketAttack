@@ -24,3 +24,5 @@ data/live_games.pkl.tmp
 # OS cruft
 .DS_Store
 Thumbs.db
+
+data/ipl_json*.zip
