@@ -43,22 +43,20 @@ EXPECT = [
     ("SP Narine",        "2014_2022", "bowl40", "the era's most economical bowler"),
 ]
 
-# Players whose REPUTATION and whose measured T20 value genuinely disagree.
+# The era mainstays -- high volume, median tempo. These are the players the
+# LONGEVITY_GAIN term exists for, so this section is how you see what that term
+# is buying you.
 #
-# These are not failures and must not be asserted on -- they are the metric
-# doing exactly what it was chosen to do. Team-runs-added rewards scoring RATE,
-# because in a 120-ball innings the scarce resource is balls, not wickets. A
-# high-average, medium-tempo accumulator can be a great cricketer and still add
-# ~0 runs over a median player occupying the same slot.
-#
-# Asserting "Kohli must be top-40" would encode reputation, and the honest
-# reading is that the same logic which correctly demotes him also correctly
-# demoted Amla (SR 119) and promoted Abhishek Sharma -- which is the reordering
-# this whole exercise was for. But it IS a game-feel decision, so the gate
-# prints these every run rather than burying them.
+# On measured rate alone they sit near replacement level: Kohli made 4194 runs
+# in 2014-2022 at 1.30 runs per ball against a pool median of 1.30, so pure
+# runs-added ranked him 66th. Longevity credit moves him to 17th. Watch this
+# list when tuning LONGEVITY_GAIN -- too low and the era's fixtures are
+# unsellable in an auction, too high and availability starts outweighing the
+# players who actually won matches.
 WATCH = [
-    ("V Kohli",     "2014_2022", "high average, median strike rate"),
-    ("MS Dhoni",    "2014_2022", "finisher's reputation, mid-tier tempo by then"),
+    ("V Kohli",      "2014_2022", "4194 runs, median tempo"),
+    ("S Dhawan",     "2014_2022", "4182 runs -- the term lifts him too, by design"),
+    ("MS Dhoni",     "2014_2022", "finisher's reputation, mid-tier tempo by then"),
     ("F du Plessis", "2014_2022", "anchor, not an impact rate"),
 ]
 
@@ -205,10 +203,11 @@ def main() -> None:
     # ---- reputation vs measurement, reported not asserted -----------------
     print()
     print("=" * 68)
-    print("WATCH -- where reputation and measured T20 value disagree")
+    print("WATCH -- the era mainstays, and what LONGEVITY_GAIN buys them")
     print("=" * 68)
-    print("  (not failures: the metric rewards RATE, because balls are the")
-    print("   scarce resource in 120. Your call whether the game feel is right.)")
+    print("  These sit near replacement on measured RATE alone (balls are the")
+    print("  scarce resource in 120). Longevity credit is what lifts them --")
+    print("  tune LONGEVITY_GAIN by whether these ranks look sellable.")
     for name, era_id, why in WATCH:
         recs = pools.get(era_id)
         if not recs:

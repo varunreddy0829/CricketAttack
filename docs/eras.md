@@ -143,28 +143,52 @@ and economies upstream.
 The reordering against the old career formula is real but not arbitrary —
 r = 0.74 / 0.34 / 0.44 across the three eras.
 
-## Where reputation and measurement disagree
+## Longevity: the one classical correction
 
-This is a design consequence, not a bug, and it's worth knowing about before it
-surprises you in an auction. Team-runs-added rewards scoring **rate**, because
-in a 120-ball innings the scarce resource is balls. A high-average, medium-tempo
-accumulator can be a great cricketer and still add ~0 runs over a median player
-in the same slot.
+Measured value alone is **runs per ball consumed**. That is the right primary
+signal, but it is blind to something real, because the simulation hands every
+player the same number of innings. Availability — playing every season, holding
+a first-team slot, never being dropped — has nowhere to show up.
 
-| player | era | OVR | strike rate | measured |
-|---|---|---|---|---|
-| V Kohli | 2014–2022 | 70 | 129.9 (**p51**) | −1.3 runs |
-| MS Dhoni | 2014–2022 | 69 | 131.6 (p57) | −1.6 runs |
-| F du Plessis | 2014–2022 | 69 | 130.4 (p55) | −1.6 runs |
+Kohli made 4194 runs in 2014–2022 at 1.30 runs/ball against a pool median of
+1.30. On rate alone he measured as replacement level and ranked **66th**, which
+is not a defensible thing to put in front of someone at an auction.
 
-Kohli's strike rate in that era is *exactly* the pool median, so "roughly
-replacement level by runs added" is arithmetic, not an opinion. The same logic
-that demotes him is the logic that correctly demoted Amla (SR 119) and promoted
-Abhishek Sharma — which is the reordering this whole exercise was for.
+So `longevity()` adds credit in run units, scaled by the player's balls-faced
+percentile within their own era: ±`LONGEVITY_GAIN` (5 runs) from bottom to top.
 
-`ml/check_ovr.py` prints these every run under **WATCH** rather than asserting on
-them, so the divergence stays visible instead of being either hidden or baked in
-as a fake requirement.
+| player | rate only | with longevity |
+|---|---|---|
+| V Kohli | 70 (#66) | **83 (#17)** |
+| F du Plessis | 69 (#72) | 82 (#19) |
+| MS Dhoni | 69 (#75) | 81 (#22) |
+| S Dhawan | 64 (#127) | 80 (#26) |
+| AB de Villiers | 99 (#1) | 99 (#1) |
+| AD Russell | 99 (#2) | 99 (#2) |
+
+Tuned so the era's fixtures reach the marquee tier without displacing the players
+who actually won matches — de Villiers and Russell keep 1st and 2nd.
+
+**The trade is explicit.** It also lifts high-volume moderate performers: Dhawan
+climbs from 64 to 80. That is the term's intended meaning — being a fixture for
+nine seasons is an achievement — but it is a value judgment rather than a
+measurement, which is why it lives in its own function with its own constant
+instead of being folded into the metric.
+
+Two things were tried first and rejected:
+
+- **A different scenario.** The hypothesis was that measuring only a flat first
+  innings under-rates anchors, whose value should appear in a chase or after a
+  collapse. Tested (`ml/train/scenario_probe.py`): in a genuine collapse Kohli
+  goes from −1.3 to −1.6 while de Villiers goes from +7.9 to +8.6. Anchors do
+  *not* gain when it gets hard. (The chase column looks like it helps them, but a
+  chase caps runs at the target, which compresses large values more than small
+  ones — an artifact, not a finding.)
+- **Rewarding batting average.** That is the metric that ranked Amla 4th and
+  Abhishek Sharma 69th, and it is what this whole exercise replaced.
+
+`ml/check_ovr.py` prints these mainstays every run under **WATCH**, so the effect
+of `LONGEVITY_GAIN` stays visible rather than buried in a constant.
 
 One consequence of smaller pools: era draft sets run short at 8 teams (~78–87
 players pulled vs all-time's 118). Auto-fill covers the gap from the undrafted

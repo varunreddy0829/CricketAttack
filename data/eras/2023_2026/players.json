@@ -67,7 +67,7 @@
    "avg": 26.0,
    "sr": 14.0
   },
-  "batting_ovr": 75,
+  "batting_ovr": 79,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -209,7 +209,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 57,
+  "batting_ovr": 55,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -285,7 +285,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 71,
+  "batting_ovr": 64,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -428,7 +428,7 @@
    "sr": 24.33
   },
   "batting_ovr": null,
-  "bowling_ovr": 55,
+  "bowling_ovr": 59,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -498,7 +498,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 66,
+  "batting_ovr": 72,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -716,7 +716,7 @@
    "avg": 20.85,
    "sr": 11.21
   },
-  "batting_ovr": 73,
+  "batting_ovr": 70,
   "bowling_ovr": 62,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -1005,7 +1005,7 @@
    "avg": 54.0,
    "sr": 32.4
   },
-  "batting_ovr": 58,
+  "batting_ovr": 71,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -1077,7 +1077,7 @@
    "sr": 15.53
   },
   "batting_ovr": null,
-  "bowling_ovr": 63,
+  "bowling_ovr": 57,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -1152,7 +1152,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 74,
+  "batting_ovr": 81,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -1228,8 +1228,8 @@
    "avg": 35.87,
    "sr": 27.0
   },
-  "batting_ovr": 68,
-  "bowling_ovr": 80,
+  "batting_ovr": 74,
+  "bowling_ovr": 84,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
@@ -1371,7 +1371,7 @@
    "sr": 22.42
   },
   "batting_ovr": null,
-  "bowling_ovr": 58,
+  "bowling_ovr": 56,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -1441,7 +1441,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 62,
+  "batting_ovr": 55,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -1659,7 +1659,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 63,
+  "batting_ovr": 66,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -1806,7 +1806,7 @@
    "avg": 85.0,
    "sr": 52.25
   },
-  "batting_ovr": 94,
+  "batting_ovr": 93,
   "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -1882,7 +1882,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 62,
+  "batting_ovr": 68,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -2025,7 +2025,7 @@
    "sr": 15.26
   },
   "batting_ovr": null,
-  "bowling_ovr": 69,
+  "bowling_ovr": 65,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -2096,7 +2096,7 @@
    "sr": 17.54
   },
   "batting_ovr": null,
-  "bowling_ovr": 56,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -2237,7 +2237,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 61,
+  "batting_ovr": 55,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -2308,7 +2308,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 73,
+  "batting_ovr": 65,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -2450,7 +2450,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 65,
+  "batting_ovr": 56,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -2735,7 +2735,7 @@
    "sr": 18.49
   },
   "batting_ovr": null,
-  "bowling_ovr": 76,
+  "bowling_ovr": 83,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -2881,7 +2881,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 79,
+  "batting_ovr": 73,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -3023,7 +3023,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 68,
+  "batting_ovr": 60,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -3166,7 +3166,7 @@
    "sr": 19.79
   },
   "batting_ovr": null,
-  "bowling_ovr": 71,
+  "bowling_ovr": 77,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -3236,7 +3236,7 @@
    "avg": 38.6,
    "sr": 23.6
   },
-  "batting_ovr": 63,
+  "batting_ovr": 55,
   "bowling_ovr": 61,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -3307,8 +3307,8 @@
    "avg": 27.03,
    "sr": 18.24
   },
-  "batting_ovr": 56,
-  "bowling_ovr": 81,
+  "batting_ovr": 55,
+  "bowling_ovr": 86,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
@@ -3454,7 +3454,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 74,
+  "batting_ovr": 84,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -3810,7 +3810,7 @@
    "sr": 19.5
   },
   "batting_ovr": null,
-  "bowling_ovr": 60,
+  "bowling_ovr": 57,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -3951,7 +3951,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 78,
+  "batting_ovr": 71,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -4027,8 +4027,8 @@
    "avg": 39.83,
    "sr": 24.78
   },
-  "batting_ovr": 71,
-  "bowling_ovr": 59,
+  "batting_ovr": 76,
+  "bowling_ovr": 64,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
@@ -4241,7 +4241,7 @@
    "sr": 16.74
   },
   "batting_ovr": null,
-  "bowling_ovr": 97,
+  "bowling_ovr": 95,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -4311,7 +4311,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 73,
+  "batting_ovr": 68,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -4382,7 +4382,7 @@
    "avg": 41.0,
    "sr": 18.0
   },
-  "batting_ovr": 73,
+  "batting_ovr": 64,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -4595,7 +4595,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 62,
+  "batting_ovr": 70,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -4813,7 +4813,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 70,
+  "batting_ovr": 74,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -4960,7 +4960,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 58,
+  "batting_ovr": 65,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -5178,7 +5178,7 @@
    "avg": 70.0,
    "sr": 36.0
   },
-  "batting_ovr": 68,
+  "batting_ovr": 62,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -5321,7 +5321,7 @@
    "sr": 20.17
   },
   "batting_ovr": null,
-  "bowling_ovr": 71,
+  "bowling_ovr": 74,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -5396,7 +5396,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 57,
+  "batting_ovr": 66,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -5468,7 +5468,7 @@
    "sr": 27.47
   },
   "batting_ovr": null,
-  "bowling_ovr": 69,
+  "bowling_ovr": 70,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -5614,7 +5614,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 75,
+  "batting_ovr": 81,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -5686,7 +5686,7 @@
    "sr": 14.73
   },
   "batting_ovr": null,
-  "bowling_ovr": 76,
+  "bowling_ovr": 74,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -5761,7 +5761,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 67,
+  "batting_ovr": 77,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -5832,7 +5832,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 76,
+  "batting_ovr": 64,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -6187,8 +6187,8 @@
    "avg": 27.17,
    "sr": 19.33
   },
-  "batting_ovr": 69,
-  "bowling_ovr": 68,
+  "batting_ovr": 67,
+  "bowling_ovr": 60,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
@@ -6618,7 +6618,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 61,
+  "batting_ovr": 55,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -6694,8 +6694,8 @@
    "avg": 37.62,
    "sr": 21.88
   },
-  "batting_ovr": 62,
-  "bowling_ovr": 57,
+  "batting_ovr": 70,
+  "bowling_ovr": 65,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
@@ -6837,7 +6837,7 @@
    "sr": 16.82
   },
   "batting_ovr": null,
-  "bowling_ovr": 74,
+  "bowling_ovr": 79,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -6907,8 +6907,8 @@
    "avg": 27.5,
    "sr": 20.18
   },
-  "batting_ovr": 63,
-  "bowling_ovr": 79,
+  "batting_ovr": 55,
+  "bowling_ovr": 77,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
@@ -7263,7 +7263,7 @@
    "sr": 17.75
   },
   "batting_ovr": null,
-  "bowling_ovr": 71,
+  "bowling_ovr": 69,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -7338,7 +7338,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 71,
+  "batting_ovr": 81,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -7414,7 +7414,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 73,
+  "batting_ovr": 64,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -7486,7 +7486,7 @@
    "sr": 19.64
   },
   "batting_ovr": null,
-  "bowling_ovr": 63,
+  "bowling_ovr": 56,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -7557,7 +7557,7 @@
    "sr": 14.57
   },
   "batting_ovr": null,
-  "bowling_ovr": 61,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -7840,8 +7840,8 @@
    "avg": 31.92,
    "sr": 19.82
   },
-  "batting_ovr": 60,
-  "bowling_ovr": 68,
+  "batting_ovr": 55,
+  "bowling_ovr": 72,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
@@ -7916,7 +7916,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 68,
+  "batting_ovr": 80,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -8129,7 +8129,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 60,
+  "batting_ovr": 55,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -8201,7 +8201,7 @@
    "sr": 21.62
   },
   "batting_ovr": null,
-  "bowling_ovr": 88,
+  "bowling_ovr": 87,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -8271,7 +8271,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 63,
+  "batting_ovr": 57,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -8342,7 +8342,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 64,
+  "batting_ovr": 60,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -8418,7 +8418,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 69,
+  "batting_ovr": 73,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -8490,7 +8490,7 @@
    "sr": 19.1
   },
   "batting_ovr": null,
-  "bowling_ovr": 69,
+  "bowling_ovr": 67,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -8561,7 +8561,7 @@
    "sr": 18.0
   },
   "batting_ovr": null,
-  "bowling_ovr": 65,
+  "bowling_ovr": 59,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -8636,7 +8636,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 74,
+  "batting_ovr": 70,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -8850,7 +8850,7 @@
    "sr": 29.14
   },
   "batting_ovr": null,
-  "bowling_ovr": 59,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -8992,7 +8992,7 @@
    "sr": 17.59
   },
   "batting_ovr": null,
-  "bowling_ovr": 66,
+  "bowling_ovr": 74,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -9280,7 +9280,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 77,
+  "batting_ovr": 70,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -9356,8 +9356,8 @@
    "avg": 30.09,
    "sr": 22.33
   },
-  "batting_ovr": 67,
-  "bowling_ovr": 85,
+  "batting_ovr": 69,
+  "bowling_ovr": 87,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
@@ -9428,7 +9428,7 @@
    "sr": 20.47
   },
   "batting_ovr": null,
-  "bowling_ovr": 62,
+  "bowling_ovr": 71,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -9498,7 +9498,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 66,
+  "batting_ovr": 56,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -9574,7 +9574,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 67,
+  "batting_ovr": 80,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -9787,7 +9787,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 65,
+  "batting_ovr": 63,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -10355,7 +10355,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 61,
+  "batting_ovr": 58,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -10427,7 +10427,7 @@
    "sr": 19.37
   },
   "batting_ovr": null,
-  "bowling_ovr": 56,
+  "bowling_ovr": 58,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -10568,8 +10568,8 @@
    "avg": 29.76,
    "sr": 21.41
   },
-  "batting_ovr": 56,
-  "bowling_ovr": 83,
+  "batting_ovr": 55,
+  "bowling_ovr": 86,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
@@ -10711,7 +10711,7 @@
    "sr": 17.41
   },
   "batting_ovr": null,
-  "bowling_ovr": 71,
+  "bowling_ovr": 65,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -11070,7 +11070,7 @@
    "avg": 36.57,
    "sr": 24.0
   },
-  "batting_ovr": 62,
+  "batting_ovr": 64,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -11359,8 +11359,8 @@
    "avg": 37.42,
    "sr": 21.92
   },
-  "batting_ovr": 61,
-  "bowling_ovr": 68,
+  "batting_ovr": 55,
+  "bowling_ovr": 73,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
@@ -11431,7 +11431,7 @@
    "sr": 20.53
   },
   "batting_ovr": null,
-  "bowling_ovr": 58,
+  "bowling_ovr": 60,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -11502,7 +11502,7 @@
    "sr": 15.09
   },
   "batting_ovr": null,
-  "bowling_ovr": 73,
+  "bowling_ovr": 75,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -11648,7 +11648,7 @@
    "avg": 29.0,
    "sr": 18.0
   },
-  "batting_ovr": 72,
+  "batting_ovr": 67,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -11791,7 +11791,7 @@
    "sr": 26.75
   },
   "batting_ovr": null,
-  "bowling_ovr": 80,
+  "bowling_ovr": 79,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -12008,7 +12008,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 61,
+  "batting_ovr": 62,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -12080,7 +12080,7 @@
    "sr": 14.55
   },
   "batting_ovr": null,
-  "bowling_ovr": 65,
+  "bowling_ovr": 69,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -12221,7 +12221,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 63,
+  "batting_ovr": 55,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -12577,7 +12577,7 @@
    "sr": 23.53
   },
   "batting_ovr": null,
-  "bowling_ovr": 74,
+  "bowling_ovr": 71,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -12718,7 +12718,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 63,
+  "batting_ovr": 56,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -12860,8 +12860,8 @@
    "avg": 23.82,
    "sr": 17.65
   },
-  "batting_ovr": 59,
-  "bowling_ovr": 74,
+  "batting_ovr": 56,
+  "bowling_ovr": 67,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
@@ -12932,7 +12932,7 @@
    "sr": 16.18
   },
   "batting_ovr": null,
-  "bowling_ovr": 74,
+  "bowling_ovr": 75,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -13078,7 +13078,7 @@
    "avg": 41.42,
    "sr": 23.17
   },
-  "batting_ovr": 73,
+  "batting_ovr": 79,
   "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -13225,7 +13225,7 @@
    "avg": 21.15,
    "sr": 13.0
   },
-  "batting_ovr": 67,
+  "batting_ovr": 76,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -13372,7 +13372,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 76,
+  "batting_ovr": 69,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -13514,7 +13514,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 60,
+  "batting_ovr": 55,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -13799,7 +13799,7 @@
    "sr": 18.53
   },
   "batting_ovr": null,
-  "bowling_ovr": 66,
+  "bowling_ovr": 73,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -13870,7 +13870,7 @@
    "sr": 19.41
   },
   "batting_ovr": null,
-  "bowling_ovr": 77,
+  "bowling_ovr": 84,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -14225,7 +14225,7 @@
    "sr": 19.6
   },
   "batting_ovr": null,
-  "bowling_ovr": 63,
+  "bowling_ovr": 71,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -14367,7 +14367,7 @@
    "sr": 16.53
   },
   "batting_ovr": null,
-  "bowling_ovr": 68,
+  "bowling_ovr": 64,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -14438,7 +14438,7 @@
    "sr": 17.29
   },
   "batting_ovr": null,
-  "bowling_ovr": 60,
+  "bowling_ovr": 61,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -14660,7 +14660,7 @@
    "avg": 49.33,
    "sr": 29.67
   },
-  "batting_ovr": 64,
+  "batting_ovr": 70,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -14878,7 +14878,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 65,
+  "batting_ovr": 70,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -15021,7 +15021,7 @@
    "sr": 18.43
   },
   "batting_ovr": null,
-  "bowling_ovr": 71,
+  "bowling_ovr": 63,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -15096,7 +15096,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 74,
+  "batting_ovr": 73,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -15239,7 +15239,7 @@
    "sr": 15.28
   },
   "batting_ovr": null,
-  "bowling_ovr": 73,
+  "bowling_ovr": 69,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -15309,7 +15309,7 @@
    "avg": 44.69,
    "sr": 25.0
   },
-  "batting_ovr": 82,
+  "batting_ovr": 80,
   "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -15381,7 +15381,7 @@
    "sr": 18.96
   },
   "batting_ovr": null,
-  "bowling_ovr": 90,
+  "bowling_ovr": 91,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -15593,7 +15593,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 66,
+  "batting_ovr": 59,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -15669,7 +15669,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 64,
+  "batting_ovr": 77,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -15816,7 +15816,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 77,
+  "batting_ovr": 81,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -15958,8 +15958,8 @@
    "avg": 31.93,
    "sr": 20.38
   },
-  "batting_ovr": 70,
-  "bowling_ovr": 81,
+  "batting_ovr": 61,
+  "bowling_ovr": 82,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
@@ -16172,7 +16172,7 @@
    "sr": 17.45
   },
   "batting_ovr": null,
-  "bowling_ovr": 75,
+  "bowling_ovr": 74,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -16313,7 +16313,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 59,
+  "batting_ovr": 56,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -16669,7 +16669,7 @@
    "sr": 21.0
   },
   "batting_ovr": null,
-  "bowling_ovr": 69,
+  "bowling_ovr": 68,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -16740,7 +16740,7 @@
    "sr": 25.0
   },
   "batting_ovr": null,
-  "bowling_ovr": 68,
+  "bowling_ovr": 67,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -16815,7 +16815,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 85,
+  "batting_ovr": 80,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -16886,7 +16886,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 64,
+  "batting_ovr": 67,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -16957,7 +16957,7 @@
    "avg": 38.79,
    "sr": 27.9
   },
-  "batting_ovr": 60,
+  "batting_ovr": 55,
   "bowling_ovr": 82,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -17246,7 +17246,7 @@
    "avg": 47.2,
    "sr": 32.4
   },
-  "batting_ovr": 72,
+  "batting_ovr": 79,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -17317,7 +17317,7 @@
    "avg": 18.0,
    "sr": 12.0
   },
-  "batting_ovr": 62,
+  "batting_ovr": 58,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -17393,7 +17393,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 69,
+  "batting_ovr": 66,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -17465,7 +17465,7 @@
    "sr": 13.64
   },
   "batting_ovr": null,
-  "bowling_ovr": 67,
+  "bowling_ovr": 64,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -17682,7 +17682,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 66,
+  "batting_ovr": 67,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -17829,8 +17829,8 @@
    "avg": 29.21,
    "sr": 21.81
   },
-  "batting_ovr": 69,
-  "bowling_ovr": 82,
+  "batting_ovr": 76,
+  "bowling_ovr": 85,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
@@ -17900,7 +17900,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 56,
+  "batting_ovr": 61,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -17972,7 +17972,7 @@
    "sr": 29.53
   },
   "batting_ovr": null,
-  "bowling_ovr": 68,
+  "bowling_ovr": 69,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -18047,7 +18047,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 68,
+  "batting_ovr": 79,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -18123,7 +18123,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 70,
+  "batting_ovr": 72,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -18199,7 +18199,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 63,
+  "batting_ovr": 76,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -18488,7 +18488,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 77,
+  "batting_ovr": 81,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -18564,7 +18564,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 92,
+  "batting_ovr": 88,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -18711,7 +18711,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 68,
+  "batting_ovr": 75,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -18782,7 +18782,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 71,
+  "batting_ovr": 66,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -19137,7 +19137,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 61,
+  "batting_ovr": 59,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -19208,7 +19208,7 @@
    "avg": 40.0,
    "sr": 20.0
   },
-  "batting_ovr": 72,
+  "batting_ovr": 62,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -19279,8 +19279,8 @@
    "avg": 28.92,
    "sr": 19.59
   },
-  "batting_ovr": 73,
-  "bowling_ovr": 84,
+  "batting_ovr": 64,
+  "bowling_ovr": 88,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
@@ -19351,7 +19351,7 @@
    "sr": 14.86
   },
   "batting_ovr": null,
-  "bowling_ovr": 69,
+  "bowling_ovr": 67,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -19422,7 +19422,7 @@
    "sr": 20.96
   },
   "batting_ovr": null,
-  "bowling_ovr": 74,
+  "bowling_ovr": 79,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -19634,7 +19634,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 62,
+  "batting_ovr": 64,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -19710,7 +19710,7 @@
    "avg": 55.5,
    "sr": 24.0
   },
-  "batting_ovr": 78,
+  "batting_ovr": 84,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -19999,7 +19999,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 85,
+  "batting_ovr": 90,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -20070,7 +20070,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 65,
+  "batting_ovr": 56,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -20141,7 +20141,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 65,
+  "batting_ovr": 55,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -20212,7 +20212,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 72,
+  "batting_ovr": 66,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -20425,8 +20425,8 @@
    "avg": 39.08,
    "sr": 22.58
   },
-  "batting_ovr": 68,
-  "bowling_ovr": 62,
+  "batting_ovr": 70,
+  "bowling_ovr": 66,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
@@ -20496,7 +20496,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 60,
+  "batting_ovr": 55,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -20567,8 +20567,8 @@
    "avg": 30.16,
    "sr": 16.68
   },
-  "batting_ovr": 61,
-  "bowling_ovr": 66,
+  "batting_ovr": 55,
+  "bowling_ovr": 70,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
@@ -20719,7 +20719,7 @@
    "avg": 26.5,
    "sr": 21.67
   },
-  "batting_ovr": 68,
+  "batting_ovr": 70,
   "bowling_ovr": 93,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -20866,7 +20866,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 87,
+  "batting_ovr": 88,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -21226,7 +21226,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 69,
+  "batting_ovr": 80,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -21369,7 +21369,7 @@
    "sr": 16.8
   },
   "batting_ovr": null,
-  "bowling_ovr": 67,
+  "bowling_ovr": 60,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -21510,7 +21510,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 70,
+  "batting_ovr": 66,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -21582,7 +21582,7 @@
    "sr": 22.73
   },
   "batting_ovr": null,
-  "bowling_ovr": 79,
+  "bowling_ovr": 81,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -21870,7 +21870,7 @@
    "avg": 47.67,
    "sr": 25.58
   },
-  "batting_ovr": 66,
+  "batting_ovr": 62,
   "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -21946,7 +21946,7 @@
    "avg": 24.2,
    "sr": 15.6
   },
-  "batting_ovr": 82,
+  "batting_ovr": 79,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -22089,7 +22089,7 @@
    "sr": 26.0
   },
   "batting_ovr": null,
-  "bowling_ovr": 56,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -22164,7 +22164,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 88,
+  "batting_ovr": 93,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -22235,7 +22235,7 @@
    "avg": 60.0,
    "sr": 33.0
   },
-  "batting_ovr": 69,
+  "batting_ovr": 57,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -22448,7 +22448,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 68,
+  "batting_ovr": 55,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -22520,7 +22520,7 @@
    "sr": 29.3
   },
   "batting_ovr": null,
-  "bowling_ovr": 69,
+  "bowling_ovr": 74,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -22804,7 +22804,7 @@
    "sr": 22.66
   },
   "batting_ovr": null,
-  "bowling_ovr": 75,
+  "bowling_ovr": 78,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -22879,7 +22879,7 @@
    "avg": 23.0,
    "sr": 12.0
   },
-  "batting_ovr": 68,
+  "batting_ovr": 73,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -23022,7 +23022,7 @@
    "sr": 18.96
   },
   "batting_ovr": null,
-  "bowling_ovr": 80,
+  "bowling_ovr": 84,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -23168,7 +23168,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 90,
+  "batting_ovr": 85,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -23315,7 +23315,7 @@
    "avg": 40.0,
    "sr": 16.0
   },
-  "batting_ovr": 76,
+  "batting_ovr": 81,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -23387,7 +23387,7 @@
    "sr": 18.33
   },
   "batting_ovr": null,
-  "bowling_ovr": 69,
+  "bowling_ovr": 76,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -23533,7 +23533,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 86,
+  "batting_ovr": 89,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -23893,7 +23893,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 76,
+  "batting_ovr": 86,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -23965,7 +23965,7 @@
    "sr": 23.92
   },
   "batting_ovr": null,
-  "bowling_ovr": 57,
+  "bowling_ovr": 56,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -24111,7 +24111,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 70,
+  "batting_ovr": 68,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -24187,7 +24187,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 95,
+  "batting_ovr": 85,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -24330,7 +24330,7 @@
    "sr": 17.25
   },
   "batting_ovr": null,
-  "bowling_ovr": 71,
+  "bowling_ovr": 75,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -24405,7 +24405,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 70,
+  "batting_ovr": 76,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -24477,7 +24477,7 @@
    "sr": 19.96
   },
   "batting_ovr": null,
-  "bowling_ovr": 61,
+  "bowling_ovr": 64,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -24831,7 +24831,7 @@
    "avg": 30.0,
    "sr": 18.5
   },
-  "batting_ovr": 68,
+  "batting_ovr": 67,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -24907,7 +24907,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 56,
+  "batting_ovr": 61,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -24983,8 +24983,8 @@
    "avg": 69.17,
    "sr": 42.67
   },
-  "batting_ovr": 63,
-  "bowling_ovr": 57,
+  "batting_ovr": 66,
+  "bowling_ovr": 55,
   "anchor_ovr": 55,
   "rateable_batting": true,
   "rateable_bowling": true,
@@ -25130,7 +25130,7 @@
    "avg": 0.0,
    "sr": 0.0
   },
-  "batting_ovr": 65,
+  "batting_ovr": 79,
   "bowling_ovr": null,
   "anchor_ovr": 55,
   "rateable_batting": true,
@@ -25202,7 +25202,7 @@
    "sr": 17.89
   },
   "batting_ovr": null,
-  "bowling_ovr": 88,
+  "bowling_ovr": 90,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -25344,7 +25344,7 @@
    "sr": 22.63
   },
   "batting_ovr": null,
-  "bowling_ovr": 72,
+  "bowling_ovr": 75,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,
@@ -25486,7 +25486,7 @@
    "sr": 17.3
   },
   "batting_ovr": null,
-  "bowling_ovr": 62,
+  "bowling_ovr": 64,
   "anchor_ovr": 55,
   "rateable_batting": false,
   "rateable_bowling": true,

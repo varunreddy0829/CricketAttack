@@ -70,6 +70,15 @@ MEDIAN_OVR, TOP_QUANTILE, TOP_OVR = 68, 0.95, 88
 SHRINK_BAT_BALLS = 300
 SHRINK_BOWL_BALLS = 300
 
+# Longevity credit, in runs, added on top of the measured value (see longevity).
+# A deliberate, classical adjustment layered AFTER the model -- the simulation
+# gives every player the same number of innings, so it structurally cannot see
+# that holding a first-team slot for a whole era is itself worth something.
+# 5 runs is tuned so the era's mainstays reach the marquee tier without
+# displacing the players who actually won matches: in 2014-2022 it moves Kohli
+# from 66th to 17th while de Villiers and Russell keep 1st and 2nd.
+LONGEVITY_GAIN = 5.0
+
 BAT_SLOT = 2        # measure batters at #3 -- reached in almost every innings
 BOWL_SLOT = 0       # measure bowlers as the first-change option
 
@@ -185,6 +194,33 @@ def shrink(value: float, balls: int, k: int) -> float:
     return value * (balls / (balls + k)) if balls > 0 else 0.0
 
 
+def longevity(balls: int, pool_balls: list, gain: float = LONGEVITY_GAIN) -> float:
+    """Runs of credit for having held a first-team slot across the whole era.
+
+    The simulation hands every player the SAME number of innings, so it can only
+    ever measure runs per ball consumed. Availability -- playing every season,
+    batting every match, never being dropped -- is real value that has nowhere to
+    show up. Kohli made 4194 runs in 2014-2022 at exactly the pool's median rate
+    of 1.30 runs/ball, so on rate alone he measured as replacement level and
+    ranked 66th, which is not a defensible thing to show a player in an auction.
+
+    This is a deliberate CLASSICAL correction applied after the model, not a
+    property the model learned. It's scaled by the player's percentile within
+    their own era's pool, so it can't be gamed by an era simply having more
+    cricket in it, and it's added in run units so the band mapping downstream
+    stays linear.
+
+    The trade is explicit: it also lifts high-volume moderate performers like
+    Dhawan (64 -> 80). That is the intended meaning of the term -- being a
+    fixture for nine seasons is an achievement -- but it IS a value judgment
+    rather than a measurement, which is why it lives in its own function."""
+    if not pool_balls:
+        return 0.0
+    below = sum(1 for b in pool_balls if b < balls)
+    pct = below / len(pool_balls)
+    return gain * (pct - 0.5) * 2      # -gain at the bottom, +gain at the top
+
+
 def to_ovr(values: dict) -> dict:
     """Rescale measured value onto the 55-99 band, anchored on the pool's MEDIAN
     and its 95th percentile rather than its worst and best.
@@ -242,7 +278,9 @@ def rescale_only(era: E.Era) -> None:
             print(f"  {era.id}: no {mkey} on disk -- run the full derivation first")
             continue
         balls = {r["name"]: r[bkey][ball_field] for r in records if r["name"] in raw}
-        vals = {n: shrink(v, balls[n], K) for n, v in raw.items()}
+        pool_balls = list(balls.values())
+        vals = {n: shrink(v, balls[n], K) + longevity(balls[n], pool_balls)
+                for n, v in raw.items()}
         ovr = to_ovr(vals)
         for r in records:
             r[key] = ovr.get(r["name"])
@@ -280,12 +318,18 @@ def derive(era: E.Era, n: int, seed: int) -> None:
     bat = measure_batting(era, model, cal, ctx, n, seed)
     bowl = measure_bowling(era, model, cal, ctx, n, seed)
 
-    # The RAW runs are what gets stored -- shrinkage and banding are cheap
-    # post-processing that --rescale-only can redo without re-simulating.
-    bat_ovr = to_ovr({nm: shrink(v, by_name[nm]["batting"]["balls"],
-                                 SHRINK_BAT_BALLS) for nm, v in bat.items()})
-    bowl_ovr = to_ovr({nm: shrink(v, by_name[nm]["bowling"]["legal_balls"],
-                                  SHRINK_BOWL_BALLS) for nm, v in bowl.items()})
+    # The RAW runs are what gets stored -- shrinkage, longevity and banding are
+    # cheap post-processing that --rescale-only can redo without re-simulating.
+    bat_balls = [by_name[nm]["batting"]["balls"] for nm in bat]
+    bowl_balls = [by_name[nm]["bowling"]["legal_balls"] for nm in bowl]
+    bat_ovr = to_ovr({
+        nm: shrink(v, by_name[nm]["batting"]["balls"], SHRINK_BAT_BALLS)
+            + longevity(by_name[nm]["batting"]["balls"], bat_balls)
+        for nm, v in bat.items()})
+    bowl_ovr = to_ovr({
+        nm: shrink(v, by_name[nm]["bowling"]["legal_balls"], SHRINK_BOWL_BALLS)
+            + longevity(by_name[nm]["bowling"]["legal_balls"], bowl_balls)
+        for nm, v in bowl.items()})
 
     for r in records:
         r.pop("_bat_rank", None)
