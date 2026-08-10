@@ -76,6 +76,26 @@ def resolve_engine(era_id: str | None = None):
         model = OutcomeModel.load(era_id=art_era)
         cal = load_calibration(art_era)
 
+        # Regress every player toward replacement level by how little we saw of
+        # him. Records come from THIS era's pool, not the artifact era's, so a
+        # multiverse player is judged against the field he actually shares.
+        from ml.runtime.model import SHRINK_BALLS, SHRINK_TARGET
+        from ml.runtime.players import load_players as _load_players
+        try:
+            model.shrink_target = SHRINK_TARGET
+            model.set_shrinkage(list(_load_players(era_id).values()), SHRINK_BALLS)
+        except Exception:
+            pass          # a pool without stats plays unshrunk rather than not at all
+
+        # The proven-player contest. Scores are era-scoped and come from THIS
+        # era's pool, not the artifact era's -- a multiverse Gayle should be
+        # judged against everyone he is sharing a field with.
+        from ml.runtime.longevity import LONGEVITY_DIAL, scores_for
+        try:
+            l_scores = scores_for(era_id)
+        except Exception:
+            l_scores = None       # a pool without stats plays without the layer
+
         ball_fn = make_ball_fn(
             model.base_provider(),
             player_stages=False,   # the model already knows who is batting
@@ -83,6 +103,8 @@ def resolve_engine(era_id: str | None = None):
             new_roles=True,        # ml/runtime/roles.py -- explicit paired transfers
             calibration=cal["calibration"],
             out_calibration=cal["out_calibration"],
+            longevity_scores=l_scores,
+            longevity_dial=LONGEVITY_DIAL,
         )
         sigma = cal["day_sigma"]
 
@@ -91,7 +113,9 @@ def resolve_engine(era_id: str | None = None):
                                      era_id=era_id)
 
         desc = (f"learned model (calibration {cal['calibration']:.3f}, "
-                f"out {cal['out_calibration']:.3f}, day sigma {sigma:.3f})")
+                f"out {cal['out_calibration']:.3f}, day sigma {sigma:.3f}, "
+                f"shrink {SHRINK_BALLS}->{SHRINK_TARGET}, "
+                f"longevity {LONGEVITY_DIAL})")
         return ball_fn, enrich, desc
 
     except Exception as exc:   # noqa: BLE001 -- any failure must still boot the game

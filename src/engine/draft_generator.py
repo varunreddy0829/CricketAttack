@@ -19,15 +19,32 @@ def determine_role(player):
         return "Batsman"
     return "Spinner" if player.get('bowling_style') == "Spin" else "Pacer"
 
-# Marquee starts at a different OVR depending on the role. Bowling OVRs run
-# lower than batting OVRs right across the databank, so a flat 85 cut leaves only
-# 5 pacers and 3 spinners in the whole top tier -- those sets would then be
-# literally identical in every auction. At 80 the buckets are 15 and 7, which is
-# deep enough to vary. Anything from MID_FLOOR up to the cut is Mid-Level;
-# everything below MID_FLOOR is Group 3.
+# Marquee starts at a different OVR depending on the role, because the OVR
+# distributions differ by role and a flat cut empties the thin ones. Anything
+# from MID_FLOOR up to the cut is Mid-Level; everything below is Group 3.
+#
+# Counts clearing each cut on the 2014-2022 pool under the grid-derived OVRs:
+#
+#     role            n     74    78    80    85
+#     Batsman        86     31    21    18     8
+#     Wicket Keeper  26     16    12    10     6
+#     All-Rounder    33     19    11    11     7
+#     Pacer          70     27    17    12     7
+#     Spinner        31      6     3     2     1
+#
+# SPINNER IS THE THIN ONE and needs its own, lower cut. Elite T20 spin is
+# genuinely scarce -- only 31 draftable spinners against 70 pacers -- and the
+# spell-based bowling rating puts most of the very top on pace, since a wicket is
+# worth 5.57 runs and the heaviest strike bowlers are quick. At 80 the tier held
+# TWO spinners, so an 8-team table (which draws 8 Marquee lots per role) would
+# see the same two men every auction. At 74 it holds 6.
+#
+# These are absolute numbers against a scale that gets re-derived, so they need
+# re-checking whenever ml/train/derive_ovr_grid.py runs. A per-role PERCENTILE
+# would not -- worth doing if this needs tuning a third time.
 MARQUEE_CUT = {
     "Batsman": 85, "Wicket Keeper": 85, "All-Rounder": 85,
-    "Pacer": 80, "Spinner": 80,
+    "Pacer": 80, "Spinner": 74,
 }
 MID_FLOOR = 70
 
@@ -111,7 +128,8 @@ def generate_draft_pool(all_players, players_per_set=5, set_sizes=None):
     Selection is quality-balanced (drawn from bat/bowl-OVR bands, not pure
     random), and the *presentation order* within a set is shuffled independently
     from whatever order the pool ends up listed in.
-    Max 40% foreigners per set (ensuring conservative overseas ratio globally).
+    No overseas quota per set -- the XI's own overseas limit handles that, and
+    far better; see the note in the selection loop.
     """
     buckets = {
         "Marquee": {"Batsman": [], "Pacer": [], "Spinner": [], "All-Rounder": [], "Wicket Keeper": []},
@@ -137,25 +155,27 @@ def generate_draft_pool(all_players, players_per_set=5, set_sizes=None):
 
     for tier in tiers:
         size = max(1, int(sizes.get(tier, players_per_set)))
-        max_foreigners_per_set = max(2, round(size * 0.4))
         for role in roles:
             candidates = _balanced_order(buckets[tier][role], _role_ovr_key(role), size)
 
             selected_for_set = []
-            foreigner_count_in_set = 0
 
+            # No overseas quota on a SET. There used to be one (40%, floor 2),
+            # and it starved the sets it was meant to balance: the 2014-2022
+            # Marquee Batsman bucket holds 7 players of whom 5 are overseas, so
+            # a 5-lot set could only be filled to 4 -- fewer marquee batsmen
+            # than there were teams to buy them.
+            #
+            # It was solving a problem that is already solved downstream, and
+            # better: an XI may field at most XI_MAX_OVERSEAS, enforced when the
+            # XI is locked. Who you are ALLOWED to buy should not be rationed --
+            # overspending on players you then cannot all field is a real and
+            # interesting way to lose an auction.
             for p in candidates:
                 if len(selected_for_set) >= size:
                     break
-
-                is_for = p.get('is_foreigner', False)
-                if is_for and foreigner_count_in_set >= max_foreigners_per_set:
-                    continue
-
-                if is_for:
-                    foreigner_count_in_set += 1
+                if p.get('is_foreigner', False):
                     total_foreigners_pulled += 1
-
                 selected_for_set.append(p)
                 total_players_pulled += 1
 

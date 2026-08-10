@@ -163,7 +163,11 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--port", type=int, default=8002)
-    ap.add_argument("--era", default=None)
+    # Named, not None. The era screen wants an actual era to vote for; None
+    # posted an empty vote, the two clients never agreed, and the run reported
+    # "era all_time  0 lots" -- which reads as all_time being broken rather than
+    # as never having reached the auction at all.
+    ap.add_argument("--era", default="all_time")
     ap.add_argument("--cap", type=float, default=12.0)
     ap.add_argument("--verbose", action="store_true")
     args = ap.parse_args()

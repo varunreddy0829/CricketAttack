@@ -1,4 +1,20 @@
-"""Pitch character, applied after the model.
+"""Pitch character. RETIRED -- no longer applied on the learned-model path.
+
+Kept for reference and for the reasoning below; nothing imports apply_pitch.
+It was removed after measuring it against 115,184 real 2014-2022 balls: every
+one of its four labels is derived from a number the model already receives as an
+input (`dusty`/`green` from the spin-pace edge, `flat`/`slow` from boundary
+share), so applying it double-counted. Mean absolute error in predicted
+spin/pace runs-per-ball, per 120 balls: model alone 2.93, model + shape only
+2.51, model + full layer 3.34. See the note at the removal site in
+ml/runtime/adapter.py.
+
+The classic engine's own PITCH_EFFECTS (src/engine/conditions.py) is unaffected
+and stays -- it has no venue knowledge, so it duplicates nothing.
+
+--- original rationale, which held only while the level blocks were the problem:
+
+Pitch character, applied after the model.
 
 The model knows each ground's real SCORING RATE -- two numbers measured from
 matches actually played there. It knows nothing about the surface's CHARACTER,

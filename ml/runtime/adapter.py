@@ -24,7 +24,7 @@ import random
 
 from src.engine.conditions import apply_conditions
 from src.engine.roles import apply_modes, apply_roles
-from ml.runtime.pitch import apply_pitch
+from ml.runtime.longevity import apply_longevity
 from ml.runtime.roles import apply_roles as ml_apply_roles
 from src.engine.simulator import WICKET_CASCADE_MULT
 from src.engine.stats_calculator import (
@@ -41,10 +41,11 @@ def _gambits_only(ctx: dict | None) -> dict | None:
 
     Pitch and phase are both stripped here and handled elsewhere:
 
-      pitch      -> ml/runtime/pitch.py, which keeps only the surface's CHARACTER.
-                    The classic PITCH_EFFECTS also carried the scoring LEVEL,
-                    which the model now knows per-ground from real data; applying
-                    both double-counts (measured: 12.3 runs mean error vs 6.5).
+      pitch      -> dropped entirely on this path. The model takes four MEASURED
+                    numbers per ground (runs/ball, wickets/ball, boundary share,
+                    spin-pace edge), and every pitch label is derived from those
+                    same numbers -- so any pitch layer on top double-counts. See
+                    the note at the removal site in ball_fn for the measurement.
       over_num   -> dropped entirely. This drives PHASE_EFFECTS, and the model
                     takes the over as 20 separate inputs -- it learned each over's
                     real shape, including that the old powerplay multipliers had
@@ -79,6 +80,8 @@ def make_ball_fn(
     calibration: float = 1.0,
     out_calibration: float = 1.0,
     new_roles: bool = True,
+    longevity_scores: dict | None = None,
+    longevity_dial: float = 0.0,
 ):
     """Build a `calculate_single_ball`-shaped function.
 
@@ -95,15 +98,31 @@ def make_ball_fn(
         situation-aware base. They matter far more than they look: the wicket rate
         compounds over 120 balls, so a 1.17x per-ball Out error becomes a 5x error
         in the all-out rate. Fitted by ml/harness/calibrate.py, not guessed.
+    longevity_scores/longevity_dial: the proven-player contest, from
+        ml/runtime/longevity.py. Off at dial 0.0. Applied FIRST, straight onto the
+        model's own output, because it is a correction to the model rather than a
+        tactical layer on top of one: the model reads rates, and rates cannot see
+        that Kohli did it for nine seasons and a one-season wonder did not.
+
+        It sits before calibration on purpose. The transfer conserves the total
+        exactly, so the calibration fitted without it stays valid.
     """
 
     scale = {k: calibration for k in ("1", "2", "3", "4", "5", "6")}
     scale["Out"] = out_calibration
     needs_scaling = calibration != 1.0 or out_calibration != 1.0
+    longevity_on = bool(longevity_scores) and longevity_dial > 0.0
 
     def ball_fn(striker, bowler, league_avg, context=None):
         ctx = context or {}
         w = base_provider(striker, bowler, ctx)
+
+        if longevity_on:
+            w = apply_longevity(
+                w,
+                longevity_scores["bat"].get(striker.name, 0.0),
+                longevity_scores["bowl"].get(bowler.name, 0.0),
+                dial=longevity_dial)
 
         if player_stages:
             w = apply_stage1_ovr(w, striker, bowler)
@@ -114,9 +133,36 @@ def make_ball_fn(
             w = {k: v * scale.get(k, 1.0) for k, v in w.items()}
             w = normalise(w)
 
-        # pitch character (matchup + shape), then the gambit cards
-        w = apply_pitch(w, ctx.get("pitch"), ctx.get("bowler_style"))
-
+        # NO pitch layer on the model path. Every one of its four labels is
+        # DERIVED from a number the model already takes as an input, so applying
+        # it counts the same evidence twice:
+        #
+        #     dusty / green  <- |spin-pace edge| >= 0.30   ... model gets
+        #                       venue_type_edge
+        #     flat / slow    <- boundary share vs league   ... model gets
+        #                       venue_bdry_share
+        #
+        # Measured by replaying all 115,184 real 2014-2022 balls and comparing
+        # predicted spin/pace runs-per-ball at each ground against what actually
+        # happened there (mean absolute error, runs per 120 balls):
+        #
+        #     model alone                     2.93
+        #     model + shape only (flat/slow)  2.51
+        #     model + full pitch layer        3.34   <- worse than nothing
+        #
+        # The matchup half is clearly harmful: at Rajiv Gandhi it pushes a pace
+        # error from -0.033 to -0.085, and at Arun Jaitley -- labelled `dusty`
+        # from an all-era average, but pace-friendly in THIS era -- it drags a
+        # near-perfect spin prediction (+0.001) to -0.047.
+        #
+        # The shape half scores better than nothing, but only because the model
+        # UNDER-weights boundary share; a hand multiplier that happens to top up
+        # a regularised coefficient is a patch, not a feature, and it is worth
+        # 0.42 runs an innings. Both halves go.
+        #
+        # The CLASSIC engine keeps its own PITCH_EFFECTS (src/engine/conditions.py)
+        # and should: it has no venue knowledge at all, so nothing is duplicated
+        # there.
         g = _gambits_only(ctx)
         if g:
             w = apply_conditions(w, g)

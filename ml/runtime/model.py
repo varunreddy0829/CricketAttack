@@ -37,6 +37,15 @@ _LEGAL = ("0", "1", "2", "3", "4", "6", "Out")
 # Direction in logit space that the per-innings day factor pushes along: a "road"
 # means more boundaries and fewer dots/wickets, a "minefield" the reverse. Scaled
 # by a single sigma fitted in Phase 4 -- see ml/harness/calibrate_variance.py.
+REPLACEMENT_PCT = 0.15   # bottom 15% of a pool defines replacement level
+
+# How much evidence before a player's own rating is half-trusted, and what the
+# rest of him falls back to. See set_shrinkage for why the target must be
+# REPLACEMENT and not zero: zero is better than 0% of batters but 99% of bowlers,
+# so the same rule inverts on one side.
+SHRINK_BALLS = 500
+SHRINK_TARGET = "replacement"
+
 DAY_AXIS = {"0": -0.6, "1": -0.1, "2": 0.1, "3": 0.1,
             "4": 0.7, "6": 0.9, "Out": -0.5, "wide": 0.0, "noball": 0.0}
 
@@ -97,18 +106,159 @@ class OutcomeModel:
             return F.bat_anchor(record).astype(np.float64) @ self.W_bat
         return F.bowl_anchor(record).astype(np.float64) @ self.W_bowl
 
+    def set_shrinkage(self, records: list[dict], k: float) -> None:
+        """Regress every player's effect toward league average by how little we
+        saw of him:  effect x balls / (balls + k).
+
+        A rating built on 300 balls is a guess with wide error bars, and the model
+        has no way to say so -- it reports the same confident effect for a man with
+        300 balls as for one with 3,000. Measured on the 2014-2022 grid, that put
+        Tilak Varma (303 balls, one season) 12th and Hetmyer (546) 4th, above
+        Kohli. Shrinking by sample size moves them to 60th and 39th while Kohli
+        rises to 4th, and it does so without inventing anything: it only ever pulls
+        a player TOWARD the mean, never past his measured rating.
+
+        `k` is in balls -- the evidence required before a player is half-trusted.
+        Zero disables it. This is deliberately separate from the longevity layer:
+        that one moves `Out` after the fact, this one damps the whole effect
+        including scoring rate, which is the part the transfer cannot reach.
+
+        WHAT it shrinks toward matters more than how hard, and two wrong answers
+        were measured before the right one:
+
+          toward ZERO        10/16 outside tolerance. Zero is not the average
+                             player, it is the model's blank slate, so this drags
+                             the whole league down -- median innings 162 -> 133,
+                             innings over 200 from 9.0% to 0.6%.
+          toward the MEAN    2/16. Better, but it RESCUES TAILENDERS: Chahal has
+                             86 career balls and Bumrah 66, so they shrink hardest
+                             and end up batting like average players. All-out rate
+                             collapsed from a real 8.1% to 3.8%. Their low ratings
+                             were right; the small sample was not the reason.
+          toward A.W         the answer, below.
+
+        The model is E = A.W + D: `A.W` projects a player from HIS OWN observable
+        stats, and `D` is the learned per-player correction on top. `D` is the part
+        that overfits a short career -- `A.W` is already an honest read of whoever
+        he is. So only `D` is shrunk. A tailender keeps the bad projection his own
+        numbers earn him, while a 300-ball batter loses the flattering correction
+        the model could not have learned reliably.
+        """
+        self.shrink_k = float(k)
+        self._shrink = {}
+        self._anchor = {}
+        if not k:
+            return
+        for r in records:
+            nb = (r.get("batting") or {}).get("balls", 0)
+            nw = (r.get("bowling") or {}).get("legal_balls", 0)
+            self._shrink[r["name"]] = (nb / (nb + k), nw / (nw + k))
+            self._anchor[r["name"]] = (self.cold_effect(r, "bat"),
+                                       self.cold_effect(r, "bowl"))
+        # REPLACEMENT LEVEL, per side: the ball-weighted mean effect of the
+        # bottom REPLACEMENT_PCT of the pool by quality. This is the only target
+        # that means the same thing on both sides.
+        #
+        # `zero` does not. Measured on 2014-2022, a zero effect is better than 0%
+        # of batters but 99% of BOWLERS -- the two effect distributions sit on
+        # opposite sides of the origin, because a blank-slate player concedes no
+        # boundaries (great for a bowler) and hits none (terrible for a batter).
+        # So the identical rule promoted fringe bowlers while demoting fringe
+        # batters: Badree (234 balls) went 33rd -> 5th while Chahal (2807 balls,
+        # 159 wickets) went 60th -> 109th.
+        # What "good" MEANS, per side. A batter wants runs -- 1s, 2s, 3s, 4s, 6s
+        # -- and does not want dots or dismissals. A bowler wants exactly the
+        # reverse: dots and wickets, not runs. The two roles sit on opposite sides
+        # of the origin on both axes, which is why a single scalar shrink rule
+        # inverts on one of them.
+        scoring = [(c, int(c)) for c in ("1", "2", "3", "4", "6") if c in self.ci]
+
+        def _quality(e, side):
+            runs = sum(v * e[self.ci[c]] for c, v in scoring)
+            stop = e[self.ci["0"]] + e[self.ci["Out"]]
+            return (runs - stop) if side == "bat" else (stop - runs)
+
+        def _replacement(recs, side, V, vol):
+            scored = []
+            for r in recs:
+                n = vol(r)
+                if n <= 0:
+                    continue
+                e = (self.E_bat[self.idx[r["name"]]] if side == "bat"
+                     else self.E_bowl[self.idx[r["name"]]]) @ V
+                scored.append((_quality(e, side), n, r["name"]))
+            if not scored:
+                return None
+            scored.sort()
+            cut = max(1, int(REPLACEMENT_PCT * len(scored)))
+            tot = sum(n for _, n, _ in scored[:cut]) or 1.0
+            acc = np.zeros_like(self.E_bat[0] if side == "bat" else self.E_bowl[0])
+            for _, n, nm in scored[:cut]:
+                i = self.idx[nm]
+                acc += n * (self.E_bat[i] if side == "bat" else self.E_bowl[i])
+            return acc / tot
+
+        named = [r for r in records if r["name"] in self.idx]
+        self._repl_bat = _replacement(
+            named, "bat", self.V_bat,
+            lambda r: (r.get("batting") or {}).get("balls", 0))
+        self._repl_bowl = _replacement(
+            named, "bowl", self.V_bowl,
+            lambda r: (r.get("bowling") or {}).get("legal_balls", 0))
+
+        # the pool mean, ball-weighted, kept so SHRINK_TARGET can select it
+        wb = ww = 0.0
+        mb = np.zeros_like(self.E_bat[0])
+        mw = np.zeros_like(self.E_bowl[0])
+        for r in records:
+            i = self.idx.get(r["name"])
+            if i is None:
+                continue
+            nb = (r.get("batting") or {}).get("balls", 0)
+            nw = (r.get("bowling") or {}).get("legal_balls", 0)
+            mb += nb * self.E_bat[i]; wb += nb
+            mw += nw * self.E_bowl[i]; ww += nw
+        self._mean_bat = mb / wb if wb else mb
+        self._mean_bowl = mw / ww if ww else mw
+
+    def _shrink_factor(self, name: str, side: str) -> float:
+        if not getattr(self, "shrink_k", 0.0):
+            return 1.0
+        f = self._shrink.get(name)
+        if f is None:
+            return 0.0        # never seen at all -- trust nothing, use the mean
+        return f[0] if side == "bat" else f[1]
+
     def effect(self, name: str, side: str, record: dict | None = None) -> np.ndarray:
         """Player effect by name, falling back to the anchor projection."""
         i = self.idx.get(name)
         if i is not None:
-            return self.E_bat[i] if side == "bat" else self.E_bowl[i]
-        if record is None:
+            e = self.E_bat[i] if side == "bat" else self.E_bowl[i]
+        elif record is None:
             return self.E_bat[0] if side == "bat" else self.E_bowl[0]
-        key = (side, name)
-        hit = self._cold.get(key)
-        if hit is None:
-            hit = self._cold[key] = self.cold_effect(record, side)
-        return hit
+        else:
+            key = (side, name)
+            e = self._cold.get(key)
+            if e is None:
+                e = self._cold[key] = self.cold_effect(record, side)
+        f = self._shrink_factor(name, side)
+        if f == 1.0:
+            return e
+        t = getattr(self, "shrink_target", "anchor")
+        if t == "replacement":
+            base = self._repl_bat if side == "bat" else self._repl_bowl
+            if base is None:
+                return e
+        elif t == "zero":
+            base = 0.0 * e
+        elif t == "mean":
+            base = self._mean_bat if side == "bat" else self._mean_bowl
+        else:
+            a = self._anchor.get(name)
+            if a is None:
+                return e                   # no record to project from; leave it
+            base = a[0] if side == "bat" else a[1]
+        return base + (e - base) * f
 
     def logits(self, striker_name: str, bowler_name: str, row: np.ndarray,
                z: float = 0.0, bat_record: dict | None = None,

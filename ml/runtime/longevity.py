@@ -1,190 +1,220 @@
 """Longevity: reward the players who did it for years, not for one season.
 
 The trained model reads a player's RATES -- strike rate, boundary rate, out rate.
-Rates alone cannot tell a nine-season mainstay from a one-season wonder, so the
-raw model ranking put T Curran (126 career runs, 3 seasons) above S Dhawan (4182
-runs, 9 seasons). Both have similar rates; only one of them has proved it.
+Rates cannot tell a nine-season mainstay from someone who scored 100 off 50 balls
+once: both look identical to it, so the fringe player plays like the star. This
+layer sits after the model and shifts its probabilities by how much a player
+actually DID in that era.
 
 ## It is a CONTEST, not two bonuses
 
 Both players are scored, and only the DIFFERENCE is applied:
 
-    diff = bat_score - bowl_score        (clamped to -1..+1)
+    gap = bat_score - bowl_score
 
-That is better than adjusting each side separately for three reasons. Two proven
-players cancel to the raw matchup automatically instead of by careful
-construction. Two UNPROVEN players also cancel -- so a tailender is never
-punished merely for being weak, only for facing someone better, which avoids
-double-counting what the model's anchors already say. And it reads as cricket:
-whoever is more proven wins the ball.
+Applying the two scores separately instead was measured and rejected. It fails to
+cancel: Kohli (+0.94) against Bumrah (+0.89) should hand back the raw model, and
+one shot does exactly that (18.2 balls survived, unchanged), while two steps give
+20.1 -- and two ordinary players drift from 18.2 to 19.3. Every neutral matchup
+gets quietly longer, league-wide. Two steps also move about twice as far for the
+same ranking, so they cost twice the realism budget. (Order of application makes
+no difference; that was checked separately.)
 
-## The response is squared, not linear
+## The response is a straight line
 
-    strength = sign(diff) x diff^2
+    strength = gap / 2
 
-The median matchup has |diff| = 0.48, so a linear response would apply half the
-maximum adjustment to a completely ordinary contest -- the layer would never stop
-talking. Squared, that same matchup gets 23%, and the layer stays quiet until
-there is a real mismatch. Big gap, big change; small gap, almost nothing.
+Scores live in -1..+1, so the gap lives in -2..+2, and dividing by 2 turns it into
+a fraction of the largest gap possible: 0 means no change, +1 means the most a
+batter can ever be favoured, -1 the most a bowler can. Nothing is thrown away.
+
+Two things this deliberately is NOT:
+
+  It is not clamped. An earlier version clamped the gap at 1.0, which destroyed
+  exactly the differences this layer exists to express -- 0.94, 1.92 and the
+  best-vs-worst 2.00 all collapsed onto the same value. Do not reintroduce a clamp
+  anywhere in this file.
+
+  It is not squared. A previous version squared it to keep ordinary matchups
+  quiet, but that was an assumption bolted on top of the design rather than part
+  of it, and it made the curve arbitrary -- a matchup 57% of the way to the
+  maximum got 32% of the effect for no stated reason. Straight-line means
+  LONGEVITY_DIAL alone decides how strong longevity feels.
+
+Do NOT instead let the gap run unbounded and clip the result at zero. At gap 1.91
+an unbounded strength of 3.65 gives a transfer of 11.05 against an `Out` of 10.1,
+so clipping makes the batter literally undismissable -- and the gain side still
+receives 11.05, leaving the total at 974.8 instead of 1000. Rescaling the input is
+safe; clipping the output is not.
 
 ## Transfer, not a ratio
 
 The classic engine does the same comparison by MULTIPLYING 1/2/4/6 by the OVR
-ratio and letting 0 and Out absorb the rest. That is unbounded, and it breaks:
-at 99 vs 55 it drives Out to exactly zero -- the batter becomes undismissable --
-and a routine 90-vs-70 inflates an innings by 129%. Because Out is the innings
-LENGTH multiplier, squeezing it explodes the total.
+ratio and letting 0 and Out absorb the rest. That is unbounded, and it breaks: at
+99 vs 55 it drives Out to exactly zero, and a routine 90-vs-70 inflates an innings
+by 129%. Because Out is the innings LENGTH multiplier, squeezing it explodes the
+total.
 
 The paired-transfer rule cannot do that:
 
     T = dial x strength x min(total of gain buckets, total of pay buckets)
 
 Sizing off the SMALLER side means each paying bucket loses at most `dial` of
-itself, so no probability can be driven to zero however large the mismatch, and
-the total is conserved exactly with no renormalising.
+itself, so no probability can be driven negative however large the mismatch, and
+the total is conserved exactly with no renormalising. This is a proof, not a
+guard: a paying bucket loses `T x base[k]/pay_total <= dial x strength x base[k]`,
+which is `<= base[k]` whenever `dial <= 1` and `strength <= 1`. There is therefore
+no clamp on the output -- a dial above 1 raises ValueError instead.
 
-## Symmetric buckets, including Out
+## The score
 
-Both directions move all six buckets. An earlier version left Out alone on the
-batting side to avoid compounding -- fewer dismissals means a longer innings, and
-a longer innings is also being scored faster, so a 10% nudge became +32%. But
-removing Out from one side only made the layer LOPSIDED (+9% batting vs -25%
-bowling). Keeping the buckets symmetric and shrinking the dial fixes it properly:
-at 0.10 a maximum mismatch moves an innings about +10% / -9%.
+    score = 0.8 x percentile(volume) + 0.2 x percentile(quality)
 
-## The score, and the slider
+  batting   volume = runs.  quality = avg x SR.
+  bowling   volume = wickets x legal balls (output x workload).
+            quality = 1 / (avg x strike rate) -- both are lower-is-better, so the
+            reciprocal keeps "bigger is better" true of every number in this file.
 
-    score = W x pctile(career index)  +  (1 - W) x pctile(quality index)
+Rate is capped at 20% deliberately, because the model ALREADY knows it. Same over,
+same bowler, same score, only the batter changing, the model returns SR 181.6 for
+Russell, 155.2 for de Villiers, 132.2 for Kohli and 130.4 for Dhawan -- each within
+a few points of the real career figure. A rate-heavy index therefore counts the
+same evidence twice: `runs x avg x SR` (and `runs^2 x avg^2 x SR`, which ranks
+within 0.02 of it) let a 536-run player outrank on average alone.
 
-Both percentiles are taken within the player's own era, so an era with more
-cricket in it doesn't inflate everyone. Centred on 0.5 and rescaled to -1..+1, so
-a median player scores exactly 0.
-
-W is the slider: 1.0 = career volume only, 0.0 = rate only. It defaults high
-because rate is ALREADY fully represented in the model's own output; this layer
-exists to add the thing the model cannot see.
+Everyone is ranked against EVERYONE WHO PLAYED, and anyone who never batted (or
+never bowled) takes the floor rather than defaulting to average. Before that rule,
+Buttler -- who has not bowled a ball in this era -- scored 0.00 and so was rated
+far above Raina, who actually bowled 318 of them for 4 wickets.
 """
 
 from __future__ import annotations
 
-# Out is a SMALL bucket (~55 of 1000) and balls-survived is 1/Out, so a dial here
-# multiplies hard: 0.40 stretches a maximum-mismatch innings by +70%, and 0.80 by
-# +423%. It has to be far smaller than a dial that moves the big scoring buckets.
-# At 0.18 a maximum mismatch adds about +22% to an innings and ~1% to strike rate,
-# which is the intended shape -- more runs, same tempo.
-LONGEVITY_DIAL = 0.18
+# Out is a SMALL bucket (~10-55 of 1000) and balls-survived is 1/Out, so a dial
+# here multiplies hard. It must be far smaller than a dial that moves the big
+# scoring buckets.
+#
+# The dial IS the strength of the whole layer, and it reads directly: it is the
+# largest fraction of `Out` that can ever be removed. The safe range is exactly
+# [0, 1], because `strength` maxes at 1.0 and `dial x strength` must stay <= 1 --
+# at 1.0 the most extreme matchup drives Out to zero and the batter becomes
+# undismissable, so 1.0 is a wall, not a setting.
+#
+# At 0.5, on a normal distribution (Out = 55 per 1000):
+#
+#   gap +2 (the most a batter can be favoured)   Out -50%,  innings 2.00x
+#   gap +1.97 (a proven batter vs a never-bowler) Out -49%,  innings 1.97x
+#   gap -2 (the most a bowler can be favoured)   Out +25%,  innings 0.80x
+#
+# The two sides differ because PENALTY_SCALE halves the losing side, and because
+# `Out` can always be added to but can only ever give up what it has.
+LONGEVITY_DIAL = 0.5
 
-# The slider. 1.0 = career volume only, 0.0 = quality only.
+# The slider: 1.0 = volume only, 0.0 = quality only. Rate is already fully
+# represented in the model's own output, so this stays high.
 VOLUME_WEIGHT = 0.80
 
-# Percentiles are measured against players with at least this many balls -- the
-# YARDSTICK, not the set being scored. See build_scores for why the two must be
-# separate: ranking against everyone who ever batted makes a part-timer the
-# median, which flattered every mid-volume player.
-REFERENCE_BALLS = 300
+# Losing the contest costs half of what winning it pays. A fringe player should be
+# nudged, not punished -- the model already knows he is worse.
+PENALTY_SCALE = 0.5
+
+# What a player who never batted, or never bowled, scores. NOT 0.0: that is the
+# median, and it rated a man who has never bowled above a genuine part-timer.
+FLOOR = -1.0
+
+# The yardstick the percentiles are ranked against -- "all" (everyone who took
+# part) or "draftable". See build_scores for what each does to the spread.
+REFERENCE_POOL = "all"
 
 # The transfer is Out AGAINST EVERYTHING ELSE, not scoring-buckets against
 # dots-and-Out. Being proven should mean you LAST longer, not that you suddenly
-# hit harder.
+# hit harder, so every other bucket gains the same PERCENTAGE and the shape of the
+# scoring distribution is untouched.
 #
-# The earlier arrangement paid out of `0` and `Out` together, and since dots are
-# six times the size of Out (320 vs 55) nearly all the mass came from dots --
-# which is a strike-rate boost. At the dial needed to lift Kohli into the top ten
-# it had him striking at 154 against a career 129.9, and Russell at 217.
-#
-# Moving Out against every other bucket in proportion leaves the SHAPE of the
-# scoring distribution alone, so strike rate barely shifts (+2.3% at dial 0.40)
-# while balls survived climb. More runs, at his own tempo.
+# Steering the transferred mass into 4s and 6s instead was measured on Kohli vs
+# Raina: 3.0 units spread proportionally gives 210.3 runs per innings, and forced
+# entirely into boundaries gives 211.6. One run out of a 64-run gain -- the
+# innings-length multiplier dominates so completely that the destination barely
+# registers. Proportional is therefore free, and it keeps the "same tempo"
+# guarantee exact.
 BAT_GAIN, BAT_PAY = ("0", "1", "2", "3", "4", "6"), ("Out",)
 
 _CACHE: dict[str, dict] = {}
 
 
-def _percentiles(values: list[float]) -> dict[float, float]:
-    """value -> fraction of the pool at or below it."""
-    ranked = sorted(values)
-    n = len(ranked)
-    out, i = {}, 0
-    for v in ranked:
-        if v not in out:
-            out[v] = (ranked.index(v) + sum(1 for x in ranked if x == v)) / n
-    return out
-
-
-def build_scores(records: list[dict], *, volume_weight: float = VOLUME_WEIGHT,
-                 min_balls: int = 60,
-                 reference_balls: int = REFERENCE_BALLS) -> dict:
+def build_scores(records: list[dict], *,
+                 volume_weight: float = VOLUME_WEIGHT,
+                 pool: str = REFERENCE_POOL) -> dict:
     """name -> {'bat': score, 'bowl': score}, each in -1..+1.
 
-    Two different pools, and keeping them apart is what makes the scores mean
-    anything:
+    `pool` picks the YARDSTICK the percentiles are taken against:
 
-      SCORED   everyone with `min_balls`, so no one silently defaults to neutral.
-      YARDSTICK only players with `reference_balls`, because the percentiles have
-               to answer "how do you compare to an ESTABLISHED player".
+      "all"        every player who took part -- 380 batters, 303 bowlers.
+      "draftable"  only those good enough to be drafted -- 163 and 144.
 
-    Ranking against everyone was the bug. With a yardstick of every player who
-    ever faced 60 balls, half of it is fringe, so SS Tiwary's 536 runs scored
-    +0.51 -- above the median of a pool whose median is a part-timer, and ahead
-    of Kohli and Warner once the layer was applied. Measured against players with
-    a real career instead, the same 536 runs score -0.03, while Warner, Kohli,
-    Rahul and Dhawan barely move (+0.98/+0.87/+0.95/+0.83).
+    The choice matters more than it looks, because over half the wider pool faced
+    fewer than 100 balls, so its median is 71 runs against the draftable pool's
+    549. Measured:
 
-    Scores are era-relative by construction: every percentile comes from one
-    era's players.
+                          all      draftable
+        V Kohli  4194   +0.97        +0.94
+        SS Tiwary 536   +0.63        +0.15
+        SK Raina        -0.03        -0.97
+        100 runs        -0.10        -0.98
+
+    Either is defensible -- "all" is the more literal reading of how much a player
+    did -- but "all" compresses the top, and combined with the squared response it
+    leaves too little between a 4194-run career and a 536-run one to act on.
     """
-    bat = [r for r in records if (r.get("batting") or {}).get("balls", 0) >= min_balls]
-    bowl = [r for r in records
-            if (r.get("bowling") or {}).get("legal_balls", 0) >= min_balls]
-    bat_ref = [r for r in records
-               if (r.get("batting") or {}).get("balls", 0) >= reference_balls]
-    bowl_ref = [r for r in records
-                if (r.get("bowling") or {}).get("legal_balls", 0) >= reference_balls]
+    if pool not in ("all", "draftable"):
+        raise ValueError(f"pool must be 'all' or 'draftable', got {pool!r}")
 
-    def score_side(pool, ref, career_key, quality_key):
-        if not pool or not ref:
+    def score_side(vol_key, qual_key, has_played, drafted):
+        keep = has_played if pool == "all" else (
+            lambda r: has_played(r) and drafted(r))
+        ref = [r for r in records if keep(r)]
+        if not ref:
             return {}
-        careers = sorted(career_key(r) for r in ref)
-        quals = sorted(quality_key(r) for r in ref)
+        vols = sorted(vol_key(r) for r in ref)
+        quals = sorted(qual_key(r) for r in ref)
         n = len(ref)
 
         def pct(sorted_vals, v):
             lo = sum(1 for x in sorted_vals if x < v)
             eq = sum(1 for x in sorted_vals if x == v)
-            return (lo + eq / 2.0) / n         # midrank, so ties don't jump
+            return (lo + eq / 2.0) / n          # midrank, so ties don't jump
 
         out = {}
-        for r in pool:
-            pc = pct(careers, career_key(r))
-            pq = pct(quals, quality_key(r))
-            s = volume_weight * pc + (1.0 - volume_weight) * pq
-            out[r["name"]] = max(-1.0, min(1.0, (s - 0.5) * 2.0))
+        for r in records:
+            if not has_played(r):
+                out[r["name"]] = FLOOR           # never did it at all
+                continue
+            s = (volume_weight * pct(vols, vol_key(r))
+                 + (1.0 - volume_weight) * pct(quals, qual_key(r)))
+            # (s - 0.5) * 2 needs no clamp: s is a blend of two percentiles and is
+            # therefore already in [0, 1] by construction.
+            out[r["name"]] = (s - 0.5) * 2.0
         return out
 
+    def bowl_quality(r):
+        b = r["bowling"]
+        # a wicketless bowler stores avg = sr = 0.0; treat him as the worst rather
+        # than dividing by zero
+        if not b["wickets"] or not b["avg"] or not b["sr"]:
+            return 0.0
+        return 1.0 / (b["avg"] * b["sr"])
+
     return {
-        # career  = runs x avg x SR -- quality multiplied by how much of it there
-        #           was. Chosen by measurement, not taste: scored on 2014-2018 and
-        #           asked to predict 2019-2022, it ranks future runs at rho 0.501
-        #           against 0.364 for avg x SR alone. Volume is the signal here --
-        #           runs ALONE manages 0.495, so how much a player batted predicts
-        #           his future far better than how well he batted.
-        # quality = avg x SR, the standard T20 index: rewards both not getting out
-        #           and scoring quickly, and is what the slider tilts toward.
         "bat": score_side(
-            bat, bat_ref,
-            career_key=lambda r: (r["batting"]["runs"] * r["batting"]["avg"]
-                                  * r["batting"]["sr"]),
-            quality_key=lambda r: r["batting"]["avg"] * r["batting"]["sr"]),
+            vol_key=lambda r: r["batting"]["runs"],
+            qual_key=lambda r: r["batting"]["avg"] * r["batting"]["sr"],
+            has_played=lambda r: r["batting"]["balls"] > 0,
+            drafted=lambda r: bool(r.get("rateable_batting"))),
         "bowl": score_side(
-            bowl, bowl_ref,
-            # the bowler mirror: wickets are his volume, and a LOW average and
-            # economy are his quality, so both are inverted to keep "bigger is
-            # better" the meaning of every percentile here
-            career_key=lambda r: (r["bowling"]["wickets"]
-                                  / max(1e-9, (r["bowling"]["avg"] or 40.0)
-                                        * (r["bowling"]["eco"] or 12.0))),
-            quality_key=lambda r: 1.0 / max(1e-9, (r["bowling"]["avg"] or 40.0)
-                                            * (r["bowling"]["eco"] or 12.0))),
+            vol_key=lambda r: r["bowling"]["wickets"] * r["bowling"]["legal_balls"],
+            qual_key=bowl_quality,
+            has_played=lambda r: r["bowling"]["legal_balls"] > 0,
+            drafted=lambda r: bool(r.get("rateable_bowling"))),
     }
 
 
@@ -201,24 +231,42 @@ def scores_for(era_id: str | None, records: list[dict] | None = None,
 
 
 def matchup_strength(bat_score: float, bowl_score: float) -> float:
-    """-> -1..+1. Positive means the batter is the more proven of the two.
+    """-> -1..+1, the gap expressed as a fraction of the largest gap possible.
 
-    Squared so ordinary matchups are left almost untouched: the median |diff| is
-    0.48, which a linear response would turn into half the maximum adjustment.
+    Straight line, deliberately:
+
+        gap  0  ->  0.0   nothing happens
+        gap +2  ->  1.0   the most a batter can ever be favoured
+        gap -2  -> -1.0   the most a bowler can ever be favoured
+
+    Scores span -1..+1, so the gap spans -2..+2 and dividing by 2 is a change of
+    units, not a judgement -- it turns "gap" into "fraction of the maximum".
+
+    An earlier version squared this, to keep ordinary matchups quiet. That was an
+    extra assumption on top of the design rather than part of it, and it made the
+    curve hard to reason about: a matchup 57% of the way to the maximum received
+    32% of the effect for no stated reason. Linear means the one number left to
+    choose -- LONGEVITY_DIAL -- fully determines how strong longevity feels, which
+    is the only knob that should exist.
     """
-    diff = max(-1.0, min(1.0, bat_score - bowl_score))
-    return (1.0 if diff >= 0 else -1.0) * diff * diff
+    return (bat_score - bowl_score) / 2.0
 
 
 def apply_longevity(weights: dict, bat_score: float = 0.0,
                     bowl_score: float = 0.0,
-                    dial: float = LONGEVITY_DIAL) -> dict:
+                    dial: float = LONGEVITY_DIAL,
+                    penalty_scale: float = PENALTY_SCALE) -> dict:
     """Tilt the model's probabilities toward whichever player is more proven.
 
     One transfer, sized by the DIFFERENCE between the two scores, so evenly
     matched players -- whether both great or both unknown -- get the model's raw
     output back untouched.
     """
+    if dial > 1.0:
+        raise ValueError(
+            f"longevity dial {dial} exceeds 1.0; the transfer's non-negativity "
+            f"proof requires dial <= 1. Lower it rather than clipping the result.")
+
     base = {k: float(v) for k, v in weights.items()}
     strength = matchup_strength(bat_score, bowl_score)
     if not strength:
@@ -227,27 +275,20 @@ def apply_longevity(weights: dict, bat_score: float = 0.0,
     gain, pay = BAT_GAIN, BAT_PAY
     if strength < 0:                       # the bowler is ahead: mirror it
         gain, pay, strength = pay, gain, -strength
+        dial *= penalty_scale              # losing costs less than winning pays
 
     g_tot = sum(base.get(k, 0.0) for k in gain)
     p_tot = sum(base.get(k, 0.0) for k in pay)
     if g_tot <= 0.0 or p_tot <= 0.0:
         return base
 
-    # sized off the SMALLER side, so no paying bucket can lose more than `dial`
-    # of itself and nothing can reach zero
+    # Sized off the SMALLER side, so each paying bucket loses at most `dial` of
+    # itself. With dial <= 1 and strength <= 1 that is provably non-negative, so
+    # nothing below needs a floor and the total is conserved without renormalising.
     transfer = dial * strength * min(g_tot, p_tot)
     result = dict(base)
     for k in gain:
         result[k] += transfer * (base.get(k, 0.0) / g_tot)
     for k in pay:
         result[k] -= transfer * (base.get(k, 0.0) / p_tot)
-
-    # Backstop only; the min() sizing above already makes this unreachable.
-    if any(v < 0.0 for v in result.values()):
-        result = {k: max(0.0, v) for k, v in result.items()}
-    total = sum(result.values())
-    if total > 0:
-        scale = sum(base.values()) / total
-        if abs(scale - 1.0) > 1e-12:
-            result = {k: v * scale for k, v in result.items()}
     return result

@@ -56,6 +56,40 @@ def _phase(over: int) -> str:
     return "pp" if over <= 5 else ("mid" if over <= 14 else "death")
 
 
+_KEEPERS: set | None = None
+
+
+def _keepers() -> set:
+    """Every wicket-keeper, static list PLUS the ones found from the data.
+
+    KNOWN_KEEPERS is a hand-written 30 names. compile_player_stats also detects
+    keepers dynamically -- anyone credited as the fielder on a stumping must have
+    been behind the stumps -- which takes the all-time pool to 51. The era ETL
+    only ever read the static half, so 15 real keepers who played in 2014-2022
+    were unflagged, AB de Villiers and AT Rayudu among them.
+
+    That fed straight through to the auction: only 4 keepers cleared the Marquee
+    cut, so a 5-team table could not fill its Marquee Wicket Keeper set.
+
+    Read back off data/players_historical.json rather than re-detected here,
+    because ml/etl/replay.py does not record the fielder on a stumping -- and one
+    source for the answer beats two implementations of it.
+    """
+    global _KEEPERS
+    if _KEEPERS is None:
+        found = set(KNOWN_KEEPERS)
+        path = os.path.join(REPO_ROOT, "data", "players_historical.json")
+        try:
+            with open(path, "r", encoding="utf-8") as fh:
+                text = fh.read()
+            found |= {p["name"] for p in json.loads(text[text.find("["):])
+                      if p.get("is_keeper")}
+        except OSError:
+            print("  no all-time pool -- keepers limited to the static list")
+        _KEEPERS = found
+    return _KEEPERS
+
+
 def _blank(name: str) -> dict:
     return {
         "name": name,
@@ -179,7 +213,7 @@ def finalise(players: dict, era: E.Era) -> list:
             continue                      # never actually took the field
         out.append({
             "name": name,
-            "is_keeper": name in KNOWN_KEEPERS,
+            "is_keeper": name in _keepers(),
             "is_foreigner": name in KNOWN_FOREIGNERS,
             "bowling_style": "Spin" if name in KNOWN_SPINNERS else "Pace",
             "role": p.get("role"),

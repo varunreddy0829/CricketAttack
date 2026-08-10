@@ -32,17 +32,38 @@ from ml.harness.run_baseline import ARTIFACTS, real_reference
 from ml.harness.simulate import RoleMix, run_batch
 from ml.harness.stats import summarize
 from ml.runtime.adapter import make_ball_fn
+from ml.runtime.longevity import LONGEVITY_DIAL, scores_for
 from ml.runtime.model import OutcomeModel
 
 
 def model_ball_fn(model: OutcomeModel, *, calibration=1.0, out_calibration=1.0,
-                  cascade=False):
+                  cascade=False, era_id=None, longevity_dial=None, shrink=0.0,
+                  target='anchor'):
+    """The harness must build the SAME ball function the game plays with.
+
+    The longevity layer moves Out, and Out compounds over 120 balls, so a gate
+    run without it would be certifying an engine nobody plays. `longevity_dial`
+    defaults to the live constant; pass 0.0 to measure the layer's own cost.
+    """
+    if shrink:
+        from ml.runtime.players import load_players
+        model.shrink_target = target
+        model.set_shrinkage(list(load_players(era_id).values()), shrink)
+    scores = None
+    dial = LONGEVITY_DIAL if longevity_dial is None else longevity_dial
+    if dial > 0.0:
+        try:
+            scores = scores_for(era_id)
+        except Exception:
+            dial = 0.0
     return make_ball_fn(
         model.base_provider(),
         player_stages=False,       # the model already knows who is batting
         cascade=cascade,
         calibration=calibration,
         out_calibration=out_calibration,
+        longevity_scores=scores,
+        longevity_dial=dial,
     )
 
 
@@ -71,6 +92,12 @@ def main() -> None:
     ap.add_argument("--cascade", action="store_true",
                     help="restore the wicket cascade for the model path (off by "
                          "default -- see the module docstring for why)")
+    ap.add_argument("--target", default="anchor",
+                    choices=("anchor", "mean", "zero", "replacement"))
+    ap.add_argument("--shrink", type=float, default=0.0,
+                    help="regress player effects by balls/(balls+K); 0 = off")
+    ap.add_argument("--longevity-dial", type=float, default=None,
+                    help="override the live longevity dial; 0 measures its cost")
     ap.add_argument("--no-classic", action="store_true")
     ap.add_argument("--since", type=int, default=2023,
                     help="score against seasons >= this (default 2023). 0 = all-time.")
@@ -110,7 +137,9 @@ def main() -> None:
         plans,
         model_ball_fn(model, calibration=args.calibration,
                       out_calibration=args.out_calibration,
-                      cascade=args.cascade),
+                      cascade=args.cascade, era_id=era.id if era else None,
+                      longevity_dial=args.longevity_dial,
+                      shrink=args.shrink, target=args.target),
         n=args.n, seed=args.seed, role_mix=mix,
         extras_fn=model_extras_fn(model),
         day_sigma=args.day_sigma, era_id=era.id if era else None,
