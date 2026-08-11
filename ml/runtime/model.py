@@ -178,14 +178,28 @@ class OutcomeModel:
             stop = e[self.ci["0"]] + e[self.ci["Out"]]
             return (runs - stop) if side == "bat" else (stop - runs)
 
+        def _raw(r, side):
+            """This player's effect BEFORE shrinkage -- learned if the model has
+            seen him, projected from his own stats if not.
+
+            The multiverse tags every name ("V Kohli (The Shift)"), so none of
+            them is in the index and an index-only lookup found NOBODY: the
+            replacement level came back None and shrinkage silently did nothing
+            in the one mode that most needs it. It rated 349-ball Finn Allen at
+            99 and 32-wicket Faulkner at 96.
+            """
+            i = self.idx.get(r["name"])
+            if i is not None:
+                return self.E_bat[i] if side == "bat" else self.E_bowl[i]
+            return self.cold_effect(r, side)
+
         def _replacement(recs, side, V, vol):
             scored = []
             for r in recs:
                 n = vol(r)
                 if n <= 0:
                     continue
-                e = (self.E_bat[self.idx[r["name"]]] if side == "bat"
-                     else self.E_bowl[self.idx[r["name"]]]) @ V
+                e = _raw(r, side) @ V
                 scored.append((_quality(e, side), n, r["name"]))
             if not scored:
                 return None
@@ -193,17 +207,16 @@ class OutcomeModel:
             cut = max(1, int(REPLACEMENT_PCT * len(scored)))
             tot = sum(n for _, n, _ in scored[:cut]) or 1.0
             acc = np.zeros_like(self.E_bat[0] if side == "bat" else self.E_bowl[0])
+            by_name = {r["name"]: r for r in recs}
             for _, n, nm in scored[:cut]:
-                i = self.idx[nm]
-                acc += n * (self.E_bat[i] if side == "bat" else self.E_bowl[i])
+                acc += n * _raw(by_name[nm], side)
             return acc / tot
 
-        named = [r for r in records if r["name"] in self.idx]
         self._repl_bat = _replacement(
-            named, "bat", self.V_bat,
+            records, "bat", self.V_bat,
             lambda r: (r.get("batting") or {}).get("balls", 0))
         self._repl_bowl = _replacement(
-            named, "bowl", self.V_bowl,
+            records, "bowl", self.V_bowl,
             lambda r: (r.get("bowling") or {}).get("legal_balls", 0))
 
         # the pool mean, ball-weighted, kept so SHRINK_TARGET can select it

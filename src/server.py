@@ -62,11 +62,13 @@ COMING_SOON = set()
 # these, and so it is obvious which eras are withheld by choice rather than by
 # failure. Remove an id here to ship it.
 #
-# multiverse: it plays, but it borrows the middle era's model for a pool that
-#   spans three decades, and every entry is a cold-start (E = A.W, no learned
-#   per-player term). Worth holding until the other two eras are retrained and
-#   each version can be resolved against its own era's model.
-WITHHELD = {"multiverse"}
+# Empty right now. The multiverse was held here while 2008-2013 and 2023-2026
+# were unbuilt: it borrows the middle era's model for a pool spanning three
+# decades, and every entry is a cold start (E = A.W, no learned per-player term).
+# Both eras are now trained, and its OVRs are re-derived across the COMBINED pool
+# rather than inherited from three separately-anchored scales -- so a Genesis 95
+# and a Modern Era 95 finally mean the same thing.
+WITHHELD: set[str] = set()
 
 app = Flask(__name__, static_folder="public")
 
@@ -831,6 +833,11 @@ def _card_fields(record):
     """Public, UI-facing fields for a player card."""
     return {
         "name": record["name"],
+        # Multiverse only: which era this version is, so a card can show
+        # "V Kohli" with a "Modern Era" badge rather than relying on the
+        # parenthesis in the name. Absent (None) in every single-era pool.
+        "era_tag": record.get("era_tag"),
+        "real_name": record.get("real_name"),
         "batting_ovr": record["batting_ovr"],
         "bowling_ovr": record["bowling_ovr"],
         "is_foreigner": record.get("is_foreigner", False),

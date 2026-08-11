@@ -82,8 +82,27 @@ from ml.runtime import longevity as L
 from ml.runtime.longevity import build_scores, matchup_strength
 from ml.runtime.engine import load_calibration
 from ml.runtime.model import OutcomeModel
+
+
+def _art(era):
+    """The era whose ARTIFACTS to read -- model, calibration, venue profile.
+
+    Itself for a normal era; the middle era for the multiverse, which has none of
+    its own and borrows them exactly as ml/runtime/engine.py does."""
+    return getattr(era, "model_era", era.id) or era.id
 from ml.runtime.players import load_players
 from src.utils.compile_player_stats import KNOWN_SPINNERS
+
+def is_spinner(rec) -> bool:
+    """Read the record's own `bowling_style`, never the name.
+
+    The multiverse tags names ("R Ashwin (Genesis)"), so a KNOWN_SPINNERS lookup
+    misses every one of them and classifies the whole pool as pace -- which
+    emptied the spin tiers and crashed the bowler picker. `bowling_style` is
+    baked in per era at ETL time and survives the tagging.
+    """
+    return (rec.get("bowling_style") or "") == "Spin"
+
 
 RUNS = np.array([0, 1, 2, 3, 4, 6, 0], dtype=np.float64)
 SPELL_BALLS = 24                    # four overs
@@ -266,11 +285,11 @@ def rate(era, *, reps, dial, volume_weight, longevity_on, seed,
          shrink=0.0, target="zero"):
     records = list(load_players(era.id).values())
     by_name = {r["name"]: r for r in records}
-    model = OutcomeModel.load(era_id=era.id)
+    model = OutcomeModel.load(era_id=_art(era))
     if shrink:
         model.shrink_target = target
         model.set_shrinkage(records, shrink)
-    cal_d = load_calibration(era.id)
+    cal_d = load_calibration(_art(era))
     cal, out_cal = cal_d['calibration'], cal_d['out_calibration']
     scores = build_scores(records, volume_weight=volume_weight)
 
@@ -279,7 +298,7 @@ def rate(era, *, reps, dial, volume_weight, longevity_on, seed,
     usage, usage_fallback = phase_usage(era)
     orders = batting_orders(records)
     cands = [r for r in records if r.get("rateable_bowling")]
-    ng = len(grounds(era.id))
+    ng = len(grounds(_art(era)))
     n_spells = ng * 2 * reps
     print(f"  ENUMERATED  {ng} grounds x {len(PHASES)} phases x {len(ORDERS)} "
           f"batting orders x 2 innings")
@@ -302,7 +321,7 @@ def rate(era, *, reps, dial, volume_weight, longevity_on, seed,
 
     blocks = {}
     for ph in PHASES:
-        M, se, pe = spell_rows(era.id, pools, ph, reps, seed)
+        M, se, pe = spell_rows(_art(era), pools, ph, reps, seed)
         blocks[ph] = (se, pe, M @ model.B)     # (n_spells, 24, 9)
 
     # per-batter constants, cached once
@@ -320,7 +339,7 @@ def rate(era, *, reps, dial, volume_weight, longevity_on, seed,
     out = []
     t0 = time.time()
     for i, rec in enumerate(cands, 1):
-        is_spin = rec["name"] in KNOWN_SPINNERS
+        is_spin = is_spinner(rec)
         bowl_eff = model.effect(rec["name"], "bowl", rec) @ model.V_bowl
         ws = scores["bowl"].get(rec["name"], L.FLOOR)
         bowl_cb = np.log1p(max(0, rec["bowling"]["legal_balls"])) / 10.0

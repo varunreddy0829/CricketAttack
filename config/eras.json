@@ -6,7 +6,7 @@
   "eras": [
     {
       "id": "2008_2013",
-      "label": "The Early Years",
+      "label": "Genesis",
       "tagline": "Low and slow. 7.4 an over, and a six is an event.",
       "seasons": [2008, 2013],
       "engine": "model",
@@ -15,7 +15,7 @@
     },
     {
       "id": "2014_2022",
-      "label": "The Power Shift",
+      "label": "The Shift",
       "tagline": "Bats get bigger, boundaries get shorter, the rate creeps up.",
       "seasons": [2014, 2022],
       "engine": "model",
@@ -24,7 +24,7 @@
     },
     {
       "id": "2023_2026",
-      "label": "The Modern Game",
+      "label": "Modern Era",
       "tagline": "Nine an over. Everyone attacks from ball one.",
       "seasons": [2023, 2026],
       "engine": "model",

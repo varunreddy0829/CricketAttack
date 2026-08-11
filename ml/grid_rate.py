@@ -118,8 +118,27 @@ from ml.runtime import longevity as L
 from ml.runtime.longevity import build_scores, matchup_strength
 from ml.runtime.engine import load_calibration
 from ml.runtime.model import OutcomeModel
+
+
+def _art(era):
+    """The era whose ARTIFACTS to read -- model, calibration, venue profile.
+
+    Itself for a normal era; the middle era for the multiverse, which has none of
+    its own and borrows them exactly as ml/runtime/engine.py does."""
+    return getattr(era, "model_era", era.id) or era.id
 from ml.runtime.players import load_players
 from src.utils.compile_player_stats import KNOWN_SPINNERS
+
+def is_spinner(rec) -> bool:
+    """Read the record's own `bowling_style`, never the name.
+
+    The multiverse tags names ("R Ashwin (Genesis)"), so a KNOWN_SPINNERS lookup
+    misses every one of them and classifies the whole pool as pace -- which
+    emptied the spin tiers and crashed the bowler picker. `bowling_style` is
+    baked in per era at ETL time and survives the tagging.
+    """
+    return (rec.get("bowling_style") or "") == "Spin"
+
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LEGAL = ("0", "1", "2", "3", "4", "6", "Out")
@@ -210,7 +229,7 @@ def pick_bowlers(records: list[dict]) -> list[tuple]:
         pool = [r for r in records
                 if r.get("rateable_bowling")
                 and r["bowling"]["legal_balls"] >= MIN_BOWL_BALLS
-                and ((r["name"] in KNOWN_SPINNERS) == (style == "spin"))]
+                and (is_spinner(r) == (style == "spin"))]
         pool.sort(key=lambda r: r["bowling"]["avg"])
         third = max(1, len(pool) // 3)
         for t, tier in enumerate(BOWLER_TIERS):
@@ -346,11 +365,11 @@ def rate(era: E.Era, *, reps: int, dial: float, volume_weight: float,
          shrink: float = 0.0, target: str = 'anchor'):
     records = list(load_players(era.id).values())
     by_name = {r["name"]: r for r in records}
-    model = OutcomeModel.load(era_id=era.id)
+    model = OutcomeModel.load(era_id=_art(era))
     if shrink:
         model.shrink_target = target
         model.set_shrinkage(records, shrink)
-    cal_d = load_calibration(era.id)
+    cal_d = load_calibration(_art(era))
     cal, out_cal = cal_d['calibration'], cal_d['out_calibration']
     scores = build_scores(records, volume_weight=volume_weight)
     if contrast != 1.0:
@@ -369,7 +388,7 @@ def rate(era: E.Era, *, reps: int, dial: float, volume_weight: float,
 
     bowlers = pick_bowlers(records)
     cands = [r for r in records if r.get("rateable_batting")]
-    ng = len(grounds(era.id))
+    ng = len(grounds(_art(era)))
     per_phase = ng * 3 * 2 * reps
     print(f"  ENUMERATED  {ng} grounds x {len(PHASES)} phases x 3 positions "
           f"x {len(bowlers)} bowlers x 2 innings")
@@ -388,7 +407,7 @@ def rate(era: E.Era, *, reps: int, dial: float, volume_weight: float,
     phase_over = {"pp": 2, "mid": 10, "death": 17}
     blocks = {}
     for ph in PHASES:
-        M, se, pe, inn, win = base_rows(era.id, pools, ph, reps, seed, wpools)
+        M, se, pe, inn, win = base_rows(_art(era), pools, ph, reps, seed, wpools)
         blocks[ph] = (M, se, pe, M @ model.B, inn == 1, inn == 2, win)
     print(f"  context built in {time.time() - t0:.0f}s", flush=True)
 
@@ -531,7 +550,7 @@ def rate_bowlers(era: E.Era, *, reps: int, dial: float, volume_weight: float,
     """
     records = list(load_players(era.id).values())
     by_name = {r["name"]: r for r in records}
-    model = OutcomeModel.load(era_id=era.id)
+    model = OutcomeModel.load(era_id=_art(era))
     if shrink:
         model.shrink_target = target
         model.set_shrinkage(records, shrink)
@@ -542,7 +561,7 @@ def rate_bowlers(era: E.Era, *, reps: int, dial: float, volume_weight: float,
     wpools = harvest_windows(era)
     batters = pick_batters(records)
     cands = [r for r in records if r.get("rateable_bowling")]
-    ng = len(grounds(era.id))
+    ng = len(grounds(_art(era)))
     per_phase = ng * 3 * 2 * reps
     print(f"  ENUMERATED  {ng} grounds x {len(PHASES)} phases x 3 positions "
           f"x {len(batters)} batters x 2 innings")
@@ -554,7 +573,7 @@ def rate_bowlers(era: E.Era, *, reps: int, dial: float, volume_weight: float,
     phase_over = {"pp": 2, "mid": 10, "death": 17}
     blocks = {}
     for ph in PHASES:
-        M, se, pe, inn, win = base_rows(era.id, pools, ph, reps, seed, wpools)
+        M, se, pe, inn, win = base_rows(_art(era), pools, ph, reps, seed, wpools)
         blocks[ph] = (M, se, pe, M @ model.B, win)
 
     Bcol = {c: model.B[CTX[c]] for c in PLAYER_COLS}
@@ -570,7 +589,7 @@ def rate_bowlers(era: E.Era, *, reps: int, dial: float, volume_weight: float,
     out = []
     t0 = time.time()
     for i, rec in enumerate(cands, 1):
-        is_spin = rec["name"] in KNOWN_SPINNERS
+        is_spin = is_spinner(rec)
         bowl_eff = model.effect(rec["name"], "bowl", rec) @ model.V_bowl
         ws = scores["bowl"].get(rec["name"], L.FLOOR)
         bowl_cb = np.log1p(max(0, rec["bowling"]["legal_balls"])) / 10.0

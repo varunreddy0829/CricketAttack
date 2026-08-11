@@ -9,8 +9,9 @@ three decades.
 
 ## Names
 
-Each entry is tagged with its era: "CH Gayle (08-13)". The tag is the primary
-key, and `source_era` records where he came from, so the UI can show both.
+Each entry is tagged with its era name: "CH Gayle (Genesis)". The tag is the
+primary key, and `source_era` records where he came from, so the UI can show
+both. The three names are Genesis, The Shift and Modern Era.
 
 ## Which model plays the ball
 
@@ -45,8 +46,11 @@ ERA_ROOT = os.path.join(REPO_ROOT, "data", "eras")
 
 MULTIVERSE_ID = "multiverse"
 
-# Short tag per era, appended to the name.
-TAGS = {"2008_2013": "08-13", "2014_2022": "14-22", "2023_2026": "23-26"}
+# The era NAME each version carries on its card. Named rather than dated,
+# because the card has to read as an identity ("V Kohli - Genesis") rather than
+# a date range, and three Kohlis on one auction floor need telling apart at a
+# glance.
+TAGS = {"2008_2013": "Genesis", "2014_2022": "The Shift", "2023_2026": "Modern Era"}
 
 # A version only earns a slot if he was a real presence in that era. Without
 # this the pool fills with three near-identical copies of every fringe player.

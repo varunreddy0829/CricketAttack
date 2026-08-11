@@ -26,6 +26,24 @@ _VENUE_STATS_PATH = os.path.join(_RUNTIME_DIR, "venue_stats.json")
 _ERA_ARTIFACTS = os.path.join(os.path.dirname(_RUNTIME_DIR), "artifacts", "eras")
 
 
+def _artifact_era(era_id: str | None) -> str | None:
+    """Which era's ARTIFACTS an era reads.
+
+    Usually itself. The multiverse is the exception: it has no model, no venue
+    stats and no venue profile of its own, and borrows the middle era's -- the
+    same borrowing ml/runtime/engine.py already does for the model. Without this
+    it silently fell back to a league-average ground with a ZERO spin/pace edge,
+    so every venue played identically in the one mode that spans three decades.
+    """
+    if era_id in (None, "all_time"):
+        return None
+    try:
+        from ml.etl import eras as _E
+        return _E.get(era_id).model_era
+    except Exception:
+        return era_id
+
+
 def _venue_path(era_id: str | None) -> str:
     if era_id in (None, "all_time"):
         return _VENUE_STATS_PATH
@@ -62,7 +80,7 @@ _VENUE_CACHE: dict[str | None, dict] = {}
 
 
 def _venue_stats(era_id: str | None = None) -> dict:
-    key = None if era_id in (None, "all_time") else era_id
+    key = _artifact_era(era_id)
     if key not in _VENUE_CACHE:
         _VENUE_CACHE[key] = _load_venue_stats(key)
     return _VENUE_CACHE[key]
@@ -91,7 +109,7 @@ def _venue_character(era_id: str | None) -> dict:
     Built by ml/etl/venue_types.py. Falls back to league-neutral, so a ground
     with no profile behaves like an average one rather than inventing character.
     """
-    key = None if era_id in (None, "all_time") else era_id
+    key = _artifact_era(era_id)
     if key in _CHAR_CACHE:
         return _CHAR_CACHE[key]
     path = os.path.join(_ERA_ARTIFACTS, key, "venue_profile.json") if key else None

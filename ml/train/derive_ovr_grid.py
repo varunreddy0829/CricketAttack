@@ -45,7 +45,8 @@ from ml.train.derive_ovr import ERA_ROOT, to_ovr
 def _shrink_k(era):
     """That era's own fitted K -- 2023-2026 takes 250 where the others take
     500, because it drives the all-out rate and each era's tail differs."""
-    return load_calibration(era.id).get('shrink_balls', SHRINK_BALLS)
+    art = getattr(era, 'model_era', era.id) or era.id
+    return load_calibration(art).get('shrink_balls', SHRINK_BALLS)
 
 
 def _rate_batting(era, reps):
