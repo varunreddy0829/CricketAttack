@@ -335,10 +335,34 @@ def run_batch(
 
     venue = venue_rates(innings_plans)
 
+    # MULTIVERSE: its pool is keyed by ERA-TAGGED names ("V Kohli (Genesis)"),
+    # so a real innings' untagged names join to nothing and the whole harness --
+    # gate, calibration fit, rating -- raised "name join failed" and could not
+    # test the mode at all. Resolve each name to the version who actually played
+    # that season, which is the same mapping ml/etl/build_table.py uses to
+    # attribute the balls.
+    resolve = None
+    if era_id == "multiverse":
+        from ml.etl.multiverse import TAGS
+        from ml.etl import eras as _E
+        spans = [(_E.get(eid), t) for eid, t in TAGS.items()]
+
+        def resolve(nm, season):           # noqa: F811
+            for e2, t in spans:
+                if e2.covers(season):
+                    return f"{nm} ({t})"
+            return nm
+
     usable = []
     for plan in innings_plans:
-        lineup = [by_name[nm] for nm in plan.lineup if nm in by_name][:11]
-        overs = [by_name[nm] for nm in plan.bowler_by_over if nm in by_name]
+        if resolve is None:
+            names_bat = plan.lineup
+            names_bowl = plan.bowler_by_over
+        else:
+            names_bat = [resolve(nm, plan.season) for nm in plan.lineup]
+            names_bowl = [resolve(nm, plan.season) for nm in plan.bowler_by_over]
+        lineup = [by_name[nm] for nm in names_bat if nm in by_name][:11]
+        overs = [by_name[nm] for nm in names_bowl if nm in by_name]
         # a full XI is required: the all-out threshold is len(lineup) - 1, so a
         # short lineup silently redefines what bowling a side out means
         if len(lineup) == 11 and len(overs) >= 4:

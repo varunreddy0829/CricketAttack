@@ -122,6 +122,36 @@ def build(out_path: str = OUT_PATH, era=None) -> dict:
     print(f"      {len(venue)} venues; league {league_rpb:.3f} runs/ball, "
           f"{league_wpb:.4f} wkts/ball, {100*league_bdry:.1f}% boundary share")
 
+    # MULTIVERSE: every ball is attributed to the ERA-TAGGED version of whoever
+    # bowled or faced it, so Kohli's 2010 deliveries train "V Kohli (Genesis)"
+    # and his 2024 ones train "V Kohli (Modern Era)".
+    #
+    # This is what lets the multiverse have a real model instead of a borrowed
+    # one. Before it, every tagged name was a stranger to the middle era's model
+    # and played off a cold start (E = A.W, no learned per-player term), so the
+    # mode spanning three decades was the one read most coarsely. Tagging gives
+    # each version an effect LEARNED from the balls he actually played, and puts
+    # all three eras on ONE model so they are directly comparable.
+    #
+    # Density holds up: 290,611 balls over ~1,170 tagged identities is 248 balls
+    # each, between 2023-2026's 193 and 2014-2022's 309.
+    #
+    # The context half is deliberately era-BLIND -- one shared set of venue and
+    # phase weights across all three decades. That is the right call here: the
+    # multiverse is a hypothetical league, so what should carry across is each
+    # player's ability, not the run rate of the season he happened to play in.
+    tag_of = None
+    if era is not None and getattr(era, "is_multiverse", False):
+        from ml.etl.multiverse import TAGS
+        from ml.etl import eras as _E
+        spans = [(_E.get(eid), t) for eid, t in TAGS.items()]
+
+        def tag_of(name, season):          # noqa: F811
+            for e2, t in spans:
+                if e2.covers(season):
+                    return f"{name} ({t})"
+            return name
+
     print("[2/3] player anchors ...", flush=True)
     by_name = load_players(era.id if era else None)
     names, bat_anchors, bowl_anchors = F.build_anchor_tables(by_name)
@@ -169,10 +199,16 @@ def build(out_path: str = OUT_PATH, era=None) -> dict:
         v_bdry = ch.get("bdry_share", league_bdry)
         v_edge_spin, v_edge_pace = ch.get("spin", 0.0), ch.get("pace", 0.0)
 
+        if tag_of is None:
+            nm_bat = nm_bowl = nm_ns = lambda n: n
+        else:
+            sn = innings.season
+            nm_bat = nm_bowl = nm_ns = lambda n, _s=sn: tag_of(n, _s)
+
         for b in innings.balls:
-            bi = name_to_idx.get(b.batter, 0)
-            wi = name_to_idx.get(b.bowler, 0)
-            ni = name_to_idx.get(b.non_striker, 0)
+            bi = name_to_idx.get(nm_bat(b.batter), 0)
+            wi = name_to_idx.get(nm_bowl(b.bowler), 0)
+            ni = name_to_idx.get(nm_ns(b.non_striker), 0)
             unknown += (bi == 0) + (wi == 0)
 
             row = np.zeros(N_CONTEXT, dtype=np.float32)

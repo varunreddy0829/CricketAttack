@@ -1,0 +1,10 @@
+{
+  "day_sigma": 0.06,
+  "calibration": 1.26,
+  "out_calibration": 0.9,
+  "era": "multiverse",
+  "fitted_at": "neutral",
+  "n": 3000,
+  "note": "fitted against ALL 2427 real innings 2008-2026, with each innings resolved to the era-tagged versions who actually played it -- the same mapping ml/etl/build_table.py uses to attribute the balls",
+  "shrink_balls": 500
+}

@@ -52,10 +52,19 @@ MULTIVERSE_ID = "multiverse"
 # glance.
 TAGS = {"2008_2013": "Genesis", "2014_2022": "The Shift", "2023_2026": "Modern Era"}
 
-# A version only earns a slot if he was a real presence in that era. Without
-# this the pool fills with three near-identical copies of every fringe player.
-MIN_BALLS = 150
-MIN_BOWL_BALLS = 200
+# EVERY version who took the field is emitted, and the `rateable_*` flags carried
+# over from each era decide who is draftable. These are two different questions
+# and conflating them costs real accuracy, exactly as ml/etl/era_players.py
+# documents for the single-era pools:
+#
+#   the model  wants every version, so each one's balls are attributed to his own
+#              row. A 150-ball cut sent 7.8% of lookups to the shared UNKNOWN row,
+#              blurring hundreds of fringe versions into one average -- against
+#              0.000% for every single-era table.
+#   the draft  wants only versions with enough balls for a trustworthy rating,
+#              which is what rateable_batting / rateable_bowling already say.
+MIN_BALLS = 1
+MIN_BOWL_BALLS = 1
 
 
 def build() -> list:
@@ -73,7 +82,7 @@ def build() -> list:
             bat_ok = (r.get("batting") or {}).get("balls", 0) >= MIN_BALLS
             bowl_ok = (r.get("bowling") or {}).get("legal_balls", 0) >= MIN_BOWL_BALLS
             if not (bat_ok or bowl_ok):
-                continue
+                continue          # never actually took the field in that era
             c = dict(r)
             c["name"] = f"{r['name']} ({tag})"
             c["real_name"] = r["name"]

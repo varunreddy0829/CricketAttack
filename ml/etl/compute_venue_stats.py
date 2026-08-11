@@ -121,7 +121,16 @@ if __name__ == "__main__":
     if args.eras:
         from ml.etl import eras as E
         artifacts = os.path.dirname(os.path.dirname(OUT_PATH))
-        for era in E.MODEL_ERAS:
+        # The multiverse is included even though it is not a MODEL_ERA in the
+        # training sense: it now has its own tagged model, whose ball table was
+        # built with venue aggregates over ALL THREE eras, so it needs matching
+        # all-era venue stats at serve time or train and serve disagree about
+        # what a ground scores.
+        targets = list(E.MODEL_ERAS)
+        mv = E.get(E.MULTIVERSE)
+        if mv not in targets:
+            targets.append(mv)
+        for era in targets:
             data = compute(season_min=era.first, season_max=era.last)
             d = os.path.join(artifacts, "artifacts", "eras", era.id)
             os.makedirs(d, exist_ok=True)
