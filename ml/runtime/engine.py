@@ -79,11 +79,16 @@ def resolve_engine(era_id: str | None = None):
         # Regress every player toward replacement level by how little we saw of
         # him. Records come from THIS era's pool, not the artifact era's, so a
         # multiverse player is judged against the field he actually shares.
+        # K is fitted PER ERA alongside the other constants, because it drives
+        # the all-out rate: it decides how weak a thinly-evidenced tail becomes.
+        # 2023-2026 needs 250 where the others take 500 -- at 500 its all-out
+        # rate ran to 17% against a real 11.3%.
         from ml.runtime.model import SHRINK_BALLS, SHRINK_TARGET
         from ml.runtime.players import load_players as _load_players
+        shrink_k = cal.get("shrink_balls", SHRINK_BALLS)
         try:
             model.shrink_target = SHRINK_TARGET
-            model.set_shrinkage(list(_load_players(era_id).values()), SHRINK_BALLS)
+            model.set_shrinkage(list(_load_players(era_id).values()), shrink_k)
         except Exception:
             pass          # a pool without stats plays unshrunk rather than not at all
 
@@ -114,7 +119,7 @@ def resolve_engine(era_id: str | None = None):
 
         desc = (f"learned model (calibration {cal['calibration']:.3f}, "
                 f"out {cal['out_calibration']:.3f}, day sigma {sigma:.3f}, "
-                f"shrink {SHRINK_BALLS}->{SHRINK_TARGET}, "
+                f"shrink {shrink_k:g}->{SHRINK_TARGET}, "
                 f"longevity {LONGEVITY_DIAL})")
         return ball_fn, enrich, desc
 

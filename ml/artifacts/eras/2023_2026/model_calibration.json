@@ -1,8 +1,10 @@
 {
-  "day_sigma": 0.1875,
-  "calibration": 1.20625,
-  "out_calibration": 1.05,
+  "day_sigma": 0.06,
+  "calibration": 1.02,
+  "out_calibration": 0.68,
   "era": "2023_2026",
   "fitted_at": "neutral",
-  "n": 2000
+  "n": 2000,
+  "shrink_balls": 250,
+  "note": "fitted jointly for the shrinkage+longevity engine: calibration, out_calibration, day_sigma and shrink_balls are searched together, because they trade against each other -- fewer wickets means more runs, and shrink_balls drives the all-out rate through how weak the tail gets"
 }

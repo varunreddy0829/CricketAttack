@@ -37,15 +37,22 @@ import os
 
 from ml.etl import eras as E
 from ml.runtime import longevity as L
+from ml.runtime.engine import load_calibration
 from ml.runtime.model import SHRINK_BALLS, SHRINK_TARGET
 from ml.train.derive_ovr import ERA_ROOT, to_ovr
+
+
+def _shrink_k(era):
+    """That era's own fitted K -- 2023-2026 takes 250 where the others take
+    500, because it drives the all-out rate and each era's tail differs."""
+    return load_calibration(era.id).get('shrink_balls', SHRINK_BALLS)
 
 
 def _rate_batting(era, reps):
     from ml.grid_rate import rate
     rows = rate(era, reps=reps, dial=L.LONGEVITY_DIAL,
                 volume_weight=L.VOLUME_WEIGHT, longevity_on=True, seed=11,
-                shrink=SHRINK_BALLS, target=SHRINK_TARGET)
+                shrink=_shrink_k(era), target=SHRINK_TARGET)
     return {r["name"]: r["expected"] for r in rows}
 
 
@@ -53,7 +60,7 @@ def _rate_bowling(era, reps):
     from ml.grid_rate_bowl import rate, wicket_value
     rows = rate(era, reps=reps, dial=L.LONGEVITY_DIAL,
                 volume_weight=L.VOLUME_WEIGHT, longevity_on=True, seed=11,
-                shrink=SHRINK_BALLS, target=SHRINK_TARGET)
+                shrink=_shrink_k(era), target=SHRINK_TARGET)
     wv = wicket_value(era)
     # negated: the metric is a COST, and the band must mean "bigger is better"
     return {r["name"]: -(r["runs"] - wv * r["wkts"]) for r in rows}
@@ -69,7 +76,7 @@ def main() -> None:
 
     era = E.get(args.era)
     print(f"\n{era.id}  {era.label}")
-    print(f"  engine settings: shrink {SHRINK_BALLS} -> {SHRINK_TARGET}, "
+    print(f"  engine settings: shrink {_shrink_k(era):g} -> {SHRINK_TARGET}, "
           f"longevity dial {L.LONGEVITY_DIAL}, W {L.VOLUME_WEIGHT}\n")
 
     print("[1/2] batting grid ...", flush=True)

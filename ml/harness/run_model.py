@@ -33,6 +33,7 @@ from ml.harness.simulate import RoleMix, run_batch
 from ml.harness.stats import summarize
 from ml.runtime.adapter import make_ball_fn
 from ml.runtime.longevity import LONGEVITY_DIAL, scores_for
+from ml.runtime.model import SHRINK_TARGET
 from ml.runtime.model import OutcomeModel
 
 
@@ -86,13 +87,20 @@ def main() -> None:
     ap.add_argument("--n", type=int, default=6000)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--neutral", action="store_true")
-    ap.add_argument("--calibration", type=float, default=1.0)
-    ap.add_argument("--out-calibration", type=float, default=1.0)
-    ap.add_argument("--day-sigma", type=float, default=0.0)
+    # All four constants default to the era's OWN fitted values, so a bare
+    # `run_model --era X` gates exactly the engine that ships. They used to
+    # default to 1.0/1.0/0.0, which silently certified a different engine.
+    ap.add_argument("--calibration", type=float, default=None)
+    ap.add_argument("--out-calibration", type=float, default=None)
+    # Default to the era's FITTED sigma, not 0. A gate run at zero variance
+    # certifies an engine nobody plays: with 2023-2026's stored 0.188 the
+    # innings spread came out at 43.6 against a real 37.1, which a zero-sigma
+    # run could never have shown.
+    ap.add_argument("--day-sigma", type=float, default=None)
     ap.add_argument("--cascade", action="store_true",
                     help="restore the wicket cascade for the model path (off by "
                          "default -- see the module docstring for why)")
-    ap.add_argument("--target", default="anchor",
+    ap.add_argument("--target", default=SHRINK_TARGET,
                     choices=("anchor", "mean", "zero", "replacement"))
     ap.add_argument("--shrink", type=float, default=0.0,
                     help="regress player effects by balls/(balls+K); 0 = off")
@@ -109,6 +117,16 @@ def main() -> None:
     if args.era:
         from ml.etl import eras as E
         era = E.get(args.era)
+    from ml.runtime.engine import load_calibration as _lc
+    _cal = _lc(era.id if era else None)
+    if args.day_sigma is None:
+        args.day_sigma = _cal["day_sigma"]
+    if args.calibration is None:
+        args.calibration = _cal["calibration"]
+    if args.out_calibration is None:
+        args.out_calibration = _cal["out_calibration"]
+    if args.shrink == 0.0:
+        args.shrink = _cal.get("shrink_balls", 0.0)
 
     mix = RoleMix.neutral() if args.neutral else RoleMix.realistic()
     label = "neutral" if args.neutral else "realistic"

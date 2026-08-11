@@ -48,13 +48,62 @@ MARQUEE_CUT = {
 }
 MID_FLOOR = 70
 
-def determine_tier(ovr, role="Batsman"):
+# Share of each role that lands in each tier when cuts are computed from the pool
+# (see role_cuts). Chosen to reproduce the shape the absolute cuts gave on
+# 2014-2022 -- 16% Marquee, 37% Mid-Level -- which is the pool they were tuned on.
+MARQUEE_SHARE, MID_SHARE = 0.18, 0.37
+
+
+def role_cuts(players, role_of=None, ovr_of=None):
+    """Per-role tier thresholds taken from THIS pool, as percentiles.
+
+    Absolute cuts do not survive a re-derived OVR scale or a change of era, and
+    they have now failed twice. Tuned on 2014-2022 they left 2008-2013 with ONE
+    marquee keeper and one mid-level spinner, and 2023-2026 with one marquee
+    all-rounder -- so an 8-team auction could only fill 117 of the 120 lots it
+    needed, and 104 in the modern era.
+
+    A percentile is immune to both: the top 18% of wicket-keepers are the marquee
+    keepers whatever the numbers happen to be that season, so every role fills
+    every tier and no set can come up empty. It also keeps the tiers meaning what
+    they say -- "marquee" is the top of that role, not an accident of where a
+    rescale put the band.
+
+    Returns {role: (marquee_cut, mid_cut)}; pass to determine_tier.
+    """
+    role_of = role_of or determine_role
+    by_role = {}
+    for p in players:
+        r = role_of(p)
+        v = (ovr_of or _role_ovr_key(r))(p)
+        by_role.setdefault(r, []).append(v)
+    cuts = {}
+    for r, vals in by_role.items():
+        vals.sort(reverse=True)
+        n = len(vals)
+        # at least one player per tier, however thin the role
+        m = vals[min(n - 1, max(0, int(MARQUEE_SHARE * n)))]
+        d = vals[min(n - 1, max(1, int((MARQUEE_SHARE + MID_SHARE) * n)))]
+        cuts[r] = (m, min(d, m))
+    return cuts
+
+
+def determine_tier(ovr, role="Batsman", cuts=None):
     """Tier for a player of `role` rated `ovr` on that role's own OVR key.
 
     Judged per role rather than on one global line: `Pacer`/`Spinner` are rated
     on bowling_ovr (see `_role_ovr_key`), which sits ~5 points below batting_ovr
     for equivalent quality, so they get a correspondingly lower Marquee cut.
+
+    `cuts` from role_cuts() derives the thresholds from the pool itself and is
+    what generate_draft_pool passes. The MARQUEE_CUT/MID_FLOOR constants remain
+    the fallback for callers with no pool in hand -- the diagnostics in
+    ml/check_ovr.py, and any direct call.
     """
+    if cuts and role in cuts:
+        marquee, mid = cuts[role]
+        if ovr >= marquee: return "Marquee"
+        return "Mid-Level" if ovr >= mid else "Group 3"
     if ovr >= MARQUEE_CUT.get(role, 85): return "Marquee"
     if ovr >= MID_FLOOR: return "Mid-Level"
     return "Group 3"
@@ -137,14 +186,16 @@ def generate_draft_pool(all_players, players_per_set=5, set_sizes=None):
         "Group 3": {"Batsman": [], "Pacer": [], "Spinner": [], "All-Rounder": [], "Wicket Keeper": []}
     }
 
+    cuts = role_cuts(all_players)
     for p in all_players:
         role = determine_role(p)
         # Rated on the role's own OVR key, so a pacer is tiered on his bowling
         # and a batsman on his batting -- not on whichever of the two is higher.
-        tier = determine_tier(_role_ovr_key(role)(p), role)
+        tier = determine_tier(_role_ovr_key(role)(p), role, cuts)
         buckets[tier][role].append(p)
 
     draft_sets = []
+    taken = set()          # every player already placed, so no set repeats one
     set_number = 1
     total_players_pulled = 0
     total_foreigners_pulled = 0
@@ -174,10 +225,37 @@ def generate_draft_pool(all_players, players_per_set=5, set_sizes=None):
             for p in candidates:
                 if len(selected_for_set) >= size:
                     break
+                if id(p) in taken:      # a thinner set already topped up with him
+                    continue
                 if p.get('is_foreigner', False):
                     total_foreigners_pulled += 1
                 selected_for_set.append(p)
                 total_players_pulled += 1
+                taken.add(id(p))
+
+            # A THIN ROLE TOPS UP FROM ITS OWN TIER rather than leaving lots
+            # unsold. Some roles are simply short in some eras: 2023-2026 spans
+            # three seasons, so only 25 players clear both the batting and the
+            # bowling cutoff against 56-61 in the longer eras, and its
+            # All-Rounder sets ran dry. An 8-team table could fill only 108 of
+            # the 120 lots it needed, and the auction refused to start.
+            #
+            # Topping up within the TIER keeps the thing that matters -- a
+            # Marquee lot is still a marquee player -- and only relaxes the role
+            # label, which is a presentation grouping rather than a rule. Nobody
+            # can appear twice: `taken` is global across every set.
+            if len(selected_for_set) < size:
+                spare = [p for r2 in roles if r2 != role
+                         for p in buckets[tier][r2] if id(p) not in taken]
+                spare = _balanced_order(spare, _role_ovr_key(role), size)
+                for p in spare:
+                    if len(selected_for_set) >= size:
+                        break
+                    if p.get('is_foreigner', False):
+                        total_foreigners_pulled += 1
+                    selected_for_set.append(p)
+                    total_players_pulled += 1
+                    taken.add(id(p))
 
             # Presentation order (the order players come up for bidding) is
             # shuffled independently of the balanced selection order above,
