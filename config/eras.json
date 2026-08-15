@@ -7,7 +7,7 @@
     {
       "id": "2008_2013",
       "label": "Genesis",
-      "tagline": "Low and slow. 7.4 an over, and a six is an event.",
+      "tagline": "Petrol ₹45 a litre, 7.84 an over. Both a bargain — and a six was still an event.",
       "seasons": [2008, 2013],
       "engine": "model",
       "min_bat_balls": 100,
@@ -16,7 +16,7 @@
     {
       "id": "2014_2022",
       "label": "The Shift",
-      "tagline": "Bats get bigger, boundaries get shorter, the rate creeps up.",
+      "tagline": "Petrol doubles past ₹90. The rate crawls to 8.36. Bats get bigger, so does the bill.",
       "seasons": [2014, 2022],
       "engine": "model",
       "min_bat_balls": 100,
@@ -25,7 +25,7 @@
     {
       "id": "2023_2026",
       "label": "Modern Era",
-      "tagline": "Nine an over. Everyone attacks from ball one.",
+      "tagline": "Petrol ₹95 and 9.51 an over. Runs are the last thing in India still going cheap.",
       "seasons": [2023, 2026],
       "engine": "model",
       "min_bat_balls": 100,
@@ -34,7 +34,7 @@
     {
       "id": "multiverse",
       "label": "Multiverse",
-      "tagline": "Every version of every player. Buy 2011 Gayle and 2024 Gayle, and play them together.",
+      "tagline": "2011 Gayle at ₹45 a litre meets 2024 Gayle at ₹95. Same man, very different economy.",
       "seasons": [2008, 2026],
       "engine": "model",
             "min_bat_balls": 100,
@@ -44,7 +44,7 @@
     {
       "id": "all_time",
       "label": "All-Time Legends",
-      "tagline": "Every player who ever played, rated on what they achieved.",
+      "tagline": "Nineteen years: the run rate up 21%, petrol up 111%. Everyone who ever played.",
       "seasons": [2008, 2026],
       "engine": "classic",
       "min_bat_balls": 0,
